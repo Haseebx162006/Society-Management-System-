@@ -1,125 +1,120 @@
-const User= require('../controllers/authcontroller')
-const becrypt= require('bcrypt')
-const token_generate= require('../util/token')
-exports.signup = async(req,res)=>{
+const User = require('../models/User')
+const becrypt = require('bcrypt')
+const token_generate = require('../util/token')
+exports.signup = async (req, res) => {
     try {
-        const{name, email , password}= req.body
+        const { name, email, password } = req.body
 
         // here i will do the validation of the data coming from the frontend
-        if(!name || typeof name !== "string"){
+        if (!name || typeof name !== "string") {
             return res.status(400).json({
-                msg:"Invalid name"
+                msg: "Invalid name"
             })
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 
-        if(!email || typeof email !== "string"){
+        if (!email || typeof email !== "string") {
             return res.status(400).json({
-                msg:"Invalid email"
+                msg: "Invalid email"
             })
         }
-        if(!emailRegex.test(email)){
+        if (!emailRegex.test(email)) {
             return res.status(400).json({
-                msg:"Invalid email"
+                msg: "Invalid email"
             })
         }
         // Now password will be verified
 
-        if(!password || typeof password !== "string"){
+        if (!password || typeof password !== "string") {
             return res.status(400).json({
-                msg:"Invalid password"
+                msg: "Invalid password"
             })
         }
-        if(password.length < 6){
+        if (password.length < 6) {
             return res.status(400).json({
-                msg:"Password must be at least 6 characters long"
+                msg: "Password must be at least 6 characters long"
             })
         }
 
-        const userFind= await User.findOne({email})
+        const userFind = await User.findOne({ email })
 
-        if(email){
+        if (userFind) {
             res.status(400).json({
-                msg:"User already exists with this email check another one"
+                msg: "User already exists with this email check another one"
             })
         }
 
-        const user = await User.create({name:name, email:email, password:password})
+        const user = await User.create({ name: name, email: email, password: password })
 
         return res.status(201).json({
-            msg:"User is created"
+            msg: "User is created"
         })
-            
+
     } catch (error) {
         res.status(500).json({
-            msg:"Error in the first try catch block of signup"
+            msg: "Error in the first try catch block of signup"
         })
     }
 }
 
-exports.login= async(req,res)=>{
+exports.login = async (req, res) => {
     try {
-        const {email, password} = req.body
-         if(!name || typeof name !== "string"){
-            return res.status(400).json({
-                msg:"Invalid name"
-            })
-        }
+        const { email, password } = req.body
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-        if(!email || typeof email !== "string"){
+        if (!email || typeof email !== "string") {
             return res.status(400).json({
-                msg:"Invalid email"
+                msg: "Invalid email"
             })
         }
-        if(!emailRegex.test(email)){
+        if (!emailRegex.test(email)) {
             return res.status(400).json({
-                msg:"Invalid email"
+                msg: "Invalid email"
             })
         }
         // Now password will be verified
 
-        if(!password || typeof password !== "string"){
+        if (!password || typeof password !== "string") {
             return res.status(400).json({
-                msg:"Invalid password"
+                msg: "Invalid password"
             })
         }
-        if(password.length < 6){
+        if (password.length < 6) {
             return res.status(400).json({
-                msg:"Password must be at least 6 characters long"
+                msg: "Password must be at least 6 characters long"
             })
         }
 
-        const finduser= await User.findOne({email})
+        const finduser = await User.findOne({ email })
 
-        if(!finduser){
+        if (!finduser) {
             return res.status(404).json({
-                msg:"User does not exist. Signup first and then login"
+                msg: "User does not exist. Signup first and then login"
             })
         }
-        if(!User.matchpassword(password)){
+        if (!await finduser.matchpassword(password)) {
             return res.status(400).json({
-                msg:"Invalid password"
+                msg: "Invalid password"
             })
         }
-        const token= token_generate(finduser._id)
-        if(!token){
+        const token = token_generate(finduser._id)
+        if (!token) {
             return res.status(500).json({
-                msg:"Error in generating the token"
+                msg: "Error in generating the token"
             })
         }
 
         return res.status(200).json({
-            msg:"User logged in successfully",
-            token:token
+            msg: "User logged in successfully",
+            token: token
         })
 
     } catch (error) {
         res.status(500).json({
-            msg:"Error in the try catch block of login"
+            msg: "Error in the try catch block of login"
         })
     }
 }

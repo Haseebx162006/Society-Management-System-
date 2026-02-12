@@ -57,4 +57,4 @@ userSchema.methods.matchpassword= async function (enterpassword) {
     return await bcrypt.compare(enterpassword,this.password)
 }
 
-module.exports= mongoose.Model("User",userSchema)
+module.exports= mongoose.model("User",userSchema)
