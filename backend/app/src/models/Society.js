@@ -11,11 +11,20 @@ const societySchema= mongoose.Schema({
     },
     status:{
         type:String,
-        enum:["ACTIVE","SUSPENDED","DELETED"]
+        enum:["ACTIVE","SUSPENDED","DELETED"],
+        default:"ACTIVE"
     },
     created_by:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User',
         required:true
+    },
+    created_at:{
+        type:Date,
+        default:Date.now(),
+    },
+    updated_at:{
+        type:Date,
+        default:Date.now()
     }
 })
