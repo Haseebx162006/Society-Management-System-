@@ -28,3 +28,4 @@ const societySchema= mongoose.Schema({
         default:Date.now()
     }
 })
+module.exports= mongoose.model("Society",societySchema)
