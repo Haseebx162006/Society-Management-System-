@@ -46,8 +46,7 @@ exports.signup = async(req,res)=>{
             })
         }
 
-        const hashed_password= await becrypt.hash(password)
-        const user = await User.create({name:name, email:email, password:hashed_password})
+        const user = await User.create({name:name, email:email, password:password})
 
         return res.status(201).json({
             msg:"User is created"
@@ -101,9 +100,22 @@ exports.login= async(req,res)=>{
                 msg:"User does not exist. Signup first and then login"
             })
         }
-        const password_match= 
+        if(!User.matchpassword(password)){
+            return res.status(400).json({
+                msg:"Invalid password"
+            })
+        }
+        const token= token_generate(finduser._id)
+        if(!token){
+            return res.status(500).json({
+                msg:"Error in generating the token"
+            })
+        }
 
-
+        return res.status(200).json({
+            msg:"User logged in successfully",
+            token:token
+        })
 
     } catch (error) {
         res.status(500).json({
