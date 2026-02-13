@@ -35,6 +35,10 @@ const societyUserRolesSchema= mongoose.Schema({
     assigned_at:{
         type:Date,
         default:Date.now()
+    },
+    updated_at:{
+        type:Date,
+        default:Date.now()
     }
     
 })
