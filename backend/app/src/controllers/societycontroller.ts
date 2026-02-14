@@ -4,11 +4,13 @@ import Society from '../models/Society';
 import SocietyRequest from '../models/SocietyRequest';
 import SocietyUserRole from '../models/SocietyUserRole';
 import User from '../models/User';
+import { isPresident } from '../util/roleUtils';
+import mongoose from 'mongoose';
 
 
 export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
     try {
-        const { society_name } = req.body;
+        const { society_name, description } = req.body;
 
         if (!society_name || typeof society_name !== "string") {
             return res.status(400).json({ msg: "Society name is required" });
@@ -31,7 +33,8 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
 
         const societyRequest = await SocietyRequest.create({
             user_id: req.user!._id,
-            society_name
+            society_name,
+            description
         });
 
         return res.status(201).json({
@@ -284,6 +287,7 @@ export const updateMemberRole = async (req: AuthRequest, res: Response) => {
 };
 
 
+
 export const removeMember = async (req: AuthRequest, res: Response) => {
     try {
         const { id: society_id, userId: user_id } = req.params;
@@ -300,5 +304,189 @@ export const removeMember = async (req: AuthRequest, res: Response) => {
     } catch (error: any) {
         console.error("Error in removeMember:", error.message);
         return res.status(500).json({ msg: "Internal server error while removing member" });
+    }
+};
+
+export const updateSociety = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { name, description } = req.body;
+
+        const society = await Society.findById(id);
+        if (!society) {
+            return res.status(404).json({ msg: "Society not found" });
+        }
+
+        // Only President can update society info
+        if (!await isPresident(req.user!._id, id as string)) {
+            return res.status(403).json({ msg: "Only the Society President can update society details" });
+        }
+
+        if (name) {
+             const existing = await Society.findOne({ name, _id: { $ne: new mongoose.Types.ObjectId(id as string) } });
+             if (existing) {
+                 return res.status(400).json({ msg: "Society name already taken" });
+             }
+             society.name = name;
+        }
+        if (description) society.description = description;
+
+        society.updated_at = new Date();
+        await society.save();
+
+        return res.status(200).json({
+            msg: "Society updated successfully",
+            data: society
+        });
+
+    } catch (error: any) {
+        console.error("Error in updateSociety:", error.message);
+        return res.status(500).json({ msg: "Internal server error" });
+    }
+};
+
+export const changePresident = async (req: AuthRequest, res: Response) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+        const { id: society_id } = req.params;
+        const { new_president_id } = req.body;
+
+        if (!new_president_id) {
+             return res.status(400).json({ msg: "New president ID is required" });
+        }
+
+        const society = await Society.findById(society_id).session(session);
+        if (!society) {
+            await session.abortTransaction();
+            return res.status(404).json({ msg: "Society not found" });
+        }
+
+        // Verify new president exists
+        const newPresidentUser = await User.findById(new_president_id).session(session);
+        if (!newPresidentUser) {
+            await session.abortTransaction();
+            return res.status(404).json({ msg: "New president user not found" });
+        }
+
+        // Check if new president is ALREADY a member
+        let newPresidentRole = await SocietyUserRole.findOne({
+            user_id: new_president_id,
+            society_id
+        }).session(session);
+
+        // Find current president role
+        const currentPresidentRole = await SocietyUserRole.findOne({
+            society_id,
+            role: "PRESIDENT"
+        }).session(session);
+
+        if (currentPresidentRole) {
+            // Demote current president to MEMBER
+            currentPresidentRole.role = "MEMBER";
+            currentPresidentRole.updated_at = new Date();
+            await currentPresidentRole.save({ session });
+        }
+
+        if (newPresidentRole) {
+            // Update existing role to PRESIDENT
+            newPresidentRole.role = "PRESIDENT";
+            newPresidentRole.updated_at = new Date();
+            await newPresidentRole.save({ session });
+        } else {
+            // Create new role
+            await SocietyUserRole.create([{
+                name: newPresidentUser.name,
+                user_id: new_president_id,
+                society_id,
+                role: "PRESIDENT",
+                assigned_by: req.user!._id,
+                assigned_at: new Date()
+            }], { session });
+        }
+
+        await session.commitTransaction();
+
+        return res.status(200).json({
+            msg: "President changed successfully"
+        });
+
+    } catch (error: any) {
+        await session.abortTransaction();
+        console.error("Error in changePresident:", error.message);
+        return res.status(500).json({ msg: "Internal server error" });
+    } finally {
+        session.endSession();
+    }
+};
+
+export const suspendSociety = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { reason } = req.body; // Unused for now but kept for compatibility
+
+        const society = await Society.findById(id);
+        if (!society) return res.status(404).json({ msg: "Society not found" });
+
+        if (society.status === "SUSPENDED") return res.status(400).json({ msg: "Society is already suspended" });
+
+        society.status = "SUSPENDED";
+        society.updated_at = new Date();
+        await society.save();
+
+        return res.status(200).json({ msg: "Society suspended successfully", data: society });
+
+    } catch (error: any) {
+        console.error("Error in suspendSociety:", error.message);
+        return res.status(500).json({ msg: "Internal server error" });
+    }
+};
+
+export const reactivateSociety = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        const society = await Society.findById(id);
+        if (!society) return res.status(404).json({ msg: "Society not found" });
+
+        if (society.status === "ACTIVE") return res.status(400).json({ msg: "Society is already active" });
+
+        society.status = "ACTIVE";
+        society.updated_at = new Date();
+        await society.save();
+
+        return res.status(200).json({ msg: "Society reactivated successfully", data: society });
+
+    } catch (error: any) {
+        console.error("Error in reactivateSociety:", error.message);
+        return res.status(500).json({ msg: "Internal server error" });
+    }
+};
+
+export const deleteSociety = async (req: AuthRequest, res: Response) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+        const { id } = req.params;
+
+        const society = await Society.findById(id).session(session);
+        if (!society) {
+            await session.abortTransaction();
+            return res.status(404).json({ msg: "Society not found" });
+        }
+
+        society.status = "DELETED";
+        society.updated_at = new Date();
+        await society.save({ session });
+
+        await session.commitTransaction();
+        return res.status(200).json({ msg: "Society deleted successfully" });
+
+    } catch (error: any) {
+        await session.abortTransaction();
+        console.error("Error in deleteSociety:", error.message);
+        return res.status(500).json({ msg: "Internal server error" });
+    } finally {
+        session.endSession();
     }
 };
