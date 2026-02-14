@@ -7,6 +7,8 @@ export const metadata: Metadata = {
     "The unified digital platform for COMSATS University societies. Discover, join, and lead communities that shape your campus experience.",
 };
 
+import StoreProvider from "./StoreProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,7 +24,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <StoreProvider>{children}</StoreProvider>
+      </body>
     </html>
   );
 }
