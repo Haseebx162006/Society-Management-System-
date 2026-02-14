@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import auth_routes from './src/routes/authroutes';
+import society_routes from './src/routes/societyRoutes';
 
 const app = express();
 
@@ -11,5 +12,6 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use('/api/auth', auth_routes);
+app.use('/api/society', society_routes);
 
 export default app;

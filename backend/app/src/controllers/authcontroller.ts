@@ -13,14 +13,9 @@ export const signup = async (req: Request, res: Response) => {
             });
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+$/;
+        
 
         if (!email || typeof email !== "string") {
-            return res.status(400).json({
-                msg: "Invalid email"
-            });
-        }
-        if (!emailRegex.test(email)) {
             return res.status(400).json({
                 msg: "Invalid email"
             });
