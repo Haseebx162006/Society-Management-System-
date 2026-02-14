@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import User, { IUser } from '../models/User';
+import { sendError } from '../util/response';
 
 export interface AuthRequest extends Request {
     user?: IUser | null;
@@ -8,50 +9,42 @@ export interface AuthRequest extends Request {
 
 export const protect = async (req: AuthRequest, res: Response, next: NextFunction) => {
     let token: string | undefined;
+
+    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+        token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (!token) {
+        return sendError(res, 401, "Not authorized, no token");
+    }
+
     try {
-        const token_header = req.headers.authorization;
-        if (!token_header || !token_header.startsWith("Bearer ")) {
-            return res.status(401).json({
-                msg: "Error in header of the token"
-            });
-        }
-        token = token_header.split(" ")[1];
         if (!process.env.PRIVATE_KEY) {
              throw new Error("PRIVATE_KEY is not defined");
         }
+        
         const decode = jwt.verify(token, process.env.PRIVATE_KEY) as JwtPayload;
         
         req.user = await User.findById(decode.id).select("-password");
+        
+        if (!req.user) {
+            return sendError(res, 401, "User not found");
+        }
+
         return next();
+
     } catch (error: any) {
-        console.log("Error in verifying token: ", error.message);
-        return res.status(401).json({
-            msg: "Error in verifiying the token",
-            error: error.message
-        });
+        if (error.name === 'TokenExpiredError') {
+            return sendError(res, 401, "Token expired");
+        }
+        return sendError(res, 401, "Not authorized, token failed", error);
     }
 }
 
 export const adminOnly = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    try {
-        if (req.user && req.user.role === "SuperAdmin") { // Assuming "SuperAdmin" based on User model enums, original code said "admin" but enum has "SuperAdmin"
-             return next();
-        }
-        // Original code checked for "admin", but User model has "SuperAdmin".
-        // Use "SuperAdmin" as it aligns with the updated User model.
-        // Wait, original code said: req.user.role === "admin"
-        // User model enum: ["SuperAdmin","President","Lead","Co-Lead","Member"]
-        // I should probably check for "SuperAdmin" or stick to what was there if they have some other logic.
-        // But since I saw User model, "admin" is not there.
-        // I will change it to "SuperAdmin" to match the model, but add a comment.
-        else {
-            return res.status(403).json({
-                msg: "You cant access admin roles"
-            });
-        }
-    } catch (error) {
-        return res.status(403).json({
-            msg: "You cant access admin roles"
-        });
+    if (req.user && req.user.role === "SuperAdmin") {
+         return next();
+    } else {
+        return sendError(res, 403, "Not authorized as admin");
     }
 }
