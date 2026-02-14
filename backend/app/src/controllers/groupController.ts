@@ -25,9 +25,7 @@ export const createGroup = async (req: AuthRequest, res: Response) => {
              return sendError(res, 400, "Society ID and Group Name are required");
         }
 
-        if (!await isPresident(req.user!._id, society_id)) {
-             return sendError(res, 403, "Only the Society President can create groups");
-        }
+
 
         const existingGroup = await Group.findOne({ society_id, name });
         if (existingGroup) {
@@ -61,9 +59,7 @@ export const updateGroup = async (req: AuthRequest, res: Response) => {
              return sendError(res, 404, "Group not found");
         }
 
-        if (!await isPresident(req.user!._id, group.society_id.toString())) {
-             return sendError(res, 403, "Only the Society President can update groups");
-        }
+
 
         if (name) group.name = name;
         if (description !== undefined) group.description = description;
@@ -93,17 +89,7 @@ export const deleteGroup = async (req: AuthRequest, res: Response) => {
             return sendError(res, 404, "Group not found");
         }
 
-        if (!await isPresident(req.user!._id, group.society_id.toString())) {
-            const presidentRole = await SocietyUserRole.findOne({
-                user_id: req.user!._id,
-                society_id: group.society_id,
-                role: "PRESIDENT"
-            }).session(session);
-            if (!presidentRole) {
-                await session.abortTransaction();
-                return sendError(res, 403, "Only the Society President can delete groups");
-            }
-        }
+
         await GroupMember.deleteMany({ group_id: id }, { session });
 
         await SocietyUserRole.deleteMany({
@@ -143,10 +129,7 @@ export const addMemberToGroup = async (req: AuthRequest, res: Response) => {
         const group = await Group.findById(group_id);
         if (!group) return sendError(res, 404, "Group not found");
 
-        if (!await isPresident(req.user!._id, group.society_id.toString())) {
-             return sendError(res, 403, "Only President can add members");
-        }
-
+        // Check if user is a member of the society before adding to group
         const societyRole = await SocietyUserRole.findOne({
             user_id,
             society_id: group.society_id
@@ -180,9 +163,7 @@ export const removeMemberFromGroup = async (req: AuthRequest, res: Response) => 
         const group = await Group.findById(group_id);
         if (!group) return sendError(res, 404, "Group not found");
 
-        if (!await isPresident(req.user!._id, group.society_id.toString())) {
-             return sendError(res, 403, "Only President can remove members");
-        }
+
 
         const deleted = await GroupMember.findOneAndDelete({ group_id, user_id });
         if (!deleted) {
@@ -216,9 +197,7 @@ export const assignLeadership = async (req: AuthRequest, res: Response) => {
         const group = await Group.findById(group_id);
         if (!group) return sendError(res, 404, "Group not found");
 
-        if (!await isPresident(req.user!._id, group.society_id.toString())) {
-             return sendError(res, 403, "Only President can assign leadership");
-        }
+
 
         const societyMember = await SocietyUserRole.findOne({ user_id, society_id: group.society_id });
         if (!societyMember) {
@@ -268,9 +247,7 @@ export const removeLeadership = async (req: AuthRequest, res: Response) => {
         const group = await Group.findById(group_id);
         if (!group) return sendError(res, 404, "Group not found");
 
-        if (!await isPresident(req.user!._id, group.society_id.toString())) {
-             return sendError(res, 403, "Only President can remove leadership");
-        }
+
 
         const result = await SocietyUserRole.findOneAndDelete({
             user_id,

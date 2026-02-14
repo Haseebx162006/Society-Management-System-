@@ -282,10 +282,7 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
              return sendError(res, 404, "Society not found");
         }
 
-        // Only President can update society info
-        if (!await isPresident(req.user!._id, id as string)) {
-             return sendError(res, 403, "Only the Society President can update society details");
-        }
+
 
         if (name) {
              const existing = await Society.findOne({ name, _id: { $ne: new mongoose.Types.ObjectId(id as string) } });

@@ -1,5 +1,6 @@
 import express from 'express';
 import { protect, adminOnly } from '../middleware/authmiddleware';
+import { authorize } from '../middleware/authorize';
 import {
     createSocietyRequest,
     getAllSocietyRequests,
@@ -26,7 +27,7 @@ router.put('/requests/:id', protect, adminOnly, updateSocietyRequestStatus);
 // ─── Society CRUD Routes ─────────────────────────────────────────────────────
 router.get('/', protect, getAllSocieties);
 router.get('/:id', protect, getSocietyById);
-router.put('/:id', protect, updateSociety); // President check is inside controller
+router.put('/:id', protect, authorize(['PRESIDENT'], 'SOCIETY'), updateSociety);
 router.delete('/:id', protect, adminOnly, deleteSociety);
 
 // ─── Society Admin Actions ───────────────────────────────────────────────────
@@ -35,8 +36,8 @@ router.post('/:id/suspend', protect, adminOnly, suspendSociety);
 router.post('/:id/reactivate', protect, adminOnly, reactivateSociety);
 
 // ─── Member Management Routes ────────────────────────────────────────────────
-router.post('/:id/members', protect, adminOnly, addMember);
-router.put('/:id/members/:userId', protect, adminOnly, updateMemberRole);
-router.delete('/:id/members/:userId', protect, adminOnly, removeMember);
+router.post('/:id/members', protect, authorize(['PRESIDENT'], 'SOCIETY'), addMember);
+router.put('/:id/members/:userId', protect, authorize(['PRESIDENT'], 'SOCIETY'), updateMemberRole);
+router.delete('/:id/members/:userId', protect, authorize(['PRESIDENT'], 'SOCIETY'), removeMember);
 
 export default router;
