@@ -12,7 +12,7 @@ exports.signup = async (req, res) => {
             })
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        const emailRegex = /^[^\s@]+@[^\s@]+$/
 
 
         if (!email || typeof email !== "string") {
@@ -63,7 +63,7 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        const emailRegex = /^[^\s@]+@[^\s@]+$/
 
         if (!email || typeof email !== "string") {
             return res.status(400).json({

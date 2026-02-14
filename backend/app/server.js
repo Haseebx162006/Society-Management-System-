@@ -1,7 +1,7 @@
 // doing this import env constants in system
 require("dotenv").config()
 const app= require('./app')
-const db= require('./db')
+const db= require('./src/db/db')
 
 db()
 
@@ -10,4 +10,4 @@ app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
 })
 
-//testing github
+
