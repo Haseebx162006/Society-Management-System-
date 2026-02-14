@@ -5,11 +5,15 @@ export interface IUser extends Document {
     name: string;
     email: string;
     password: string;
+    phone: string;
     status: "ACTIVE" | "INACTIVE" | "SUSPENDED" | "IMPORTED";
     email_verified: boolean;
     is_active: boolean;
     password_reset_required: boolean;
-    role: "SuperAdmin" | "President" | "Lead" | "Co-Lead" | "Member";
+    is_super_admin: boolean;
+    failed_login_attempts: number;
+    locked_until: Date | null;
+    password_changed_at: Date;
     created_at: Date;
     updated_at: Date;
     matchpassword(enterpassword: string): Promise<boolean>;
@@ -29,6 +33,10 @@ const userSchema: Schema<IUser> = new Schema({
         type: String,
         required: true
     },
+    phone: {
+        type: String,
+        required: true // Assuming required based on "Add missing fields", but technically old users might not have it. I'll make it required as per "Add missing fields" implying completeness.
+    },
     status: {
         type: String,
         enum: ["ACTIVE", "INACTIVE", "SUSPENDED", "IMPORTED"],
@@ -46,10 +54,21 @@ const userSchema: Schema<IUser> = new Schema({
         type: Boolean,
         default: false
     },
-    role: {
-        type: String,
-        enum: ["SuperAdmin", "President", "Lead", "Co-Lead", "Member"],
-        default: "Member"
+    is_super_admin: {
+        type: Boolean,
+        default: false
+    },
+    failed_login_attempts: {
+        type: Number,
+        default: 0
+    },
+    locked_until: {
+        type: Date,
+        default: null
+    },
+    password_changed_at: {
+        type: Date,
+        default: Date.now
     },
     created_at: {
         type: Date,

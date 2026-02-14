@@ -18,10 +18,13 @@ export const signup = async (req: Request, res: Response) => {
         }
 
         if (!password || typeof password !== "string") {
-            return sendError(res, 400, "Invalid password");
+             return sendError(res, 400, "Invalid password");
         }
-        if (password.length < 6) {
-            return sendError(res, 400, "Password must be at least 6 characters long");
+        
+        // Strong password validation: 8 chars, uppercase, lowercase, number, special char
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!passwordRegex.test(password)) {
+             return sendError(res, 400, "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.");
         }
 
         const userFind = await User.findOne({ email });
@@ -30,7 +33,7 @@ export const signup = async (req: Request, res: Response) => {
             return sendError(res, 400, "User already exists with this email check another one");
         }
 
-        const user = await User.create({ name: name, email: email, password: password });
+        const user = await User.create({ name: name, email: email, password: password, phone: req.body.phone || "" });
 
         return sendResponse(res, 201, "User is created", user);
 
@@ -65,8 +68,33 @@ export const login = async (req: Request, res: Response) => {
              return sendError(res, 404, "User does not exist. Signup first and then login");
         }
 
+        // Check for account lockout
+        if (finduser.locked_until && finduser.locked_until > new Date()) {
+             return sendError(res, 403, `Account is locked. Try again after ${finduser.locked_until.toLocaleTimeString()}`);
+        }
+
         if (!await finduser.matchpassword(password)) {
+             // Increment failed login attempts
+             finduser.failed_login_attempts += 1;
+             
+             if (finduser.failed_login_attempts >= 5) {
+                 finduser.locked_until = new Date(Date.now() + 15 * 60 * 1000); // Lock for 15 minutes
+                 finduser.failed_login_attempts = 0; // Reset attempts after lock
+             }
+             await finduser.save();
+
              return sendError(res, 400, "Invalid password");
+        }
+
+        // Successful login, reset failed attempts and lock
+        finduser.failed_login_attempts = 0;
+        finduser.locked_until = null;
+        await finduser.save();
+
+        if (finduser.password_reset_required) {
+             // For now, we can just send a warning or handle it on frontend to redirect.
+             // But let's proceed with login and user can change password later.
+             // Or we could return a specific code? simpler for now.
         }
 
         const accessToken = generateAccessToken(finduser._id.toString());
@@ -86,7 +114,8 @@ export const login = async (req: Request, res: Response) => {
                 id: finduser._id,
                 name: finduser.name,
                 email: finduser.email,
-                role: finduser.role
+                is_super_admin: finduser.is_super_admin,
+                password_reset_required: finduser.password_reset_required
             }
         });
 

@@ -42,7 +42,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
 }
 
 export const adminOnly = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    if (req.user && req.user.role === "SuperAdmin") {
+    if (req.user && req.user.is_super_admin) {
          return next();
     } else {
         return sendError(res, 403, "Not authorized as admin");

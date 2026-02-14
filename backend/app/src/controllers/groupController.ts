@@ -288,3 +288,48 @@ export const removeLeadership = async (req: AuthRequest, res: Response) => {
         return sendError(res, 500, "Internal server error", error);
     }
 };
+
+export const getGroupById = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        const group = await Group.findById(id).populate("created_by", "name email");
+        if (!group) {
+             return sendError(res, 404, "Group not found");
+        }
+
+        // Fetch members including leads
+        const members = await GroupMember.find({ group_id: id }).populate("user_id", "name email");
+        const leadership = await SocietyUserRole.find({
+            group_id: id,
+            role: { $in: ["LEAD", "CO-LEAD"] }
+        }).populate("user_id", "name email");
+
+        return sendResponse(res, 200, "Group details fetched successfully", {
+            group,
+            members,
+            leadership
+        });
+
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error", error);
+    }
+};
+
+export const getGroupMembers = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id: group_id } = req.params;
+
+        const group = await Group.findById(group_id);
+        if (!group) {
+             return sendError(res, 404, "Group not found");
+        }
+
+        const members = await GroupMember.find({ group_id }).populate("user_id", "name email");
+
+        return sendResponse(res, 200, "Group members fetched successfully", members);
+
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error", error);
+    }
+};

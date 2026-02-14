@@ -8,7 +8,9 @@ import {
     addMemberToGroup,
     removeMemberFromGroup,
     assignLeadership,
-    removeLeadership
+    removeLeadership,
+    getGroupById,
+    getGroupMembers
 } from '../controllers/groupController';
 
 const router = express.Router();
@@ -18,6 +20,9 @@ router.post('/', protect, createGroup);
 router.get('/society/:society_id', protect, getGroupsInSociety);
 router.put('/:id', protect, updateGroup);
 router.delete('/:id', protect, deleteGroup);
+
+router.get('/:id', protect, getGroupById);
+router.get('/:id/members', protect, getGroupMembers);
 
 // Membership
 router.post('/:id/members', protect, addMemberToGroup);
