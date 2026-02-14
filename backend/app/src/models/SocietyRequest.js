@@ -9,7 +9,7 @@ const societyRequestSchema= mongoose.Schema({
     society_name:{
         type:String,
         required:true,
-        unqiue:true
+        unique:true
     },
     status:{
         type:String,
@@ -20,11 +20,15 @@ const societyRequestSchema= mongoose.Schema({
         type:String,
 
     },
-    created_at: {
+    created_at: { 
+        type:Date,
+        default:Date.now()
+    },
+    updated_at: { 
         type:Date,
         default:Date.now()
     }
 
 })
 
-module.exports= mongoose.model("SocietyRequest",societyRequestSchema)
+module.exports= mongoose.model("SocietyRequest",societyRequestSchema )
