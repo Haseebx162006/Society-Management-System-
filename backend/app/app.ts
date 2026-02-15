@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import auth_routes from './src/routes/authroutes';
+import user_routes from './src/routes/userRoutes';
 import society_routes from './src/routes/societyRoutes';
 import group_routes from './src/routes/groupRoutes';
 import join_routes from './src/routes/joinRoutes';
@@ -33,6 +34,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.use('/api/auth', auth_routes);
+app.use('/api/user', user_routes);
 app.use('/api/society', society_routes);
 app.use('/api/groups', group_routes);
 app.use('/api', join_routes);

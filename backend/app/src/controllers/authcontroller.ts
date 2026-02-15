@@ -115,7 +115,9 @@ export const login = async (req: Request, res: Response) => {
                 name: finduser.name,
                 email: finduser.email,
                 is_super_admin: finduser.is_super_admin,
-                password_reset_required: finduser.password_reset_required
+                password_reset_required: finduser.password_reset_required,
+                status: finduser.status,
+                locked_until: finduser.locked_until
             }
         });
 
@@ -146,8 +148,10 @@ export const refresh = async (req: Request, res: Response) => {
             return sendError(res, 403, "User not found associated with this token");
         }
 
+        const user = tokenDoc.user as any;
+
         // Generate new access token
-        const accessToken = generateAccessToken((tokenDoc.user as any)._id.toString());
+        const accessToken = generateAccessToken(user._id.toString());
 
         const newRefreshTokenStr = generateRefreshToken();
 
@@ -165,7 +169,16 @@ export const refresh = async (req: Request, res: Response) => {
 
         return sendResponse(res, 200, "Token refreshed successfully", {
             accessToken,
-            refreshToken: newRefreshTokenStr
+            refreshToken: newRefreshTokenStr,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                is_super_admin: user.is_super_admin,
+                password_reset_required: user.password_reset_required,
+                status: user.status,
+                locked_until: user.locked_until
+            }
         });
 
     } catch (error: any) {

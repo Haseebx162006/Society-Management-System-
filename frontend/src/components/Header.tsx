@@ -4,13 +4,32 @@ import Link from "next/link";
 import { useState } from "react";
 import SignupModal from "./SignupModal";
 import LoginModal from "./LoginModal";
-import { useAppSelector } from "../lib/hooks";
-import { selectCurrentUser } from "../lib/features/auth/authSlice";
+import { useAppSelector, useAppDispatch } from "../lib/hooks";
+import { selectCurrentUser, selectRefreshToken, logOut } from "../lib/features/auth/authSlice";
+import { useLogoutMutation } from "../lib/features/auth/authApiSlice";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const user = useAppSelector(selectCurrentUser);
+  const refreshToken = useAppSelector(selectRefreshToken);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const [logout] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    try {
+      if (refreshToken) {
+        await logout({ refreshToken }).unwrap();
+      }
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      dispatch(logOut());
+      router.push("/");
+    }
+  };
 
   return (
     <>
@@ -21,9 +40,11 @@ export default function Header() {
           </Link>
           <div className="flex items-center gap-4">
             {user ? (
-              <Link href="/profile" className="text-sm font-medium text-gray-900 hover:text-blue-600">
-                {user.name || "Profile"}
-              </Link>
+              <div className="flex items-center gap-4">
+                <Link href="/profile" className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600 font-semibold hover:bg-blue-200 transition-colors border border-blue-200 shadow-sm" title="Go to Profile">
+                  {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+                </Link>
+              </div>
             ) : (
               <>
                 <button
