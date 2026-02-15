@@ -107,14 +107,21 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
             created_by: societyRequest.user_id
         });
 
+        // Fetch user data to get the name
+        const requestUser = await User.findById(societyRequest.user_id);
+
+        console.log(`Creating President role for user ${societyRequest.user_id} in society ${newSociety._id}`);
+
         // Assign the requester as PRESIDENT of the new society
-        await SocietyUserRole.create({
-            name: societyRequest.society_name,
+        const newRole = await SocietyUserRole.create({
+            name: requestUser?.name || societyRequest.society_name,
             user_id: societyRequest.user_id,
             society_id: newSociety._id,
             role: "PRESIDENT",
             assigned_by: req.user!._id
         });
+
+        console.log("Role created:", newRole);
 
         societyRequest.status = "APPROVED";
         await societyRequest.save();

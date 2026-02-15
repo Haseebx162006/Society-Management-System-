@@ -31,10 +31,12 @@ export const userApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getMySocieties: builder.query<SocietyRole[], void>({
             query: () => '/user/societies',
+            transformResponse: (response: { success: boolean; message: string; data: SocietyRole[] }) => response.data,
             providesTags: ['User'],
         }),
         getMyRequests: builder.query<SocietyRequest[], void>({
             query: () => '/user/requests',
+            transformResponse: (response: { success: boolean; message: string; data: SocietyRequest[] }) => response.data,
             providesTags: ['User'],
         }),
         updateProfile: builder.mutation<User, { name?: string; phone?: string }>({

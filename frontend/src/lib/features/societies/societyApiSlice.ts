@@ -12,8 +12,30 @@ export const societyApiSlice = apiSlice.injectEndpoints({
     }),
     getAllSocieties: builder.query({
         query: () => "/society",
+        transformResponse: (response: { data: any }) => response.data,
+    }),
+    getSocietyRequests: builder.query({
+      query: (status) => ({
+        url: "/society/requests",
+        params: status ? { status } : undefined,
+      }),
+      providesTags: ["SocietyRequest"],
+      transformResponse: (response: { data: any }) => response.data,
+    }),
+    updateSocietyRequestStatus: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/society/requests/${id}`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["SocietyRequest", "User"],
     }),
   }),
 });
 
-export const { useCreateSocietyRequestMutation, useGetAllSocietiesQuery } = societyApiSlice;
+export const {
+  useCreateSocietyRequestMutation,
+  useGetAllSocietiesQuery,
+  useGetSocietyRequestsQuery,
+  useUpdateSocietyRequestStatusMutation,
+} = societyApiSlice;

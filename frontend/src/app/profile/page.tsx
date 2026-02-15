@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "../../lib/hooks";
 import {
   selectCurrentUser,
@@ -8,13 +8,15 @@ import {
   logOut,
 } from "../../lib/features/auth/authSlice";
 import { useLogoutMutation } from "../../lib/features/auth/authApiSlice";
+import { useGetMySocietiesQuery } from "../../lib/features/user/userApiSlice";
 import { useRouter } from "next/navigation";
 import Header from "../../components/Header";
 import MyAccount from "../../components/profile/MyAccount";
 import ChangePassword from "../../components/profile/ChangePassword";
 import EnrolledSocieties from "../../components/profile/EnrolledSocieties";
+import SocietyRegistration from "../../components/profile/SocietyRegistration";
 
-type Tab = "account" | "password" | "societies";
+type Tab = "account" | "password" | "societies" | "registration";
 
 const SIDEBAR_ITEMS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -54,6 +56,60 @@ export default function ProfilePage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const [logoutApi] = useLogoutMutation();
+  const { data: societies } = useGetMySocietiesQuery();
+
+  const roleBasedItems = useMemo(() => {
+    const items = [];
+
+    // Super Admin - Dashboard
+    if (user?.is_super_admin) {
+      items.push({
+        key: "admin-dashboard",
+        label: "Admin Dashboard",
+        icon: (
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" />
+          </svg>
+        ),
+        action: () => router.push("/admin/dashboard"),
+      });
+    }
+
+    // President - Society Dashboard
+    // Check if user is president of ANY society
+    const isPresident = societies?.some((s) => s.role === "PRESIDENT");
+    if (isPresident) {
+      items.push({
+        key: "society-dashboard",
+        label: "Society Dashboard",
+        icon: (
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+          </svg>
+        ),
+        action: () => router.push("/society/dashboard"),
+      });
+    }
+
+    // Member - Request Society Registration
+    // Show for everyone (or non-admins?) - "if member" usually implies standard user.
+    // Let's show it for everyone who isn't a super admin, to allow them to create societies.
+    if (!user?.is_super_admin) {
+      items.push({
+        key: "request-registration",
+        label: "Request Society Registration",
+        icon: (
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        ),
+        action: () => setActiveTab("registration"),
+      });
+    }
+
+    return items;
+  }, [user, societies, router]);
 
   useEffect(() => {
     if (!user) {
@@ -84,6 +140,8 @@ export default function ProfilePage() {
         return <ChangePassword />;
       case "societies":
         return <EnrolledSocieties />;
+      case "registration":
+        return <SocietyRegistration />;
     }
   };
 
@@ -147,6 +205,22 @@ export default function ProfilePage() {
                     {item.label}
                   </button>
                 ))}
+
+                {roleBasedItems.length > 0 && <div className="border-t border-gray-100 my-2 pt-2" />}
+
+                {roleBasedItems.map((item) => (
+                  <button
+                    key={item.key}
+                    onClick={() => {
+                        item.action();
+                        setMobileSidebarOpen(false);
+                    }}
+                    className="flex items-center gap-3 w-full px-5 py-3 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                  >
+                    {item.icon}
+                    {item.label}
+                  </button>
+                ))}
                 <div className="border-t border-gray-100 mt-2 pt-2">
                   <button
                     onClick={handleLogout}
@@ -191,6 +265,19 @@ export default function ProfilePage() {
                           ? "text-blue-600 bg-blue-50/80"
                           : "text-gray-500 hover:text-gray-900 hover:bg-gray-50/80"
                       }`}
+                    >
+                      {item.icon}
+                      {item.label}
+                    </button>
+                  ))}
+
+                  {roleBasedItems.length > 0 && <div className="border-t border-gray-100/80 my-2" />}
+
+                  {roleBasedItems.map((item) => (
+                    <button
+                      key={item.key}
+                      onClick={item.action}
+                      className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50/80 transition-all duration-300"
                     >
                       {item.icon}
                       {item.label}
