@@ -54,7 +54,7 @@ export const login = async (req: Request, res: Response) => {
         if (!emailRegex.test(email)) {
              return sendError(res, 400, "Invalid email format");
         }
-
+        
         if (!password || typeof password !== "string") {
              return sendError(res, 400, "Invalid password");
         }

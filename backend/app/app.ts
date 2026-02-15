@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import auth_routes from './src/routes/authroutes';
 import society_routes from './src/routes/societyRoutes';
 import group_routes from './src/routes/groupRoutes';
+import join_routes from './src/routes/joinRoutes';
 import { errorHandler } from './src/middleware/errorHandler';
 import { AppError } from './src/util/AppError';
 
@@ -34,6 +35,7 @@ app.get("/", (req: Request, res: Response) => {
 app.use('/api/auth', auth_routes);
 app.use('/api/society', society_routes);
 app.use('/api/groups', group_routes);
+app.use('/api', join_routes);
 
 // Handle unhandled routes
 app.all(/(.*)/, (req: Request, res: Response, next: NextFunction) => {
