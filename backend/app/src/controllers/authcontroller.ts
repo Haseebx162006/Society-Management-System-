@@ -35,7 +35,30 @@ export const signup = async (req: Request, res: Response) => {
 
         const user = await User.create({ name: name, email: email, password: password, phone: req.body.phone || "" });
 
-        return sendResponse(res, 201, "User is created", user);
+        const accessToken = generateAccessToken(user._id.toString());
+        const refreshTokenStr = generateRefreshToken();
+
+        // Save refresh token to database
+        await RefreshToken.create({
+            token: refreshTokenStr,
+            user: user._id,
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        });
+
+        return sendResponse(res, 201, "User is created", {
+            accessToken,
+            refreshToken: refreshTokenStr,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                is_super_admin: user.is_super_admin,
+                password_reset_required: user.password_reset_required,
+                status: user.status,
+                locked_until: user.locked_until
+            }
+        });
 
     } catch (error: any) {
         return sendError(res, 500, "Error in signup", error);
@@ -114,6 +137,7 @@ export const login = async (req: Request, res: Response) => {
                 id: finduser._id,
                 name: finduser.name,
                 email: finduser.email,
+                phone: finduser.phone,
                 is_super_admin: finduser.is_super_admin,
                 password_reset_required: finduser.password_reset_required,
                 status: finduser.status,
@@ -174,6 +198,7 @@ export const refresh = async (req: Request, res: Response) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
+                phone: user.phone,
                 is_super_admin: user.is_super_admin,
                 password_reset_required: user.password_reset_required,
                 status: user.status,

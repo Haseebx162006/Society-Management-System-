@@ -43,9 +43,15 @@ export const userApiSlice = apiSlice.injectEndpoints({
                 method: 'PUT',
                 body: data,
             }),
+            transformResponse: (response: { success: boolean; message: string; data: User }) => response.data,
             invalidatesTags: ['User'],
+        }),
+        getProfile: builder.query<User, void>({
+            query: () => '/user/me',
+            transformResponse: (response: { success: boolean; message: string; data: User }) => response.data,
+            providesTags: ['User'],
         }),
     }),
 });
 
-export const { useGetMySocietiesQuery, useGetMyRequestsQuery, useUpdateProfileMutation } = userApiSlice;
+export const { useGetMySocietiesQuery, useGetMyRequestsQuery, useUpdateProfileMutation, useGetProfileQuery } = userApiSlice;

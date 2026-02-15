@@ -38,7 +38,6 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
 
         if (name) user.name = name;
         if (phone) {
-             // Basic phone validation could go here
              user.phone = phone;
         }
 
@@ -54,5 +53,26 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
         });
     } catch (error: any) {
         return sendError(res, 500, "Internal server error updating profile", error);
+    }
+};
+
+export const getProfile = async (req: AuthRequest, res: Response) => {
+    try {
+        const user = await User.findById(req.user!._id);
+
+        if (!user) {
+            return sendError(res, 404, "User not found");
+        }
+
+        return sendResponse(res, 200, "User profile fetched successfully", {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            is_super_admin: user.is_super_admin,
+            status: user.status
+        });
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error fetching profile", error);
     }
 };

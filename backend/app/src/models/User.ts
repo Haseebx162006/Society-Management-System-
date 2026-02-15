@@ -35,7 +35,7 @@ const userSchema: Schema<IUser> = new Schema({
     },
     phone: {
         type: String,
-        required: true // Assuming required based on "Add missing fields", but technically old users might not have it. I'll make it required as per "Add missing fields" implying completeness.
+        required: true
     },
     status: {
         type: String,
