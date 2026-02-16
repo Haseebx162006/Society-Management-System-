@@ -51,7 +51,8 @@ const baseQueryWithReauth: BaseQueryFn<
             );
 
             if (refreshResult.data) {
-                const { accessToken, refreshToken: newRefreshToken, user } = refreshResult.data as RefreshResponse;
+                const { data } = refreshResult.data as { data: RefreshResponse };
+                const { accessToken, refreshToken: newRefreshToken, user } = data;
                 // store the new token and update user info
                 api.dispatch(updateAccessToken({ accessToken, refreshToken: newRefreshToken, user }));
                 

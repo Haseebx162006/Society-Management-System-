@@ -7,6 +7,7 @@ import { useUpdateProfileMutation, useGetProfileQuery } from "../../lib/features
 
 export default function MyAccount() {
   const user = useAppSelector(selectCurrentUser);
+  const token = useAppSelector((state) => state.auth.token);
   const dispatch = useAppDispatch();
   const { data: profileData } = useGetProfileQuery();
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
@@ -29,7 +30,9 @@ export default function MyAccount() {
   const handleSave = async () => {
     try {
       const result = await updateProfile({ name, phone }).unwrap();
-      dispatch(updateAccessToken({ accessToken: "", user: result }));
+      // start: preserve current token
+      dispatch(updateAccessToken({ accessToken: token || "", user: result }));
+      // end: preserve current token
       setIsEditing(false);
       setToast({ type: "success", message: "Profile updated successfully" });
     } catch {
