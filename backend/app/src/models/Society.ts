@@ -5,6 +5,7 @@ export interface ISociety extends Document {
     name: string;
     description: string;
     registration_fee: number;
+    category: "Technology" | "Arts" | "Engineering" | "Sports" | "Religious" | "Social" | "Others";
     custom_fields: Array<{
         label: string;
         type: "text" | "number" | "date" | "select";
@@ -37,6 +38,12 @@ const societySchema: Schema = new Schema({
     registration_fee: {
         type: Number,
         default: 0
+    },
+    category: {
+        type: String,
+        enum: ["Technology", "Arts", "Engineering", "Sports", "Religious", "Social", "Others"],
+        required: true,
+        default: "Others"
     },
     custom_fields: [{
         label: String,

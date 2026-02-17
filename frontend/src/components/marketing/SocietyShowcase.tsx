@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
 import { ArrowRight, Users, Calendar } from "lucide-react";
+import Link from "next/link"
 import { useGetAllSocietiesQuery } from "@/lib/features/societies/societyApiSlice";
 
 // Interface for API response data
@@ -10,6 +11,7 @@ interface SocietyData {
   _id: string;
   name: string;
   description: string;
+  category?: string;
   status: string;
   logo?: string;
   [key: string]: unknown;
@@ -46,7 +48,7 @@ export default function SocietyShowcase() {
     return societiesData
       .filter((s: SocietyData) => s.status === 'ACTIVE')
       .map((s: SocietyData, index: number) => {
-        // Deterministic number generation based on ID
+        // Deterministic mock data generation
         const seed = s._id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const members = (seed % 450) + 50; 
         const events = (seed % 15) + 5;
@@ -54,14 +56,14 @@ export default function SocietyShowcase() {
         return {
             id: s._id,
             name: s.name,
-            category: "General", // Placeholder
+            category: s.category || "General",
             description: s.description || "No description available.",
             stats: { 
                 members: `${members}+`, 
                 events: `${events}/yr` 
             },
             color: GRADIENTS[index % GRADIENTS.length],
-            image: s.logo || DEFAULT_IMAGE
+            image: s.logo || DEFAULT_IMAGE,
         };
       });
   }, [societiesData]);
@@ -148,10 +150,10 @@ export default function SocietyShowcase() {
                          </div>
                     </div>
 
-                    <button className="group flex items-center gap-3 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-100 transition-colors">
+                    <Link href="/societies" className="group flex items-center gap-3 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-100 transition-colors">
                         <span>Learn More</span>
                         <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                    </button>
+                    </Link>
                 </motion.div>
             </AnimatePresence>
         </div>

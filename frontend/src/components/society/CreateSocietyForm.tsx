@@ -32,6 +32,7 @@ interface FormData {
   name: string;
   description: string;
   registration_fee: number;
+  category: string;
   teams: string[];
   content_sections: ContentSection[];
 }
@@ -42,6 +43,7 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
     name: initialData?.name || '',
     description: initialData?.description || '',
     registration_fee: initialData?.registration_fee || 0,
+    category: (initialData as any)?.category || 'Technology',
     teams: initialData?.groups?.map((g: SocietyGroup) => g.name) || [],
     content_sections: initialData?.content_sections || [],
   });
@@ -106,6 +108,7 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
       formPayload.append('name', formData.name);
       formPayload.append('description', formData.description);
       formPayload.append('registration_fee', formData.registration_fee.toString());
+      formPayload.append('category', formData.category);
       formPayload.append('teams', JSON.stringify(formData.teams));
       formPayload.append('content_sections', JSON.stringify(formData.content_sections));
       
@@ -195,6 +198,25 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
                                 className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
                                 required
                             />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-blue-300 mb-1">Category</label>
+                            <select
+                                name="category"
+                                value={formData.category}
+                                onChange={handleInputChange}
+                                className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                                required
+                            >
+                                <option value="Technology">Technology</option>
+                                <option value="Arts">Arts</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Religious">Religious</option>
+                                <option value="Social">Social</option>
+                                <option value="Others">Others</option>
+                            </select>
                         </div>
 
                          {/* Logo Upload */}

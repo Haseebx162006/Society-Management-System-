@@ -52,7 +52,7 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
         console.log("Create Society Request Body:", JSON.stringify(req.body, null, 2));
         console.log("Create Society File:", req.file);
 
-        const { name, description, registration_fee } = req.body;
+        const { name, description, registration_fee, category } = req.body;
         
         let teams = req.body.teams;
         let custom_fields = req.body.custom_fields;
@@ -109,6 +109,7 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
             name,
             description,
             registration_fee: registration_fee || 0,
+            category: category || "Others",
             custom_fields: custom_fields || [],
             content_sections: content_sections || [],
             logo: logoUrl || undefined,
@@ -431,6 +432,7 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
         }
         if (description) society.description = description;
         if (req.body.registration_fee !== undefined) society.registration_fee = Number(req.body.registration_fee);
+        if (req.body.category) society.category = req.body.category;
         if (custom_fields) society.custom_fields = custom_fields;
         if (content_sections) society.content_sections = content_sections;
         if (req.body.is_setup !== undefined) society.is_setup = req.body.is_setup === 'true' || req.body.is_setup === true;
