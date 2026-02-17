@@ -57,6 +57,9 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
         let teams = req.body.teams;
         let custom_fields = req.body.custom_fields;
         let content_sections = req.body.content_sections;
+        let why_join_us = req.body.why_join_us;
+        let faqs = req.body.faqs;
+        let contact_info = req.body.contact_info;
 
         // Parse JSON strings if coming from FormData
         const safeParse = (data: any, label: string) => {
@@ -71,9 +74,24 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
             return data;
         };
 
+        const safeParseObj = (data: any, label: string) => {
+            if (typeof data === 'string') {
+                try {
+                    return JSON.parse(data);
+                } catch (e) {
+                    console.error(`Failed to parse ${label}:`, data);
+                    return {};
+                }
+            }
+            return data;
+        };
+
         teams = safeParse(teams, 'teams');
         custom_fields = safeParse(custom_fields, 'custom_fields');
         content_sections = safeParse(content_sections, 'content_sections');
+        why_join_us = safeParse(why_join_us, 'why_join_us');
+        faqs = safeParse(faqs, 'faqs');
+        contact_info = safeParseObj(contact_info, 'contact_info');
 
         if (!name) return sendError(res, 400, "Society name is required");
 
@@ -112,6 +130,9 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
             category: category || "Others",
             custom_fields: custom_fields || [],
             content_sections: content_sections || [],
+            why_join_us: why_join_us || [],
+            faqs: faqs || [],
+            contact_info: contact_info || {},
             logo: logoUrl || undefined,
             created_by: req.user!._id,
             status: "ACTIVE"
@@ -392,6 +413,9 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
         let teams = req.body.teams;
         let custom_fields = req.body.custom_fields;
         let content_sections = req.body.content_sections;
+        let why_join_us = req.body.why_join_us;
+        let faqs = req.body.faqs;
+        let contact_info = req.body.contact_info;
 
         // Helper for parsing JSON from FormData
         const safeParse = (data: any, label: string) => {
@@ -406,9 +430,24 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
             return data;
         };
 
+        const safeParseObj = (data: any, label: string) => {
+             if (typeof data === 'string') {
+                try {
+                    return JSON.parse(data);
+                } catch (e) {
+                    console.error(`Failed to parse ${label}:`, data);
+                    return {};
+                }
+            }
+            return data;
+        };
+
         teams = safeParse(teams, 'teams');
         custom_fields = safeParse(custom_fields, 'custom_fields');
         content_sections = safeParse(content_sections, 'content_sections');
+        why_join_us = safeParse(why_join_us, 'why_join_us');
+        faqs = safeParse(faqs, 'faqs');
+        contact_info = safeParseObj(contact_info, 'contact_info');
 
         const society = await Society.findById(id);
         if (!society) {
@@ -435,6 +474,9 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
         if (req.body.category) society.category = req.body.category;
         if (custom_fields) society.custom_fields = custom_fields;
         if (content_sections) society.content_sections = content_sections;
+        if (why_join_us) society.why_join_us = why_join_us;
+        if (faqs) society.faqs = faqs;
+        if (contact_info) society.contact_info = contact_info;
         if (req.body.is_setup !== undefined) society.is_setup = req.body.is_setup === 'true' || req.body.is_setup === true;
 
         // Handle Team Sync

@@ -74,7 +74,7 @@ export default function SocietyCard({
 
         {/* Action */}
         <Link
-          href={`/society/${id}`}
+          href={`/societies/${id}`}
           className={`mt-auto w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300
             bg-white text-gray-900 border border-gray-200 hover:bg-gray-50 hover:border-indigo-200 group-hover:text-indigo-600
           `}

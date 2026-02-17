@@ -24,6 +24,11 @@ export const societyApiSlice = apiSlice.injectEndpoints({
         providesTags: ["Society"],
         transformResponse: (response: { data: any }) => response.data,
     }),
+    getSocietyById: builder.query({
+      query: (id) => `/society/${id}`,
+      providesTags: (result, error, id) => [{ type: "Society", id }],
+      transformResponse: (response: { data: any }) => response.data,
+    }),
     getSocietyRequests: builder.query({
       query: (status) => ({
         url: "/society/requests",
@@ -58,4 +63,5 @@ export const {
   useGetSocietyRequestsQuery,
   useUpdateSocietyRequestStatusMutation,
   useUpdateSocietyMutation,
+  useGetSocietyByIdQuery,
 } = societyApiSlice;

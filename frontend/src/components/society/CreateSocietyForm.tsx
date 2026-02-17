@@ -35,6 +35,26 @@ interface FormData {
   category: string;
   teams: string[];
   content_sections: ContentSection[];
+  why_join_us: string[];
+  faqs: FAQ[];
+  contact_info: ContactInfo;
+}
+
+export interface FAQ {
+    question: string;
+    answer: string;
+}
+
+export interface ContactInfo {
+    email: string;
+    phone: string;
+    website: string;
+    social_links: {
+        facebook: string;
+        instagram: string;
+        twitter: string;
+        linkedin: string;
+    }
 }
 
 const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onCancel }: CreateSocietyFormProps) => {
@@ -46,6 +66,19 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
     category: (initialData as any)?.category || 'Technology',
     teams: initialData?.groups?.map((g: SocietyGroup) => g.name) || [],
     content_sections: initialData?.content_sections || [],
+    why_join_us: (initialData as any)?.why_join_us || [],
+    faqs: (initialData as any)?.faqs || [],
+    contact_info: (initialData as any)?.contact_info || {
+        email: '',
+        phone: '',
+        website: '',
+        social_links: {
+            facebook: '',
+            instagram: '',
+            twitter: '',
+            linkedin: ''
+        }
+    }
   });
   
   // Set initial preview if logo exists (assuming it's a URL in initialData, though not in interface yet)
@@ -60,6 +93,15 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
     content: ''
   });
 
+  // Why Join Us State
+  const [reasonInput, setReasonInput] = useState('');
+  
+  // FAQ State
+  const [newFaq, setNewFaq] = useState<FAQ>({
+      question: '',
+      answer: ''
+  });
+
   const [createSociety, { isLoading: isCreating }] = useCreateSocietyMutation();
   const [updateSociety, { isLoading: isUpdating }] = useUpdateSocietyMutation();
   const router = useRouter();
@@ -67,6 +109,30 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      if (['facebook', 'instagram', 'twitter', 'linkedin'].includes(name)) {
+          setFormData({
+              ...formData,
+              contact_info: {
+                  ...formData.contact_info,
+                  social_links: {
+                      ...formData.contact_info.social_links,
+                      [name]: value
+                  }
+              }
+          });
+      } else {
+          setFormData({
+              ...formData,
+              contact_info: {
+                  ...formData.contact_info,
+                  [name]: value
+              }
+          });
+      }
   };
 
   const addTeam = () => {
@@ -99,6 +165,36 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
       setFormData({ ...formData, content_sections: newSections });
   };
 
+  const addReason = () => {
+      const reason = reasonInput.trim();
+      if (reason && !formData.why_join_us.includes(reason)) {
+          setFormData({ ...formData, why_join_us: [...formData.why_join_us, reason] });
+          setReasonInput('');
+      }
+  };
+
+  const removeReason = (index: number) => {
+      const newReasons = [...formData.why_join_us];
+      newReasons.splice(index, 1);
+      setFormData({ ...formData, why_join_us: newReasons });
+  };
+
+  const addFaq = () => {
+      if (newFaq.question && newFaq.answer) {
+          setFormData({
+              ...formData,
+              faqs: [...formData.faqs, newFaq]
+          });
+          setNewFaq({ question: '', answer: '' });
+      }
+  };
+
+  const removeFaq = (index: number) => {
+      const newFaqs = [...formData.faqs];
+      newFaqs.splice(index, 1);
+      setFormData({ ...formData, faqs: newFaqs });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -111,6 +207,9 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
       formPayload.append('category', formData.category);
       formPayload.append('teams', JSON.stringify(formData.teams));
       formPayload.append('content_sections', JSON.stringify(formData.content_sections));
+      formPayload.append('why_join_us', JSON.stringify(formData.why_join_us));
+      formPayload.append('faqs', JSON.stringify(formData.faqs));
+      formPayload.append('contact_info', JSON.stringify(formData.contact_info));
       
       if (logo) {
         formPayload.append('logo', logo);
@@ -155,7 +254,7 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
 
         {/* Steps */}
         <div className="flex gap-2 px-8 pt-6">
-            {[1, 2, 3].map((s) => (
+            {[1, 2, 3, 4, 5, 6].map((s) => (
                 <div key={s} className={`h-1 flex-1 rounded-full transitions-all duration-300 ${step >= s ? 'bg-blue-500' : 'bg-gray-700'}`} />
             ))}
         </div>
@@ -288,10 +387,10 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
                 </div>
             )}
 
-             {/* Step 3: Content Sections */}
-             {step === 3 && (
-                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                   <div>
+            {/* Step 3: Content Sections */}
+            {step === 3 && (
+                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div>
                         <label className="block text-sm font-medium text-blue-300 mb-2">Add Content Sections</label>
                         <p className="text-xs text-blue-400/60 mb-4">Add detailed sections about your society (e.g., Overview, Mission, Achievements).</p>
                         
@@ -331,7 +430,170 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
                                 </div>
                             ))}
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Step 4: Why Join Us */}
+            {step === 4 && (
+                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div>
+                        <label className="block text-sm font-medium text-blue-300 mb-2">Why Join Us?</label>
+                        <p className="text-xs text-blue-400/60 mb-4">Add key benefits of joining your society.</p>
+                        <div className="flex gap-2 mb-4">
+                            <input
+                                type="text"
+                                value={reasonInput}
+                                onChange={(e) => setReasonInput(e.target.value)}
+                                className="flex-1 bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                placeholder="e.g. Networking Opportunities"
+                                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addReason())}
+                            />
+                            <button
+                                type="button"
+                                onClick={addReason}
+                                className="bg-blue-600 hover:bg-blue-500 text-white px-6 rounded-lg font-medium transition-colors"
+                            >
+                                Add
+                            </button>
+                        </div>
+                        <div className="space-y-2">
+                             {formData.why_join_us.map((reason: string, idx: number) => (
+                                 <div key={idx} className="bg-blue-900/40 border border-blue-500/30 text-blue-200 px-4 py-2 rounded-lg text-sm flex items-center justify-between">
+                                     <span>{reason}</span>
+                                     <button type="button" onClick={() => removeReason(idx)} className="hover:text-red-400">×</button>
+                                 </div>
+                             ))}
+                        </div>
                    </div>
+                </div>
+            )}
+
+            {/* Step 5: FAQs */}
+            {step === 5 && (
+                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div>
+                        <label className="block text-sm font-medium text-blue-300 mb-2">Frequently Asked Questions</label>
+                        
+                        <div className="space-y-4 mb-6">
+                            <input
+                                type="text"
+                                placeholder="Question"
+                                value={newFaq.question}
+                                onChange={(e) => setNewFaq({...newFaq, question: e.target.value})}
+                                className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                            />
+                            <textarea
+                                placeholder="Answer"
+                                value={newFaq.answer}
+                                onChange={(e) => setNewFaq({...newFaq, answer: e.target.value})}
+                                className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 min-h-[80px]"
+                            />
+                            <button
+                                type="button"
+                                onClick={addFaq}
+                                className="w-full bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 border border-blue-500/30 rounded-lg py-3 font-medium transition-colors"
+                            >
+                                Add FAQ
+                            </button>
+                        </div>
+
+                        <div className="space-y-3">
+                            {formData.faqs.map((faq: FAQ, idx: number) => (
+                                <div key={idx} className="bg-blue-900/20 border border-blue-500/10 rounded-lg p-4 group">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h4 className="text-blue-200 font-semibold">{faq.question}</h4>
+                                        <button type="button" onClick={() => removeFaq(idx)} className="text-gray-500 hover:text-red-400 opacity-60 group-hover:opacity-100 transition-opacity">
+                                            Remove
+                                        </button>
+                                    </div>
+                                    <p className="text-gray-400 text-sm whitespace-pre-wrap">{faq.answer}</p>
+                                </div>
+                            ))}
+                        </div>
+                   </div>
+                 </div>
+            )}
+
+            {/* Step 6: Contact Info */}
+            {step === 6 && (
+                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                    <h3 className="text-xl font-semibold text-blue-200">Contact Information</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium text-blue-300 mb-1">Official Email</label>
+                            <input
+                                type="email"
+                                name="email"
+                                value={formData.contact_info.email}
+                                onChange={handleContactChange}
+                                className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                placeholder="society@university.edu.pk"
+                            />
+                        </div>
+                         <div>
+                            <label className="block text-sm font-medium text-blue-300 mb-1">Phone Number</label>
+                            <input
+                                type="tel"
+                                name="phone"
+                                value={formData.contact_info.phone}
+                                onChange={handleContactChange}
+                                className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                placeholder="+92 300 1234567"
+                            />
+                        </div>
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-blue-300 mb-1">Website URL</label>
+                            <input
+                                type="url"
+                                name="website"
+                                value={formData.contact_info.website}
+                                onChange={handleContactChange}
+                                className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                                placeholder="https://societysite.com"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-blue-300 mb-1">Facebook URL</label>
+                            <input
+                                type="url"
+                                name="facebook"
+                                value={formData.contact_info.social_links.facebook}
+                                onChange={handleContactChange}
+                                className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                            />
+                        </div>
+                         <div>
+                            <label className="block text-sm font-medium text-blue-300 mb-1">Instagram URL</label>
+                            <input
+                                type="url"
+                                name="instagram"
+                                value={formData.contact_info.social_links.instagram}
+                                onChange={handleContactChange}
+                                className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-blue-300 mb-1">Twitter URL</label>
+                            <input
+                                type="url"
+                                name="twitter"
+                                value={formData.contact_info.social_links.twitter}
+                                onChange={handleContactChange}
+                                className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-blue-300 mb-1">LinkedIn URL</label>
+                            <input
+                                type="url"
+                                name="linkedin"
+                                value={formData.contact_info.social_links.linkedin}
+                                onChange={handleContactChange}
+                                className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                            />
+                        </div>
+                    </div>
                 </div>
             )}
 
@@ -359,7 +621,7 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
                     </div>
                 )}
                 
-                {step < 3 ? (
+                {step < 6 ? (
                     <button
                         type="button"
                         onClick={() => setStep(step + 1)}

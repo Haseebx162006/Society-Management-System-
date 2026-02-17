@@ -150,7 +150,7 @@ export default function SocietyShowcase() {
                          </div>
                     </div>
 
-                    <Link href="/societies" className="group flex items-center gap-3 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-100 transition-colors">
+                    <Link href={`/societies/${activeSociety.id}`} className="group flex items-center gap-3 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-100 transition-colors">
                         <span>Learn More</span>
                         <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                     </Link>

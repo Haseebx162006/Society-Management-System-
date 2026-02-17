@@ -16,6 +16,22 @@ export interface ISociety extends Document {
         title: string;
         content: string;
     }>;
+    why_join_us: string[];
+    faqs: Array<{
+        question: string;
+        answer: string;
+    }>;
+    contact_info?: {
+        email?: string;
+        phone?: string;
+        website?: string;
+        social_links?: {
+            facebook?: string;
+            instagram?: string;
+            twitter?: string;
+            linkedin?: string;
+        };
+    };
     logo?: string;
     joining_verification_required: boolean;
     status: "ACTIVE" | "SUSPENDED" | "DELETED";
@@ -55,6 +71,22 @@ const societySchema: Schema = new Schema({
         title: { type: String, required: true },
         content: { type: String, required: true }
     }],
+    why_join_us: [String],
+    faqs: [{
+        question: { type: String, required: true },
+        answer: { type: String, required: true }
+    }],
+    contact_info: {
+        email: String,
+        phone: String,
+        website: String,
+        social_links: {
+            facebook: String,
+            instagram: String,
+            twitter: String,
+            linkedin: String
+        }
+    },
     logo: {
         type: String, 
         required: false
