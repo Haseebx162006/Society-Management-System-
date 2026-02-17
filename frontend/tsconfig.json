@@ -20,7 +20,8 @@
     ],
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "noImplicitAny": false
   },
   "rules": {
     "@typescript-eslint/no-explicit-any": "warn"

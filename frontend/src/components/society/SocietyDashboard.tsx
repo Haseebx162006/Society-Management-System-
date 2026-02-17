@@ -79,19 +79,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
         ],
       };
 
-  if (showCreateForm) {
-      return (
-          <div className="min-h-screen bg-[#0f172a] text-white p-6 relative">
-              <button 
-                onClick={() => setShowCreateForm(false)}
-                className="absolute top-4 right-4 bg-red-500/20 text-red-300 px-4 py-2 rounded border border-red-500/50 z-50 hover:bg-red-500/30"
-              >
-                Close Preview
-              </button>
-              <CreateSocietyForm initialData={society} isEditing={true} key={society._id} />
-          </div>
-      );
-  }
+
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white flex">
@@ -126,65 +114,88 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
         </div>
       </div>
 
-      {activeTab === 'overview' ? (
-        <>
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <StatCard title="Total Members" value={society.members?.length || 0} icon="👥" color="blue" />
-                <StatCard title="Total Teams" value={society.groups?.length || 0} icon="🛡️" color="cyan" />
-                <StatCard title="Events Held" value="0" icon="📅" color="purple" />
-                <StatCard title="Revenue" value={`PKR ${society.registration_fee * (society.members?.length || 0)}`} icon="💰" color="green" />
-            </div>
-
-            {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <h3 className="text-xl font-semibold text-blue-200 mb-4">Member Growth</h3>
-                    <div className="h-64">
-                        <GrowthLineChart data={growthData} />
-                    </div>
-                </div>
-                <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <h3 className="text-xl font-semibold text-blue-200 mb-4">Team Distribution</h3>
-                    <div className="h-64 flex justify-center">
-                        <TeamDoughnutChart data={teamDistributionData} />
-                    </div>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-[#1e293b]/50 border border-blue-500/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <h3 className="text-xl font-semibold text-blue-200 mb-4">Recent Activity</h3>
-                    <div className="space-y-4">
-                        {/* Placeholder Activity Items */}
-                        {[1, 2, 3].map((i) => (
-                            <div key={i} className="flex items-center gap-4 p-3 bg-blue-900/10 rounded-lg border border-blue-500/5 hover:bg-blue-900/20 transition-colors">
-                                <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300">
-                                    🔔
-                                </div>
-                                <div>
-                                    <p className="text-sm text-blue-100">New member joined the society</p>
-                                    <p className="text-xs text-blue-400">2 hours ago</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-2xl p-6 backdrop-blur-sm">
-                    <h3 className="text-xl font-semibold text-blue-200 mb-4">Quick Actions</h3>
-                    <div className="space-y-3">
-                        <ActionButton label="Create Event" />
-                        <ActionButton label="Manage Teams" />
-                        <ActionButton label="Approve Members" />
-                        <ActionButton label="Send Announcement" />
-                    </div>
-                </div>
-            </div>
-        </>
+      {showCreateForm ? (
+         <div className="animate-in fade-in slide-in-from-right-8 duration-500">
+             <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-blue-200">Edit Society Settings</h2>
+                <button 
+                    onClick={() => setShowCreateForm(false)}
+                    className="text-gray-400 hover:text-white"
+                >
+                    Close
+                </button>
+             </div>
+             <CreateSocietyForm 
+                initialData={society} 
+                isEditing={true} 
+                isModal={false} 
+                key={society._id}
+                onCancel={() => setShowCreateForm(false)}
+             />
+         </div>
       ) : (
-        <div className="flex items-center justify-center h-96 text-blue-400 animate-pulse">
-            Content for {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} coming soon...
-        </div>
+        <>
+            {activeTab === 'overview' ? (
+                <>
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <StatCard title="Total Members" value={society.members?.length || 0} icon="👥" color="blue" />
+                        <StatCard title="Total Teams" value={society.groups?.length || 0} icon="🛡️" color="cyan" />
+                        <StatCard title="Events Held" value="0" icon="📅" color="purple" />
+                        <StatCard title="Revenue" value={`PKR ${society.registration_fee * (society.members?.length || 0)}`} icon="💰" color="green" />
+                    </div>
+
+                    {/* Charts Section */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-2xl p-6 backdrop-blur-sm">
+                            <h3 className="text-xl font-semibold text-blue-200 mb-4">Member Growth</h3>
+                            <div className="h-64">
+                                <GrowthLineChart data={growthData} />
+                            </div>
+                        </div>
+                        <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-2xl p-6 backdrop-blur-sm">
+                            <h3 className="text-xl font-semibold text-blue-200 mb-4">Team Distribution</h3>
+                            <div className="h-64 flex justify-center">
+                                <TeamDoughnutChart data={teamDistributionData} />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="lg:col-span-2 bg-[#1e293b]/50 border border-blue-500/10 rounded-2xl p-6 backdrop-blur-sm">
+                            <h3 className="text-xl font-semibold text-blue-200 mb-4">Recent Activity</h3>
+                            <div className="space-y-4">
+                                {/* Placeholder Activity Items */}
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="flex items-center gap-4 p-3 bg-blue-900/10 rounded-lg border border-blue-500/5 hover:bg-blue-900/20 transition-colors">
+                                        <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300">
+                                            🔔
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-blue-100">New member joined the society</p>
+                                            <p className="text-xs text-blue-400">2 hours ago</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-2xl p-6 backdrop-blur-sm">
+                            <h3 className="text-xl font-semibold text-blue-200 mb-4">Quick Actions</h3>
+                            <div className="space-y-3">
+                                <ActionButton label="Create Event" />
+                                <ActionButton label="Manage Teams" />
+                                <ActionButton label="Approve Members" />
+                                <ActionButton label="Send Announcement" />
+                            </div>
+                        </div>
+                    </div>
+                </>
+            ) : (
+                <div className="flex items-center justify-center h-96 text-blue-400 animate-pulse">
+                    Content for {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} coming soon...
+                </div>
+            )}
+        </>
       )}
       </div>
     </div>

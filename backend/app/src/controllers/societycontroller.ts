@@ -208,6 +208,7 @@ export const getAllSocieties = async (req: AuthRequest, res: Response) => {
     try {
         const societies = await Society.find({ status: "ACTIVE" })
             .populate("created_by", "name email")
+            .populate("groups", "name")
             .sort({ created_at: -1 });
 
         return sendResponse(res, 200, "Societies fetched successfully", societies);
@@ -223,7 +224,8 @@ export const getSocietyById = async (req: AuthRequest, res: Response) => {
         const { id } = req.params;
 
         const society = await Society.findById(id)
-            .populate("created_by", "name email");
+            .populate("created_by", "name email")
+            .populate("groups", "name");
 
         if (!society) {
              return sendError(res, 404, "Society not found");
@@ -370,6 +372,34 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
         if (req.body.custom_fields) society.custom_fields = req.body.custom_fields;
         if (req.body.content_sections) society.content_sections = req.body.content_sections;
         if (req.body.is_setup !== undefined) society.is_setup = req.body.is_setup;
+
+        // Handle Team Sync
+        if (req.body.teams && Array.isArray(req.body.teams)) {
+            const newTeams = req.body.teams; // Array of strings
+            const existingGroups = await Group.find({ society_id: id });
+            const existingTeamNames = existingGroups.map(g => g.name);
+
+            // Teams to delete (in DB but not in new list)
+            const teamsToDelete = existingGroups.filter(g => !newTeams.includes(g.name));
+            
+            // Teams to add (in new list but not in DB)
+            const teamsToAdd = newTeams.filter((t: string) => !existingTeamNames.includes(t));
+
+            // Delete removed teams
+            if (teamsToDelete.length > 0) {
+                await Group.deleteMany({ _id: { $in: teamsToDelete.map(g => g._id) } });
+            }
+
+            // Create new teams
+            if (teamsToAdd.length > 0) {
+                 const newGroupDocs = teamsToAdd.map((name: string) => ({
+                    society_id: id,
+                    name,
+                    created_by: req.user!._id
+                }));
+                await Group.create(newGroupDocs);
+            }
+        }
 
         society.updated_at = new Date();
         await society.save();

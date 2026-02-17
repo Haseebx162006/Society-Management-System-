@@ -73,6 +73,16 @@ const societySchema: Schema = new Schema({
         type: Date,
         default: Date.now
     }
+}, {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
+
+// Virtual for groups
+societySchema.virtual('groups', {
+    ref: 'Group',
+    localField: '_id',
+    foreignField: 'society_id'
 });
 
 export default mongoose.model<ISociety>("Society", societySchema);

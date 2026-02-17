@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useCreateSocietyMutation, useUpdateSocietyMutation } from '@/lib/features/societies/societyApiSlice';
 import { useRouter } from 'next/navigation';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/store';
 import { toast } from 'react-hot-toast';
 
 export interface ContentSection {
@@ -10,9 +8,24 @@ export interface ContentSection {
   content: string;
 }
 
+interface SocietyGroup {
+  name: string;
+}
+
+interface SocietyData {
+  _id?: string;
+  name: string;
+  description: string;
+  registration_fee: number;
+  groups?: SocietyGroup[];
+  content_sections: ContentSection[];
+}
+
 interface CreateSocietyFormProps {
-  initialData?: any;
+  initialData?: SocietyData;
   isEditing?: boolean;
+  isModal?: boolean;
+  onCancel?: () => void;
 }
 
 interface FormData {
@@ -23,13 +36,13 @@ interface FormData {
   content_sections: ContentSection[];
 }
 
-const CreateSocietyForm = ({ initialData, isEditing = false }: CreateSocietyFormProps) => {
+const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onCancel }: CreateSocietyFormProps) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     name: initialData?.name || '',
     description: initialData?.description || '',
     registration_fee: initialData?.registration_fee || 0,
-    teams: initialData?.groups?.map((g: any) => g.name) || [],
+    teams: initialData?.groups?.map((g: SocietyGroup) => g.name) || [],
     content_sections: initialData?.content_sections || [],
   });
   const [teamInput, setTeamInput] = useState('');
@@ -102,9 +115,8 @@ const CreateSocietyForm = ({ initialData, isEditing = false }: CreateSocietyForm
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md">
-      <div className="w-full max-w-4xl bg-[#0f172a] border border-blue-500/30 rounded-2xl shadow-[0_0_50px_rgba(59,130,246,0.2)] overflow-hidden">
+  const formContent = (
+      <div className={`w-full max-w-4xl bg-[#0f172a] border border-blue-500/30 rounded-2xl shadow-[0_0_50px_rgba(59,130,246,0.2)] overflow-hidden ${!isModal ? 'mx-auto my-8' : ''}`}>
         
         {/* Header */}
         <div className="p-8 border-b border-blue-500/20 bg-linear-to-r from-blue-900/20 to-purple-900/20">
@@ -262,7 +274,7 @@ const CreateSocietyForm = ({ initialData, isEditing = false }: CreateSocietyForm
                         {isEditing && (
                             <button
                                 type="button"
-                                onClick={() => router.back()}
+                                onClick={() => onCancel ? onCancel() : router.back()}
                                 className="px-6 py-2 rounded-lg text-red-300 hover:text-red-100 hover:bg-red-500/10 transition-colors"
                             >
                                 Cancel
@@ -291,8 +303,17 @@ const CreateSocietyForm = ({ initialData, isEditing = false }: CreateSocietyForm
             </div>
         </form>
       </div>
-    </div>
   );
+
+  if (isModal) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md px-4 overflow-y-auto">
+        {formContent}
+      </div>
+    );
+  }
+
+  return formContent;
 };
 
 export default CreateSocietyForm;
