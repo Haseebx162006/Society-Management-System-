@@ -1,6 +1,8 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
+import { MdGroups, MdEvent, MdAttachMoney } from 'react-icons/md';
+import { FaUsers, FaArrowRight, FaBell } from 'react-icons/fa';
 
 import TeamDoughnutChart from '@/components/charts/TeamDoughnutChart';
 import GrowthLineChart from '@/components/charts/GrowthLineChart';
@@ -139,10 +141,10 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                 <>
                     {/* Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <StatCard title="Total Members" value={society.members?.length || 0} icon="👥" color="blue" />
-                        <StatCard title="Total Teams" value={society.groups?.length || 0} icon="🛡️" color="cyan" />
-                        <StatCard title="Events Held" value="0" icon="📅" color="purple" />
-                        <StatCard title="Revenue" value={`PKR ${society.registration_fee * (society.members?.length || 0)}`} icon="💰" color="green" />
+                        <StatCard title="Total Members" value={society.members?.length || 0} icon={<FaUsers />} color="blue" />
+                        <StatCard title="Total Teams" value={society.groups?.length || 0} icon={<MdGroups />} color="cyan" />
+                        <StatCard title="Events Held" value="0" icon={<MdEvent />} color="purple" />
+                        <StatCard title="Revenue" value={`PKR ${society.registration_fee * (society.members?.length || 0)}`} icon={<MdAttachMoney />} color="green" />
                     </div>
 
                     {/* Charts Section */}
@@ -168,8 +170,8 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                                 {/* Placeholder Activity Items */}
                                 {[1, 2, 3].map((i) => (
                                     <div key={i} className="flex items-center gap-4 p-3 bg-blue-900/10 rounded-lg border border-blue-500/5 hover:bg-blue-900/20 transition-colors">
-                                        <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300">
-                                            🔔
+                                        <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300 text-xl">
+                                            <FaBell />
                                         </div>
                                         <div>
                                             <p className="text-sm text-blue-100">New member joined the society</p>
@@ -217,7 +219,7 @@ const StatCard = ({ title, value, icon, color }: any) => (
 const ActionButton = ({ label }: { label: string }) => (
     <button className="w-full text-left px-4 py-3 bg-blue-900/10 hover:bg-blue-500/20 border border-blue-500/10 rounded-lg text-blue-200 transition-all flex justify-between items-center group">
         {label}
-        <span className="text-blue-500 group-hover:translate-x-1 transition-transform">→</span>
+        <span className="text-blue-500 group-hover:translate-x-1 transition-transform"><FaArrowRight /></span>
     </button>
 );
 

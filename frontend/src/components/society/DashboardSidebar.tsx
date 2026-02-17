@@ -1,7 +1,5 @@
-'use client';
-
-import React from 'react';
-
+import { MdDashboard, MdEvent, MdSettings, MdGroups } from 'react-icons/md';
+import { FaEdit, FaSignOutAlt, FaUsers } from 'react-icons/fa';
 
 interface DashboardSidebarProps {
   activeTab: string;
@@ -12,11 +10,11 @@ interface DashboardSidebarProps {
 const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiveTab, onViewForm }) => {
 
   const navItems = [
-    { id: 'overview', label: 'Overview', icon: '📊' },
-    { id: 'members', label: 'Members', icon: '👥' },
-    { id: 'teams', label: 'Teams', icon: '🛡️' },
-    { id: 'events', label: 'Events', icon: '📅' },
-    { id: 'settings', label: 'Settings', icon: '⚙️' },
+    { id: 'overview', label: 'Overview', icon: <MdDashboard /> },
+    { id: 'members', label: 'Members', icon: <FaUsers /> },
+    { id: 'teams', label: 'Teams', icon: <MdGroups /> },
+    { id: 'events', label: 'Events', icon: <MdEvent /> },
+    { id: 'settings', label: 'Settings', icon: <MdSettings /> },
   ];
 
   return (
@@ -47,7 +45,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
             onClick={onViewForm}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-purple-900/10 hover:text-purple-300 transition-all"
          >
-            <span className="text-xl">📝</span>
+            <span className="text-xl">{<FaEdit />}</span>
             <span>View Creation Form</span>
          </button>
 
@@ -55,7 +53,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
 
       <div className="p-4 border-t border-blue-500/10">
         <button className="w-full flex items-center gap-2 text-slate-500 hover:text-red-400 text-sm px-4">
-          <span>🚪</span> Log Out
+          <span className="text-xl">{<FaSignOutAlt />}</span> Log Out
         </button>
       </div>
     </div>
