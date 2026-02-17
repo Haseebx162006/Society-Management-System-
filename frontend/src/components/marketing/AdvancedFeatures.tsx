@@ -7,10 +7,17 @@ import Image from "next/image";
 
 const advancedFeatures = [
   {
+    title: "Find Your Community",
+    description: "Discover active societies at COMSATS Lahore based on your interests. From tech clubs to arts & culture, find the perfect place to grow.",
+    benefits: ["Browse by category", "View society portfolios", "Direct messaging with executives"],
+    image: "/assets/student-discovery.png", 
+    placeholderColor: "bg-orange-50"
+  },
+  {
     title: "Event Management Simplified",
     description: "Create, promote, and track events with ease. From ticketing to check-ins, handle the entire lifecycle in one place.",
     benefits: ["Customizable RSVP forms", "QR code check-in", "Automated email reminders"],
-    image: "/assets/event-dashboard.png", // Verify if we need to use a placeholder or generate one
+    image: "/assets/event-dashboard.png",
     placeholderColor: "bg-blue-50"
   },
   {

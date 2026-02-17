@@ -25,7 +25,7 @@ export default function Hero() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
           </span>
-          Next-Gen Society Management
+          COMSATS Lahore Official Portal
         </motion.div>
 
         {/* Headline */}
@@ -33,11 +33,11 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-5xl md:text-7xl font-bold tracking-tight text-gray-900 mb-6 max-w-4xl"
+          className="text-5xl md:text-7xl font-bold tracking-tight text-gray-900 mb-6 max-w-5xl"
         >
-          Manage your student society like a{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-blue-500">
-            tech startup
+          The Heart of Campus Life at <br className="hidden md:block" />
+          <span className="text-indigo-600">
+            COMSATS Lahore
           </span>
         </motion.h1>
 
@@ -46,10 +46,10 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-xl text-gray-600 mb-10 max-w-2xl leading-relaxed"
+          className="text-xl text-gray-600 mb-10 max-w-3xl leading-relaxed mx-auto"
         >
-          Streamline events, manage members, and track finances in one unified dashboard. 
-          Built for modern university communities who demand excellence.
+          The unified platform for <span className="font-semibold text-gray-900">societies</span> to manage operations, 
+          and for <span className="font-semibold text-gray-900">students</span> to discover, join, and lead communities.
         </motion.p>
 
         {/* CTAs */}
@@ -57,21 +57,21 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center gap-4 mb-20"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20"
         >
           <Link
-            href="/register"
+            href="/societies"
             className="w-full sm:w-auto px-8 py-3.5 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-200 flex items-center justify-center gap-2"
           >
-            Get Started Free
-            <ArrowRight className="w-4 h-4" />
+            <Users className="w-4 h-4" />
+            Find a Society
           </Link>
           <Link
-            href="#demo"
+            href="/register-society"
             className="w-full sm:w-auto px-8 py-3.5 bg-white text-gray-700 border border-gray-200 rounded-full font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2"
           >
-            <BarChart2 className="w-4 h-4 text-gray-500" />
-            View Live Demo
+            <Shield className="w-4 h-4 text-gray-500" />
+            Manage Society
           </Link>
         </motion.div>
 
@@ -82,7 +82,7 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="relative w-full max-w-5xl"
         >
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent z-10 bottom-0 h-40" />
+          {/* Removed gradient overlay for cleaner look as requested */}
           <div className="rounded-xl border border-gray-200 bg-white shadow-2xl overflow-hidden ring-1 ring-gray-900/5">
               <div className="h-8 bg-gray-50 border-b border-gray-200 flex items-center px-4 gap-2">
                   <div className="w-3 h-3 rounded-full bg-red-400" />

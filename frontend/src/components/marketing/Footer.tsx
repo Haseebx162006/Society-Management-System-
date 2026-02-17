@@ -32,14 +32,14 @@ export default function Footer() {
           <div className="col-span-2 lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-6">
               <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg">
-                S
+                C
               </div>
               <span className="font-bold text-xl text-gray-900">
-                Society<span className="text-indigo-600">Sync</span>
+                COMSOC
               </span>
             </Link>
             <p className="text-gray-500 text-sm leading-relaxed max-w-xs mb-8">
-              The all-in-one platform for student societies to manage members, events, and finances with ease.
+              The unified platform for COMSATS Lahore students to discover communities and for societies to manage operations.
             </p>
             <div className="flex gap-4">
               <Link href="#" className="text-gray-400 hover:text-gray-600 transition-colors">
@@ -78,7 +78,7 @@ export default function Footer() {
         
         <div className="pt-8 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-500">
-            &copy; {new Date().getFullYear()} SocietySync. All rights reserved.
+            &copy; {new Date().getFullYear()} COMSOC. All rights reserved.
           </p>
           <div className="flex gap-6">
              <Link href="#" className="text-sm text-gray-500 hover:text-gray-900">Terms</Link>

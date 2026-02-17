@@ -4,42 +4,42 @@ import { motion } from "framer-motion";
 import { 
   Zap, 
   ShieldCheck, 
-  Smartphone, 
   Globe, 
-  BarChart, 
-  Users 
+  Search,
+  UserPlus,
+  Calendar
 } from "lucide-react";
 
 const features = [
   {
+    icon: Search,
+    title: "Discover Communities",
+    description: "Browse all active societies at COMSATS Lahore. Filter by category, interest, or department to find your tribe."
+  },
+  {
+    icon: UserPlus,
+    title: "One-Click Registration",
+    description: "Join societies instantly. Fill your profile once and apply to multiple societies without repetitive forms."
+  },
+  {
+    icon: Calendar,
+    title: "Campus Event Calendar",
+    description: "Never miss out. See all upcoming seminars, workshops, and competitions happening on campus in one view."
+  },
+  {
     icon: Zap,
-    title: "Lightning Fast",
-    description: "Built on modern infrastructure to ensure your society dashboard loads in milliseconds, not seconds."
+    title: "Digital Management",
+    description: "For executives: streamline member data, attendance tracking, and recruitment in a unified dashboard."
   },
   {
     icon: ShieldCheck,
-    title: "Bank-Grade Security",
-    description: "Enterprise-level encryption and role-based access control to keep your member data safe and private."
-  },
-  {
-    icon: Smartphone,
-    title: "Mobile First",
-    description: "Fully responsive design that works perfectly on any device, so you can manage your society on the go."
+    title: "Verified Profiles",
+    description: "Official society badges and verified student profiles ensure a trusted and secure community environment."
   },
   {
     icon: Globe,
-    title: "Custom Domain",
-    description: "Host your society's portal on your own domain to maintain professional branding and trust."
-  },
-  {
-    icon: BarChart,
-    title: "Advanced Analytics",
-    description: "Gain deep insights into member engagement, event attendance, and financial health with real-time charts."
-  },
-  {
-    icon: Users,
-    title: "Member Management",
-    description: "Effortlessly track active members, alumni, and new recruits with our powerful CRM tools."
+    title: "Society Portfolio",
+    description: "Showcase your society's achievements, photo galleries, and past events to attract new members."
   }
 ];
 
@@ -49,11 +49,11 @@ export default function Features() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-4">
-            Everything you need to run a 
-            <span className="text-indigo-600"> modern society</span>
+            Bridging the gap between
+            <span className="text-indigo-600"> students and societies</span>
           </h2>
           <p className="text-lg text-gray-600">
-            Ditch the spreadsheets. Our platform provides a comprehensive suite of tools designed specifically for student organizations.
+            A complete ecosystem for campus life. Whether you&apos;re looking to lead or looking to join, COMSOC has you covered.
           </p>
         </div>
 

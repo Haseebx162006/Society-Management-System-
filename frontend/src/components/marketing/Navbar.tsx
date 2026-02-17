@@ -7,11 +7,10 @@ import { Menu, X, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { name: "Product", href: "#features" },
-  { name: "Features", href: "#advanced-features" },
-  { name: "Customers", href: "#testimonials" },
-  { name: "Pricing", href: "#" },
-  { name: "Docs", href: "#" },
+  { name: "Browse Societies", href: "/societies" },
+  { name: "Events", href: "/events" },
+  { name: "For Executives", href: "#features" },
+  { name: "About", href: "#" },
 ];
 
 export default function Navbar() {
@@ -39,10 +38,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg group-hover:scale-105 transition-transform">
-            S
+            C
           </div>
           <span className="font-bold text-xl text-gray-900 tracking-tight">
-            Society<span className="text-indigo-600">Sync</span>
+            COMSOC
           </span>
         </Link>
 

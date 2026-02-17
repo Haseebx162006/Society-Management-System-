@@ -9,11 +9,9 @@ export default function CTA() {
     <section className="py-24 bg-white">
       <div className="max-w-5xl mx-auto px-6">
         <div className="relative rounded-3xl overflow-hidden bg-indigo-600 px-6 py-16 md:px-20 md:py-24 text-center shadow-2xl">
-          {/* Background decorations */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-            <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500 rounded-full blur-3xl opacity-50" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-br from-indigo-600 to-blue-700 opacity-90" />
-            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-500 rounded-full blur-3xl opacity-50" />
+          {/* Background decorations - Solid Clean Look */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 bg-indigo-600">
+             {/* Subtle pattern or just solid color as requested */}
           </div>
 
           <div className="relative z-10">
@@ -24,7 +22,7 @@ export default function CTA() {
               transition={{ duration: 0.5 }}
               className="text-3xl md:text-5xl font-bold text-white tracking-tight mb-6"
             >
-              Ready to modernize your society?
+              Ready to join the movement?
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -33,7 +31,8 @@ export default function CTA() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="text-lg md:text-xl text-indigo-100 max-w-2xl mx-auto mb-10"
             >
-              Join hundreds of student leaders who are saving time and boosting engagement with SocietySync.
+              Join the official platform for COMSATS Lahore students and societies. 
+              Start your journey today.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}

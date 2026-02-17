@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "COMSOC — COMSATS Society Portal",
+  title: "COMSOC — COMSATS Lahore Society Portal",
   description:
-    "The unified digital platform for COMSATS University societies. Discover, join, and lead communities that shape your campus experience.",
+    "The unified digital platform for COMSATS Lahore societies. Discover, join, and lead communities that shape your campus experience.",
 };
 
 import StoreProvider from "./StoreProvider";

@@ -6,16 +6,16 @@ import Image from "next/image";
 
 const testimonials = [
     {
-      content: "SocietySync has completely transformed how we manage our 500+ member engineering society. The event check-in feature alone saved us hours.",
+      content: "COMSOC has completely transformed how we manage our 500+ member engineering society. The event check-in feature alone saved us hours.",
       name: "Alex Rivera",
       role: "President, Engineering Society",
       avatar: "AR"
     },
     {
-      content: "Finally, a platform that understands student organizations. The financial tools promote transparency that our members really appreciate.",
-      name: "Sarah Chen",
-      role: "Treasurer, Debate Club",
-      avatar: "SC"
+      content: "Finding clubs at COMSATS used to be hard. Now I can see every active society, their events, and join with just one click. It's a game changer.",
+      name: "Fatima Ali",
+      role: "CS Student, Semester 4",
+      avatar: "FA"
     },
     {
       content: "The user interface is stunning and so easy to use. Setting up our society page took less than 10 minutes.",
