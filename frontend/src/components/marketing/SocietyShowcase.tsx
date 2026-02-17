@@ -1,59 +1,93 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ArrowRight, Users, Calendar } from "lucide-react";
+import { useGetAllSocietiesQuery } from "@/lib/features/societies/societyApiSlice";
 
-const societies = [
-  { 
-    id: 1,
-    name: "CodeSoc", 
-    category: "Technology", 
-    description: "The premier coding society. We host hackathons, coding competitions, and workshops to help you master modern tech stacks.",
-    stats: { members: "500+", events: "24/yr" },
-    color: "from-blue-600 to-cyan-500",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&q=80&w=2070" 
-  },
-  { 
-    id: 2,
-    name: "Debating Society", 
-    category: "Arts & Culture", 
-    description: "Voice your opinion. Join the most prestigious debating platform and compete in national and international tournaments.",
-    stats: { members: "200+", events: "12/yr" },
-    color: "from-purple-600 to-pink-500",
-    image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=2070"
-  },
-  { 
-    id: 3,
-    name: "Music Society", 
-    category: "Performing Arts", 
-    description: "For the rhythm in you. Jam sessions, concerts, and musical training for vocalists and instrumentalists alike.",
-    stats: { members: "350+", events: "15/yr" },
-    color: "from-amber-500 to-orange-600",
-    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&q=80&w=2070"
-  },
-  { 
-    id: 4,
-    name: "Gamer's Hub", 
-    category: "E-Sports", 
-    description: "Level up your game. Competitive e-sports tournaments, casual gaming nights, and a community for every gamer.",
-    stats: { members: "600+", events: "30/yr" },
-    color: "from-emerald-500 to-green-600",
-    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=2070"
-  },
-  { 
-    id: 5,
-    name: "IEEE", 
-    category: "Engineering", 
-    description: "Advancing technology for humanity. Connect with the world's largest technical professional organization.",
-    stats: { members: "450+", events: "20/yr" },
-    color: "from-indigo-600 to-blue-700",
-    image: "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=2070"
-  },
+// Interface for API response data
+interface SocietyData {
+  _id: string;
+  name: string;
+  description: string;
+  status: string;
+  logo?: string;
+  [key: string]: unknown;
+}
+
+// Internal display interface
+interface DisplaySociety {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  stats: { members: string; events: string };
+  color: string;
+  image: string;
+}
+
+const GRADIENTS = [
+  "from-blue-600 to-cyan-500",
+  "from-purple-600 to-pink-500",
+  "from-amber-500 to-orange-600",
+  "from-emerald-500 to-green-600",
+  "from-indigo-600 to-blue-700",
 ];
 
+const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=2070";
+
 export default function SocietyShowcase() {
-  const [activeSociety, setActiveSociety] = useState(societies[0]);
+  const { data: societiesData, isLoading } = useGetAllSocietiesQuery({});
+  
+  // Use useMemo to transform data without causing side effects/re-renders
+  const displaySocieties = useMemo<DisplaySociety[]>(() => {
+    if (!societiesData || !Array.isArray(societiesData)) return [];
+    
+    return societiesData
+      .filter((s: SocietyData) => s.status === 'ACTIVE')
+      .map((s: SocietyData, index: number) => {
+        // Deterministic number generation based on ID
+        const seed = s._id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const members = (seed % 450) + 50; 
+        const events = (seed % 15) + 5;
+
+        return {
+            id: s._id,
+            name: s.name,
+            category: "General", // Placeholder
+            description: s.description || "No description available.",
+            stats: { 
+                members: `${members}+`, 
+                events: `${events}/yr` 
+            },
+            color: GRADIENTS[index % GRADIENTS.length],
+            image: s.logo || DEFAULT_IMAGE
+        };
+      });
+  }, [societiesData]);
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  // Derived active society
+  const activeSociety = useMemo(() => {
+      if (displaySocieties.length === 0) return null;
+      if (selectedId) {
+          return displaySocieties.find(s => s.id === selectedId) || displaySocieties[0];
+      }
+      return displaySocieties[0];
+  }, [displaySocieties, selectedId]);
+
+  if (isLoading) {
+      return (
+          <div className="h-[800px] w-full bg-gray-900 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
+          </div>
+      );
+  }
+
+  if (!activeSociety) {
+      return null;
+  }
 
   return (
     <section className="relative h-[800px] w-full overflow-hidden bg-gray-900 flex items-center">
@@ -139,10 +173,10 @@ export default function SocietyShowcase() {
                 [&::-webkit-scrollbar-thumb]:rounded-full 
                 hover:[&::-webkit-scrollbar-thumb]:bg-white/40 
                 transition-colors w-full md:w-[600px] pointer-events-auto">
-                {societies.map((society) => (
+                {displaySocieties.map((society) => (
                     <motion.div 
                         key={society.id}
-                        onClick={() => setActiveSociety(society)}
+                        onClick={() => setSelectedId(society.id)}
                         className={`
                             relative shrink-0 w-48 h-72 rounded-xl overflow-hidden cursor-pointer transition-all duration-500 snap-center group
                             ${activeSociety.id === society.id 
