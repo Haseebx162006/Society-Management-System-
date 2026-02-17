@@ -8,6 +8,7 @@ import User from '../models/User';
 import { isPresident } from '../util/roleUtils';
 import mongoose from 'mongoose';
 import { sendResponse, sendError } from '../util/response';
+import { uploadOnCloudinary } from '../utils/cloudinary';
 
 
 export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
@@ -48,7 +49,31 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
 
 export const createSociety = async (req: AuthRequest, res: Response) => {
     try {
-        const { name, description, registration_fee, teams, custom_fields, content_sections } = req.body;
+        console.log("Create Society Request Body:", JSON.stringify(req.body, null, 2));
+        console.log("Create Society File:", req.file);
+
+        const { name, description, registration_fee } = req.body;
+        
+        let teams = req.body.teams;
+        let custom_fields = req.body.custom_fields;
+        let content_sections = req.body.content_sections;
+
+        // Parse JSON strings if coming from FormData
+        const safeParse = (data: any, label: string) => {
+            if (typeof data === 'string') {
+                try {
+                    return JSON.parse(data);
+                } catch (e) {
+                    console.error(`Failed to parse ${label}:`, data);
+                    return [];
+                }
+            }
+            return data;
+        };
+
+        teams = safeParse(teams, 'teams');
+        custom_fields = safeParse(custom_fields, 'custom_fields');
+        content_sections = safeParse(content_sections, 'content_sections');
 
         if (!name) return sendError(res, 400, "Society name is required");
 
@@ -70,6 +95,15 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
             }
         }
 
+        // Handle Image Upload
+        let logoUrl = "";
+        if (req.file) {
+            const uploadResponse = await uploadOnCloudinary(req.file.path);
+            if (uploadResponse) {
+                logoUrl = uploadResponse.secure_url;
+            }
+        }
+
         // 1. Create Society
         const society = await Society.create({
             name,
@@ -77,6 +111,7 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
             registration_fee: registration_fee || 0,
             custom_fields: custom_fields || [],
             content_sections: content_sections || [],
+            logo: logoUrl || undefined,
             created_by: req.user!._id,
             status: "ACTIVE"
         });
@@ -352,13 +387,40 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
         const { name, description } = req.body;
+        
+        let teams = req.body.teams;
+        let custom_fields = req.body.custom_fields;
+        let content_sections = req.body.content_sections;
+
+        // Helper for parsing JSON from FormData
+        const safeParse = (data: any, label: string) => {
+            if (typeof data === 'string') {
+                try {
+                    return JSON.parse(data);
+                } catch (e) {
+                    console.error(`Failed to parse ${label}:`, data);
+                    return [];
+                }
+            }
+            return data;
+        };
+
+        teams = safeParse(teams, 'teams');
+        custom_fields = safeParse(custom_fields, 'custom_fields');
+        content_sections = safeParse(content_sections, 'content_sections');
 
         const society = await Society.findById(id);
         if (!society) {
              return sendError(res, 404, "Society not found");
         }
 
-
+        // Handle Image Upload
+        if (req.file) {
+            const uploadResponse = await uploadOnCloudinary(req.file.path);
+            if (uploadResponse) {
+                society.logo = uploadResponse.secure_url;
+            }
+        }
 
         if (name) {
              const existing = await Society.findOne({ name, _id: { $ne: new mongoose.Types.ObjectId(id as string) } });
@@ -368,14 +430,14 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
              society.name = name;
         }
         if (description) society.description = description;
-        if (req.body.registration_fee !== undefined) society.registration_fee = req.body.registration_fee;
-        if (req.body.custom_fields) society.custom_fields = req.body.custom_fields;
-        if (req.body.content_sections) society.content_sections = req.body.content_sections;
-        if (req.body.is_setup !== undefined) society.is_setup = req.body.is_setup;
+        if (req.body.registration_fee !== undefined) society.registration_fee = Number(req.body.registration_fee);
+        if (custom_fields) society.custom_fields = custom_fields;
+        if (content_sections) society.content_sections = content_sections;
+        if (req.body.is_setup !== undefined) society.is_setup = req.body.is_setup === 'true' || req.body.is_setup === true;
 
         // Handle Team Sync
-        if (req.body.teams && Array.isArray(req.body.teams)) {
-            const newTeams = req.body.teams; // Array of strings
+        if (teams && Array.isArray(teams)) {
+            const newTeams = teams; // Array of strings
             const existingGroups = await Group.find({ society_id: id });
             const existingTeamNames = existingGroups.map(g => g.name);
 

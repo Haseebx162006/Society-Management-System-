@@ -15,6 +15,7 @@ export interface ISociety extends Document {
         title: string;
         content: string;
     }>;
+    logo?: string;
     joining_verification_required: boolean;
     status: "ACTIVE" | "SUSPENDED" | "DELETED";
     created_by: mongoose.Types.ObjectId | IUser;
@@ -47,6 +48,10 @@ const societySchema: Schema = new Schema({
         title: { type: String, required: true },
         content: { type: String, required: true }
     }],
+    logo: {
+        type: String, 
+        required: false
+    },
     joining_verification_required: {
         type: Boolean,
         default: true

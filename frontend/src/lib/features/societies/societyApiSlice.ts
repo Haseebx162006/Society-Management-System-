@@ -1,6 +1,7 @@
 import { apiSlice } from "../api/apiSlice";
 
 export const societyApiSlice = apiSlice.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     createSocietyRequest: builder.mutation({
       query: (data) => ({
@@ -40,7 +41,7 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["SocietyRequest", "User"],
     }),
     updateSociety: builder.mutation({
-      query: ({ id, ...data }) => ({
+      query: ({ id, data }) => ({
         url: `/society/${id}`,
         method: "PUT",
         body: data,

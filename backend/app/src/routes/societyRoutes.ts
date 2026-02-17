@@ -1,6 +1,7 @@
 import express from 'express';
 import { protect, adminOnly } from '../middleware/authmiddleware';
 import { authorize } from '../middleware/authorize';
+import { upload } from '../middleware/multer.middleware';
 import {
     createSocietyRequest,
     createSociety,
@@ -26,10 +27,10 @@ router.get('/requests', protect, adminOnly, getAllSocietyRequests);
 router.put('/requests/:id', protect, adminOnly, updateSocietyRequestStatus);
 
 // ─── Society CRUD Routes ─────────────────────────────────────────────────────
-router.post('/', protect, createSociety);
+router.post('/', protect, upload.single("logo"), createSociety);
 router.get('/', protect, getAllSocieties);
 router.get('/:id', protect, getSocietyById);
-router.put('/:id', protect, authorize(['PRESIDENT'], 'SOCIETY'), updateSociety);
+router.put('/:id', protect, authorize(['PRESIDENT'], 'SOCIETY'), upload.single("logo"), updateSociety);
 router.delete('/:id', protect, adminOnly, deleteSociety);
 
 // ─── Society Admin Actions ───────────────────────────────────────────────────

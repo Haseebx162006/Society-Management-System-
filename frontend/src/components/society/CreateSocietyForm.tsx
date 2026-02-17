@@ -45,6 +45,11 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
     teams: initialData?.groups?.map((g: SocietyGroup) => g.name) || [],
     content_sections: initialData?.content_sections || [],
   });
+  
+  // Set initial preview if logo exists (assuming it's a URL in initialData, though not in interface yet)
+  // For now, only local preview.
+  const [logo, setLogo] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>((initialData as any)?.logo || null);
   const [teamInput, setTeamInput] = useState('');
   
   // Content Section State
@@ -96,11 +101,28 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
     e.preventDefault();
     try {
       let result;
+      
+      const formPayload = new FormData();
+      formPayload.append('name', formData.name);
+      formPayload.append('description', formData.description);
+      formPayload.append('registration_fee', formData.registration_fee.toString());
+      formPayload.append('teams', JSON.stringify(formData.teams));
+      formPayload.append('content_sections', JSON.stringify(formData.content_sections));
+      
+      if (logo) {
+        formPayload.append('logo', logo);
+      }
+
+      // Debug Logging
+      for (const pair of formPayload.entries()) {
+          console.log(pair[0] + ': ' + pair[1]);
+      }
+
       if (isEditing && initialData?._id) {
-          result = await updateSociety({ id: initialData._id, ...formData }).unwrap();
+          result = await updateSociety({ id: initialData._id, data: formPayload }).unwrap();
           toast.success('Society updated successfully!', { icon: '✅' });
       } else {
-          result = await createSociety(formData).unwrap();
+          result = await createSociety(formPayload).unwrap();
           toast.success('Society launched successfully!', { icon: '🚀' });
       }
       
@@ -173,6 +195,38 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
                                 className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
                                 required
                             />
+                        </div>
+
+                         {/* Logo Upload */}
+                         <div>
+                            <label className="block text-sm font-medium text-blue-300 mb-1">Society Logo</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                        const file = e.target.files[0];
+                                        setLogo(file);
+                                        setPreview(URL.createObjectURL(file));
+                                    }
+                                }}
+                                className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500"
+                            />
+                            {preview && (
+                                <div className="mt-4 relative w-32 h-32 rounded-lg overflow-hidden border border-blue-500/30">
+                                    <img src={preview} alt="Society Logo Preview" className="w-full h-full object-cover" />
+                                    <button 
+                                        type="button" 
+                                        onClick={() => {
+                                            setLogo(null);
+                                            setPreview(null);
+                                        }} 
+                                        className="absolute top-1 right-1 bg-black/50 hover:bg-red-500/80 text-white rounded-full p-1"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
