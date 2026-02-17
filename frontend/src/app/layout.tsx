@@ -9,11 +9,13 @@ export const metadata: Metadata = {
 
 import StoreProvider from "./StoreProvider";
 
+import { Toaster } from 'react-hot-toast';
+
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
       <head>
@@ -25,7 +27,16 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <StoreProvider>{children}</StoreProvider>
+        <StoreProvider>
+          {children}
+          <Toaster position="top-right" toastOptions={{
+            style: {
+              background: '#1e293b',
+              color: '#fff',
+              border: '1px solid #3b82f6',
+            },
+          }} />
+        </StoreProvider>
       </body>
     </html>
   );

@@ -1,5 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/authmiddleware';
+import Group from '../models/Group';
 import Society from '../models/Society';
 import SocietyRequest from '../models/SocietyRequest';
 import SocietyUserRole from '../models/SocietyUserRole';
@@ -42,6 +43,72 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
 
     } catch (error: any) {
         return sendError(res, 500, "Internal server error while creating society request", error);
+    }
+};
+
+export const createSociety = async (req: AuthRequest, res: Response) => {
+    try {
+        const { name, description, registration_fee, teams, custom_fields, content_sections } = req.body;
+
+        if (!name) return sendError(res, 400, "Society name is required");
+
+        const existingSociety = await Society.findOne({ name });
+        if (existingSociety) {
+            // Check for soft-deleted society or orphan (failed creation)
+            const presidentRole = await SocietyUserRole.findOne({ society_id: existingSociety._id, role: 'PRESIDENT' });
+            
+            if (existingSociety.status === 'DELETED' || !presidentRole) {
+                 console.log(`Cleaning up zombie/orphan society: ${name}`);
+                 await Society.deleteOne({ _id: existingSociety._id });
+                 await Group.deleteMany({ society_id: existingSociety._id });
+                 await SocietyUserRole.deleteMany({ society_id: existingSociety._id });
+            } else if (presidentRole.user_id.toString() === req.user!._id.toString()) {
+                 console.log(`User ${req.user!.name} is already president of ${name}. Returning existing society.`);
+                 return sendResponse(res, 200, "Society already exists", existingSociety);
+            } else {
+                 return sendError(res, 400, "Society with this name already exists");
+            }
+        }
+
+        // 1. Create Society
+        const society = await Society.create({
+            name,
+            description,
+            registration_fee: registration_fee || 0,
+            custom_fields: custom_fields || [],
+            content_sections: content_sections || [],
+            created_by: req.user!._id,
+            status: "ACTIVE"
+        });
+
+        const newSociety = society;
+
+        // 2. Assign President Role
+        await SocietyUserRole.create({
+            name: req.user!.name, // Assuming user name is available in req.user, otherwise fetch user
+            user_id: req.user!._id,
+            society_id: newSociety._id,
+            role: "PRESIDENT",
+            assigned_by: req.user!._id
+        });
+
+        // 3. Create Teams (Groups)
+        if (teams && Array.isArray(teams)) {
+            // Deduplicate teams to prevent unique index violation
+            const uniqueTeams = [...new Set(teams)];
+            const teamDocs = uniqueTeams.map((teamName: string) => ({
+                society_id: newSociety._id,
+                name: teamName,
+                created_by: req.user!._id
+            }));
+            await Group.create(teamDocs);
+        }
+
+        return sendResponse(res, 201, "Society created successfully", newSociety);
+
+    } catch (error: any) {
+        console.error("Error creating society:", error);
+        return sendError(res, 500, "Internal server error while creating society", error);
     }
 };
 
@@ -299,6 +366,10 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
              society.name = name;
         }
         if (description) society.description = description;
+        if (req.body.registration_fee !== undefined) society.registration_fee = req.body.registration_fee;
+        if (req.body.custom_fields) society.custom_fields = req.body.custom_fields;
+        if (req.body.content_sections) society.content_sections = req.body.content_sections;
+        if (req.body.is_setup !== undefined) society.is_setup = req.body.is_setup;
 
         society.updated_at = new Date();
         await society.save();

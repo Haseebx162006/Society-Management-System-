@@ -3,6 +3,7 @@ import { protect, adminOnly } from '../middleware/authmiddleware';
 import { authorize } from '../middleware/authorize';
 import {
     createSocietyRequest,
+    createSociety,
     getAllSocietyRequests,
     updateSocietyRequestStatus,
     getAllSocieties,
@@ -25,6 +26,7 @@ router.get('/requests', protect, adminOnly, getAllSocietyRequests);
 router.put('/requests/:id', protect, adminOnly, updateSocietyRequestStatus);
 
 // ─── Society CRUD Routes ─────────────────────────────────────────────────────
+router.post('/', protect, createSociety);
 router.get('/', protect, getAllSocieties);
 router.get('/:id', protect, getSocietyById);
 router.put('/:id', protect, authorize(['PRESIDENT'], 'SOCIETY'), updateSociety);

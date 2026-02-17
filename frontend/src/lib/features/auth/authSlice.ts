@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface User {
-  id: string;
+  id: string; // Used for frontend consistency
+  _id?: string; // MongoDB ID from backend
   name: string;
   email: string;
   phone?: string;
