@@ -19,6 +19,13 @@ import {
     updateJoinRequestStatus,
     getMyJoinRequests
 } from '../controllers/joinRequestController';
+import {
+    uploadPreviousMembers,
+    getPreviousMembers,
+    deletePreviousMember,
+    clearPreviousMembers,
+    exportUnregisteredMembers
+} from '../controllers/previousMemberController';
 
 const router = express.Router();
 
@@ -96,6 +103,39 @@ router.get(
     '/my/join-requests',
     protect,
     getMyJoinRequests
+);
+
+// ─── Previous Members (President) ───────────────────────────────────────────
+router.post(
+    '/society/:id/previous-members/upload',
+    protect,
+    authorize(['PRESIDENT'], 'SOCIETY'),
+    upload.single('file'),
+    uploadPreviousMembers
+);
+router.get(
+    '/society/:id/previous-members',
+    protect,
+    authorize(['PRESIDENT'], 'SOCIETY'),
+    getPreviousMembers
+);
+router.delete(
+    '/society/:id/previous-members/:memberId',
+    protect,
+    authorize(['PRESIDENT'], 'SOCIETY'),
+    deletePreviousMember
+);
+router.delete(
+    '/society/:id/previous-members',
+    protect,
+    authorize(['PRESIDENT'], 'SOCIETY'),
+    clearPreviousMembers
+);
+router.get(
+    '/society/:id/previous-members/export-unregistered',
+    protect,
+    authorize(['PRESIDENT'], 'SOCIETY'),
+    exportUnregisteredMembers
 );
 
 export default router;

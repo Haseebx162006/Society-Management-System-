@@ -203,6 +203,58 @@ export const joinApiSlice = apiSlice.injectEndpoints({
             transformResponse: (response: { data: JoinRequest[] }) => response.data,
             providesTags: ["JoinRequest"],
         }),
+
+        // ─── Previous Members (President) ───────────────────────────────
+        uploadPreviousMembers: builder.mutation<
+            { total_in_file: number; newly_added: number; duplicates_skipped: number; with_account: number; without_account: number; unregistered_emails: string[] },
+            { societyId: string; body: FormData }
+        >({
+            query: ({ societyId, body }) => ({
+                url: `/society/${societyId}/previous-members/upload`,
+                method: "POST",
+                body,
+            }),
+            transformResponse: (response: { data: any }) => response.data,
+            invalidatesTags: (_result, _error, { societyId }) => [
+                { type: "PreviousMember" as const, id: `SOCIETY_${societyId}` },
+            ],
+        }),
+
+        getPreviousMembers: builder.query<
+            { _id: string; email: string; has_account: boolean; created_at: string }[],
+            string
+        >({
+            query: (societyId) => `/society/${societyId}/previous-members`,
+            transformResponse: (response: { data: any[] }) => response.data,
+            providesTags: (result, _error, societyId) =>
+                result
+                    ? [
+                        ...result.map((m) => ({ type: "PreviousMember" as const, id: m._id })),
+                        { type: "PreviousMember" as const, id: `SOCIETY_${societyId}` },
+                    ]
+                    : [{ type: "PreviousMember" as const, id: `SOCIETY_${societyId}` }],
+        }),
+
+        deletePreviousMember: builder.mutation<void, { societyId: string; memberId: string }>({
+            query: ({ societyId, memberId }) => ({
+                url: `/society/${societyId}/previous-members/${memberId}`,
+                method: "DELETE",
+            }),
+            invalidatesTags: (_result, _error, { societyId, memberId }) => [
+                { type: "PreviousMember", id: memberId },
+                { type: "PreviousMember", id: `SOCIETY_${societyId}` },
+            ],
+        }),
+
+        clearPreviousMembers: builder.mutation<void, string>({
+            query: (societyId) => ({
+                url: `/society/${societyId}/previous-members`,
+                method: "DELETE",
+            }),
+            invalidatesTags: (_result, _error, societyId) => [
+                { type: "PreviousMember", id: `SOCIETY_${societyId}` },
+            ],
+        }),
     }),
 });
 
@@ -217,4 +269,8 @@ export const {
     useGetJoinRequestsForSocietyQuery,
     useUpdateJoinRequestStatusMutation,
     useGetMyJoinRequestsQuery,
+    useUploadPreviousMembersMutation,
+    useGetPreviousMembersQuery,
+    useDeletePreviousMemberMutation,
+    useClearPreviousMembersMutation,
 } = joinApiSlice;

@@ -15,6 +15,7 @@ import MembersManager from '@/components/society/MembersManager';
 import TeamsManager from '@/components/society/TeamsManager';
 import EventManager from '@/components/society/EventManager';
 import EventFormBuilder from '@/components/society/EventFormBuilder';
+import PreviousMembersManager from '@/components/society/PreviousMembersManager';
 
 
 interface SocietyDashboardProps {
@@ -321,6 +322,8 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
               <EventManager societyId={society._id} />
             ) : activeTab === 'event-forms' ? (
               <EventFormBuilder societyId={society._id} />
+            ) : activeTab === 'previous-members' ? (
+              <PreviousMembersManager societyId={society._id} />
             ) : (
               <div className="flex items-center justify-center h-96 text-slate-400 animate-pulse">
                 Content for {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} coming soon...

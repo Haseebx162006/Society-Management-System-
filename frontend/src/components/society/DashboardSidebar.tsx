@@ -1,5 +1,5 @@
 import { MdDashboard, MdEvent, MdSettings, MdGroups } from 'react-icons/md';
-import { FaEdit, FaSignOutAlt, FaUsers, FaWpforms, FaClipboardList, FaHome } from 'react-icons/fa';
+import { FaEdit, FaSignOutAlt, FaUsers, FaWpforms, FaClipboardList, FaHome, FaHistory } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { logOut, selectRefreshToken } from '@/lib/features/auth/authSlice';
@@ -37,6 +37,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
     { id: 'teams', label: 'Teams', icon: <MdGroups />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD'] },
     { id: 'join-form', label: 'Join Form', icon: <FaWpforms />, roles: ['PRESIDENT'] },
     { id: 'join-requests', label: 'Join Requests', icon: <FaClipboardList />, roles: ['PRESIDENT', 'FINANCE MANAGER'] }, // FINANCE MANAGER added here
+    { id: 'previous-members', label: 'Previous Members', icon: <FaHistory />, roles: ['PRESIDENT'] },
     { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'MEMBER'] },
     { id: 'event-forms', label: 'Event Forms', icon: <FaWpforms />, roles: ['PRESIDENT'] },
     { id: 'settings', label: 'Settings', icon: <MdSettings />, roles: ['PRESIDENT'] },

@@ -7,6 +7,7 @@ import GroupMember from '../models/GroupMember';
 import Group from '../models/Group';
 import Society from '../models/Society';
 import User from '../models/User';
+import PreviousMember from '../models/PreviousMember';
 import { sendResponse, sendError } from '../util/response';
 import { validateResponses } from '../util/formValidator';
 import { notifyNewJoinRequest, notifyRequestStatusChange } from '../services/notificationService';
@@ -56,6 +57,55 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
         if (existingRequest) {
             return sendError(res, 400, 'You already have a pending request for this society');
         }
+
+        // ── AUTO-APPROVE: Check if user is a previous member ────────────────
+        const isPreviousMember = await PreviousMember.findOne({
+            society_id: form.society_id,
+            email: req.user!.email.toLowerCase()
+        });
+
+        if (isPreviousMember) {
+            // Create an auto-approved join request (no validation needed)
+            const joinRequest = await JoinRequest.create({
+                user_id: req.user!._id,
+                society_id: form.society_id,
+                form_id: form._id,
+                selected_team: selected_team || null,
+                responses: [],           // no responses needed for previous members
+                status: 'APPROVED',
+                reviewed_at: new Date()
+            });
+
+            // Add user as MEMBER in the society
+            await SocietyUserRole.create([{
+                name: req.user!.name,
+                user_id: req.user!._id,
+                society_id: form.society_id,
+                role: 'MEMBER',
+                assigned_by: req.user!._id    // self-assigned via auto-approval
+            }]);
+
+            // Assign team if selected
+            if (selected_team) {
+                const team = await Group.findOne({ _id: selected_team, society_id: form.society_id });
+                if (team) {
+                    await GroupMember.create([{
+                        group_id: selected_team,
+                        user_id: req.user!._id,
+                        society_id: form.society_id
+                    }]);
+                }
+            }
+
+            // Remove from previous members list (one-time use)
+            await PreviousMember.deleteOne({ _id: isPreviousMember._id });
+
+            return sendResponse(res, 201, 'You are a previous member! Automatically approved.', {
+                ...joinRequest.toObject(),
+                auto_approved: true
+            });
+        }
+        // ── END AUTO-APPROVE ────────────────────────────────────────────────
 
         // 4. Upload files to Cloudinary for FILE-type fields
         const uploadedFiles = req.files as Express.Multer.File[] | undefined;
