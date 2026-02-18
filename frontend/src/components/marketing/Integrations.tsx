@@ -3,12 +3,9 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 
+// Placeholder logos - in a real app these would be SVGs or images
 const integrations = [
-  { name: "ACM", logo: "/logos/acm.jpg" },
-  { name: "GDGOC", logo: "/logos/gdgoc1.jpg" },
-  { name: "MLSA", logo: "/logos/mlsa.jpg" },
-  { name: "CLS", logo: "/logos/cls.jpg" },
-  { name: "Society", logo: "/logos/building.png" }
+  "Slack", "Discord", "Google Calendar", "Notion", "Zoom", "Stripe"
 ];
 
 export default function Integrations() {
@@ -16,11 +13,11 @@ export default function Integrations() {
     <section className="py-24 bg-white border-y border-gray-100">
       <div className="max-w-7xl mx-auto px-6 text-center">
         <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-12">
-          Popular societies working with us
+          Seamlessly integrates with your favorite tools
         </p>
         
-        <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-70">
-          {integrations.map((item, index) => (
+        <div className="flex flex-wrap justify-center gap-12 md:gap-20 opacity-70">
+          {integrations.map((name, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -29,13 +26,9 @@ export default function Integrations() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="flex items-center gap-2 group cursor-default"
             >
-              <div className="relative w-16 h-16 md:w-20 md:h-20 grayscale hover:grayscale-0 transition-all duration-300">
-                <Image
-                  src={item.logo}
-                  alt={item.name}
-                  fill
-                  className="object-contain"
-                />
+              {/* Logo Placeholder */}
+              <div className="text-xl md:text-2xl font-bold text-gray-400 group-hover:text-gray-900 transition-colors duration-300">
+                {name}
               </div>
             </motion.div>
           ))}

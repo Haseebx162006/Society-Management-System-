@@ -10,11 +10,11 @@ import {
 import { useLogoutMutation } from "../../lib/features/auth/authApiSlice";
 import { useGetMySocietiesQuery } from "../../lib/features/user/userApiSlice";
 import { useRouter } from "next/navigation";
+import Header from "../../components/Header";
 import MyAccount from "../../components/profile/MyAccount";
 import ChangePassword from "../../components/profile/ChangePassword";
 import EnrolledSocieties from "../../components/profile/EnrolledSocieties";
 import SocietyRegistration from "../../components/profile/SocietyRegistration";
-import Navbar from "@/components/marketing/Navbar";
 
 type Tab = "account" | "password" | "societies" | "registration";
 
@@ -153,7 +153,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
-      <Navbar />
+      <Header />
 
       <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-10">
         <div className="max-w-screen-xl mx-auto">
