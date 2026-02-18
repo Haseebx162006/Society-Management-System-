@@ -44,7 +44,7 @@ export default function Navbar() {
             C
           </div>
           <span className="font-bold text-xl text-gray-900 tracking-tight">
-            COMSOC
+            COMSOc
           </span>
         </Link>
 
