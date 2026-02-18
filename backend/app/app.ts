@@ -7,6 +7,7 @@ import user_routes from './src/routes/userRoutes';
 import society_routes from './src/routes/societyRoutes';
 import group_routes from './src/routes/groupRoutes';
 import join_routes from './src/routes/joinRoutes';
+import event_routes from './src/routes/eventRoutes';
 import { errorHandler } from './src/middleware/errorHandler';
 import { AppError } from './src/util/AppError';
 
@@ -39,6 +40,7 @@ app.use('/api/user', user_routes);
 app.use('/api/society', society_routes);
 app.use('/api/groups', group_routes);
 app.use('/api', join_routes);
+app.use('/api', event_routes);
 
 // Handle unhandled routes
 app.all(/(.*)/, (req: Request, res: Response, next: NextFunction) => {
