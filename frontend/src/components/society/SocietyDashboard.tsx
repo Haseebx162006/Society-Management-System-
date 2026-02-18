@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { MdGroups, MdEvent } from 'react-icons/md';
 import { FaUsers, FaArrowRight, FaBell } from 'react-icons/fa';
+import { useGetEventsBySocietyQuery } from '@/lib/features/events/eventApiSlice';
 
 import MemberBarChart from '@/components/charts/MemberBarChart';
 import GrowthLineChart from '@/components/charts/GrowthLineChart';
@@ -12,6 +13,8 @@ import JoinFormManager from '@/components/society/JoinFormManager';
 import JoinRequestManager from '@/components/society/JoinRequestManager';
 import MembersManager from '@/components/society/MembersManager';
 import TeamsManager from '@/components/society/TeamsManager';
+import EventManager from '@/components/society/EventManager';
+import EventFormBuilder from '@/components/society/EventFormBuilder';
 
 
 interface SocietyDashboardProps {
@@ -31,6 +34,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [activeTab, setActiveTab] = React.useState('overview');
   const [showCreateForm, setShowCreateForm] = React.useState(false);
+  const { data: events } = useGetEventsBySocietyQuery(society._id);
 
   // Determine current user's role
   const currentUserRole = useMemo(() => {
@@ -244,7 +248,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                   <StatCard title="Total Members" value={society.members?.length || 0} icon={<FaUsers />} color="blue" />
                   <StatCard title="Total Teams" value={society.groups?.length || 0} icon={<MdGroups />} color="indigo" />
-                  <StatCard title="Events Held" value="0" icon={<MdEvent />} color="purple" /> 
+                  <StatCard title="Events Held" value={events?.length || 0} icon={<MdEvent />} color="purple" /> 
                   {/* Revenue card removed as per request */}
                 </div>
 
@@ -295,6 +299,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                       {currentUserRole === 'PRESIDENT' && (
                           <>
                             <ActionButton label="Manage Teams" onClick={() => setActiveTab('teams')} />
+                            <ActionButton label="Manage Events" onClick={() => setActiveTab('events')} />
                           </>
                       )}
                       {(currentUserRole === 'PRESIDENT' || currentUserRole === 'FINANCE MANAGER') && (
@@ -312,6 +317,10 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
               <MembersManager societyId={society._id} />
             ) : activeTab === 'teams' ? (
               <TeamsManager societyId={society._id} />
+            ) : activeTab === 'events' ? (
+              <EventManager societyId={society._id} />
+            ) : activeTab === 'event-forms' ? (
+              <EventFormBuilder societyId={society._id} />
             ) : (
               <div className="flex items-center justify-center h-96 text-slate-400 animate-pulse">
                 Content for {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} coming soon...

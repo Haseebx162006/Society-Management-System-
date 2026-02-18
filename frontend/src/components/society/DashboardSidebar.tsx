@@ -38,6 +38,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
     { id: 'join-form', label: 'Join Form', icon: <FaWpforms />, roles: ['PRESIDENT'] },
     { id: 'join-requests', label: 'Join Requests', icon: <FaClipboardList />, roles: ['PRESIDENT', 'FINANCE MANAGER'] }, // FINANCE MANAGER added here
     { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'MEMBER'] },
+    { id: 'event-forms', label: 'Event Forms', icon: <FaWpforms />, roles: ['PRESIDENT'] },
     { id: 'settings', label: 'Settings', icon: <MdSettings />, roles: ['PRESIDENT'] },
   ];
 
