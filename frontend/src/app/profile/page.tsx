@@ -59,7 +59,7 @@ export default function ProfilePage() {
   const { data: societies } = useGetMySocietiesQuery();
 
   const roleBasedItems = useMemo(() => {
-    const items = [];
+    const items: { key: string; label: string; icon: React.ReactNode; action: () => void }[] = [];
 
     // Super Admin - Dashboard
     if (user?.is_super_admin) {
@@ -85,7 +85,7 @@ export default function ProfilePage() {
         label: "Society Dashboard",
         icon: (
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" />
           </svg>
         ),
         action: () => router.push("/society/dashboard"),
@@ -111,11 +111,17 @@ export default function ProfilePage() {
     return items;
   }, [user, societies, router]);
 
+  const [isMounted, setIsMounted] = useState(false);
+
   useEffect(() => {
-    if (!user) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && !user) {
       router.push("/");
     }
-  }, [user, router]);
+  }, [user, router, isMounted]);
 
   const handleLogout = async () => {
     try {
@@ -130,7 +136,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (!user) return null;
+  if (!isMounted || !user) return null;
 
   const renderContent = () => {
     switch (activeTab) {
@@ -181,11 +187,10 @@ export default function ProfilePage() {
             </button>
 
             <div
-              className={`mt-2 rounded-xl bg-white border border-gray-100 shadow-lg overflow-hidden transition-all duration-300 origin-top ${
-                mobileSidebarOpen
-                  ? "opacity-100 scale-y-100 max-h-[400px]"
-                  : "opacity-0 scale-y-95 max-h-0 pointer-events-none"
-              }`}
+              className={`mt-2 rounded-xl bg-white border border-gray-100 shadow-lg overflow-hidden transition-all duration-300 origin-top ${mobileSidebarOpen
+                ? "opacity-100 scale-y-100 max-h-[400px]"
+                : "opacity-0 scale-y-95 max-h-0 pointer-events-none"
+                }`}
             >
               <div className="py-2">
                 {SIDEBAR_ITEMS.map((item) => (
@@ -195,11 +200,10 @@ export default function ProfilePage() {
                       setActiveTab(item.key);
                       setMobileSidebarOpen(false);
                     }}
-                    className={`flex items-center gap-3 w-full px-5 py-3 text-sm font-medium transition-colors ${
-                      activeTab === item.key
-                        ? "text-blue-600 bg-blue-50/80"
-                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
+                    className={`flex items-center gap-3 w-full px-5 py-3 text-sm font-medium transition-colors ${activeTab === item.key
+                      ? "text-blue-600 bg-blue-50/80"
+                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                      }`}
                   >
                     {item.icon}
                     {item.label}
@@ -212,8 +216,8 @@ export default function ProfilePage() {
                   <button
                     key={item.key}
                     onClick={() => {
-                        item.action();
-                        setMobileSidebarOpen(false);
+                      item.action();
+                      setMobileSidebarOpen(false);
                     }}
                     className="flex items-center gap-3 w-full px-5 py-3 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
                   >
@@ -260,11 +264,10 @@ export default function ProfilePage() {
                     <button
                       key={item.key}
                       onClick={() => setActiveTab(item.key)}
-                      className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
-                        activeTab === item.key
-                          ? "text-blue-600 bg-blue-50/80"
-                          : "text-gray-500 hover:text-gray-900 hover:bg-gray-50/80"
-                      }`}
+                      className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${activeTab === item.key
+                        ? "text-blue-600 bg-blue-50/80"
+                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50/80"
+                        }`}
                     >
                       {item.icon}
                       {item.label}

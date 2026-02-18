@@ -59,6 +59,14 @@ export const validateResponses = (
                     errors.push({ field: field.label, message: 'Must be text' });
                 }
                 break;
+
+            case 'FILE':
+                // FILE fields store the uploaded file path as a string.
+                // Actual file presence is validated at the route/controller level.
+                if (typeof val !== 'string') {
+                    errors.push({ field: field.label, message: 'Must be a file path' });
+                }
+                break;
         }
     }
 

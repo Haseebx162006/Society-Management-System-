@@ -9,6 +9,7 @@ import {
     updateSocietyRequestStatus,
     getAllSocieties,
     getSocietyById,
+    getSocietyMembers,
     addMember,
     updateMemberRole,
     removeMember,
@@ -39,6 +40,7 @@ router.post('/:id/suspend', protect, adminOnly, suspendSociety);
 router.post('/:id/reactivate', protect, adminOnly, reactivateSociety);
 
 // ─── Member Management Routes ────────────────────────────────────────────────
+router.get('/:id/members', protect, authorize(['PRESIDENT'], 'SOCIETY'), getSocietyMembers);
 router.post('/:id/members', protect, authorize(['PRESIDENT'], 'SOCIETY'), addMember);
 router.put('/:id/members/:userId', protect, authorize(['PRESIDENT'], 'SOCIETY'), updateMemberRole);
 router.delete('/:id/members/:userId', protect, authorize(['PRESIDENT'], 'SOCIETY'), removeMember);

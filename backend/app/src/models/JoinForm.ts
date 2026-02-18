@@ -4,7 +4,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IFormField {
     label: string;
-    field_type: 'TEXT' | 'EMAIL' | 'NUMBER' | 'DROPDOWN' | 'CHECKBOX';
+    field_type: 'TEXT' | 'EMAIL' | 'NUMBER' | 'DROPDOWN' | 'CHECKBOX' | 'FILE';
     is_required: boolean;
     options?: string[];       // only used for DROPDOWN
     order: number;
@@ -12,7 +12,7 @@ export interface IFormField {
 
 const formFieldSchema = new Schema<IFormField>({
     label: { type: String, required: true },
-    field_type: { type: String, enum: ['TEXT', 'EMAIL', 'NUMBER', 'DROPDOWN', 'CHECKBOX'], required: true },
+    field_type: { type: String, enum: ['TEXT', 'EMAIL', 'NUMBER', 'DROPDOWN', 'CHECKBOX', 'FILE'], required: true },
     is_required: { type: Boolean, default: false },
     options: [{ type: String }],
     order: { type: Number, default: 0 }

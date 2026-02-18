@@ -2,7 +2,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "create-admin": "ts-node scripts/createSuperAdmin.ts"
   },
   "dependencies": {
     "@types/cors": "^2.8.19",

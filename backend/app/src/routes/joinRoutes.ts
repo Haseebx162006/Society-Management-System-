@@ -2,13 +2,15 @@ import express from 'express';
 import { protect } from '../middleware/authmiddleware';
 import { optionalProtect } from '../middleware/optionalProtect';
 import { authorize } from '../middleware/authorize';
+import { upload } from '../middleware/multer.middleware';
 import {
     createJoinForm,
     getJoinFormsBySociety,
     getJoinFormById,
     updateJoinForm,
     deleteJoinForm,
-    getJoinFormPublic
+    getJoinFormPublic,
+    getPublicJoinFormsBySociety
 } from '../controllers/joinFormController';
 import {
     submitJoinRequest,
@@ -52,7 +54,11 @@ router.delete(
     deleteJoinForm
 );
 
-// ─── Public: View Form + Submit ──────────────────────────────────────────────
+// ─── Public: List active forms for society + View + Submit ───────────────────
+router.get(
+    '/society/:id/public-join-forms',
+    getPublicJoinFormsBySociety
+);
 router.get(
     '/join-forms/:formId',
     optionalProtect,
@@ -61,6 +67,7 @@ router.get(
 router.post(
     '/join-forms/:formId/submit',
     protect,   // submission always requires login
+    upload.any(),
     submitJoinRequest
 );
 

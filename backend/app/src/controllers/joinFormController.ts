@@ -60,6 +60,27 @@ export const getJoinFormsBySociety = async (req: AuthRequest, res: Response) => 
     }
 };
 
+// ─── Get Public Active Forms for a Society (anyone can access) ───────────────
+
+export const getPublicJoinFormsBySociety = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id: society_id } = req.params;
+
+        const forms = await JoinForm.find({
+            society_id,
+            is_active: true,
+            is_public: true
+        })
+            .select('title description fields is_active is_public created_at')
+            .sort({ created_at: -1 });
+
+        return sendResponse(res, 200, 'Public join forms fetched successfully', forms);
+
+    } catch (error: any) {
+        return sendError(res, 500, 'Internal server error', error);
+    }
+};
+
 // ─── Get Single Form (President) 
 
 export const getJoinFormById = async (req: AuthRequest, res: Response) => {

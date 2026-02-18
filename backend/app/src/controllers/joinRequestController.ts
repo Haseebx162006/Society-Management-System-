@@ -7,17 +7,30 @@ import GroupMember from '../models/GroupMember';
 import Group from '../models/Group';
 import Society from '../models/Society';
 import User from '../models/User';
-import mongoose from 'mongoose';
 import { sendResponse, sendError } from '../util/response';
 import { validateResponses } from '../util/formValidator';
 import { notifyNewJoinRequest, notifyRequestStatusChange } from '../services/notificationService';
+import { uploadOnCloudinary } from '../utils/cloudinary';
 
 // ─── Submit Join Request ─────────────────────────────────────────────────────
 
 export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
     try {
         const { formId } = req.params;
-        const { responses, selected_team } = req.body;
+
+        // When using multipart/form-data, responses arrives as a JSON string
+        let responses: any[] = [];
+        if (typeof req.body.responses === 'string') {
+            try {
+                responses = JSON.parse(req.body.responses);
+            } catch {
+                return sendError(res, 400, 'Invalid responses format');
+            }
+        } else {
+            responses = req.body.responses || [];
+        }
+
+        const selected_team = req.body.selected_team;
 
         // 1. Find the form
         const form = await JoinForm.findById(formId);
@@ -44,13 +57,52 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
             return sendError(res, 400, 'You already have a pending request for this society');
         }
 
-        // 4. Validate responses against form fields
-        const errors = validateResponses(form.fields, responses || []);
+        // 4. Upload files to Cloudinary for FILE-type fields
+        const uploadedFiles = req.files as Express.Multer.File[] | undefined;
+        console.log('[JoinRequest] Files received by multer:', uploadedFiles?.length || 0);
+        if (uploadedFiles && uploadedFiles.length > 0) {
+            for (const file of uploadedFiles) {
+                const fieldLabel = file.fieldname;
+                console.log(`[JoinRequest] Uploading file "${file.originalname}" for field "${fieldLabel}" from path: ${file.path}`);
+
+                const uploadResult = await uploadOnCloudinary(file.path);
+
+                if (uploadResult) {
+                    console.log(`[JoinRequest] Cloudinary upload success: ${uploadResult.secure_url}`);
+                    // Find the matching response and set the Cloudinary URL
+                    const matchingResponse = responses.find(
+                        (r: any) => r.field_label === fieldLabel
+                    );
+                    if (matchingResponse) {
+                        matchingResponse.value = uploadResult.secure_url;
+                    } else {
+                        responses.push({
+                            field_label: fieldLabel,
+                            field_type: 'FILE',
+                            value: uploadResult.secure_url
+                        });
+                    }
+                } else {
+                    console.error(`[JoinRequest] Cloudinary upload FAILED for file "${file.originalname}". Check CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET env vars.`);
+                    return sendError(res, 500, `File upload failed for "${fieldLabel}". Please try again.`);
+                }
+            }
+        } else {
+            // Check if there are FILE-type fields that should have had uploads
+            const fileFields = form.fields.filter(f => f.field_type === 'FILE');
+            const requiredFileFields = fileFields.filter(f => f.is_required);
+            if (requiredFileFields.length > 0) {
+                console.warn('[JoinRequest] Expected file uploads but none received. FILE fields:', requiredFileFields.map(f => f.label));
+            }
+        }
+
+        // 5. Validate responses against form fields
+        const errors = validateResponses(form.fields, responses);
         if (errors.length > 0) {
             return sendError(res, 400, 'Validation failed', errors);
         }
 
-        // 5. Validate selected_team if provided
+        // 6. Validate selected_team if provided
         if (selected_team) {
             const team = await Group.findOne({
                 _id: selected_team,
@@ -61,8 +113,8 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
             }
         }
 
-        // 6. Build denormalized response array
-        const formattedResponses = (responses || []).map((r: any) => {
+        // 7. Build denormalized response array
+        const formattedResponses = responses.map((r: any) => {
             const field = form.fields.find(f => f.label === r.field_label);
             return {
                 field_label: r.field_label,
@@ -71,7 +123,7 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
             };
         });
 
-        // 7. Create the request
+        // 8. Create the request
         const joinRequest = await JoinRequest.create({
             user_id: req.user!._id,
             society_id: form.society_id,
@@ -80,7 +132,7 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
             responses: formattedResponses
         });
 
-        // 8. Notify President (fire-and-forget)
+        // 9. Notify President (fire-and-forget)
         notifyNewJoinRequest(
             form.society_id.toString(),
             req.user!.name
@@ -146,31 +198,22 @@ export const getJoinRequestById = async (req: AuthRequest, res: Response) => {
 // ─── Approve or Reject (President) ───────────────────────────────────────────
 
 export const updateJoinRequestStatus = async (req: AuthRequest, res: Response) => {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
     try {
         const { id: society_id, requestId } = req.params;
         const { status, rejection_reason, assign_team } = req.body;
 
         // 1. Validate input
         if (!status || !['APPROVED', 'REJECTED'].includes(status)) {
-            await session.abortTransaction();
-            session.endSession();
             return sendError(res, 400, "Status must be 'APPROVED' or 'REJECTED'");
         }
 
         // 2. Find the request
-        const joinRequest = await JoinRequest.findById(requestId).session(session);
+        const joinRequest = await JoinRequest.findById(requestId);
         if (!joinRequest) {
-            await session.abortTransaction();
-            session.endSession();
             return sendError(res, 404, 'Join request not found');
         }
 
         if (joinRequest.status !== 'PENDING') {
-            await session.abortTransaction();
-            session.endSession();
             return sendError(res, 400, 'This request has already been processed');
         }
 
@@ -180,10 +223,7 @@ export const updateJoinRequestStatus = async (req: AuthRequest, res: Response) =
             joinRequest.rejection_reason = rejection_reason || undefined;
             joinRequest.reviewed_by = req.user!._id;
             joinRequest.reviewed_at = new Date();
-            await joinRequest.save({ session });
-
-            await session.commitTransaction();
-            session.endSession();
+            await joinRequest.save();
 
             // Notify user (fire-and-forget)
             const society = await Society.findById(society_id);
@@ -200,7 +240,7 @@ export const updateJoinRequestStatus = async (req: AuthRequest, res: Response) =
         // ── APPROVED ─────────────────────────────────────────────────
 
         // 3. Add user as MEMBER to the society
-        const user = await User.findById(joinRequest.user_id).session(session);
+        const user = await User.findById(joinRequest.user_id);
 
         await SocietyUserRole.create([{
             name: user?.name || 'Member',
@@ -208,7 +248,7 @@ export const updateJoinRequestStatus = async (req: AuthRequest, res: Response) =
             society_id,
             role: 'MEMBER',
             assigned_by: req.user!._id
-        }], { session });
+        }]);
 
         // 4. Assign team — prefer President's override, fallback to user's selection
         const teamId = assign_team || joinRequest.selected_team;
@@ -216,14 +256,14 @@ export const updateJoinRequestStatus = async (req: AuthRequest, res: Response) =
             const team = await Group.findOne({
                 _id: teamId,
                 society_id
-            }).session(session);
+            });
 
             if (team) {
                 await GroupMember.create([{
                     group_id: teamId,
                     user_id: joinRequest.user_id,
                     society_id
-                }], { session });
+                }]);
             }
         }
 
@@ -231,10 +271,7 @@ export const updateJoinRequestStatus = async (req: AuthRequest, res: Response) =
         joinRequest.status = 'APPROVED';
         joinRequest.reviewed_by = req.user!._id;
         joinRequest.reviewed_at = new Date();
-        await joinRequest.save({ session });
-
-        await session.commitTransaction();
-        session.endSession();
+        await joinRequest.save();
 
         // Notify user (fire-and-forget)
         const society = await Society.findById(society_id);
@@ -247,8 +284,7 @@ export const updateJoinRequestStatus = async (req: AuthRequest, res: Response) =
         return sendResponse(res, 200, 'Join request approved', joinRequest);
 
     } catch (error: any) {
-        await session.abortTransaction();
-        session.endSession();
+        console.error('[JoinRequest] updateStatus error:', error);
         return sendError(res, 500, 'Internal server error', error);
     }
 };

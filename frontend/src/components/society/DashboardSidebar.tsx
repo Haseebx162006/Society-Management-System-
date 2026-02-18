@@ -1,5 +1,5 @@
 import { MdDashboard, MdEvent, MdSettings, MdGroups } from 'react-icons/md';
-import { FaEdit, FaSignOutAlt, FaUsers } from 'react-icons/fa';
+import { FaEdit, FaSignOutAlt, FaUsers, FaWpforms, FaClipboardList } from 'react-icons/fa';
 
 interface DashboardSidebarProps {
   activeTab: string;
@@ -13,6 +13,8 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
     { id: 'overview', label: 'Overview', icon: <MdDashboard /> },
     { id: 'members', label: 'Members', icon: <FaUsers /> },
     { id: 'teams', label: 'Teams', icon: <MdGroups /> },
+    { id: 'join-form', label: 'Join Form', icon: <FaWpforms /> },
+    { id: 'join-requests', label: 'Join Requests', icon: <FaClipboardList /> },
     { id: 'events', label: 'Events', icon: <MdEvent /> },
     { id: 'settings', label: 'Settings', icon: <MdSettings /> },
   ];
@@ -22,17 +24,16 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
       <div className="p-6 border-b border-blue-500/10">
         <h2 className="text-xl font-bold text-blue-400">Society Admin</h2>
       </div>
-      
+
       <nav className="flex-1 p-4 space-y-2">
         {navItems.map((item) => (
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-              activeTab === item.id 
-                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30' 
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === item.id
+                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
                 : 'text-slate-400 hover:bg-blue-900/10 hover:text-blue-200'
-            }`}
+              }`}
           >
             <span className="text-xl">{item.icon}</span>
             <span>{item.label}</span>
@@ -40,14 +41,14 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
         ))}
 
         <div className="my-4 border-t border-blue-500/10 mx-2"></div>
-         
-         <button
-            onClick={onViewForm}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-purple-900/10 hover:text-purple-300 transition-all"
-         >
-            <span className="text-xl">{<FaEdit />}</span>
-            <span>View Creation Form</span>
-         </button>
+
+        <button
+          onClick={onViewForm}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-purple-900/10 hover:text-purple-300 transition-all"
+        >
+          <span className="text-xl">{<FaEdit />}</span>
+          <span>View Creation Form</span>
+        </button>
 
       </nav>
 

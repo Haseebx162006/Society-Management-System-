@@ -22,7 +22,7 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
         // Check if a society with this name already exists
         const existingSociety = await Society.findOne({ name: society_name });
         if (existingSociety) {
-             return sendError(res, 400, "A society with this name already exists");
+            return sendError(res, 400, "A society with this name already exists");
         }
 
         // Check if there's already a pending request for this society name
@@ -31,7 +31,7 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
             status: "PENDING"
         });
         if (existingRequest) {
-             return sendError(res, 400, "A pending request for this society name already exists");
+            return sendError(res, 400, "A pending request for this society name already exists");
         }
 
         const societyRequest = await SocietyRequest.create({
@@ -53,7 +53,7 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
         console.log("Create Society File:", req.file);
 
         const { name, description, registration_fee, category } = req.body;
-        
+
         let teams = req.body.teams;
         let custom_fields = req.body.custom_fields;
         let content_sections = req.body.content_sections;
@@ -99,17 +99,17 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
         if (existingSociety) {
             // Check for soft-deleted society or orphan (failed creation)
             const presidentRole = await SocietyUserRole.findOne({ society_id: existingSociety._id, role: 'PRESIDENT' });
-            
+
             if (existingSociety.status === 'DELETED' || !presidentRole) {
-                 console.log(`Cleaning up zombie/orphan society: ${name}`);
-                 await Society.deleteOne({ _id: existingSociety._id });
-                 await Group.deleteMany({ society_id: existingSociety._id });
-                 await SocietyUserRole.deleteMany({ society_id: existingSociety._id });
+                console.log(`Cleaning up zombie/orphan society: ${name}`);
+                await Society.deleteOne({ _id: existingSociety._id });
+                await Group.deleteMany({ society_id: existingSociety._id });
+                await SocietyUserRole.deleteMany({ society_id: existingSociety._id });
             } else if (presidentRole.user_id.toString() === req.user!._id.toString()) {
-                 console.log(`User ${req.user!.name} is already president of ${name}. Returning existing society.`);
-                 return sendResponse(res, 200, "Society already exists", existingSociety);
+                console.log(`User ${req.user!.name} is already president of ${name}. Returning existing society.`);
+                return sendResponse(res, 200, "Society already exists", existingSociety);
             } else {
-                 return sendError(res, 400, "Society with this name already exists");
+                return sendError(res, 400, "Society with this name already exists");
             }
         }
 
@@ -197,21 +197,21 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
         const { status, rejection_reason } = req.body;
 
         if (!status || !["APPROVED", "REJECTED"].includes(status)) {
-             return sendError(res, 400, "Status must be either 'APPROVED' or 'REJECTED'");
+            return sendError(res, 400, "Status must be either 'APPROVED' or 'REJECTED'");
         }
 
         const societyRequest = await SocietyRequest.findById(id);
         if (!societyRequest) {
-             return sendError(res, 404, "Society request not found");
+            return sendError(res, 404, "Society request not found");
         }
 
         if (societyRequest.status !== "PENDING") {
-             return sendError(res, 400, "This request has already been processed");
+            return sendError(res, 400, "This request has already been processed");
         }
 
         if (status === "REJECTED") {
             if (!rejection_reason || typeof rejection_reason !== "string") {
-                 return sendError(res, 400, "Rejection reason is required when rejecting a request");
+                return sendError(res, 400, "Rejection reason is required when rejecting a request");
             }
             societyRequest.status = "REJECTED";
             societyRequest.rejection_reason = rejection_reason;
@@ -222,7 +222,7 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
 
         const existingSociety = await Society.findOne({ name: societyRequest.society_name });
         if (existingSociety) {
-             return sendError(res, 400, "A society with this name already exists");
+            return sendError(res, 400, "A society with this name already exists");
         }
 
         const newSociety = await Society.create({
@@ -285,7 +285,7 @@ export const getSocietyById = async (req: AuthRequest, res: Response) => {
             .populate("groups", "name");
 
         if (!society) {
-             return sendError(res, 404, "Society not found");
+            return sendError(res, 404, "Society not found");
         }
 
         // Fetch members of this society
@@ -306,6 +306,57 @@ export const getSocietyById = async (req: AuthRequest, res: Response) => {
 // ─── Member Management Endpoints ─────────────────────────────────────────────
 
 /**
+ * GET /api/society/:id/members
+ * Returns paginated list of society members with user details.
+ * Query: ?page=1&limit=10&search=term
+ */
+export const getSocietyMembers = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id: society_id } = req.params;
+        const page = Math.max(1, parseInt(req.query.page as string) || 1);
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
+        const search = (req.query.search as string || '').trim();
+        const skip = (page - 1) * limit;
+
+        // Build the base query for this society
+        const baseQuery: any = { society_id };
+
+        // If searching, first find matching user IDs, then filter roles
+        let userIdFilter: mongoose.Types.ObjectId[] | null = null;
+        if (search) {
+            const matchingUsers = await User.find({
+                $or: [
+                    { name: { $regex: search, $options: 'i' } },
+                    { email: { $regex: search, $options: 'i' } },
+                ]
+            }).select('_id');
+            userIdFilter = matchingUsers.map(u => u._id);
+            baseQuery.user_id = { $in: userIdFilter };
+        }
+
+        const total = await SocietyUserRole.countDocuments(baseQuery);
+
+        const members = await SocietyUserRole.find(baseQuery)
+            .populate('user_id', 'name email phone')
+            .sort({ assigned_at: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        return sendResponse(res, 200, 'Society members fetched successfully', {
+            members,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+            }
+        });
+    } catch (error: any) {
+        return sendError(res, 500, 'Internal server error', error);
+    }
+};
+
+/**
  * POST /api/society/:id/members
  * Assigns a user to a society with a specific role.
  * Body: { user_id, role, name?, group_id? }
@@ -316,25 +367,25 @@ export const addMember = async (req: AuthRequest, res: Response) => {
         const { user_id, role, name, group_id } = req.body;
 
         if (!user_id) {
-             return sendError(res, 400, "user_id is required");
+            return sendError(res, 400, "user_id is required");
         }
 
         // Verify society exists and is active
         const society = await Society.findById(society_id);
         if (!society || society.status !== "ACTIVE") {
-             return sendError(res, 404, "Active society not found");
+            return sendError(res, 404, "Active society not found");
         }
 
         // Verify user exists
         const user = await User.findById(user_id);
         if (!user) {
-             return sendError(res, 404, "User not found");
+            return sendError(res, 404, "User not found");
         }
 
         // Check if user is already a member of this society
         const existingRole = await SocietyUserRole.findOne({ user_id, society_id });
         if (existingRole) {
-             return sendError(res, 400, "User is already a member of this society");
+            return sendError(res, 400, "User is already a member of this society");
         }
 
         const memberRole = await SocietyUserRole.create({
@@ -360,17 +411,17 @@ export const updateMemberRole = async (req: AuthRequest, res: Response) => {
         const { role, group_id } = req.body;
 
         if (!role) {
-             return sendError(res, 400, "Role is required");
+            return sendError(res, 400, "Role is required");
         }
 
         const validRoles = ["PRESIDENT", "LEAD", "CO-LEAD", "GENERAL SECRETARY", "MEMBER"];
         if (!validRoles.includes(role)) {
-             return sendError(res, 400, `Invalid role. Must be one of: ${validRoles.join(", ")}`);
+            return sendError(res, 400, `Invalid role. Must be one of: ${validRoles.join(", ")}`);
         }
 
         const memberRole = await SocietyUserRole.findOne({ user_id, society_id });
         if (!memberRole) {
-             return sendError(res, 404, "Member not found in this society");
+            return sendError(res, 404, "Member not found in this society");
         }
 
         memberRole.role = role;
@@ -395,7 +446,7 @@ export const removeMember = async (req: AuthRequest, res: Response) => {
 
         const memberRole = await SocietyUserRole.findOneAndDelete({ user_id, society_id });
         if (!memberRole) {
-             return sendError(res, 404, "Member not found in this society");
+            return sendError(res, 404, "Member not found in this society");
         }
 
         return sendResponse(res, 200, "Member removed from society successfully");
@@ -409,7 +460,7 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
         const { name, description } = req.body;
-        
+
         let teams = req.body.teams;
         let custom_fields = req.body.custom_fields;
         let content_sections = req.body.content_sections;
@@ -431,7 +482,7 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
         };
 
         const safeParseObj = (data: any, label: string) => {
-             if (typeof data === 'string') {
+            if (typeof data === 'string') {
                 try {
                     return JSON.parse(data);
                 } catch (e) {
@@ -451,7 +502,7 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
 
         const society = await Society.findById(id);
         if (!society) {
-             return sendError(res, 404, "Society not found");
+            return sendError(res, 404, "Society not found");
         }
 
         // Handle Image Upload
@@ -463,11 +514,11 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
         }
 
         if (name) {
-             const existing = await Society.findOne({ name, _id: { $ne: new mongoose.Types.ObjectId(id as string) } });
-             if (existing) {
-                 return sendError(res, 400, "Society name already taken");
-             }
-             society.name = name;
+            const existing = await Society.findOne({ name, _id: { $ne: new mongoose.Types.ObjectId(id as string) } });
+            if (existing) {
+                return sendError(res, 400, "Society name already taken");
+            }
+            society.name = name;
         }
         if (description) society.description = description;
         if (req.body.registration_fee !== undefined) society.registration_fee = Number(req.body.registration_fee);
@@ -487,7 +538,7 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
 
             // Teams to delete (in DB but not in new list)
             const teamsToDelete = existingGroups.filter(g => !newTeams.includes(g.name));
-            
+
             // Teams to add (in new list but not in DB)
             const teamsToAdd = newTeams.filter((t: string) => !existingTeamNames.includes(t));
 
@@ -498,7 +549,7 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
 
             // Create new teams
             if (teamsToAdd.length > 0) {
-                 const newGroupDocs = teamsToAdd.map((name: string) => ({
+                const newGroupDocs = teamsToAdd.map((name: string) => ({
                     society_id: id,
                     name,
                     created_by: req.user!._id
@@ -525,7 +576,7 @@ export const changePresident = async (req: AuthRequest, res: Response) => {
         const { new_president_id } = req.body;
 
         if (!new_president_id) {
-             return sendError(res, 400, "New president ID is required");
+            return sendError(res, 400, "New president ID is required");
         }
 
         const society = await Society.findById(society_id).session(session);

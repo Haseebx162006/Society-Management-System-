@@ -7,9 +7,9 @@ import { logOut, updateAccessToken, User } from '../auth/authSlice';
 const mutex = new Mutex();
 
 interface RefreshResponse {
-    accessToken: string;
-    refreshToken: string;
-    user: User;
+  accessToken: string;
+  refreshToken: string;
+  user: User;
 }
 
 const baseQuery = fetchBaseQuery({
@@ -40,29 +40,29 @@ const baseQueryWithReauth: BaseQueryFn<
         const refreshToken = (api.getState() as RootState).auth.refreshToken;
 
         if (refreshToken) {
-            const refreshResult = await baseQuery(
-                {
-                    url: '/auth/refresh',
-                    method: 'POST',
-                    body: { refreshToken },
-                },
-                api,
-                extraOptions
-            );
+          const refreshResult = await baseQuery(
+            {
+              url: '/auth/refresh',
+              method: 'POST',
+              body: { refreshToken },
+            },
+            api,
+            extraOptions
+          );
 
-            if (refreshResult.data) {
-                const { data } = refreshResult.data as { data: RefreshResponse };
-                const { accessToken, refreshToken: newRefreshToken, user } = data;
-                // store the new token and update user info
-                api.dispatch(updateAccessToken({ accessToken, refreshToken: newRefreshToken, user }));
-                
-                // retry the initial query
-                result = await baseQuery(args, api, extraOptions);
-            } else {
-                api.dispatch(logOut());
-            }
-        } else {
+          if (refreshResult.data) {
+            const { data } = refreshResult.data as { data: RefreshResponse };
+            const { accessToken, refreshToken: newRefreshToken, user } = data;
+            // store the new token and update user info
+            api.dispatch(updateAccessToken({ accessToken, refreshToken: newRefreshToken, user }));
+
+            // retry the initial query
+            result = await baseQuery(args, api, extraOptions);
+          } else {
             api.dispatch(logOut());
+          }
+        } else {
+          api.dispatch(logOut());
         }
       } finally {
         // release must be called once the mutex should be released again.
@@ -80,6 +80,6 @@ const baseQueryWithReauth: BaseQueryFn<
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['User', 'SocietyRequest', 'Society'],
+  tagTypes: ['User', 'SocietyRequest', 'Society', 'JoinForm', 'JoinRequest', 'Group', 'GroupMember', 'SocietyMember'],
   endpoints: (builder) => ({}),
 });

@@ -67,7 +67,7 @@ export default function Navbar() {
             Log in
           </Link>
           <Link
-            href="/register"
+            href="/signup"
             className="group flex items-center gap-1 px-4 py-2 bg-indigo-600 text-white rounded-full text-sm font-medium hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg"
           >
             Sign Up
@@ -112,7 +112,7 @@ export default function Navbar() {
                   Log in
                 </Link>
                 <Link
-                  href="/register"
+                  href="/signup"
                   className="text-center w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg"
                 >
                   Sign Up

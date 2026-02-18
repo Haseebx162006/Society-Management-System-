@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "../../../lib/hooks";
 import { selectCurrentUser } from "../../../lib/features/auth/authSlice";
@@ -40,8 +40,21 @@ export default function AdminDashboard() {
   const [approveId, setApproveId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
+  /* 
+    Updated to use useEffect for redirection to avoid "Cannot update a component while rendering" error.
+    Also added a check to ensure we don't redirect while the user state might still be loading (though we don't have an explicit loading state from the selector here, assuming auth check happens earlier or user is null).
+  */
+  useEffect(() => {
+    if (user && !user.is_super_admin) {
+      router.push("/");
+    } else if (!user) {
+      // If no user, they might be logged out or state not ready. 
+      // Ideally verify with specific auth loading state, but for now redirect if strictly not present.
+      router.push("/");
+    }
+  }, [user, router]);
+
   if (!user?.is_super_admin) {
-    if (typeof window !== "undefined") router.push("/");
     return null;
   }
 
@@ -158,13 +171,12 @@ export default function AdminDashboard() {
                             {request.society_name}
                           </p>
                           <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              request.status === "APPROVED"
-                                ? "bg-green-100 text-green-800"
-                                : request.status === "REJECTED"
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${request.status === "APPROVED"
+                              ? "bg-green-100 text-green-800"
+                              : request.status === "REJECTED"
                                 ? "bg-red-100 text-red-800"
                                 : "bg-yellow-100 text-yellow-800"
-                            }`}
+                              }`}
                           >
                             {request.status}
                           </span>

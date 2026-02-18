@@ -13,7 +13,7 @@ export default function HeroSection() {
       </p>
       <div className="flex flex-col sm:flex-row gap-4">
         <Link
-          href="/auth/register"
+          href="/signup"
           className="px-8 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
         >
           Get Started
