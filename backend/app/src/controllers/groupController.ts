@@ -347,3 +347,66 @@ export const getGroupMembers = async (req: AuthRequest, res: Response) => {
         return sendError(res, 500, "Internal server error", error);
     }
 };
+
+export const updateMemberRole = async (req: AuthRequest, res: Response) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+        const { id: group_id, userId: user_id } = req.params;
+        const { role } = req.body;
+
+        if (!["LEAD", "CO-LEAD", "GENERAL SECRETARY", "MEMBER"].includes(role)) {
+            return sendError(res, 400, "Invalid role");
+        }
+
+        const group = await Group.findById(group_id).session(session);
+        if (!group) return sendError(res, 404, "Group not found");
+
+        const member = await GroupMember.findOne({ group_id, user_id }).session(session);
+        if (!member) return sendError(res, 404, "Member not found in this group");
+
+        member.role = role;
+        await member.save({ session });
+
+        // Handle SocietyUserRole sync
+        if (["LEAD", "CO-LEAD", "GENERAL SECRETARY"].includes(role)) {
+             await SocietyUserRole.findOneAndUpdate(
+                { user_id, society_id: group.society_id },
+                {
+                    role: role,
+                    group_id: group._id, 
+                    assigned_by: req.user!._id,
+                    updated_at: new Date()
+                },
+                { session }
+            );
+        } else {
+            // Downgrade to member logic
+             const currentSocietyRole = await SocietyUserRole.findOne({ 
+                user_id, 
+                society_id: group.society_id 
+            }).session(session);
+
+            if (currentSocietyRole?.group_id?.toString() === group_id.toString()) {
+                 await SocietyUserRole.findOneAndUpdate(
+                    { user_id, society_id: group.society_id },
+                    {
+                        role: "MEMBER",
+                        $unset: { group_id: 1 }, 
+                        updated_at: new Date()
+                    },
+                    { session }
+                );
+            }
+        }
+
+        await session.commitTransaction();
+        return sendResponse(res, 200, "Member role updated successfully", member);
+
+    } catch (error: any) {
+        await session.abortTransaction();
+        return sendError(res, 500, "Internal server error", error);
+    } finally {
+        session.endSession();
+    }
+};

@@ -9,6 +9,7 @@ import {
     useGetGroupMembersQuery,
     useAddMemberToGroupMutation,
     useRemoveMemberFromGroupMutation,
+    useUpdateMemberRoleMutation,
     useGetSocietyMembersQuery,
 } from "@/lib/features/groups/groupApiSlice";
 import {
@@ -90,6 +91,7 @@ const TeamMemberList: React.FC<{
     const { data: members, isLoading } = useGetGroupMembersQuery(groupId);
     const [removeMember] = useRemoveMemberFromGroupMutation();
     const [addMember] = useAddMemberToGroupMutation();
+    const [updateMemberRole] = useUpdateMemberRoleMutation();
     const [showAddModal, setShowAddModal] = useState(false);
 
     // Large limit to show all members for picker
@@ -207,8 +209,30 @@ const TeamMemberList: React.FC<{
                                     <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-1.5 shrink-0 ml-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                                {user.phone && (
+                                <div className="flex items-center gap-1.5 shrink-0 ml-3 transition-opacity">
+                                    <select
+                                        value={m.role || "MEMBER"}
+                                        onChange={async (e) => {
+                                            try {
+                                                await updateMemberRole({
+                                                    groupId,
+                                                    userId: user._id,
+                                                    role: e.target.value
+                                                }).unwrap();
+                                                toast.success(`Role updated to ${e.target.value}`);
+                                            } catch (err: any) {
+                                                toast.error(err?.data?.message || "Failed to update role");
+                                            }
+                                        }}
+                                        className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none focus:border-blue-500 text-slate-600 font-medium"
+                                    >
+                                        <option value="MEMBER">Member</option>
+                                        <option value="LEAD">Lead</option>
+                                        <option value="CO-LEAD">Co-Lead</option>
+                                        <option value="GENERAL SECRETARY">Gen. Secretary</option>
+                                    </select>
+                                    
+                                    {user.phone && (
                                     <a
                                         href={`https://wa.me/${formatPhone(user.phone)}`}
                                         target="_blank"
@@ -260,7 +284,9 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
         skip: !selectedTeamId,
     });
 
+    
     const [removeMember] = useRemoveMemberFromGroupMutation();
+    const [updateMemberRole] = useUpdateMemberRoleMutation();
 
     const handleCreate = async (name: string, description: string) => {
         try {
@@ -560,6 +586,28 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                                 </td>
                                                 <td className="p-4 text-right">
                                                     <div className="flex justify-end items-center gap-2">
+                                                        <select
+                                                            value={member.role || "MEMBER"}
+                                                            onChange={async (e) => {
+                                                                try {
+                                                                    await updateMemberRole({
+                                                                        groupId: selectedTeamId,
+                                                                        userId: user._id,
+                                                                        role: e.target.value
+                                                                    }).unwrap();
+                                                                    toast.success(`Role updated to ${e.target.value}`);
+                                                                } catch (err: any) {
+                                                                    toast.error(err?.data?.message || "Failed to update role");
+                                                                }
+                                                            }}
+                                                            className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none focus:border-blue-500 text-slate-600 font-medium mr-2"
+                                                        >
+                                                            <option value="MEMBER">Member</option>
+                                                            <option value="LEAD">Lead</option>
+                                                            <option value="CO-LEAD">Co-Lead</option>
+                                                            <option value="GENERAL SECRETARY">Gen. Secretary</option>
+                                                        </select>
+
                                                         <a href={`mailto:${user.email}`} className="text-slate-400 hover:text-blue-600 p-2 rounded-lg hover:bg-blue-50 transition-all">
                                                             <FaEnvelope />
                                                         </a>

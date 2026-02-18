@@ -23,6 +23,7 @@ export interface GroupMember {
         phone?: string;
     };
     society_id: string;
+    role: "LEAD" | "CO-LEAD" | "GENERAL SECRETARY" | "MEMBER";
     joined_at: string;
 }
 
@@ -152,6 +153,20 @@ export const groupApiSlice = apiSlice.injectEndpoints({
                 { type: "GroupMember" as const, id: groupId },
             ],
         }),
+
+        updateMemberRole: builder.mutation<
+            GroupMember,
+            { groupId: string; userId: string; role: string }
+        >({
+            query: ({ groupId, userId, role }) => ({
+                url: `/groups/${groupId}/members/${userId}/role`,
+                method: "PUT",
+                body: { role },
+            }),
+            invalidatesTags: (_result, _error, { groupId }) => [
+                { type: "GroupMember" as const, id: groupId },
+            ],
+        }),
     }),
 });
 
@@ -164,4 +179,5 @@ export const {
     useGetGroupMembersQuery,
     useAddMemberToGroupMutation,
     useRemoveMemberFromGroupMutation,
+    useUpdateMemberRoleMutation,
 } = groupApiSlice;

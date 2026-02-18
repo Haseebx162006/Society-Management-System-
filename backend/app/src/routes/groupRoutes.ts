@@ -11,7 +11,8 @@ import {
     assignLeadership,
     removeLeadership,
     getGroupById,
-    getGroupMembers
+    getGroupMembers,
+    updateMemberRole
 } from '../controllers/groupController';
 
 const router = express.Router();
@@ -28,6 +29,7 @@ router.get('/:id/members', protect, authorize(['PRESIDENT', 'LEAD', 'CO-LEAD', '
 // Membership
 router.post('/:id/members', protect, authorize(['PRESIDENT', 'LEAD'], 'GROUP'), addMemberToGroup);
 router.delete('/:id/members/:userId', protect, authorize(['PRESIDENT', 'LEAD'], 'GROUP'), removeMemberFromGroup);
+router.put('/:id/members/:userId/role', protect, authorize(['PRESIDENT'], 'GROUP'), updateMemberRole);
 
 // Leadership
 router.post('/:id/leadership', protect, authorize(['PRESIDENT'], 'GROUP'), assignLeadership);
