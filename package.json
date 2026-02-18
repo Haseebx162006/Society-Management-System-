@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express-rate-limit": "^5.1.3",
+    "@types/helmet": "^0.0.48"
+  },
+  "dependencies": {
+    "react-icons": "^5.5.0"
+  }
+}

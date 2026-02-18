@@ -1,0 +1,39 @@
+import { Response, NextFunction } from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import User from '../models/User';
+import { AuthRequest } from './authmiddleware';
+
+/**
+ * Like `protect`, but does NOT reject unauthenticated requests.
+ * If a valid token exists → attaches req.user
+ * If no token or invalid  → req.user = null, continues
+ */
+export const optionalProtect = async (
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+) => {
+    let token: string | undefined;
+
+    if (req.headers.authorization?.startsWith('Bearer ')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
+        req.user = null;
+        return next();
+    }
+
+    try {
+        const decoded = jwt.verify(
+            token,
+            process.env.PRIVATE_KEY as string
+        ) as JwtPayload;
+
+        req.user = await User.findById(decoded.id).select('-password');
+        return next();
+    } catch {
+        req.user = null;
+        return next();
+    }
+};
