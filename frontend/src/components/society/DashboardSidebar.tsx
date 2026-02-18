@@ -20,9 +20,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
   ];
 
   return (
-    <div className="w-64 bg-[#1e293b]/50 border-r border-blue-500/10 backdrop-blur-sm flex flex-col h-screen fixed left-0 top-0 overflow-y-auto">
-      <div className="p-6 border-b border-blue-500/10">
-        <h2 className="text-xl font-bold text-blue-400">Society Admin</h2>
+    <div className="w-64 bg-white border-r border-slate-200 flex flex-col h-screen fixed left-0 top-0 overflow-y-auto shadow-sm z-50">
+      <div className="p-6 border-b border-slate-100">
+        <h2 className="text-xl font-extrabold text-blue-600 tracking-tight flex items-center gap-2">
+          <span className="bg-blue-600 text-white rounded-lg p-1 text-sm">SA</span>
+          Society Admin
+        </h2>
       </div>
 
       <nav className="flex-1 p-4 space-y-2">
@@ -30,9 +33,9 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${activeTab === item.id
-                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
-                : 'text-slate-400 hover:bg-blue-900/10 hover:text-blue-200'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeTab === item.id
+                ? 'bg-blue-50 text-blue-600 border border-blue-100 shadow-sm'
+                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
               }`}
           >
             <span className="text-xl">{item.icon}</span>
@@ -40,11 +43,11 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
           </button>
         ))}
 
-        <div className="my-4 border-t border-blue-500/10 mx-2"></div>
+        <div className="my-4 border-t border-slate-100 mx-2"></div>
 
         <button
           onClick={onViewForm}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-purple-900/10 hover:text-purple-300 transition-all"
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-purple-50 hover:text-purple-600 transition-all font-medium"
         >
           <span className="text-xl">{<FaEdit />}</span>
           <span>View Creation Form</span>
@@ -52,8 +55,8 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
 
       </nav>
 
-      <div className="p-4 border-t border-blue-500/10">
-        <button className="w-full flex items-center gap-2 text-slate-500 hover:text-red-400 text-sm px-4">
+      <div className="p-4 border-t border-slate-100">
+        <button className="w-full flex items-center gap-2 text-slate-500 hover:text-red-600 hover:bg-red-50 p-3 rounded-xl transition-all font-medium text-sm">
           <span className="text-xl">{<FaSignOutAlt />}</span> Log Out
         </button>
       </div>

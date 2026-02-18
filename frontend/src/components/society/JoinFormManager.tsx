@@ -214,9 +214,9 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                 </div>
 
                 {/* Form Meta */}
-                <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-xl p-6 space-y-4">
+                <div className="bg-white border border-slate-200 rounded-xl p-6 space-y-4 shadow-sm">
                     <div>
-                        <label className="block text-sm font-semibold text-blue-300 mb-1">
+                        <label className="block text-sm font-semibold text-slate-700 mb-1">
                             Form Title
                         </label>
                         <input
@@ -224,11 +224,11 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="e.g. Membership Registration 2026"
-                            className="w-full h-11 px-4 bg-[#0f172a] border border-blue-500/20 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-400"
+                            className="w-full h-11 px-4 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-blue-300 mb-1">
+                        <label className="block text-sm font-semibold text-slate-700 mb-1">
                             Description (optional)
                         </label>
                         <textarea
@@ -236,12 +236,12 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Brief description shown to applicants..."
                             rows={2}
-                            className="w-full px-4 py-3 bg-[#0f172a] border border-blue-500/20 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 resize-none"
+                            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none transition-all"
                         />
                     </div>
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-sm font-semibold text-blue-300">
+                            <p className="text-sm font-semibold text-slate-700">
                                 Public Form
                             </p>
                             <p className="text-xs text-slate-500">
@@ -254,9 +254,9 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                             className="text-2xl"
                         >
                             {isPublic ? (
-                                <ToggleRight className="w-8 h-8 text-green-400" />
+                                <ToggleRight className="w-8 h-8 text-green-600" />
                             ) : (
-                                <ToggleLeft className="w-8 h-8 text-slate-500" />
+                                <ToggleLeft className="w-8 h-8 text-slate-400" />
                             )}
                         </button>
                     </div>
@@ -287,24 +287,24 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                         {fields.map((field, index) => (
                             <div
                                 key={index}
-                                className="bg-[#1e293b]/50 border border-blue-500/10 rounded-xl overflow-hidden"
+                                className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm"
                             >
                                 {/* Field Header */}
                                 <div
-                                    className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-blue-900/10 transition-colors"
+                                    className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-slate-50 transition-colors"
                                     onClick={() =>
                                         setExpandedField(expandedField === index ? null : index)
                                     }
                                 >
-                                    <GripVertical className="w-4 h-4 text-slate-600" />
-                                    <span className="text-sm font-medium text-blue-200 flex-1">
+                                    <GripVertical className="w-4 h-4 text-slate-400" />
+                                    <span className="text-sm font-medium text-slate-700 flex-1">
                                         {field.label || `Field ${index + 1}`}
                                     </span>
-                                    <span className="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded">
+                                    <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                                         {field.field_type}
                                     </span>
                                     {field.is_required && (
-                                        <span className="text-xs text-red-400">Required</span>
+                                        <span className="text-xs text-red-500">Required</span>
                                     )}
                                     <div className="flex gap-1">
                                         <button
@@ -313,7 +313,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                                 moveField(index, "up");
                                             }}
                                             disabled={index === 0}
-                                            className="p-1 text-slate-500 hover:text-blue-300 disabled:opacity-30"
+                                            className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-30"
                                         >
                                             <ChevronUp className="w-4 h-4" />
                                         </button>
@@ -323,7 +323,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                                 moveField(index, "down");
                                             }}
                                             disabled={index === fields.length - 1}
-                                            className="p-1 text-slate-500 hover:text-blue-300 disabled:opacity-30"
+                                            className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-30"
                                         >
                                             <ChevronDown className="w-4 h-4" />
                                         </button>
@@ -332,7 +332,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                                 e.stopPropagation();
                                                 removeField(index);
                                             }}
-                                            className="p-1 text-slate-500 hover:text-red-400"
+                                            className="p-1 text-slate-400 hover:text-red-500"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
@@ -341,9 +341,9 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
 
                                 {/* Expanded Field Editor */}
                                 {expandedField === index && (
-                                    <div className="px-4 pb-4 pt-2 border-t border-blue-500/10 space-y-3">
+                                    <div className="px-4 pb-4 pt-2 border-t border-slate-100 space-y-3">
                                         <div>
-                                            <label className="block text-xs font-semibold text-slate-400 mb-1">
+                                            <label className="block text-xs font-semibold text-slate-500 mb-1">
                                                 Label
                                             </label>
                                             <input
@@ -353,12 +353,12 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                                     updateField(index, { label: e.target.value })
                                                 }
                                                 placeholder="e.g. Full Name"
-                                                className="w-full h-9 px-3 bg-[#0f172a] border border-blue-500/20 rounded-lg text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-400"
+                                                className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                             />
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div>
-                                                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                                                <label className="block text-xs font-semibold text-slate-500 mb-1">
                                                     Type
                                                 </label>
                                                 <select
@@ -368,7 +368,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                                             field_type: e.target.value as FormField["field_type"],
                                                         })
                                                     }
-                                                    className="w-full h-9 px-3 bg-[#0f172a] border border-blue-500/20 rounded-lg text-sm text-white focus:outline-none focus:border-blue-400"
+                                                    className="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                                 >
                                                     {FIELD_TYPES.map((t) => (
                                                         <option key={t.value} value={t.value}>
@@ -387,9 +387,9 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                                                 is_required: e.target.checked,
                                                             })
                                                         }
-                                                        className="w-4 h-4 rounded border-slate-600 text-blue-600 focus:ring-blue-500"
+                                                        className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                                                     />
-                                                    <span className="text-sm text-slate-400">
+                                                    <span className="text-sm text-slate-600">
                                                         Required
                                                     </span>
                                                 </label>
@@ -399,7 +399,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                         {/* Dropdown options */}
                                         {field.field_type === "DROPDOWN" && (
                                             <div>
-                                                <label className="block text-xs font-semibold text-slate-400 mb-1">
+                                                <label className="block text-xs font-semibold text-slate-500 mb-1">
                                                     Options (one per line)
                                                 </label>
                                                 <textarea
@@ -413,7 +413,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                                     }
                                                     rows={3}
                                                     placeholder="Option 1&#10;Option 2&#10;Option 3"
-                                                    className="w-full px-3 py-2 bg-[#0f172a] border border-blue-500/20 rounded-lg text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-400 resize-none"
+                                                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
                                                 />
                                             </div>
                                         )}
@@ -429,13 +429,13 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                     <button
                         onClick={handleSave}
                         disabled={isCreating || isUpdating}
-                        className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-800 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/20 transition-all"
+                        className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-400 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/20 transition-all"
                     >
                         {isCreating || isUpdating ? "Saving..." : editingForm ? "Update Form" : "Create Form"}
                     </button>
                     <button
                         onClick={resetEditor}
-                        className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl transition-all"
+                        className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-xl transition-all"
                     >
                         Cancel
                     </button>
@@ -459,9 +459,9 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
             </div>
 
             {forms.length === 0 ? (
-                <div className="text-center py-16 bg-[#1e293b]/50 border border-blue-500/10 rounded-xl">
-                    <FileText className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-                    <p className="text-slate-400 font-medium mb-2">
+                <div className="text-center py-16 bg-white border border-slate-200 rounded-xl shadow-sm">
+                    <FileText className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                    <p className="text-slate-600 font-medium mb-2">
                         No join forms created yet
                     </p>
                     <p className="text-slate-500 text-sm mb-6">
@@ -479,30 +479,30 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                     {forms.map((form) => (
                         <div
                             key={form._id}
-                            className="bg-[#1e293b]/50 border border-blue-500/10 rounded-xl p-5"
+                            className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all"
                         >
                             <div className="flex items-start justify-between gap-4">
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-3 mb-1">
-                                        <h3 className="text-lg font-semibold text-blue-100 truncate">
+                                        <h3 className="text-lg font-semibold text-slate-800 truncate">
                                             {form.title}
                                         </h3>
                                         {form.is_active ? (
-                                            <span className="px-2 py-0.5 text-xs font-bold text-green-400 bg-green-900/30 rounded-full border border-green-500/20">
+                                            <span className="px-2 py-0.5 text-xs font-bold text-green-700 bg-green-100 rounded-full border border-green-200">
                                                 Active
                                             </span>
                                         ) : (
-                                            <span className="px-2 py-0.5 text-xs font-bold text-red-400 bg-red-900/30 rounded-full border border-red-500/20">
+                                            <span className="px-2 py-0.5 text-xs font-bold text-red-700 bg-red-100 rounded-full border border-red-200">
                                                 Inactive
                                             </span>
                                         )}
                                     </div>
                                     {form.description && (
-                                        <p className="text-sm text-slate-400 mb-2 line-clamp-1">
+                                        <p className="text-sm text-slate-500 mb-2 line-clamp-1">
                                             {form.description}
                                         </p>
                                     )}
-                                    <p className="text-xs text-slate-500">
+                                    <p className="text-xs text-slate-400">
                                         {form.fields.length} fields | {form.is_public ? "Public" : "Private"} | Created{" "}
                                         {new Date(form.created_at).toLocaleDateString()}
                                     </p>
@@ -512,14 +512,14 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                     <button
                                         onClick={() => copyShareLink(form._id)}
                                         title="Copy shareable link"
-                                        className="p-2 text-slate-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                     >
                                         <LinkIcon className="w-4 h-4" />
                                     </button>
                                     <button
                                         onClick={() => openEditForm(form)}
                                         title="Edit form"
-                                        className="p-2 text-slate-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                                     >
                                         <Edit3 className="w-4 h-4" />
                                     </button>
@@ -527,7 +527,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                         <button
                                             onClick={() => handleDelete(form._id)}
                                             title="Deactivate form"
-                                            className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>

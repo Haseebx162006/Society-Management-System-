@@ -26,9 +26,9 @@ interface JoinRequestManagerProps {
 type StatusFilter = "" | "PENDING" | "APPROVED" | "REJECTED";
 
 const STATUS_COLORS = {
-    PENDING: "text-amber-400 bg-amber-900/30 border-amber-500/20",
-    APPROVED: "text-green-400 bg-green-900/30 border-green-500/20",
-    REJECTED: "text-red-400 bg-red-900/30 border-red-500/20",
+    PENDING: "text-amber-700 bg-amber-100 border-amber-200",
+    APPROVED: "text-green-700 bg-green-100 border-green-200",
+    REJECTED: "text-red-700 bg-red-100 border-red-200",
 };
 
 const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
@@ -109,7 +109,7 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+                <Loader2 className="w-8 h-8 text-slate-400 animate-spin" />
             </div>
         );
     }
@@ -117,14 +117,14 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-blue-200">Join Requests</h2>
+                <h2 className="text-2xl font-bold text-slate-800">Join Requests</h2>
                 {/* Status Filter */}
                 <div className="flex items-center gap-2">
                     <Filter className="w-4 h-4 text-slate-500" />
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                        className="h-9 px-3 bg-[#0f172a] border border-blue-500/20 rounded-lg text-sm text-white focus:outline-none focus:border-blue-400"
+                        className="h-9 px-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
                     >
                         <option value="">All</option>
                         <option value="PENDING">Pending</option>
@@ -144,9 +144,9 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                             onClick={() =>
                                 setStatusFilter(statusFilter === status ? "" : status)
                             }
-                            className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${statusFilter === status
+                            className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all shadow-sm ${statusFilter === status
                                 ? STATUS_COLORS[status]
-                                : "text-slate-500 bg-slate-800/50 border-slate-700 hover:border-slate-500"
+                                : "text-slate-600 bg-white border-slate-200 hover:bg-slate-50"
                                 }`}
                         >
                             {status.charAt(0) + status.slice(1).toLowerCase()} ({count})
@@ -157,9 +157,9 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
 
             {/* Requests List */}
             {requests.length === 0 ? (
-                <div className="text-center py-16 bg-[#1e293b]/50 border border-blue-500/10 rounded-xl">
-                    <Clock className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-                    <p className="text-slate-400 font-medium mb-1">No requests found</p>
+                <div className="text-center py-16 bg-white border border-slate-200 rounded-xl shadow-sm">
+                    <Clock className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                    <p className="text-slate-600 font-medium mb-1">No requests found</p>
                     <p className="text-slate-500 text-sm">
                         {statusFilter
                             ? `No ${statusFilter.toLowerCase()} requests.`
@@ -173,23 +173,23 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                         return (
                             <div
                                 key={req._id}
-                                className="bg-[#1e293b]/50 border border-blue-500/10 rounded-xl overflow-hidden"
+                                className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all"
                             >
                                 {/* Request Header */}
                                 <div
-                                    className="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-blue-900/10 transition-colors"
+                                    className="flex items-center gap-4 px-5 py-4 cursor-pointer hover:bg-slate-50 transition-colors"
                                     onClick={() =>
                                         setExpandedRequest(isExpanded ? null : req._id)
                                     }
                                 >
-                                    <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300 shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
                                         <User className="w-5 h-5" />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <p className="font-semibold text-blue-100">
+                                        <p className="font-semibold text-slate-900">
                                             {getUserName(req)}
                                         </p>
-                                        <p className="text-xs text-slate-400">
+                                        <p className="text-xs text-slate-500">
                                             {getFormTitle(req)} | {new Date(req.created_at).toLocaleDateString()}
                                         </p>
                                     </div>
@@ -200,31 +200,31 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                                         {req.status}
                                     </span>
                                     {isExpanded ? (
-                                        <ChevronUp className="w-4 h-4 text-slate-500" />
+                                        <ChevronUp className="w-4 h-4 text-slate-400" />
                                     ) : (
-                                        <ChevronDown className="w-4 h-4 text-slate-500" />
+                                        <ChevronDown className="w-4 h-4 text-slate-400" />
                                     )}
                                 </div>
 
                                 {/* Expanded Detail */}
                                 {isExpanded && (
-                                    <div className="px-5 pb-5 border-t border-blue-500/10 space-y-4">
+                                    <div className="px-5 pb-5 border-t border-slate-100 space-y-4">
                                         {/* User Info */}
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4">
                                             <div className="flex items-center gap-2 text-sm">
-                                                <Mail className="w-4 h-4 text-slate-500" />
-                                                <span className="text-slate-300">{getUserEmail(req)}</span>
+                                                <Mail className="w-4 h-4 text-slate-400" />
+                                                <span className="text-slate-600">{getUserEmail(req)}</span>
                                             </div>
                                             {getUserPhone(req) && (
                                                 <div className="flex items-center gap-2 text-sm">
-                                                    <span className="text-slate-500 text-xs">Phone:</span>
-                                                    <span className="text-slate-300">{getUserPhone(req)}</span>
+                                                    <span className="text-slate-400 text-xs">Phone:</span>
+                                                    <span className="text-slate-600">{getUserPhone(req)}</span>
                                                 </div>
                                             )}
                                             {getTeamName(req) && (
                                                 <div className="flex items-center gap-2 text-sm">
-                                                    <span className="text-slate-500 text-xs">Preferred Team:</span>
-                                                    <span className="text-slate-300">{getTeamName(req)}</span>
+                                                    <span className="text-slate-400 text-xs">Preferred Team:</span>
+                                                    <span className="text-slate-600">{getTeamName(req)}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -232,16 +232,16 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                                         {/* Form Responses */}
                                         {req.responses.length > 0 && (
                                             <div>
-                                                <h4 className="text-sm font-semibold text-blue-300 mb-2">
+                                                <h4 className="text-sm font-semibold text-slate-800 mb-2">
                                                     Form Responses
                                                 </h4>
                                                 <div className="space-y-2">
                                                     {req.responses.map((response, i) => (
                                                         <div
                                                             key={i}
-                                                            className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 px-3 py-2 bg-slate-800/50 rounded-lg"
+                                                            className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 px-3 py-2 bg-slate-50 rounded-lg border border-slate-100"
                                                         >
-                                                            <span className="text-xs font-semibold text-slate-400 sm:w-40 shrink-0 pt-1">
+                                                            <span className="text-xs font-semibold text-slate-500 sm:w-40 shrink-0 pt-1">
                                                                 {response.field_label}
                                                             </span>
                                                             {response.field_type === "FILE" &&
@@ -264,9 +264,9 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                                                                             <img
                                                                                 src={response.value as string}
                                                                                 alt={response.field_label}
-                                                                                className="max-w-xs max-h-48 rounded-lg border border-blue-500/20 object-contain hover:opacity-80 transition-opacity"
+                                                                                className="max-w-xs max-h-48 rounded-lg border border-slate-200 object-contain hover:opacity-80 transition-opacity"
                                                                             />
-                                                                            <span className="text-xs text-blue-400 mt-1 inline-block">
+                                                                            <span className="text-xs text-blue-600 mt-1 inline-block">
                                                                                 Click to view full size
                                                                             </span>
                                                                         </a>
@@ -275,7 +275,7 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                                                                             href={response.value as string}
                                                                             target="_blank"
                                                                             rel="noopener noreferrer"
-                                                                            className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                                                                            className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 transition-colors"
                                                                         >
                                                                             <svg
                                                                                 className="w-4 h-4"
@@ -295,7 +295,7 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                                                                     )}
                                                                 </div>
                                                             ) : (
-                                                                <span className="text-sm text-white">
+                                                                <span className="text-sm text-slate-800">
                                                                     {typeof response.value === "boolean"
                                                                         ? response.value
                                                                             ? "Yes"
@@ -311,11 +311,11 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
 
                                         {/* Rejection Reason */}
                                         {req.status === "REJECTED" && req.rejection_reason && (
-                                            <div className="bg-red-900/20 border border-red-500/20 rounded-lg p-3">
-                                                <p className="text-xs font-semibold text-red-400 mb-1">
+                                            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                                                <p className="text-xs font-semibold text-red-600 mb-1">
                                                     Rejection Reason
                                                 </p>
-                                                <p className="text-sm text-red-200">
+                                                <p className="text-sm text-red-800">
                                                     {req.rejection_reason}
                                                 </p>
                                             </div>
@@ -327,7 +327,7 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                                                 <button
                                                     onClick={() => handleApprove(req._id)}
                                                     disabled={isUpdating}
-                                                    className="flex items-center gap-2 px-4 py-2 bg-green-600/20 hover:bg-green-600/40 text-green-300 font-medium rounded-lg border border-green-500/30 transition-all disabled:opacity-50"
+                                                    className="flex items-center gap-2 px-4 py-2 bg-green-50 hover:bg-green-100 text-green-700 font-medium rounded-lg border border-green-200 transition-all disabled:opacity-50"
                                                 >
                                                     <CheckCircle className="w-4 h-4" />
                                                     Approve
@@ -335,7 +335,7 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                                                 <button
                                                     onClick={() => setRejectionModal(req._id)}
                                                     disabled={isUpdating}
-                                                    className="flex items-center gap-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/40 text-red-300 font-medium rounded-lg border border-red-500/30 transition-all disabled:opacity-50"
+                                                    className="flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 font-medium rounded-lg border border-red-200 transition-all disabled:opacity-50"
                                                 >
                                                     <XCircle className="w-4 h-4" />
                                                     Reject
@@ -353,8 +353,8 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
             {/* Rejection Reason Modal */}
             {rejectionModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                    <div className="bg-[#1e293b] border border-blue-500/20 rounded-2xl p-6 w-full max-w-md shadow-xl">
-                        <h3 className="text-lg font-bold text-blue-200 mb-4">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200">
+                        <h3 className="text-lg font-bold text-slate-800 mb-4">
                             Rejection Reason
                         </h3>
                         <textarea
@@ -362,13 +362,13 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                             onChange={(e) => setRejectionReason(e.target.value)}
                             placeholder="Optional: Provide a reason for rejection..."
                             rows={3}
-                            className="w-full px-4 py-3 bg-[#0f172a] border border-blue-500/20 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-blue-400 resize-none"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none transition-all"
                         />
                         <div className="flex gap-3 mt-4">
                             <button
                                 onClick={handleReject}
                                 disabled={isUpdating}
-                                className="flex-1 py-2.5 bg-red-600 hover:bg-red-500 disabled:bg-red-800 text-white font-medium rounded-lg transition-all"
+                                className="flex-1 py-2.5 bg-red-600 hover:bg-red-500 disabled:bg-red-800 text-white font-medium rounded-lg transition-all shadow-md shadow-red-500/20"
                             >
                                 {isUpdating ? "Rejecting..." : "Confirm Rejection"}
                             </button>
@@ -377,7 +377,7 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                                     setRejectionModal(null);
                                     setRejectionReason("");
                                 }}
-                                className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 font-medium rounded-lg transition-all"
+                                className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium rounded-lg transition-all"
                             >
                                 Cancel
                             </button>

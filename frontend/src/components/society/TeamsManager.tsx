@@ -46,13 +46,13 @@ const TeamForm: React.FC<{
     const [description, setDescription] = useState(initial?.description || "");
 
     return (
-        <div className="bg-[#1e293b]/80 border border-blue-500/20 rounded-xl p-5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200 shadow-sm">
             <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Team name"
-                className="w-full bg-[#0f172a]/60 border border-blue-500/20 rounded-lg px-4 py-2.5 text-white placeholder:text-blue-400/40 focus:outline-none focus:border-blue-500/50"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all"
                 autoFocus
             />
             <textarea
@@ -60,19 +60,19 @@ const TeamForm: React.FC<{
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Description (optional)"
                 rows={2}
-                className="w-full bg-[#0f172a]/60 border border-blue-500/20 rounded-lg px-4 py-2.5 text-white placeholder:text-blue-400/40 focus:outline-none focus:border-blue-500/50 resize-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
             />
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-3">
                 <button
                     onClick={onCancel}
-                    className="px-4 py-2 text-sm text-blue-400/60 hover:text-blue-300 transition-colors"
+                    className="px-4 py-2 text-sm text-slate-500 hover:text-slate-700 transition-colors font-medium"
                 >
                     Cancel
                 </button>
                 <button
                     onClick={() => name.trim() && onSubmit(name.trim(), description.trim())}
                     disabled={!name.trim() || loading}
-                    className="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-blue-600/20 disabled:opacity-50 transition-all"
+                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-md shadow-blue-600/20 disabled:opacity-50 transition-all"
                 >
                     {loading ? "Saving..." : submitLabel}
                 </button>
@@ -135,18 +135,18 @@ const TeamMemberList: React.FC<{
     };
 
     if (isLoading) {
-        return <div className="py-4 text-center text-blue-400/60 animate-pulse text-sm">Loading members...</div>;
+        return <div className="py-4 text-center text-slate-400 animate-pulse text-sm">Loading members...</div>;
     }
 
     return (
-        <div className="border-t border-blue-500/10 mt-3 pt-3 space-y-2">
+        <div className="border-t border-slate-100 mt-3 pt-3 space-y-2">
             <div className="flex justify-between items-center mb-2">
-                <span className="text-xs text-blue-400/60 font-semibold uppercase tracking-wider">
+                <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
                     Team Members ({members?.length || 0})
                 </span>
                 <button
                     onClick={() => setShowAddModal(!showAddModal)}
-                    className="flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 transition-colors"
+                    className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 transition-colors font-medium"
                 >
                     <MdPersonAdd className="text-base" /> Add Member
                 </button>
@@ -154,17 +154,17 @@ const TeamMemberList: React.FC<{
 
             {/* Add member modal */}
             {showAddModal && (
-                <div className="bg-[#0f172a]/80 border border-purple-500/20 rounded-lg p-3 mb-3 animate-in fade-in duration-200">
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="text-xs text-purple-300 font-semibold">Select a Society Member</span>
-                        <button onClick={() => setShowAddModal(false)} className="text-blue-400/40 hover:text-white">
+                <div className="bg-white border border-slate-200 rounded-xl p-4 mb-3 animate-in fade-in duration-200 shadow-sm relative z-10">
+                    <div className="flex justify-between items-center mb-3">
+                        <span className="text-xs text-slate-700 font-bold uppercase tracking-wider">Select Member</span>
+                        <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
                             <MdClose />
                         </button>
                     </div>
                     {availableMembers.length === 0 ? (
-                        <p className="text-xs text-blue-400/40 py-2">All society members are already in this team.</p>
+                        <p className="text-xs text-slate-400 py-2">All society members are already in this team.</p>
                     ) : (
-                        <div className="max-h-48 overflow-y-auto space-y-1 custom-scrollbar">
+                        <div className="max-h-48 overflow-y-auto space-y-1 custom-scrollbar pr-1">
                             {availableMembers.map((m) => {
                                 const user = typeof m.user_id === "string" ? null : m.user_id;
                                 if (!user) return null;
@@ -172,14 +172,14 @@ const TeamMemberList: React.FC<{
                                     <button
                                         key={m._id}
                                         onClick={() => handleAdd(user._id)}
-                                        className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-purple-500/10 transition-colors text-left"
+                                        className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors text-left group"
                                     >
-                                        <div className="w-7 h-7 rounded-full bg-linear-to-br from-purple-500 to-pink-400 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-xs font-bold shrink-0 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
                                             {user.name?.charAt(0).toUpperCase()}
                                         </div>
                                         <div className="min-w-0">
-                                            <p className="text-sm text-white truncate">{user.name}</p>
-                                            <p className="text-[10px] text-blue-400/40 truncate">{user.email}</p>
+                                            <p className="text-sm text-slate-700 group-hover:text-slate-900 font-medium truncate">{user.name}</p>
+                                            <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
                                         </div>
                                     </button>
                                 );
@@ -191,29 +191,29 @@ const TeamMemberList: React.FC<{
 
             {/* Members */}
             {(!members || members.length === 0) ? (
-                <p className="text-xs text-blue-400/40 py-2 text-center">No members in this team yet.</p>
+                <p className="text-xs text-slate-400 py-2 text-center italic">No members in this team yet.</p>
             ) : (
                 members.map((m) => {
                     const user = typeof m.user_id === "string" ? null : m.user_id;
                     if (!user) return null;
                     return (
-                        <div key={m._id} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-blue-500/5 transition-colors">
+                        <div key={m._id} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-50 transition-colors group">
                             <div className="flex items-center gap-3 min-w-0">
-                                <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-xs font-bold shrink-0 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
                                     {user.name?.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
-                                    <p className="text-sm text-white truncate">{user.name}</p>
-                                    <p className="text-[11px] text-blue-400/50 truncate">{user.email}</p>
+                                    <p className="text-sm text-slate-700 font-medium truncate">{user.name}</p>
+                                    <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-1.5 shrink-0 ml-3">
+                            <div className="flex items-center gap-1.5 shrink-0 ml-3 opacity-0 group-hover:opacity-100 transition-opacity">
                                 {user.phone && (
                                     <a
                                         href={`https://wa.me/${formatPhone(user.phone)}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="w-7 h-7 rounded-md bg-green-500/10 hover:bg-green-500/25 flex items-center justify-center text-green-400 text-sm transition-all"
+                                        className="w-7 h-7 rounded-md bg-green-50 hover:bg-green-100 flex items-center justify-center text-green-600 text-sm transition-all"
                                         title="WhatsApp"
                                     >
                                         <FaWhatsapp />
@@ -221,14 +221,14 @@ const TeamMemberList: React.FC<{
                                 )}
                                 <a
                                     href={`mailto:${user.email}`}
-                                    className="w-7 h-7 rounded-md bg-blue-500/10 hover:bg-blue-500/25 flex items-center justify-center text-blue-400 text-xs transition-all"
+                                    className="w-7 h-7 rounded-md bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 text-xs transition-all"
                                     title="Email"
                                 >
                                     <FaEnvelope />
                                 </a>
                                 <button
                                     onClick={() => handleRemove(user._id, user.name)}
-                                    className="w-7 h-7 rounded-md bg-red-500/10 hover:bg-red-500/25 flex items-center justify-center text-red-400 text-sm transition-all"
+                                    className="w-7 h-7 rounded-md bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 text-sm transition-all"
                                     title="Remove from team"
                                 >
                                     <MdPersonRemove />
@@ -425,8 +425,8 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
             {/* Header */}
             <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
                 <div>
-                    <h2 className="text-2xl font-bold text-blue-200">Teams</h2>
-                    <p className="text-blue-400/60 text-sm mt-1">
+                    <h2 className="text-2xl font-bold text-slate-800">Teams</h2>
+                    <p className="text-slate-500 text-sm mt-1">
                         {groups?.length || 0} team{(groups?.length || 0) !== 1 ? "s" : ""}
                     </p>
                 </div>
@@ -436,14 +436,14 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                     <button
                         onClick={exportToPDF}
                         disabled={selectedTeamId ? (!teamMembers || teamMembers.length === 0) : (!groups || groups.length === 0)}
-                        className="flex items-center gap-2 bg-red-600/20 hover:bg-red-600/30 text-red-300 px-4 py-2.5 rounded-lg border border-red-500/30 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 bg-white hover:bg-slate-50 text-red-600 px-4 py-2.5 rounded-lg border border-red-100 hover:border-red-200 transition-all text-sm font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <FaFilePdf /> PDF
                     </button>
                     <button
                         onClick={exportToExcel}
                         disabled={selectedTeamId ? (!teamMembers || teamMembers.length === 0) : (!groups || groups.length === 0)}
-                        className="flex items-center gap-2 bg-green-600/20 hover:bg-green-600/30 text-green-300 px-4 py-2.5 rounded-lg border border-green-500/30 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 bg-white hover:bg-slate-50 text-green-600 px-4 py-2.5 rounded-lg border border-green-100 hover:border-green-200 transition-all text-sm font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <FaFileExcel /> Excel
                     </button>
@@ -451,7 +451,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                     {!selectedTeamId && (
                          <button
                             onClick={() => setShowCreateForm(!showCreateForm)}
-                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg shadow-lg shadow-blue-600/20 transition-all text-sm font-medium"
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg shadow-lg shadow-blue-500/20 transition-all text-sm font-medium"
                         >
                             <MdAdd className="text-lg" /> New Team
                         </button>
@@ -460,13 +460,13 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
             </div>
 
             {/* Team Filters (Chips) */}
-            <div className="flex flex-wrap gap-2 mb-6 pb-2 border-b border-blue-500/10">
+            <div className="flex flex-wrap gap-2 mb-6 pb-2 border-b border-slate-200">
                 <button
                     onClick={() => setSelectedTeamId(null)}
                     className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                         selectedTeamId === null
-                            ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
-                            : "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
+                            ? "bg-slate-800 text-white shadow-md shadow-slate-500/20"
+                            : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                     }`}
                 >
                     All Teams
@@ -477,8 +477,8 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                         onClick={() => setSelectedTeamId(group._id)}
                         className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                             selectedTeamId === group._id
-                                ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
-                                : "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
+                                ? "bg-slate-800 text-white shadow-md shadow-slate-500/20"
+                                : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                         }`}
                     >
                         {group.name}
@@ -502,29 +502,29 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
             {selectedTeamId ? (
                 // ─── Filtered Team View (Member List) ───────────────────────
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-                     <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                        <MdGroups className="text-blue-400" />
+                     <h3 className="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <MdGroups className="text-blue-500" />
                         {getSelectedTeamName()}
-                        <span className="text-sm font-normal text-blue-400/60 ml-2">
+                        <span className="text-sm font-normal text-slate-400 ml-2">
                             ({teamMembers?.length || 0} members)
                         </span>
                      </h3>
 
                     {loadingMembers ? (
-                         <div className="text-center py-12 text-blue-400 animate-pulse">Loading members...</div>
+                         <div className="text-center py-12 text-slate-400 animate-pulse">Loading members...</div>
                     ) : !teamMembers || teamMembers.length === 0 ? (
-                        <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-xl p-8 text-center">
-                            <MdPersonAdd className="text-4xl text-blue-500/30 mx-auto mb-3" />
-                             <p className="text-blue-200 mb-1">No members in this team yet.</p>
-                             <p className="text-blue-400/60 text-sm">
+                        <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm">
+                            <MdPersonAdd className="text-5xl text-slate-200 mx-auto mb-4" />
+                             <p className="text-slate-800 font-medium mb-1">No members in this team yet.</p>
+                             <p className="text-slate-500 text-sm">
                                 Switch to "All Teams" view and expand this team to add members.
                              </p>
                         </div>
                     ) : (
-                        <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-xl overflow-hidden overflow-x-auto">
+                        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="bg-blue-500/10 border-b border-blue-500/10 text-blue-300 text-sm uppercase tracking-wider">
+                                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-sm uppercase tracking-wider">
                                         <th className="p-4 font-semibold">Name</th>
                                         <th className="p-4 font-semibold">Email</th>
                                     <th className="p-4 font-semibold hidden md:table-cell">Phone</th>
@@ -533,39 +533,39 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                         <th className="p-4 font-semibold text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-blue-500/10">
+                                <tbody className="divide-y divide-slate-100">
                                     {teamMembers.map((member) => {
                                          const user = typeof member.user_id === "string" ? null : member.user_id;
                                          if (!user) return null;
                                         return (
-                                            <tr key={member._id} className="hover:bg-blue-500/5 transition-colors">
+                                            <tr key={member._id} className="hover:bg-slate-50 transition-colors">
                                                 <td className="p-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-9 h-9 rounded-full bg-linear-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-indigo-500/20">
+                                                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-sm font-bold">
                                                             {user.name?.charAt(0).toUpperCase()}
                                                         </div>
-                                                        <span className="font-medium text-white">{user.name}</span>
+                                                        <span className="font-medium text-slate-900">{user.name}</span>
                                                     </div>
                                                 </td>
-                                                <td className="p-4 text-sm text-blue-200">{user.email}</td>
-                                                <td className="p-4 text-sm text-blue-400 hidden md:table-cell">
+                                                <td className="p-4 text-sm text-slate-600">{user.email}</td>
+                                                <td className="p-4 text-sm text-slate-500 hidden md:table-cell">
                                                     {user.phone ? (
-                                                        <a href={`https://wa.me/${formatPhone(user.phone)}`} target="_blank" rel="noopener noreferrer" className="hover:text-green-400 flex items-center gap-1">
-                                                            <FaWhatsapp className="text-green-500/70" /> {user.phone}
+                                                        <a href={`https://wa.me/${formatPhone(user.phone)}`} target="_blank" rel="noopener noreferrer" className="hover:text-green-600 flex items-center gap-1">
+                                                            <FaWhatsapp className="text-green-500" /> {user.phone}
                                                         </a>
                                                     ) : "N/A"}
                                                 </td>
-                                                <td className="p-4 text-sm text-blue-400 hidden sm:table-cell">
+                                                <td className="p-4 text-sm text-slate-500 hidden sm:table-cell">
                                                     {new Date(member.joined_at).toLocaleDateString()}
                                                 </td>
                                                 <td className="p-4 text-right">
                                                     <div className="flex justify-end items-center gap-2">
-                                                        <a href={`mailto:${user.email}`} className="text-blue-400 hover:text-white p-2 rounded-lg hover:bg-blue-500/20 transition-all">
+                                                        <a href={`mailto:${user.email}`} className="text-slate-400 hover:text-blue-600 p-2 rounded-lg hover:bg-blue-50 transition-all">
                                                             <FaEnvelope />
                                                         </a>
                                                         <button
                                                             onClick={() => handleRemoveMember(user._id, selectedTeamId)}
-                                                            className="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/20 transition-all"
+                                                            className="text-slate-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-all"
                                                             title="Remove from team"
                                                         >
                                                             <MdPersonRemove />
@@ -583,29 +583,29 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
             ) : (
                 // ─── Default View (List of Teams) ───────────────────────────
                 !groups || groups.length === 0 ? (
-                    <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-2xl p-12 text-center">
-                        <MdGroups className="text-5xl text-blue-500/30 mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold text-blue-200 mb-2">No Teams Yet</h3>
-                        <p className="text-blue-400/60 text-sm">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm">
+                        <MdGroups className="text-5xl text-slate-200 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-slate-800 mb-2">No Teams Yet</h3>
+                        <p className="text-slate-500 text-sm">
                             Create your first team to organize your society members.
                         </p>
                     </div>
                 ) : (
-                    <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-xl overflow-hidden overflow-x-auto">
+                    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-blue-500/10 border-b border-blue-500/10 text-blue-300 text-sm uppercase tracking-wider">
+                                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-sm uppercase tracking-wider">
                                     <th className="p-4 font-semibold">Team Name</th>
                                     <th className="p-4 font-semibold">Members</th>
                                     <th className="p-4 font-semibold text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-blue-500/10">
+                            <tbody className="divide-y divide-slate-100">
                                 {groups.map((group) => (
                                     <React.Fragment key={group._id}>
                                         {editingGroup === group._id ? (
                                             <tr>
-                                                <td colSpan={4} className="p-4">
+                                                <td colSpan={4} className="p-4 bg-slate-50">
                                                     <TeamForm
                                                         initial={{ name: group.name, description: group.description || "" }}
                                                         onSubmit={(name, desc) => handleUpdate(group._id, name, desc)}
@@ -616,7 +616,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                                 </td>
                                             </tr>
                                         ) : (
-                                            <tr className="hover:bg-blue-500/5 transition-colors group">
+                                            <tr className="hover:bg-slate-50 transition-colors group">
                                                 <td className="p-4">
                                                     <div
                                                         className="flex items-center gap-3 cursor-pointer"
@@ -624,20 +624,20 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                                             setExpandedGroup(expandedGroup === group._id ? null : group._id)
                                                         }
                                                     >
-                                                        <div className="w-10 h-10 rounded-lg bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white shrink-0">
+                                                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0 border border-blue-100">
                                                             <MdGroups className="text-xl" />
                                                         </div>
-                                                        <span className="font-semibold text-white">{group.name}</span>
+                                                        <span className="font-semibold text-slate-800">{group.name}</span>
                                                         {expandedGroup === group._id ? (
-                                                            <MdExpandLess className="text-blue-400/40 text-xl" />
+                                                            <MdExpandLess className="text-slate-400 text-xl" />
                                                         ) : (
-                                                            <MdExpandMore className="text-blue-400/40 text-xl" />
+                                                            <MdExpandMore className="text-slate-400 text-xl" />
                                                         )}
                                                     </div>
                                                 </td>
 
                                                 <td className="p-4">
-                                                    <span className="text-sm text-blue-300 bg-blue-500/10 px-2 py-1 rounded-full border border-blue-500/20">
+                                                    <span className="text-sm text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100 font-medium">
                                                         {group.memberCount || 0} Members
                                                     </span>
                                                 </td>
@@ -645,14 +645,14 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                                     <div className="flex items-center justify-end gap-2">
                                                         <button
                                                             onClick={() => setEditingGroup(group._id)}
-                                                            className="w-8 h-8 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 flex items-center justify-center text-blue-400 transition-all"
+                                                            className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 hover:text-blue-600 transition-all border border-slate-100"
                                                             title="Edit team"
                                                         >
                                                             <MdEdit className="text-base" />
                                                         </button>
                                                         <button
                                                             onClick={() => handleDelete(group._id, group.name)}
-                                                            className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400 transition-all"
+                                                            className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 flex items-center justify-center text-slate-500 hover:text-red-500 transition-all border border-slate-100 hover:border-red-100"
                                                             title="Delete team"
                                                         >
                                                             <MdDelete className="text-base" />
@@ -665,7 +665,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                         {expandedGroup === group._id && !editingGroup && (
                                             <tr>
                                                 <td colSpan={4} className="p-0">
-                                                    <div className="bg-[#0f172a]/30 border-y border-blue-500/10 px-4 py-4 animate-in slide-in-from-top-2 duration-200">
+                                                    <div className="bg-slate-50/50 border-y border-slate-100 px-4 py-4 animate-in slide-in-from-top-2 duration-200">
                                                         <TeamMemberList groupId={group._id} societyId={societyId} />
                                                     </div>
                                                 </td>
