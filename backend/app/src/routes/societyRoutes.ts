@@ -8,6 +8,7 @@ import {
     getAllSocietyRequests,
     updateSocietyRequestStatus,
     getAllSocieties,
+    getMyManageableSocieties,
     getSocietyById,
     getSocietyMembers,
     addMember,
@@ -29,6 +30,7 @@ router.put('/requests/:id', protect, adminOnly, updateSocietyRequestStatus);
 
 // ─── Society CRUD Routes ─────────────────────────────────────────────────────
 router.post('/', protect, upload.single("logo"), createSociety);
+router.get('/manageable', protect, getMyManageableSocieties);
 router.get('/', protect, getAllSocieties);
 router.get('/:id', protect, getSocietyById);
 router.put('/:id', protect, authorize(['PRESIDENT'], 'SOCIETY'), upload.single("logo"), updateSociety);

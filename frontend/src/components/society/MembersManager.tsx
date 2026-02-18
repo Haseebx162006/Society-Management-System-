@@ -6,6 +6,7 @@ import {
     useGetGroupsInSocietyQuery,
     useAddMemberToGroupMutation,
 } from "@/lib/features/groups/groupApiSlice";
+import { useUpdateMemberRoleMutation } from "@/lib/features/societies/societyApiSlice";
 import { FaWhatsapp, FaEnvelope, FaSearch, FaUserPlus, FaFilePdf, FaFileExcel } from "react-icons/fa";
 import { MdGroups, MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { toast } from "react-hot-toast";
@@ -35,6 +36,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
 
     const { data: groups } = useGetGroupsInSocietyQuery(societyId);
     const [addMemberToGroup] = useAddMemberToGroupMutation();
+    const [updateMemberRole] = useUpdateMemberRoleMutation();
 
     const members = data?.members || [];
     const pagination = data?.pagination || { page: 1, totalPages: 1, total: 0, limit: ITEMS_PER_PAGE };
@@ -263,6 +265,34 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                                     Joined: {new Date(member.assigned_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
                                                 </p>
                                                 {user.phone && <p className="text-xs text-slate-500">Phone: {user.phone}</p>}
+                                                
+                                                {/* Finance Manager Toggle */}
+                                                {member.role !== 'PRESIDENT' && (
+                                                   <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100">
+                                                       <label className="relative inline-flex items-center cursor-pointer">
+                                                           <input 
+                                                               type="checkbox" 
+                                                               className="sr-only peer"
+                                                               checked={member.role === 'FINANCE MANAGER'}
+                                                               onChange={async (e) => {
+                                                                   try {
+                                                                       const newRole = e.target.checked ? 'FINANCE MANAGER' : 'MEMBER';
+                                                                       await updateMemberRole({
+                                                                           societyId,
+                                                                           userId: user._id,
+                                                                           role: newRole
+                                                                       }).unwrap();
+                                                                       toast.success(`User role updated to ${newRole}`);
+                                                                   } catch (err) {
+                                                                       toast.error("Failed to update role");
+                                                                   }
+                                                               }}
+                                                           />
+                                                           <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                                                           <span className="ml-2 text-xs font-medium text-slate-600">Finance Manager</span>
+                                                       </label>
+                                                   </div>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="p-4 text-right">

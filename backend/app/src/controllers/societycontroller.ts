@@ -261,6 +261,7 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
 };
 
 
+
 export const getAllSocieties = async (req: AuthRequest, res: Response) => {
     try {
         const societies = await Society.find({ status: "ACTIVE" })
@@ -274,6 +275,36 @@ export const getAllSocieties = async (req: AuthRequest, res: Response) => {
         return sendError(res, 500, "Internal server error while fetching societies", error);
     }
 };
+
+export const getMyManageableSocieties = async (req: AuthRequest, res: Response) => {
+    try {
+        // Find roles for this user where they are PRESIDENT or FINANCE MANAGER
+        const userRoles = await SocietyUserRole.find({
+            user_id: req.user!._id,
+            role: { $in: ["PRESIDENT", "FINANCE MANAGER"] }
+        });
+
+        if (!userRoles.length) {
+            return sendResponse(res, 200, "No manageable societies found", []);
+        }
+
+        const societyIds = userRoles.map(ur => ur.society_id as mongoose.Types.ObjectId);
+
+        const societies = await Society.find({
+            _id: { $in: societyIds },
+            status: "ACTIVE"
+        })
+        .populate("created_by", "name email")
+        .populate("groups", "name")
+        .sort({ created_at: -1 });
+
+        return sendResponse(res, 200, "Manageable societies fetched successfully", societies);
+
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error while fetching manageable societies", error);
+    }
+};
+
 
 
 export const getSocietyById = async (req: AuthRequest, res: Response) => {
@@ -415,7 +446,7 @@ export const updateMemberRole = async (req: AuthRequest, res: Response) => {
             return sendError(res, 400, "Role is required");
         }
 
-        const validRoles = ["PRESIDENT", "LEAD", "CO-LEAD", "GENERAL SECRETARY", "MEMBER"];
+        const validRoles = ["PRESIDENT", "LEAD", "CO-LEAD", "GENERAL SECRETARY", "MEMBER", "FINANCE MANAGER"];
         if (!validRoles.includes(role)) {
             return sendError(res, 400, `Invalid role. Must be one of: ${validRoles.join(", ")}`);
         }

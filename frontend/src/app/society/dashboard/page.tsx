@@ -1,26 +1,22 @@
 'use client';
 
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { useRouter } from 'next/navigation';
-import { RootState } from '@/lib/store';
-import { useGetAllSocietiesQuery, useGetSocietyByIdQuery } from '@/lib/features/societies/societyApiSlice';
+import { useGetSocietyByIdQuery, useGetMyManageableSocietiesQuery } from '@/lib/features/societies/societyApiSlice';
 import CreateSocietyForm from '@/components/society/CreateSocietyForm';
 import SocietyDashboard from '@/components/society/SocietyDashboard';
 
 export default function DashboardPage() {
-  const { user } = useSelector((state: RootState) => state.auth);
-  const router = useRouter();
-  const { data: societies, isLoading: isSocietiesLoading } = useGetAllSocietiesQuery({});
+  // Use the new endpoint that returns societies where user is PRESIDENT or FINANCE MANAGER
+  const { data: manageableSocieties, isLoading: isSocietiesLoading } = useGetMyManageableSocietiesQuery({});
   
   const societyId = React.useMemo(() => {
-    if (user && societies) {
-        const userId = user._id || user.id;
-        const found = societies.find((s: any) => s.created_by?._id === userId || s.created_by === userId);
-        return found?._id;
+    if (manageableSocieties && manageableSocieties.length > 0) {
+        // For now, default to the first manageable society. 
+        // In the future, we could add a society switcher if a user manages multiple.
+        return manageableSocieties[0]._id;
     }
     return null;
-  }, [user, societies]);
+  }, [manageableSocieties]);
 
   const { data: societyDetails, isLoading: isDetailsLoading } = useGetSocietyByIdQuery(societyId, {
     skip: !societyId
@@ -34,7 +30,7 @@ export default function DashboardPage() {
     );
   }
 
-  // If user has a society and we fetched its details
+  // If we have society details, check specific role and render dashboard
   if (societyDetails) {
     // Merge society data and members for the dashboard component
     const fullSociety = {
@@ -44,12 +40,8 @@ export default function DashboardPage() {
     return <SocietyDashboard society={fullSociety} />;
   }
   
-  // If we found a society ID but details failed to load, strictly waiting might be better, 
-  // but if we have societyId and no data yet, it's likely loading or error. 
-  // If NO societyId found after societies loaded, then show create form.
-
+  // If no manageable societies found, show Create Form
   if (!isSocietiesLoading && !societyId) {
-       // If user is President but no society, show Create Form
        return <CreateSocietyForm />;
   }
 

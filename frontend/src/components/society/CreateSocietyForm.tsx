@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { useCreateSocietyMutation, useUpdateSocietyMutation } from '@/lib/features/societies/societyApiSlice';
 import { useRouter } from 'next/navigation';

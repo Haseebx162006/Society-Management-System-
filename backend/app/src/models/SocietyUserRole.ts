@@ -6,7 +6,7 @@ export interface ISocietyUserRole extends Document {
     name: string;
     user_id: mongoose.Types.ObjectId | IUser;
     society_id: mongoose.Types.ObjectId | ISociety;
-    role: "PRESIDENT" | "LEAD" | "CO-LEAD" | "GENERAL SECRETARY" | "MEMBER";
+    role: "PRESIDENT" | "LEAD" | "CO-LEAD" | "GENERAL SECRETARY" | "MEMBER" | "FINANCE MANAGER";
     group_id?: mongoose.Types.ObjectId;
     assigned_by: mongoose.Types.ObjectId | IUser;
     assigned_at: Date;
@@ -30,7 +30,7 @@ const societyUserRolesSchema: Schema = new Schema({
     },
     role: {
         type: String,
-        enum: ["PRESIDENT", "LEAD", "CO-LEAD", "GENERAL SECRETARY", "MEMBER"],
+        enum: ["PRESIDENT", "LEAD", "CO-LEAD", "GENERAL SECRETARY", "MEMBER", "FINANCE MANAGER"],
         default: "MEMBER"
     },
     group_id: {

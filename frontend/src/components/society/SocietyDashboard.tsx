@@ -18,9 +18,11 @@ interface SocietyDashboardProps {
   society: {
     _id: string;
     name: string;
+    description: string;
     members: any[];
     groups: any[];
     registration_fee: number;
+    content_sections: any[];
     [key: string]: any;
   };
 }
@@ -29,6 +31,18 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [activeTab, setActiveTab] = React.useState('overview');
   const [showCreateForm, setShowCreateForm] = React.useState(false);
+
+  // Determine current user's role
+  const currentUserRole = useMemo(() => {
+      if (!user || !society.members) return 'MEMBER';
+      const userId = user._id || user.id;
+      // Member objects usually have populated user_id object OR just string id
+      const member = society.members.find((m: any) => {
+          const mUserId = typeof m.user_id === 'object' ? m.user_id._id : m.user_id;
+          return mUserId === userId;
+      });
+      return member?.role || 'MEMBER';
+  }, [user, society.members]);
 
   // --- Process Dynamic Data ---
 
@@ -186,6 +200,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onViewForm={() => setShowCreateForm(true)}
+        role={currentUserRole}
       />
 
       {/* Main Content - Pushed Right */}

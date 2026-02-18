@@ -24,6 +24,11 @@ export const societyApiSlice = apiSlice.injectEndpoints({
         providesTags: ["Society"],
         transformResponse: (response: { data: any }) => response.data,
     }),
+    getMyManageableSocieties: builder.query({
+        query: () => "/society/manageable",
+        providesTags: ["Society"],
+        transformResponse: (response: { data: any }) => response.data,
+    }),
     getSocietyById: builder.query({
       query: (id) => `/society/${id}`,
       providesTags: (result, error, id) => [{ type: "Society", id }],
@@ -53,6 +58,14 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Society"],
     }),
+    updateMemberRole: builder.mutation({
+        query: ({ societyId, userId, role }) => ({
+            url: `/society/${societyId}/members/${userId}`,
+            method: "PUT",
+            body: { role }
+        }),
+        invalidatesTags: ["SocietyMember", "Society"],
+    }),
   }),
 });
 
@@ -60,8 +73,10 @@ export const {
   useCreateSocietyRequestMutation,
   useCreateSocietyMutation,
   useGetAllSocietiesQuery,
+  useGetMyManageableSocietiesQuery,
   useGetSocietyRequestsQuery,
   useUpdateSocietyRequestStatusMutation,
   useUpdateSocietyMutation,
   useGetSocietyByIdQuery,
+  useUpdateMemberRoleMutation,
 } = societyApiSlice;

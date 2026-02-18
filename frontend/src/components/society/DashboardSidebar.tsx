@@ -5,26 +5,34 @@ interface DashboardSidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onViewForm?: () => void;
+  role?: string;
 }
 
-const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiveTab, onViewForm }) => {
+const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiveTab, onViewForm, role = 'MEMBER' }) => {
 
-  const navItems = [
-    { id: 'overview', label: 'Overview', icon: <MdDashboard /> },
-    { id: 'members', label: 'Members', icon: <FaUsers /> },
-    { id: 'teams', label: 'Teams', icon: <MdGroups /> },
-    { id: 'join-form', label: 'Join Form', icon: <FaWpforms /> },
-    { id: 'join-requests', label: 'Join Requests', icon: <FaClipboardList /> },
-    { id: 'events', label: 'Events', icon: <MdEvent /> },
-    { id: 'settings', label: 'Settings', icon: <MdSettings /> },
+  const allNavItems = [
+    { id: 'overview', label: 'Overview', icon: <MdDashboard />, roles: ['PRESIDENT', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'MEMBER'] },
+    { id: 'members', label: 'Members', icon: <FaUsers />, roles: ['PRESIDENT', 'GENERAL SECRETARY'] },
+    { id: 'teams', label: 'Teams', icon: <MdGroups />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD'] },
+    { id: 'join-form', label: 'Join Form', icon: <FaWpforms />, roles: ['PRESIDENT'] },
+    { id: 'join-requests', label: 'Join Requests', icon: <FaClipboardList />, roles: ['PRESIDENT', 'FINANCE MANAGER'] }, // FINANCE MANAGER added here
+    { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'MEMBER'] },
+    { id: 'settings', label: 'Settings', icon: <MdSettings />, roles: ['PRESIDENT'] },
   ];
+
+  // Filter items based on role
+  const navItems = allNavItems.filter(item => item.roles.includes(role));
 
   return (
     <div className="w-64 bg-white border-r border-slate-200 flex flex-col h-screen fixed left-0 top-0 overflow-y-auto shadow-sm z-50">
       <div className="p-6 border-b border-slate-100">
         <h2 className="text-xl font-extrabold text-blue-600 tracking-tight flex items-center gap-2">
-          <span className="bg-blue-600 text-white rounded-lg p-1 text-sm">SA</span>
-          Society Admin
+          <span className="bg-blue-600 text-white rounded-lg p-1 text-sm">
+             {role === 'PRESIDENT' ? 'SA' : role === 'FINANCE MANAGER' ? 'FM' : 'SM'}
+          </span>
+          <span className="text-sm truncate max-w-[140px]" title={role}>
+             {role === 'PRESIDENT' ? 'Society Admin' : role.replace('_', ' ')}
+          </span>
         </h2>
       </div>
 
@@ -43,15 +51,18 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
           </button>
         ))}
 
-        <div className="my-4 border-t border-slate-100 mx-2"></div>
-
-        <button
-          onClick={onViewForm}
-          className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-purple-50 hover:text-purple-600 transition-all font-medium"
-        >
-          <span className="text-xl">{<FaEdit />}</span>
-          <span>View Creation Form</span>
-        </button>
+        {role === 'PRESIDENT' && (
+            <>
+                <div className="my-4 border-t border-slate-100 mx-2"></div>
+                <button
+                onClick={onViewForm}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-purple-50 hover:text-purple-600 transition-all font-medium"
+                >
+                <span className="text-xl">{<FaEdit />}</span>
+                <span>View Creation Form</span>
+                </button>
+            </>
+        )}
 
       </nav>
 
