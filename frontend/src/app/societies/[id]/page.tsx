@@ -26,6 +26,7 @@ import { useAppSelector } from "@/lib/hooks";
 import { selectCurrentUser } from "@/lib/features/auth/authSlice";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
+import SocietyViewModal from "@/components/society/SocietyViewModal";
 
 export default function SocietyDetailsPage() {
     const { id } = useParams();
@@ -33,10 +34,20 @@ export default function SocietyDetailsPage() {
     const user = useAppSelector(selectCurrentUser);
     const { data: societyData, isLoading } = useGetSocietyByIdQuery(id as string);
     const society = societyData?.society;
+    const membersData = societyData?.members || [];
 
     // We only fetch join forms if user exists (president-level auth).
     // For the Register Now button, we use a lazy approach: try to fetch and handle gracefully.
     const [registerLoading, setRegisterLoading] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+    const currentUserMember = user ? membersData.find((m: any) => {
+        const memberUserId = m.user_id?._id || m.user_id;
+        const currentUserId = user.id || user._id; // Handle both id formats
+        return memberUserId === currentUserId;
+    }) : null;
+    
+    const isMember = !!currentUserMember;
 
     const handleRegisterClick = async () => {
         if (!user) {
@@ -136,25 +147,35 @@ export default function SocietyDetailsPage() {
                         </p>
 
                         <div className="flex flex-wrap gap-4">
-                            <button
-                                onClick={handleRegisterClick}
-                                disabled={registerLoading}
-                                className="px-8 py-4 bg-white text-gray-900 font-bold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center gap-2 disabled:opacity-60"
-                            >
-                                {registerLoading ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : (
-                                    <>
-                                        <span>Register Now</span>
-                                        <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-sm">
-                                            {society.registration_fee > 0
-                                                ? `PKR ${society.registration_fee}`
-                                                : "Free"}
-                                        </span>
-                                        <ArrowRight className="w-5 h-5" />
-                                    </>
-                                )}
-                            </button>
+                            {isMember ? (
+                                <button
+                                    onClick={() => setIsViewModalOpen(true)}
+                                    className="px-8 py-4 bg-white text-indigo-900 font-bold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center gap-2"
+                                >
+                                    <Users className="w-5 h-5" />
+                                    View Society
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleRegisterClick}
+                                    disabled={registerLoading}
+                                    className="px-8 py-4 bg-white text-gray-900 font-bold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center gap-2 disabled:opacity-60"
+                                >
+                                    {registerLoading ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : (
+                                        <>
+                                            <span>Register Now</span>
+                                            <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-sm">
+                                                {society.registration_fee > 0
+                                                    ? `PKR ${society.registration_fee}`
+                                                    : "Free"}
+                                            </span>
+                                            <ArrowRight className="w-5 h-5" />
+                                        </>
+                                    )}
+                                </button>
+                            )}
                             <button className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300">
                                 View Events
                             </button>
@@ -309,31 +330,49 @@ export default function SocietyDetailsPage() {
                     {/* Right Column: Sidebar */}
                     <div className="space-y-8">
                         {/* Register CTA Card */}
-                        <div className="bg-indigo-600 rounded-2xl p-6 text-white shadow-xl">
-                            <h3 className="text-lg font-bold mb-2">Join This Society</h3>
-                            <p className="text-indigo-100 text-sm mb-6">
-                                Become a member and unlock access to events, teams, and a vibrant community.
-                            </p>
-                            <button
-                                onClick={handleRegisterClick}
-                                disabled={registerLoading}
-                                className="w-full py-3 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
-                            >
-                                {registerLoading ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : (
-                                    <>
-                                        Apply Now
-                                        <ArrowRight className="w-4 h-4" />
-                                    </>
-                                )}
-                            </button>
-                            {society.registration_fee > 0 && (
-                                <p className="text-center text-indigo-200 text-xs mt-2">
-                                    Registration fee: PKR {society.registration_fee}
+                        {!isMember && (
+                            <div className="bg-indigo-600 rounded-2xl p-6 text-white shadow-xl">
+                                <h3 className="text-lg font-bold mb-2">Join This Society</h3>
+                                <p className="text-indigo-100 text-sm mb-6">
+                                    Become a member and unlock access to events, teams, and a vibrant community.
                                 </p>
-                            )}
-                        </div>
+                                <button
+                                    onClick={handleRegisterClick}
+                                    disabled={registerLoading}
+                                    className="w-full py-3 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                                >
+                                    {registerLoading ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : (
+                                        <>
+                                            Apply Now
+                                            <ArrowRight className="w-4 h-4" />
+                                        </>
+                                    )}
+                                </button>
+                                {society.registration_fee > 0 && (
+                                    <p className="text-center text-indigo-200 text-xs mt-2">
+                                        Registration fee: PKR {society.registration_fee}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                        
+                        {isMember && (
+                             <div className="bg-indigo-600 rounded-2xl p-6 text-white shadow-xl">
+                                <h3 className="text-lg font-bold mb-2">Welcome Back!</h3>
+                                <p className="text-indigo-100 text-sm mb-6">
+                                    You are a member of this society. View your team and colleagues.
+                                </p>
+                                <button
+                                    onClick={() => setIsViewModalOpen(true)}
+                                    className="w-full py-3 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <Users className="w-4 h-4" />
+                                    View Society
+                                </button>
+                            </div>
+                        )}
 
                         {/* Teams Widget */}
                         <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
@@ -421,6 +460,14 @@ export default function SocietyDetailsPage() {
             </section>
 
             <Footer />
+            
+            <SocietyViewModal
+                isOpen={isViewModalOpen}
+                onClose={() => setIsViewModalOpen(false)}
+                society={society}
+                members={membersData}
+                currentUserMember={currentUserMember}
+            />
         </main>
     );
 }
