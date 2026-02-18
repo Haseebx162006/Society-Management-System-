@@ -6,7 +6,6 @@ import { ArrowRight, Users, Calendar } from "lucide-react";
 import Link from "next/link"
 import { useGetAllSocietiesQuery } from "@/lib/features/societies/societyApiSlice";
 
-// Interface for API response data
 interface SocietyData {
   _id: string;
   name: string;
@@ -17,7 +16,6 @@ interface SocietyData {
   [key: string]: unknown;
 }
 
-// Internal display interface
 interface DisplaySociety {
   id: string;
   name: string;
@@ -41,14 +39,12 @@ const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1517245386807-bb43f82c3
 export default function SocietyShowcase() {
   const { data: societiesData, isLoading } = useGetAllSocietiesQuery({});
   
-  // Use useMemo to transform data without causing side effects/re-renders
   const displaySocieties = useMemo<DisplaySociety[]>(() => {
     if (!societiesData || !Array.isArray(societiesData)) return [];
     
     return societiesData
       .filter((s: SocietyData) => s.status === 'ACTIVE')
       .map((s: SocietyData, index: number) => {
-        // Deterministic mock data generation
         const seed = s._id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const members = (seed % 450) + 50; 
         const events = (seed % 15) + 5;
@@ -70,7 +66,6 @@ export default function SocietyShowcase() {
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // Derived active society
   const activeSociety = useMemo(() => {
       if (displaySocieties.length === 0) return null;
       if (selectedId) {
@@ -94,7 +89,6 @@ export default function SocietyShowcase() {
   return (
     <section className="relative h-[800px] w-full overflow-hidden bg-gray-900 flex items-center">
       
-      {/* Dynamic Background */}
       <AnimatePresence mode="popLayout">
         <motion.div
             key={activeSociety.id}
@@ -104,7 +98,7 @@ export default function SocietyShowcase() {
             transition={{ duration: 0.7 }}
             className="absolute inset-0 z-0"
         >
-             <div className="absolute inset-0 bg-black/60 z-10" /> {/* Overlay */}
+             <div className="absolute inset-0 bg-black/60 z-10" /> 
              <div 
                 className="absolute inset-0 bg-cover bg-center"
                 style={{ backgroundImage: `url(${activeSociety.image})` }}
@@ -115,7 +109,6 @@ export default function SocietyShowcase() {
 
       <div className="relative z-20 container mx-auto px-6 h-full flex flex-col md:flex-row items-center gap-12 py-24">
         
-        {/* Left Side: Detail View */}
         <div className="flex-1 text-white space-y-8 w-full">
             <AnimatePresence mode="wait">
                 <motion.div
@@ -150,7 +143,7 @@ export default function SocietyShowcase() {
                          </div>
                     </div>
 
-                    <Link href={`/societies/${activeSociety.id}`} className="group flex items-center gap-3 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-100 transition-colors">
+                    <Link href={`/societies/${activeSociety.id}`} className="group w-fit flex items-center gap-3 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-100 transition-colors">
                         <span>Learn More</span>
                         <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                     </Link>
@@ -160,10 +153,8 @@ export default function SocietyShowcase() {
 
       </div>
       
-        {/* Right Side: Horizontal Scrollable Cards */}
         <div className="absolute bottom-0 right-0 w-full md:w-auto h-auto z-30 flex flex-col items-end pb-8 pl-4 pointer-events-none">
              
-             {/* Hint at scroll/swipe */}
              <div className="flex justify-end mb-4 px-8 pointer-events-auto">
                  <span className="text-xs font-medium text-gray-400 uppercase tracking-widest animate-pulse">Swipe to explore &rarr;</span>
              </div>
@@ -187,14 +178,12 @@ export default function SocietyShowcase() {
                         `}
                         whileHover={{ y: -5 }}
                     >
-                         {/* Card Image */}
                          <div 
                             className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                             style={{ backgroundImage: `url(${society.image})` }}
                          />
                          <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent" />
                          
-                         {/* Card Content */}
                          <div className="absolute bottom-0 left-0 p-4 w-full">
                             <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1 block">
                                 {society.category}

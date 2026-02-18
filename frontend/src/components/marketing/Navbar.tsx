@@ -11,8 +11,8 @@ import { selectCurrentUser } from "@/lib/features/auth/authSlice";
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "Browse Societies", href: "/societies" },
-  { name: "For Executives", href: "#features" },
-  { name: "About", href: "#" },
+  { name: "Get Started", href: "/get-started" },
+  { name: "About", href: "/about" },
 ];
 
 export default function Navbar() {

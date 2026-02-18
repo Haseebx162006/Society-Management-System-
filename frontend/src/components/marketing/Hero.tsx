@@ -6,7 +6,7 @@ import { ArrowRight, BarChart2, Shield, Users } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
+    <section className="relative pt-15 pb-20 lg:pt-34 lg:pb-32 overflow-hidden bg-white">
       {/* Background decoration */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl mix-blend-multiply animate-blob" />
@@ -25,7 +25,7 @@ export default function Hero() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
           </span>
-          COMSATS Lahore Official Portal
+          COMSATS Lahore Society Portal
         </motion.div>
 
         {/* Headline */}
@@ -67,7 +67,7 @@ export default function Hero() {
             Find a Society
           </Link>
           <Link
-            href="/register-society"
+            href="/profile"
             className="w-full sm:w-auto px-8 py-3.5 bg-white text-gray-700 border border-gray-200 rounded-full font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2"
           >
             <Shield className="w-4 h-4 text-gray-500" />
