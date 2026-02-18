@@ -113,7 +113,35 @@ export const getGroupsInSociety = async (req: AuthRequest, res: Response) => {
     try {
         const { society_id } = req.params;
 
-        const groups = await Group.find({ society_id }).sort({ name: 1 });
+        const groups = await Group.aggregate([
+            {
+                $match: {
+                    society_id: new mongoose.Types.ObjectId(society_id as string)
+                }
+            },
+            {
+                $lookup: {
+                    from: "groupmembers",
+                    localField: "_id",
+                    foreignField: "group_id",
+                    as: "members"
+                }
+            },
+            {
+                $addFields: {
+                    memberCount: { $size: "$members" }
+                }
+            },
+            {
+                $project: {
+                    members: 0
+                }
+            },
+            {
+                $sort: { name: 1 }
+            }
+        ]);
+
         return sendResponse(res, 200, "Groups in society fetched successfully", groups);
 
     } catch (error: any) {
@@ -270,17 +298,17 @@ export const getGroupById = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
 
-        const group = await Group.findById(id).populate("created_by", "name email");
+        const group = await Group.findById(id).populate("created_by", "name email phone");
         if (!group) {
              return sendError(res, 404, "Group not found");
         }
 
         // Fetch members including leads
-        const members = await GroupMember.find({ group_id: id }).populate("user_id", "name email");
+        const members = await GroupMember.find({ group_id: id }).populate("user_id", "name email phone");
         const leadership = await SocietyUserRole.find({
             group_id: id,
             role: { $in: ["LEAD", "CO-LEAD"] }
-        }).populate("user_id", "name email");
+        }).populate("user_id", "name email phone");
 
         return sendResponse(res, 200, "Group details fetched successfully", {
             group,
@@ -302,7 +330,7 @@ export const getGroupMembers = async (req: AuthRequest, res: Response) => {
              return sendError(res, 404, "Group not found");
         }
 
-        const members = await GroupMember.find({ group_id }).populate("user_id", "name email");
+        const members = await GroupMember.find({ group_id }).populate("user_id", "name email phone");
 
         return sendResponse(res, 200, "Group members fetched successfully", members);
 

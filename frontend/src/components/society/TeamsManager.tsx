@@ -22,8 +22,12 @@ import {
     MdPersonAdd,
     MdPersonRemove,
 } from "react-icons/md";
-import { FaWhatsapp, FaEnvelope } from "react-icons/fa";
+import { FaWhatsapp, FaEnvelope, FaFilePdf, FaFileExcel } from "react-icons/fa";
 import { toast } from "react-hot-toast";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 interface TeamsManagerProps {
     societyId: string;
@@ -99,8 +103,9 @@ const TeamMemberList: React.FC<{
         try {
             await removeMember({ groupId, userId }).unwrap();
             toast.success("Member removed from team");
-        } catch (err: any) {
-            toast.error(err?.data?.message || "Failed to remove member");
+        } catch (err) {
+            const error = err as { data?: { message?: string } };
+            toast.error(error?.data?.message || "Failed to remove member");
         }
     };
 
@@ -169,7 +174,7 @@ const TeamMemberList: React.FC<{
                                         onClick={() => handleAdd(user._id)}
                                         className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-purple-500/10 transition-colors text-left"
                                     >
-                                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-pink-400 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                        <div className="w-7 h-7 rounded-full bg-linear-to-br from-purple-500 to-pink-400 flex items-center justify-center text-white text-xs font-bold shrink-0">
                                             {user.name?.charAt(0).toUpperCase()}
                                         </div>
                                         <div className="min-w-0">
@@ -194,7 +199,7 @@ const TeamMemberList: React.FC<{
                     return (
                         <div key={m._id} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-blue-500/5 transition-colors">
                             <div className="flex items-center gap-3 min-w-0">
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-linear-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold shrink-0">
                                     {user.name?.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
@@ -248,6 +253,14 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
     const [showCreateForm, setShowCreateForm] = useState(false);
     const [editingGroup, setEditingGroup] = useState<string | null>(null);
     const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+    const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
+
+    // Fetch members of selected team
+    const { data: teamMembers, isLoading: loadingMembers } = useGetGroupMembersQuery(selectedTeamId || "", {
+        skip: !selectedTeamId,
+    });
+
+    const [removeMember] = useRemoveMemberFromGroupMutation();
 
     const handleCreate = async (name: string, description: string) => {
         try {
@@ -278,8 +291,116 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
         try {
             await deleteGroup({ id: groupId, societyId }).unwrap();
             toast.success("Team deleted");
+            if (selectedTeamId === groupId) setSelectedTeamId(null);
         } catch (err: any) {
             toast.error(err?.data?.message || "Failed to delete team");
+        }
+    };
+
+    const handleRemoveMember = async (userId: string, groupId: string) => {
+        if (!confirm("Remove this member from the team?")) return;
+        try {
+            await removeMember({ groupId, userId }).unwrap();
+            toast.success("Member removed");
+        } catch (err: any) {
+            toast.error(err?.data?.message || "Failed to remove member");
+        }
+    };
+
+    const formatPhone = (phone: string) => {
+        let cleaned = phone.replace(/[^\d+]/g, "");
+        if (!cleaned.startsWith("+")) cleaned = "+" + cleaned;
+        return cleaned;
+    };
+
+    const getSelectedTeamName = () => {
+        return groups?.find(g => g._id === selectedTeamId)?.name || "Team";
+    };
+
+    const exportToPDF = () => {
+        const doc = new jsPDF();
+        doc.setFontSize(18);
+
+        if (selectedTeamId && teamMembers) {
+            // Export Members of Selected Team
+            const teamName = getSelectedTeamName();
+            doc.text(`${teamName} - Members`, 14, 22);
+
+            const tableData = teamMembers.map((member) => {
+                const user = typeof member.user_id === "string" ? null : member.user_id;
+                return [
+                    user?.name || "N/A",
+                    user?.email || "N/A",
+                    user?.phone || "N/A",
+                    new Date(member.joined_at).toLocaleDateString(),
+                ];
+            });
+
+            autoTable(doc, {
+                head: [["Name", "Email", "Phone", "Joined Date"]],
+                body: tableData,
+                startY: 30,
+            });
+            doc.save(`${teamName.replace(/\s+/g, "_")}_members.pdf`);
+
+        } else if (groups?.length) {
+            // Export List of Teams
+            doc.text("Society Teams", 14, 22);
+
+            const tableData = groups.map((group) => {
+                return [
+                    group.name,
+    
+                    group.memberCount || 0,
+                ];
+            });
+
+            autoTable(doc, {
+                head: [["Team Name", "Members Count"]],
+                body: tableData,
+                startY: 30,
+            });
+
+            doc.save("society_teams.pdf");
+        }
+    };
+
+    const exportToExcel = () => {
+        if (selectedTeamId && teamMembers) {
+            // Export Members of Selected Team
+            const teamName = getSelectedTeamName();
+            const worksheetData = teamMembers.map((member) => {
+                const user = typeof member.user_id === "string" ? null : member.user_id;
+                return {
+                    Name: user?.name || "N/A",
+                    Email: user?.email || "N/A",
+                    Phone: user?.phone || "N/A",
+                    "Joined Date": new Date(member.joined_at).toLocaleDateString(),
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Members");
+            const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+            const data = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+            saveAs(data, `${teamName.replace(/\s+/g, "_")}_members.xlsx`);
+
+        } else if (groups?.length) {
+            // Export List of Teams
+            const worksheetData = groups.map((group) => {
+                return {
+                    Name: group.name,
+                    "Members Count": group.memberCount || 0,
+                };
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Teams");
+            const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+            const data = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
+            saveAs(data, "society_teams.xlsx");
         }
     };
 
@@ -302,23 +423,71 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
     return (
         <div className="animate-in fade-in slide-in-from-right-8 duration-500">
             {/* Header */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
                 <div>
                     <h2 className="text-2xl font-bold text-blue-200">Teams</h2>
                     <p className="text-blue-400/60 text-sm mt-1">
                         {groups?.length || 0} team{(groups?.length || 0) !== 1 ? "s" : ""}
                     </p>
                 </div>
-                <button
-                    onClick={() => setShowCreateForm(!showCreateForm)}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg shadow-lg shadow-blue-600/20 transition-all text-sm font-medium"
-                >
-                    <MdAdd className="text-lg" /> New Team
-                </button>
+
+                <div className="flex items-center gap-2">
+                    {/* Export Buttons */}
+                    <button
+                        onClick={exportToPDF}
+                        disabled={selectedTeamId ? (!teamMembers || teamMembers.length === 0) : (!groups || groups.length === 0)}
+                        className="flex items-center gap-2 bg-red-600/20 hover:bg-red-600/30 text-red-300 px-4 py-2.5 rounded-lg border border-red-500/30 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <FaFilePdf /> PDF
+                    </button>
+                    <button
+                        onClick={exportToExcel}
+                        disabled={selectedTeamId ? (!teamMembers || teamMembers.length === 0) : (!groups || groups.length === 0)}
+                        className="flex items-center gap-2 bg-green-600/20 hover:bg-green-600/30 text-green-300 px-4 py-2.5 rounded-lg border border-green-500/30 transition-all text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <FaFileExcel /> Excel
+                    </button>
+
+                    {!selectedTeamId && (
+                         <button
+                            onClick={() => setShowCreateForm(!showCreateForm)}
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg shadow-lg shadow-blue-600/20 transition-all text-sm font-medium"
+                        >
+                            <MdAdd className="text-lg" /> New Team
+                        </button>
+                    )}
+                </div>
             </div>
 
-            {/* Create Form */}
-            {showCreateForm && (
+            {/* Team Filters (Chips) */}
+            <div className="flex flex-wrap gap-2 mb-6 pb-2 border-b border-blue-500/10">
+                <button
+                    onClick={() => setSelectedTeamId(null)}
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                        selectedTeamId === null
+                            ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
+                            : "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
+                    }`}
+                >
+                    All Teams
+                </button>
+                {groups?.map((group) => (
+                    <button
+                        key={group._id}
+                        onClick={() => setSelectedTeamId(group._id)}
+                        className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                            selectedTeamId === group._id
+                                ? "bg-blue-500 text-white shadow-lg shadow-blue-500/25"
+                                : "bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
+                        }`}
+                    >
+                        {group.name}
+                    </button>
+                ))}
+            </div>
+
+            {/* Create Form (Only visible when All Teams is selected) */}
+            {showCreateForm && !selectedTeamId && (
                 <div className="mb-6">
                     <TeamForm
                         onSubmit={handleCreate}
@@ -329,85 +498,185 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                 </div>
             )}
 
-            {/* Teams List */}
-            {!groups || groups.length === 0 ? (
-                <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-2xl p-12 text-center">
-                    <MdGroups className="text-5xl text-blue-500/30 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-blue-200 mb-2">No Teams Yet</h3>
-                    <p className="text-blue-400/60 text-sm">
-                        Create your first team to organize your society members.
-                    </p>
-                </div>
-            ) : (
-                <div className="space-y-4">
-                    {groups.map((group) =>
-                        editingGroup === group._id ? (
-                            <TeamForm
-                                key={group._id}
-                                initial={{ name: group.name, description: group.description || "" }}
-                                onSubmit={(name, desc) => handleUpdate(group._id, name, desc)}
-                                onCancel={() => setEditingGroup(null)}
-                                loading={updating}
-                                submitLabel="Save Changes"
-                            />
-                        ) : (
-                            <div
-                                key={group._id}
-                                className="bg-[#1e293b]/50 border border-blue-500/10 rounded-xl overflow-hidden hover:border-blue-500/25 transition-all"
-                            >
-                                <div className="p-4">
-                                    <div className="flex items-center justify-between">
-                                        <div
-                                            className="flex items-center gap-3 flex-1 cursor-pointer"
-                                            onClick={() =>
-                                                setExpandedGroup(expandedGroup === group._id ? null : group._id)
-                                            }
-                                        >
-                                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
-                                                <MdGroups className="text-xl" />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-semibold text-white">{group.name}</h3>
-                                                {group.description && (
-                                                    <p className="text-xs text-blue-400/50 mt-0.5 line-clamp-1">
-                                                        {group.description}
-                                                    </p>
-                                                )}
-                                            </div>
-                                            {expandedGroup === group._id ? (
-                                                <MdExpandLess className="text-blue-400/40 text-xl ml-auto" />
-                                            ) : (
-                                                <MdExpandMore className="text-blue-400/40 text-xl ml-auto" />
-                                            )}
-                                        </div>
+            {/* Content Area */}
+            {selectedTeamId ? (
+                // ─── Filtered Team View (Member List) ───────────────────────
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                     <h3 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                        <MdGroups className="text-blue-400" />
+                        {getSelectedTeamName()}
+                        <span className="text-sm font-normal text-blue-400/60 ml-2">
+                            ({teamMembers?.length || 0} members)
+                        </span>
+                     </h3>
 
-                                        <div className="flex items-center gap-1.5 ml-3">
-                                            <button
-                                                onClick={() => setEditingGroup(group._id)}
-                                                className="w-8 h-8 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 flex items-center justify-center text-blue-400 transition-all"
-                                                title="Edit team"
-                                            >
-                                                <MdEdit className="text-base" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(group._id, group.name)}
-                                                className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400 transition-all"
-                                                title="Delete team"
-                                            >
-                                                <MdDelete className="text-base" />
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/* Expanded — show team members */}
-                                    {expandedGroup === group._id && (
-                                        <TeamMemberList groupId={group._id} societyId={societyId} />
-                                    )}
-                                </div>
-                            </div>
-                        )
+                    {loadingMembers ? (
+                         <div className="text-center py-12 text-blue-400 animate-pulse">Loading members...</div>
+                    ) : !teamMembers || teamMembers.length === 0 ? (
+                        <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-xl p-8 text-center">
+                            <MdPersonAdd className="text-4xl text-blue-500/30 mx-auto mb-3" />
+                             <p className="text-blue-200 mb-1">No members in this team yet.</p>
+                             <p className="text-blue-400/60 text-sm">
+                                Switch to "All Teams" view and expand this team to add members.
+                             </p>
+                        </div>
+                    ) : (
+                        <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-xl overflow-hidden overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-blue-500/10 border-b border-blue-500/10 text-blue-300 text-sm uppercase tracking-wider">
+                                        <th className="p-4 font-semibold">Name</th>
+                                        <th className="p-4 font-semibold">Email</th>
+                                    <th className="p-4 font-semibold hidden md:table-cell">Phone</th>
+    
+                                        <th className="p-4 font-semibold hidden sm:table-cell">Joined Date</th>
+                                        <th className="p-4 font-semibold text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-blue-500/10">
+                                    {teamMembers.map((member) => {
+                                         const user = typeof member.user_id === "string" ? null : member.user_id;
+                                         if (!user) return null;
+                                        return (
+                                            <tr key={member._id} className="hover:bg-blue-500/5 transition-colors">
+                                                <td className="p-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-9 h-9 rounded-full bg-linear-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-indigo-500/20">
+                                                            {user.name?.charAt(0).toUpperCase()}
+                                                        </div>
+                                                        <span className="font-medium text-white">{user.name}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="p-4 text-sm text-blue-200">{user.email}</td>
+                                                <td className="p-4 text-sm text-blue-400 hidden md:table-cell">
+                                                    {user.phone ? (
+                                                        <a href={`https://wa.me/${formatPhone(user.phone)}`} target="_blank" rel="noopener noreferrer" className="hover:text-green-400 flex items-center gap-1">
+                                                            <FaWhatsapp className="text-green-500/70" /> {user.phone}
+                                                        </a>
+                                                    ) : "N/A"}
+                                                </td>
+                                                <td className="p-4 text-sm text-blue-400 hidden sm:table-cell">
+                                                    {new Date(member.joined_at).toLocaleDateString()}
+                                                </td>
+                                                <td className="p-4 text-right">
+                                                    <div className="flex justify-end items-center gap-2">
+                                                        <a href={`mailto:${user.email}`} className="text-blue-400 hover:text-white p-2 rounded-lg hover:bg-blue-500/20 transition-all">
+                                                            <FaEnvelope />
+                                                        </a>
+                                                        <button
+                                                            onClick={() => handleRemoveMember(user._id, selectedTeamId)}
+                                                            className="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/20 transition-all"
+                                                            title="Remove from team"
+                                                        >
+                                                            <MdPersonRemove />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
                 </div>
+            ) : (
+                // ─── Default View (List of Teams) ───────────────────────────
+                !groups || groups.length === 0 ? (
+                    <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-2xl p-12 text-center">
+                        <MdGroups className="text-5xl text-blue-500/30 mx-auto mb-4" />
+                        <h3 className="text-lg font-semibold text-blue-200 mb-2">No Teams Yet</h3>
+                        <p className="text-blue-400/60 text-sm">
+                            Create your first team to organize your society members.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="bg-[#1e293b]/50 border border-blue-500/10 rounded-xl overflow-hidden overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-blue-500/10 border-b border-blue-500/10 text-blue-300 text-sm uppercase tracking-wider">
+                                    <th className="p-4 font-semibold">Team Name</th>
+                                    <th className="p-4 font-semibold">Members</th>
+                                    <th className="p-4 font-semibold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-blue-500/10">
+                                {groups.map((group) => (
+                                    <React.Fragment key={group._id}>
+                                        {editingGroup === group._id ? (
+                                            <tr>
+                                                <td colSpan={4} className="p-4">
+                                                    <TeamForm
+                                                        initial={{ name: group.name, description: group.description || "" }}
+                                                        onSubmit={(name, desc) => handleUpdate(group._id, name, desc)}
+                                                        onCancel={() => setEditingGroup(null)}
+                                                        loading={updating}
+                                                        submitLabel="Save Changes"
+                                                    />
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            <tr className="hover:bg-blue-500/5 transition-colors group">
+                                                <td className="p-4">
+                                                    <div
+                                                        className="flex items-center gap-3 cursor-pointer"
+                                                        onClick={() =>
+                                                            setExpandedGroup(expandedGroup === group._id ? null : group._id)
+                                                        }
+                                                    >
+                                                        <div className="w-10 h-10 rounded-lg bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white shrink-0">
+                                                            <MdGroups className="text-xl" />
+                                                        </div>
+                                                        <span className="font-semibold text-white">{group.name}</span>
+                                                        {expandedGroup === group._id ? (
+                                                            <MdExpandLess className="text-blue-400/40 text-xl" />
+                                                        ) : (
+                                                            <MdExpandMore className="text-blue-400/40 text-xl" />
+                                                        )}
+                                                    </div>
+                                                </td>
+
+                                                <td className="p-4">
+                                                    <span className="text-sm text-blue-300 bg-blue-500/10 px-2 py-1 rounded-full border border-blue-500/20">
+                                                        {group.memberCount || 0} Members
+                                                    </span>
+                                                </td>
+                                                <td className="p-4 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button
+                                                            onClick={() => setEditingGroup(group._id)}
+                                                            className="w-8 h-8 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 flex items-center justify-center text-blue-400 transition-all"
+                                                            title="Edit team"
+                                                        >
+                                                            <MdEdit className="text-base" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(group._id, group.name)}
+                                                            className="w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center text-red-400 transition-all"
+                                                            title="Delete team"
+                                                        >
+                                                            <MdDelete className="text-base" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                        {/* Expanded — show team members */}
+                                        {expandedGroup === group._id && !editingGroup && (
+                                            <tr>
+                                                <td colSpan={4} className="p-0">
+                                                    <div className="bg-[#0f172a]/30 border-y border-blue-500/10 px-4 py-4 animate-in slide-in-from-top-2 duration-200">
+                                                        <TeamMemberList groupId={group._id} societyId={societyId} />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </React.Fragment>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )
             )}
         </div>
     );
