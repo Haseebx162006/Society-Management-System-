@@ -291,7 +291,8 @@ export const getSocietyById = async (req: AuthRequest, res: Response) => {
         // Fetch members of this society
         const members = await SocietyUserRole.find({ society_id: id })
             .populate("user_id", "name email")
-            .populate("assigned_by", "name email");
+            .populate("assigned_by", "name email")
+            .populate("group_id", "name");
 
         return sendResponse(res, 200, "Society fetched successfully", {
             society,

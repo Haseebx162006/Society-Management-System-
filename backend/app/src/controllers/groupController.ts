@@ -177,6 +177,10 @@ export const addMemberToGroup = async (req: AuthRequest, res: Response) => {
             society_id: group.society_id
         });
 
+        // Sync with SocietyUserRole to show in dashboard
+        societyRole.group_id = new mongoose.Types.ObjectId(group_id as string);
+        await societyRole.save();
+
         return sendResponse(res, 201, "Member added to group", newMember);
 
     } catch (error: any) {
@@ -191,18 +195,23 @@ export const removeMemberFromGroup = async (req: AuthRequest, res: Response) => 
         const group = await Group.findById(group_id);
         if (!group) return sendError(res, 404, "Group not found");
 
-
-
         const deleted = await GroupMember.findOneAndDelete({ group_id, user_id });
         if (!deleted) {
              return sendError(res, 404, "Member not found in this group");
         }
 
+        // Remove leadership roles if any
         await SocietyUserRole.deleteMany({
             user_id,
             group_id,
             role: { $in: ["LEAD", "CO-LEAD"] }
         });
+
+         // Sync with SocietyUserRole - unset group_id
+         await SocietyUserRole.findOneAndUpdate(
+             { user_id, society_id: group.society_id },
+             { $unset: { group_id: 1 } }
+         );
 
         return sendResponse(res, 200, "Member removed from group");
 

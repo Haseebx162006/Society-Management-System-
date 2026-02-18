@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
-import { MdGroups, MdEvent, MdAttachMoney } from 'react-icons/md';
+import { MdGroups, MdEvent } from 'react-icons/md';
 import { FaUsers, FaArrowRight, FaBell } from 'react-icons/fa';
 
-import TeamDoughnutChart from '@/components/charts/TeamDoughnutChart';
+import MemberBarChart from '@/components/charts/MemberBarChart';
 import GrowthLineChart from '@/components/charts/GrowthLineChart';
 import DashboardSidebar from '@/components/society/DashboardSidebar';
 import CreateSocietyForm from '@/components/society/CreateSocietyForm';
@@ -30,69 +30,153 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   const [activeTab, setActiveTab] = React.useState('overview');
   const [showCreateForm, setShowCreateForm] = React.useState(false);
 
-  // --- Prepare Chart Data ---
+  // --- Process Dynamic Data ---
 
-  // 1. Members per Team (using groups to simulate)
-  const teamLabels = society.groups?.map((g: { name: string }) => g.name) || ['General'];
+  // 1. Team Distribution
+  const teamDistributionData = useMemo(() => {
+    if (!society.groups || !society.members) return null;
 
-  /* 
-     Fixing "impure function" error: 
-     Math.random() behaves inconsistently during render in Strict Mode.
-     Moving to useEffect ensures it runs as a side-effect.
-  */
-  const [teamData, setTeamData] = React.useState<number[]>([]);
+    const groupCounts: Record<string, number> = {};
+    const groupNames: Record<string, string> = {};
 
-  React.useEffect(() => {
-    if (society.groups) {
-      const data = society.groups.map(() => Math.floor(Math.random() * 20) + 1);
-      setTeamData(data);
-    } else {
-      setTeamData([1]);
-    }
-  }, [society.groups]);
+    console.log("Society Groups:", society.groups);
+    console.log("Society Members sample:", society.members.slice(0, 3));
 
-  const teamDistributionData = {
-    labels: teamLabels,
-    datasets: [
-      {
-        label: '# of Members',
-        data: teamData,
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.6)',
-          'rgba(54, 162, 235, 0.6)',
-          'rgba(255, 206, 86, 0.6)',
-          'rgba(75, 192, 192, 0.6)',
-          'rgba(153, 102, 255, 0.6)',
-          'rgba(255, 159, 64, 0.6)',
+    // Initialize counts for all groups
+    society.groups.forEach((g: any) => {
+      // Ensure we use string IDs
+      const gId = typeof g._id === 'object' ? g._id.toString() : g._id;
+      groupCounts[gId] = 0;
+      groupNames[gId] = g.name;
+    });
+    
+    let unassignedCount = 0;
+
+    society.members.forEach((m: any) => {
+        let groupId: string | null = null;
+        
+        if (m.group_id) {
+            // Handle populated object or string ID
+            if (typeof m.group_id === 'object' && m.group_id._id) {
+                groupId = m.group_id._id.toString();
+            } else if (typeof m.group_id === 'object' && !m.group_id._id) { 
+                 // It might be just the string ID wrapped in an object or something else? 
+                 // Or if it was populated but structure is different. 
+                 // Since we added populate('group_id', 'name'), it should have _id.
+                 // But let's handle the toString if it's an ObjectId-like object
+                 groupId = m.group_id.toString();
+            } else {
+                groupId = m.group_id.toString();
+            }
+        }
+
+        console.log(`Member ${m.user_id?.name} GroupID: ${groupId} (Matching: ${groupId ? groupCounts[groupId] !== undefined : 'N/A'})`);
+
+        if (groupId && groupCounts[groupId] !== undefined) {
+            groupCounts[groupId]++;
+        } else {
+            console.log(`-> Unassigned or Group Not Found: ${groupId}`);
+            unassignedCount++;
+        }
+    });
+
+    const labels = [...Object.values(groupNames), 'General Members'];
+    const data = [...Object.values(groupCounts), unassignedCount];
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: '# of Members',
+          data,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 206, 86, 0.6)',
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(153, 102, 255, 0.6)',
+            'rgba(255, 159, 64, 0.6)',
+            'rgba(201, 203, 207, 0.6)' 
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 206, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(201, 203, 207, 1)'
+          ],
+          borderWidth: 1,
+        },
+      ],
+    };
+  }, [society.groups, society.members]);
+
+
+  // 2. Growth Trend (Members joined over time)
+  const growthData = useMemo(() => {
+      if (!society.members) return null;
+
+      // Sort members by join date
+      const sortedMembers = [...society.members].sort((a, b) => 
+        new Date(a.assigned_at).getTime() - new Date(b.assigned_at).getTime()
+      );
+
+      const monthsMap: Record<string, number> = {};
+      let cumulativeCount = 0;
+
+      sortedMembers.forEach((m) => {
+          const date = new Date(m.assigned_at);
+          const key = date.toLocaleString('default', { month: 'short' }); // e.g., "Jan", "Feb"
+          cumulativeCount++;
+          monthsMap[key] = cumulativeCount; // This is a simplified cumulative approach. 
+          // For a true time-series we might need to bucket by specific month/year, 
+          // but for this view, last 6 months buckets or just existing months is fine.
+      });
+      
+      // Ensure we have labels for the keys found
+      const labels = Object.keys(monthsMap);
+      const dataPoints = Object.values(monthsMap);
+
+      // If no data, show empty state or single point
+      if (labels.length === 0) {
+           return {
+            labels: ['Start'],
+            datasets: [{
+                fill: true,
+                label: 'Growth',
+                data: [0],
+                borderColor: 'rgb(59, 130, 246)',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+            }]
+           }
+      }
+
+      return {
+        labels,
+        datasets: [
+          {
+            fill: true,
+            label: 'Growth',
+            data: dataPoints,
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4,
+          },
         ],
-        borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)',
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
+      };
+  }, [society.members]);
 
-  // Growth Trend Mock
-  const growthData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
-      {
-        fill: true,
-        label: 'Growth',
-        data: [10, 25, 40, 55, 80, society.members?.length || 100],
-        borderColor: 'rgb(59, 130, 246)', // Blue-500
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        tension: 0.4,
-      },
-    ],
-  };
-
+  // 3. Recent Activity (Latest members joined)
+  const recentActivity = useMemo(() => {
+      if (!society.members) return [];
+      // Get last 5 members
+      return [...society.members]
+        .sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime())
+        .slice(0, 5);
+  }, [society.members]);
 
 
   return (
@@ -115,17 +199,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
             </h1>
             <p className="text-slate-500 mt-1 font-medium">Welcome back, President {user?.name}</p>
           </div>
-          <div className="flex gap-4">
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="bg-white hover:bg-slate-50 text-slate-600 px-5 py-2.5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all font-medium"
-            >
-              Settings
-            </button>
-            <button className="bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-6 py-2.5 rounded-xl shadow-lg shadow-blue-500/30 transition-all font-medium">
-              View Society
-            </button>
-          </div>
+          {/* Removed Settings and View Society buttons as per request */}
         </div>
 
         {showCreateForm ? (
@@ -152,11 +226,11 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
             {activeTab === 'overview' ? (
               <>
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                   <StatCard title="Total Members" value={society.members?.length || 0} icon={<FaUsers />} color="blue" />
                   <StatCard title="Total Teams" value={society.groups?.length || 0} icon={<MdGroups />} color="indigo" />
-                  <StatCard title="Events Held" value="0" icon={<MdEvent />} color="purple" />
-                  <StatCard title="Revenue" value={`PKR ${society.registration_fee * (society.members?.length || 0)}`} icon={<MdAttachMoney />} color="emerald" />
+                  <StatCard title="Events Held" value="0" icon={<MdEvent />} color="purple" /> 
+                  {/* Revenue card removed as per request */}
                 </div>
 
                 {/* Charts Section */}
@@ -164,13 +238,13 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                   <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                     <h3 className="text-lg font-semibold text-slate-800 mb-6">Member Growth</h3>
                     <div className="h-64">
-                      <GrowthLineChart data={growthData} />
+                       {growthData && <GrowthLineChart data={growthData} />}
                     </div>
                   </div>
                   <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                     <h3 className="text-lg font-semibold text-slate-800 mb-6">Team Distribution</h3>
                     <div className="h-64 flex justify-center">
-                      <TeamDoughnutChart data={teamDistributionData} />
+                      {teamDistributionData && <MemberBarChart data={teamDistributionData} />}
                     </div>
                   </div>
                 </div>
@@ -179,26 +253,33 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                   <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                     <h3 className="text-lg font-semibold text-slate-800 mb-6">Recent Activity</h3>
                     <div className="space-y-4">
-                      {/* Placeholder Activity Items */}
-                      {[1, 2, 3].map((i) => (
-                        <div key={i} className="flex items-center gap-4 p-4 bg-slate-50/80 rounded-xl border border-slate-100 hover:bg-blue-50/50 transition-colors cursor-default">
-                          <div className="w-10 h-10 rounded-full bg-blue-100/50 flex items-center justify-center text-blue-600 text-lg shadow-sm">
-                            <FaBell />
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-slate-800">New member joined the society</p>
-                            <p className="text-xs text-slate-400 mt-1">2 hours ago</p>
-                          </div>
-                        </div>
-                      ))}
+                      {recentActivity.length > 0 ? (
+                        recentActivity.map((member: any) => (
+                            <div key={member._id} className="flex items-center gap-4 p-4 bg-slate-50/80 rounded-xl border border-slate-100 hover:bg-blue-50/50 transition-colors cursor-default">
+                            <div className="w-10 h-10 rounded-full bg-blue-100/50 flex items-center justify-center text-blue-600 text-lg shadow-sm">
+                                <FaBell />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-slate-800">
+                                   <span className="font-bold">{member.user_id?.name || "Unknown User"}</span> joined the society
+                                </p>
+                                <p className="text-xs text-slate-400 mt-1">
+                                    {new Date(member.assigned_at).toLocaleDateString()}
+                                </p>
+                            </div>
+                            </div>
+                        ))
+                      ) : (
+                          <div className="text-slate-400 text-center py-4">No recent activity</div>
+                      )}
                     </div>
                   </div>
                   <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                     <h3 className="text-lg font-semibold text-slate-800 mb-6">Quick Actions</h3>
                     <div className="space-y-3">
                       <ActionButton label="Create Event" />
-                      <ActionButton label="Manage Teams" />
-                      <ActionButton label="Approve Members" />
+                      <ActionButton label="Manage Teams" onClick={() => setActiveTab('teams')} />
+                      <ActionButton label="Approve Members" onClick={() => setActiveTab('join-requests')} />
                       <ActionButton label="Send Announcement" />
                     </div>
                   </div>
@@ -225,8 +306,6 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
 };
 
 const StatCard = ({ title, value, icon, color }: { title: string; value: string | number; icon: React.ReactNode; color: string }) => {
-  // Map color names to Tailwind classes dynamically without triggering "safelist" purge issues if possible, 
-  // or use safe strictly mapped colors.
   const colorMap: Record<string, string> = {
     blue: "bg-blue-50 text-blue-600",
     indigo: "bg-indigo-50 text-indigo-600",
@@ -253,8 +332,8 @@ const StatCard = ({ title, value, icon, color }: { title: string; value: string 
   );
 }
 
-const ActionButton = ({ label }: { label: string }) => (
-  <button className="w-full text-left px-5 py-4 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-xl text-slate-700 hover:text-blue-700 transition-all flex justify-between items-center group font-medium">
+const ActionButton = ({ label, onClick }: { label: string, onClick?: () => void }) => (
+  <button onClick={onClick} className="w-full text-left px-5 py-4 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-xl text-slate-700 hover:text-blue-700 transition-all flex justify-between items-center group font-medium">
     {label}
     <span className="text-slate-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-transform">
       <FaArrowRight />
