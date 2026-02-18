@@ -231,14 +231,21 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         }
     };
 
+    const getToken = (): string => {
+        try {
+            const authState = localStorage.getItem('authState');
+            if (authState) return JSON.parse(authState).token || '';
+        } catch { /* ignore */ }
+        return '';
+    };
+
     const handleExportExcel = async (eventId: string) => {
         try {
-            const token = document.cookie.split(';').find(c => c.trim().startsWith('token='))?.split('=')[1];
             const response = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL}/society/${societyId}/events/${eventId}/export`,
                 {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                        'Authorization': `Bearer ${getToken()}`
                     }
                 }
             );
@@ -279,7 +286,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                     societyId={societyId}
                     eventId={selectedEvent._id}
                     eventTitle={selectedEvent.title}
-                    onExportExcel={() => handleExportExcel(selectedEvent._id)}
                 />
             </div>
         );

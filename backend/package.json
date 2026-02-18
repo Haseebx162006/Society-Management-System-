@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@types/cors": "^2.8.19",
+    "@types/pdfkit": "^0.17.5",
     "bcrypt": "^6.0.0",
     "bull": "^4.16.5",
     "cloudinary": "^2.9.0",
@@ -20,6 +21,7 @@
     "multer": "^2.0.2",
     "nodemailer": "^8.0.1",
     "nodemon": "^3.1.11",
+    "pdfkit": "^0.17.2",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
