@@ -50,7 +50,7 @@ export default function SocietyDetailsPage() {
             // Fetch active forms for this society by calling the API directly
             const response = await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL}/join-forms/${id}`,
-                { headers: { Authorization: `Bearer ${localStorage.getItem("token") || ""}` } }
+                { headers: { Authorization: `Bearer ${(() => { try { const s = localStorage.getItem("authState"); return s ? JSON.parse(s).token || "" : ""; } catch { return ""; } })()}`} }
             );
 
             // We need a different approach: societies can have forms listed publicly.

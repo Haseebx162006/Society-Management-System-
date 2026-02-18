@@ -10,6 +10,7 @@ import { uploadOnCloudinary } from '../utils/cloudinary';
 import { sendEmail } from '../services/emailService';
 import { emailTemplates } from '../utils/emailTemplates';
 import * as XLSX from 'xlsx';
+import PDFDocument from 'pdfkit';
 
 // ─── Create Event ───────────────────────────────────────────────────────────
 
@@ -517,6 +518,134 @@ export const exportRegistrationsToExcel = async (req: AuthRequest, res: Response
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', `attachment; filename="${event.title}_registrations.xlsx"`);
         return res.send(buffer);
+    } catch (error: any) {
+        return sendError(res, 500, 'Internal server error', error);
+    }
+};
+
+// ─── Export Approved Registrations to PDF ────────────────────────────────────
+
+export const exportRegistrationsToPdf = async (req: AuthRequest, res: Response) => {
+    try {
+        const { eventId } = req.params;
+
+        const event = await Event.findById(eventId).populate('society_id', 'name');
+        if (!event) return sendError(res, 404, 'Event not found');
+
+        const registrations = await EventRegistration.find({
+            event_id: eventId,
+            status: 'APPROVED'
+        })
+            .populate('user_id', 'name email phone')
+            .populate('form_id', 'title fields');
+
+        const societyName = typeof event.society_id === 'object' && 'name' in event.society_id
+            ? (event.society_id as any).name : 'Society';
+
+        // Create PDF document
+        const doc = new PDFDocument({ margin: 40, size: 'A4' });
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${event.title}_registrations.pdf"`);
+        doc.pipe(res);
+
+        // ── Header ──
+        doc.fontSize(18).font('Helvetica-Bold').text(event.title, { align: 'center' });
+        doc.moveDown(0.3);
+        doc.fontSize(11).font('Helvetica').fillColor('#666666')
+            .text(`${societyName}  •  Approved Participants`, { align: 'center' });
+        doc.moveDown(0.3);
+        doc.fontSize(9).text(`Generated: ${new Date().toLocaleDateString('en-US', {
+            year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        })}`, { align: 'center' });
+        doc.moveDown(1);
+
+        // ── Divider ──
+        doc.strokeColor('#e2e8f0').lineWidth(1)
+            .moveTo(40, doc.y).lineTo(555, doc.y).stroke();
+        doc.moveDown(0.8);
+
+        // ── Collect dynamic field labels from first registration ──
+        const dynamicLabels: string[] = [];
+        if (registrations.length > 0 && registrations[0].responses) {
+            registrations[0].responses.forEach((r: any) => {
+                if (r.field_type !== 'FILE') dynamicLabels.push(r.field_label);
+            });
+        }
+
+        // ── Table header columns ──
+        const baseHeaders = ['#', 'Name', 'Email', 'Phone'];
+        const allHeaders = [...baseHeaders, ...dynamicLabels];
+
+        // Column widths
+        const pageWidth = 515;
+        const numWidth = 25;
+        const remainingWidth = pageWidth - numWidth;
+        const colCount = allHeaders.length - 1; // minus the # column
+        const colWidth = Math.floor(remainingWidth / colCount);
+
+        const drawTableHeader = () => {
+            const y = doc.y;
+            doc.rect(40, y, pageWidth, 22).fill('#4f46e5');
+            doc.fillColor('#ffffff').fontSize(8).font('Helvetica-Bold');
+
+            let x = 40;
+            doc.text('#', x + 4, y + 6, { width: numWidth, align: 'center' });
+            x += numWidth;
+            for (let i = 1; i < allHeaders.length; i++) {
+                doc.text(allHeaders[i], x + 4, y + 6, { width: colWidth - 8 });
+                x += colWidth;
+            }
+
+            doc.fillColor('#333333').font('Helvetica');
+            doc.y = y + 26;
+        };
+
+        drawTableHeader();
+
+        // ── Table rows ──
+        registrations.forEach((reg: any, index: number) => {
+            // Check if we need a new page
+            if (doc.y > 720) {
+                doc.addPage();
+                drawTableHeader();
+            }
+
+            const y = doc.y;
+            const bgColor = index % 2 === 0 ? '#f8fafc' : '#ffffff';
+            doc.rect(40, y, pageWidth, 20).fill(bgColor);
+            doc.fillColor('#333333').fontSize(7.5).font('Helvetica');
+
+            let x = 40;
+            doc.text(String(index + 1), x + 4, y + 5, { width: numWidth, align: 'center' });
+            x += numWidth;
+            doc.text(reg.user_id?.name || 'N/A', x + 4, y + 5, { width: colWidth - 8 });
+            x += colWidth;
+            doc.text(reg.user_id?.email || 'N/A', x + 4, y + 5, { width: colWidth - 8 });
+            x += colWidth;
+            doc.text(reg.user_id?.phone || 'N/A', x + 4, y + 5, { width: colWidth - 8 });
+            x += colWidth;
+
+            // Dynamic fields
+            dynamicLabels.forEach((label) => {
+                const resp = reg.responses?.find((r: any) => r.field_label === label);
+                const val = resp ? String(resp.value).substring(0, 30) : '-';
+                doc.text(val, x + 4, y + 5, { width: colWidth - 8 });
+                x += colWidth;
+            });
+
+            doc.y = y + 22;
+        });
+
+        // ── Footer summary ──
+        doc.moveDown(1.5);
+        doc.strokeColor('#e2e8f0').lineWidth(1)
+            .moveTo(40, doc.y).lineTo(555, doc.y).stroke();
+        doc.moveDown(0.5);
+        doc.fontSize(10).font('Helvetica-Bold').fillColor('#333333')
+            .text(`Total Approved Participants: ${registrations.length}`, { align: 'right' });
+
+        doc.end();
     } catch (error: any) {
         return sendError(res, 500, 'Internal server error', error);
     }

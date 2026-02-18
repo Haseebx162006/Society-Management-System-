@@ -22,6 +22,7 @@ import {
     getEventRegistrations,
     updateRegistrationStatus,
     exportRegistrationsToExcel,
+    exportRegistrationsToPdf,
     sendMailToParticipants
 } from '../controllers/eventController';
 
@@ -129,12 +130,18 @@ router.put(
     updateRegistrationStatus
 );
 
-// ─── Export Registrations to Excel ──────────────────────────────────────────
+// ─── Export Registrations to Excel / PDF ────────────────────────────────────
 router.get(
     '/society/:id/events/:eventId/export',
     protect,
     authorize(['PRESIDENT', 'FINANCE MANAGER'], 'SOCIETY'),
     exportRegistrationsToExcel
+);
+router.get(
+    '/society/:id/events/:eventId/export-pdf',
+    protect,
+    authorize(['PRESIDENT', 'FINANCE MANAGER'], 'SOCIETY'),
+    exportRegistrationsToPdf
 );
 
 // ─── Send Mail to Participants ──────────────────────────────────────────────
