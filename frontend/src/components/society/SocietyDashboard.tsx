@@ -292,10 +292,14 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                   <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                     <h3 className="text-lg font-semibold text-slate-800 mb-6">Quick Actions</h3>
                     <div className="space-y-3">
-                      <ActionButton label="Create Event" />
-                      <ActionButton label="Manage Teams" onClick={() => setActiveTab('teams')} />
-                      <ActionButton label="Approve Members" onClick={() => setActiveTab('join-requests')} />
-                      <ActionButton label="Send Announcement" />
+                      {currentUserRole === 'PRESIDENT' && (
+                          <>
+                            <ActionButton label="Manage Teams" onClick={() => setActiveTab('teams')} />
+                          </>
+                      )}
+                      {(currentUserRole === 'PRESIDENT' || currentUserRole === 'FINANCE MANAGER') && (
+                        <ActionButton label="Approve Members" onClick={() => setActiveTab('join-requests')} />
+                      )}
                     </div>
                   </div>
                 </div>

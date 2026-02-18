@@ -65,11 +65,11 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           {user ? (
             <Link
-              href={user.is_super_admin ? "/admin" : "/profile"}
+              href={user.is_super_admin ? "/profile" : "/profile"}
               className="group flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-full text-sm font-medium hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg"
             >
               <UserIcon className="w-4 h-4" />
-              <span>{user.is_super_admin ? "Admin Panel" : "Profile"}</span>
+              <span>{user.is_super_admin ? "Admin Profile" : "Profile"}</span>
               <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           ) : (
@@ -123,12 +123,12 @@ export default function Navbar() {
               <div className="flex flex-col gap-3 mt-4">
                 {user ? (
                   <Link
-                    href={user.is_super_admin ? "/admin" : "/profile"}
+                    href={user.is_super_admin ? "/profile" : "/profile"}
                     className="flex items-center justify-center gap-2 w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <UserIcon className="w-4 h-4" />
-                    {user.is_super_admin ? "Admin Panel" : "Profile"}
+                    {user.is_super_admin ? "Admin profile" : "Profile"}
                   </Link>
                 ) : (
                   <>

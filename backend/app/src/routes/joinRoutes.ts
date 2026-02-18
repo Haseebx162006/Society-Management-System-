@@ -75,19 +75,19 @@ router.post(
 router.get(
     '/society/:id/join-requests',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'FINANCE MANAGER'], 'SOCIETY'),
     getJoinRequestsForSociety
 );
 router.get(
     '/society/:id/join-requests/:requestId',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'FINANCE MANAGER'], 'SOCIETY'),
     getJoinRequestById
 );
 router.put(
     '/society/:id/join-requests/:requestId',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'FINANCE MANAGER'], 'SOCIETY'),
     updateJoinRequestStatus
 );
 

@@ -77,9 +77,9 @@ export default function ProfilePage() {
     }
 
     // President - Society Dashboard
-    // Check if user is president of ANY society
-    const isPresident = societies?.some((s) => s.role === "PRESIDENT");
-    if (isPresident) {
+    // Check if user is president or finance manager of ANY society
+    const canAccessDashboard = societies?.some((s) => s.role === "PRESIDENT" || s.role === "FINANCE MANAGER");
+    if (canAccessDashboard) {
       items.push({
         key: "society-dashboard",
         label: "Society Dashboard",
@@ -156,9 +156,9 @@ export default function ProfilePage() {
       <Header />
 
       <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-10">
-        <div className="max-w-[1200px] mx-auto">
+        <div className="max-w-screen-xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 font-[var(--font-family-poppins)]">
+            <h1 className="text-3xl font-bold text-gray-900 font-sans">
               Settings
             </h1>
             <p className="text-sm text-gray-400 mt-1">

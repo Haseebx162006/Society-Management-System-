@@ -1,5 +1,9 @@
 import { MdDashboard, MdEvent, MdSettings, MdGroups } from 'react-icons/md';
-import { FaEdit, FaSignOutAlt, FaUsers, FaWpforms, FaClipboardList } from 'react-icons/fa';
+import { FaEdit, FaSignOutAlt, FaUsers, FaWpforms, FaClipboardList, FaHome } from 'react-icons/fa';
+import { useRouter } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { logOut, selectRefreshToken } from '@/lib/features/auth/authSlice';
+import { useLogoutMutation } from '@/lib/features/auth/authApiSlice';
 
 interface DashboardSidebarProps {
   activeTab: string;
@@ -9,6 +13,23 @@ interface DashboardSidebarProps {
 }
 
 const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiveTab, onViewForm, role = 'MEMBER' }) => {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const refreshToken = useAppSelector(selectRefreshToken);
+  const [logoutApi] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    try {
+      if (refreshToken) {
+        await logoutApi({ refreshToken }).unwrap();
+      }
+    } catch (err) {
+      console.error("Logout failed", err);
+    } finally {
+      dispatch(logOut());
+      router.push("/");
+    }
+  };
 
   const allNavItems = [
     { id: 'overview', label: 'Overview', icon: <MdDashboard />, roles: ['PRESIDENT', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'MEMBER'] },
@@ -66,8 +87,17 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
 
       </nav>
 
-      <div className="p-4 border-t border-slate-100">
-        <button className="w-full flex items-center gap-2 text-slate-500 hover:text-red-600 hover:bg-red-50 p-3 rounded-xl transition-all font-medium text-sm">
+      <div className="p-4 border-t border-slate-100 space-y-2">
+        <button 
+          onClick={() => router.push('/')}
+          className="w-full flex items-center gap-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 p-3 rounded-xl transition-all font-medium text-sm"
+        >
+          <span className="text-xl">{<FaHome />}</span> Return Home
+        </button>
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center gap-2 text-slate-500 hover:text-red-600 hover:bg-red-50 p-3 rounded-xl transition-all font-medium text-sm"
+        >
           <span className="text-xl">{<FaSignOutAlt />}</span> Log Out
         </button>
       </div>
