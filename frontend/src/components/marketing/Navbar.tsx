@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronRight } from "lucide-react";
+import { Menu, X, ChevronRight, User as UserIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAppSelector } from "@/lib/hooks";
+import { selectCurrentUser } from "@/lib/features/auth/authSlice";
 
 const navLinks = [
   { name: "Browse Societies", href: "/societies" },
@@ -16,6 +18,7 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const user = useAppSelector(selectCurrentUser);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,19 +63,32 @@ export default function Navbar() {
 
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-4">
-          <Link
-            href="/login"
-            className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            Log in
-          </Link>
-          <Link
-            href="/signup"
-            className="group flex items-center gap-1 px-4 py-2 bg-indigo-600 text-white rounded-full text-sm font-medium hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg"
-          >
-            Sign Up
-            <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
+          {user ? (
+            <Link
+              href={user.is_super_admin ? "/admin" : "/dashboard"}
+              className="group flex items-center gap-2 px-5 py-2.5 bg-indigo-600 text-white rounded-full text-sm font-medium hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg"
+            >
+              <UserIcon className="w-4 h-4" />
+              <span>{user.is_super_admin ? "Admin Panel" : "Dashboard"}</span>
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/signup"
+                className="group flex items-center gap-1 px-4 py-2 bg-indigo-600 text-white rounded-full text-sm font-medium hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg"
+              >
+                Sign Up
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -105,18 +121,33 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="flex flex-col gap-3 mt-4">
-                <Link
-                  href="/login"
-                  className="text-center w-full py-2.5 text-gray-600 font-medium border border-gray-200 rounded-lg"
-                >
-                  Log in
-                </Link>
-                <Link
-                  href="/signup"
-                  className="text-center w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg"
-                >
-                  Sign Up
-                </Link>
+                {user ? (
+                  <Link
+                    href={user.is_super_admin ? "/admin" : "/dashboard"}
+                    className="flex items-center justify-center gap-2 w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <UserIcon className="w-4 h-4" />
+                    {user.is_super_admin ? "Admin Panel" : "Dashboard"}
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="text-center w-full py-2.5 text-gray-600 font-medium border border-gray-200 rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Log in
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="text-center w-full py-2.5 bg-indigo-600 text-white font-medium rounded-lg"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sign Up
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

@@ -68,7 +68,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
         setEditingForm(null);
         setTitle("");
         setDescription("");
-        setIsPublic(false);
+        setIsPublic(true);
         setFields([]);
         setExpandedField(null);
     };
@@ -279,7 +279,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
 
                     {fields.length === 0 && (
                         <div className="text-center py-12 border border-dashed border-blue-500/20 rounded-xl">
-                            <p className="text-slate-500">No fields yet. Click "Add Field" above.</p>
+                            <p className="text-slate-500">No fields yet. Click `"`Add Field`"` above.</p>
                         </div>
                     )}
 

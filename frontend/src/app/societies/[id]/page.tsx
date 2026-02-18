@@ -40,7 +40,7 @@ export default function SocietyDetailsPage() {
 
     const handleRegisterClick = async () => {
         if (!user) {
-            router.push(`/login?returnUrl=${encodeURIComponent(`/societies/${id}`)}`);
+            router.push(`/login?returnUrl=${encodeURIComponent(`/societies/${id}/register`)}`);
             return;
         }
 

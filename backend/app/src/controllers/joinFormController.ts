@@ -68,8 +68,7 @@ export const getPublicJoinFormsBySociety = async (req: AuthRequest, res: Respons
 
         const forms = await JoinForm.find({
             society_id,
-            is_active: true,
-            is_public: true
+            is_active: true
         })
             .select('title description fields is_active is_public created_at')
             .sort({ created_at: -1 });
@@ -157,9 +156,9 @@ export const getJoinFormPublic = async (req: AuthRequest, res: Response) => {
         }
 
         // If form is NOT public, require authentication
-        if (!form.is_public && !req.user) {
+        /* if (!form.is_public && !req.user) {
             return sendError(res, 401, 'Authentication required to access this form');
-        }
+        } */
 
         // Also fetch available teams for the society so user can pick one
         const teams = await Group.find({ society_id: form.society_id })

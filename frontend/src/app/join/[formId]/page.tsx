@@ -23,6 +23,14 @@ export default function JoinFormPage() {
         error,
     } = useGetJoinFormPublicQuery(formId as string);
 
+    // Redirect if not authenticated
+    useEffect(() => {
+        if (!user) {
+            const returnUrl = encodeURIComponent(window.location.pathname);
+            router.push(`/login?returnUrl=${returnUrl}`);
+        }
+    }, [user, router]);
+
     const [submitRequest, { isLoading: isSubmitting }] =
         useSubmitJoinRequestMutation();
 
@@ -173,14 +181,16 @@ export default function JoinFormPage() {
     };
 
     // Loading state
-    if (isLoading) {
+    if (isLoading || !user) {
         return (
             <main className="min-h-screen bg-gray-50 flex flex-col">
                 <Navbar />
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-center">
                         <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                        <p className="text-gray-500 font-medium">Loading form...</p>
+                        <p className="text-gray-500 font-medium">
+                            {!user ? "Redirecting to login..." : "Loading form..."}
+                        </p>
                     </div>
                 </div>
             </main>
@@ -260,60 +270,7 @@ export default function JoinFormPage() {
                         )}
                     </div>
 
-                    {/* Login prompt for unauthenticated users */}
-                    {!user && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
-                            <div className="flex items-start gap-3">
-                                <svg
-                                    className="w-5 h-5 text-amber-600 mt-0.5 shrink-0"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                    strokeWidth={1.5}
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
-                                    />
-                                </svg>
-                                <div>
-                                    <p className="text-sm font-semibold text-amber-800">
-                                        Account Required
-                                    </p>
-                                    <p className="text-sm text-amber-700 mt-1">
-                                        You need to{" "}
-                                        <button
-                                            onClick={() =>
-                                                router.push(
-                                                    `/login?returnUrl=${encodeURIComponent(
-                                                        window.location.pathname
-                                                    )}`
-                                                )
-                                            }
-                                            className="font-bold underline hover:text-amber-900"
-                                        >
-                                            log in
-                                        </button>{" "}
-                                        or{" "}
-                                        <button
-                                            onClick={() =>
-                                                router.push(
-                                                    `/signup?returnUrl=${encodeURIComponent(
-                                                        window.location.pathname
-                                                    )}`
-                                                )
-                                            }
-                                            className="font-bold underline hover:text-amber-900"
-                                        >
-                                            create an account
-                                        </button>{" "}
-                                        to submit this form.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+
 
                     {/* Form */}
                     <form onSubmit={handleSubmit}>

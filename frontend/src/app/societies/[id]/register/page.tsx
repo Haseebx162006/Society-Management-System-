@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useGetSocietyByIdQuery } from "@/lib/features/societies/societyApiSlice";
 import { useGetPublicJoinFormsBySocietyQuery } from "@/lib/features/join/joinApiSlice";
@@ -31,16 +31,25 @@ export default function SocietyRegisterPage() {
     const isLoading = societyLoading || formsLoading;
 
     // All forms returned are already active + public
-    const activeForms = forms || [];
+    const activeForms = useMemo(() => forms || [], [forms]);
 
-    // If only one active form, redirect directly (useEffect must be before early returns)
+    // Redirect if not authenticated
     useEffect(() => {
-        if (!isLoading && society && !formsError && activeForms.length === 1) {
+        if (!user) {
+            const returnUrl = encodeURIComponent(window.location.pathname);
+            router.push(`/login?returnUrl=${returnUrl}`);
+        }
+    }, [user, router]);
+
+    // If only one active form and user is authenticated, redirect directly
+    useEffect(() => {
+        if (user && !isLoading && society && !formsError && activeForms.length === 1) {
             router.push(`/join/${activeForms[0]._id}`);
         }
-    }, [isLoading, society, formsError, activeForms, router]);
+    }, [isLoading, society, formsError, activeForms, router, user]);
 
-    if (isLoading) {
+    // Show loader while checking auth or fetching data
+    if (!user || isLoading) {
         return (
             <main className="min-h-screen bg-gray-50 flex flex-col">
                 <Navbar />
@@ -48,7 +57,7 @@ export default function SocietyRegisterPage() {
                     <div className="text-center">
                         <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mx-auto mb-4" />
                         <p className="text-gray-500 font-medium">
-                            Loading registration forms...
+                            {!user ? "Redirecting to login..." : "Loading registration forms..."}
                         </p>
                     </div>
                 </div>
