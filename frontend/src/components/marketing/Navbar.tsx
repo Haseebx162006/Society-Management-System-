@@ -9,10 +9,10 @@ import { useAppSelector } from "@/lib/hooks";
 import { selectCurrentUser } from "@/lib/features/auth/authSlice";
 
 const navLinks = [
+  { name: "Home", href: "/" },
   { name: "Browse Societies", href: "/societies" },
-  { name: "Events", href: "/events" },
-  { name: "For Executives", href: "#features" },
-  { name: "About", href: "#" },
+  { name: "Get Started", href: "/get-started" },
+  { name: "About", href: "/about" },
 ];
 
 export default function Navbar() {
@@ -45,6 +45,7 @@ export default function Navbar() {
           </div>
           <span className="font-bold text-xl text-gray-900 tracking-tight">
             COMSOC
+
           </span>
         </Link>
 

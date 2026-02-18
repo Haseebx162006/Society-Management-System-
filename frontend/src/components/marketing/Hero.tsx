@@ -6,7 +6,7 @@ import { ArrowRight, BarChart2, Shield, Users } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden bg-white">
+    <section className="relative pt-15 pb-20 lg:pt-34 lg:pb-32 overflow-hidden bg-white">
       {/* Background decoration */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl mix-blend-multiply animate-blob" />

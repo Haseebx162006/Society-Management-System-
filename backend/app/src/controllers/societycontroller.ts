@@ -4,6 +4,7 @@ import Group from '../models/Group';
 import Society from '../models/Society';
 import SocietyRequest from '../models/SocietyRequest';
 import SocietyUserRole from '../models/SocietyUserRole';
+import GroupMemberModel from '../models/GroupMember';
 import User from '../models/User';
 import { isPresident } from '../util/roleUtils';
 import mongoose from 'mongoose';
@@ -325,9 +326,30 @@ export const getSocietyById = async (req: AuthRequest, res: Response) => {
             .populate("assigned_by", "name email")
             .populate("group_id", "name");
 
+        // Fetch actual group memberships for these users in this society
+        const groupMemberships = await GroupMemberModel.find({ 
+            society_id: id 
+        }).populate("group_id", "name");
+
+        // Map group info to members if missing in SocietyUserRole
+        const membersWithGroups = members.map(member => {
+            const memberObj = member.toObject();
+            if (!memberObj.group_id) {
+                const groupMembership = groupMemberships.find(
+                    gm => gm.user_id.toString() === (member.user_id as any)._id.toString()
+                );
+                if (groupMembership) {
+                    (memberObj as any).group_id = groupMembership.group_id;
+                    // Also useful to know their group role
+                    (memberObj as any).group_role = groupMembership.role;
+                }
+            }
+            return memberObj;
+        });
+
         return sendResponse(res, 200, "Society fetched successfully", {
             society,
-            members
+            members: membersWithGroups
         });
 
     } catch (error: any) {
