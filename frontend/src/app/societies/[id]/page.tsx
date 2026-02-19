@@ -155,25 +155,59 @@ export default function SocietyDetailsPage() {
                                     View Society
                                 </button>
                             ) : (
-                                <button
-                                    onClick={handleRegisterClick}
-                                    disabled={registerLoading}
-                                    className="px-8 py-4 bg-white text-gray-900 font-bold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center gap-2 disabled:opacity-60"
-                                >
-                                    {registerLoading ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <>
-                                            <span>Register Now</span>
-                                            <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-sm">
-                                                {society.registration_fee > 0
-                                                    ? `PKR ${society.registration_fee}`
-                                                    : "Free"}
-                                            </span>
-                                            <ArrowRight className="w-5 h-5" />
-                                        </>
-                                    )}
-                                </button>
+                                (() => {
+                                    const now = new Date();
+                                    const startDate = society.registration_start_date ? new Date(society.registration_start_date) : null;
+                                    const endDate = society.registration_end_date ? new Date(society.registration_end_date) : null;
+                                    
+                                    const isNotStarted = startDate && now < startDate;
+                                    const isEnded = endDate && now > endDate;
+                                    const isOpen = !isNotStarted && !isEnded;
+
+                                    if (isNotStarted) {
+                                         return (
+                                            <button
+                                                disabled
+                                                className="px-8 py-4 bg-white/50 text-white font-bold rounded-xl cursor-not-allowed flex items-center gap-2"
+                                            >
+                                                <span>Registration Opens: {startDate.toLocaleDateString()}</span>
+                                            </button>
+                                         )
+                                    }
+
+                                    if (isEnded) {
+                                        return (
+                                           <button
+                                               disabled
+                                               className="px-8 py-4 bg-gray-500/50 text-white font-bold rounded-xl cursor-not-allowed flex items-center gap-2"
+                                           >
+                                               <span>Registration Closed</span>
+                                           </button>
+                                        )
+                                   }
+
+                                    return (
+                                        <button
+                                            onClick={handleRegisterClick}
+                                            disabled={registerLoading}
+                                            className="px-8 py-4 bg-white text-gray-900 font-bold rounded-xl hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-2xl flex items-center gap-2 disabled:opacity-60"
+                                        >
+                                            {registerLoading ? (
+                                                <Loader2 className="w-5 h-5 animate-spin" />
+                                            ) : (
+                                                <>
+                                                    <span>Register Now</span>
+                                                    <span className="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-sm">
+                                                        {society.registration_fee > 0
+                                                            ? `PKR ${society.registration_fee}`
+                                                            : "Free"}
+                                                    </span>
+                                                    <ArrowRight className="w-5 h-5" />
+                                                </>
+                                            )}
+                                        </button>
+                                    );
+                                })()
                             )}
                             <button className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300">
                                 View Events
@@ -335,20 +369,55 @@ export default function SocietyDetailsPage() {
                                 <p className="text-indigo-100 text-sm mb-6">
                                     Become a member and unlock access to events, teams, and a vibrant community.
                                 </p>
-                                <button
-                                    onClick={handleRegisterClick}
-                                    disabled={registerLoading}
-                                    className="w-full py-3 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
-                                >
-                                    {registerLoading ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <>
-                                            Apply Now
-                                            <ArrowRight className="w-4 h-4" />
-                                        </>
-                                    )}
-                                </button>
+                                
+                                {(() => {
+                                    const now = new Date();
+                                    const startDate = society.registration_start_date ? new Date(society.registration_start_date) : null;
+                                    const endDate = society.registration_end_date ? new Date(society.registration_end_date) : null;
+                                    
+                                    const isNotStarted = startDate && now < startDate;
+                                    const isEnded = endDate && now > endDate;
+
+                                    if (isNotStarted) {
+                                         return (
+                                            <button
+                                                disabled
+                                                className="w-full py-3 bg-white/20 text-white font-bold rounded-xl cursor-not-allowed flex items-center justify-center gap-2"
+                                            >
+                                                <span>Opens: {startDate.toLocaleDateString()}</span>
+                                            </button>
+                                         )
+                                    }
+
+                                    if (isEnded) {
+                                        return (
+                                           <button
+                                               disabled
+                                               className="w-full py-3 bg-white/20 text-white font-bold rounded-xl cursor-not-allowed flex items-center justify-center gap-2"
+                                           >
+                                               <span>Registration Closed</span>
+                                           </button>
+                                        )
+                                   }
+
+                                    return (
+                                        <button
+                                            onClick={handleRegisterClick}
+                                            disabled={registerLoading}
+                                            className="w-full py-3 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                                        >
+                                            {registerLoading ? (
+                                                <Loader2 className="w-5 h-5 animate-spin" />
+                                            ) : (
+                                                <>
+                                                    Apply Now
+                                                    <ArrowRight className="w-4 h-4" />
+                                                </>
+                                            )}
+                                        </button>
+                                    );
+                                })()}
+
                                 {society.registration_fee > 0 && (
                                     <p className="text-center text-indigo-200 text-xs mt-2">
                                         Registration fee: PKR {society.registration_fee}

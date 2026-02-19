@@ -34,6 +34,8 @@ interface FormData {
   name: string;
   description: string;
   registration_fee: number;
+  registration_start_date: string;
+  registration_end_date: string;
   category: string;
   teams: string[];
   content_sections: ContentSection[];
@@ -65,6 +67,8 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
     name: initialData?.name || '',
     description: initialData?.description || '',
     registration_fee: initialData?.registration_fee || 0,
+    registration_start_date: (initialData as any)?.registration_start_date ? new Date((initialData as any).registration_start_date).toISOString().slice(0, 16) : '',
+    registration_end_date: (initialData as any)?.registration_end_date ? new Date((initialData as any).registration_end_date).toISOString().slice(0, 16) : '',
     category: (initialData as any)?.category || 'Technology',
     teams: initialData?.groups?.map((g: SocietyGroup) => g.name) || [],
     content_sections: initialData?.content_sections || [],
@@ -206,6 +210,8 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
       formPayload.append('name', formData.name);
       formPayload.append('description', formData.description);
       formPayload.append('registration_fee', formData.registration_fee.toString());
+      if (formData.registration_start_date) formPayload.append('registration_start_date', formData.registration_start_date);
+      if (formData.registration_end_date) formPayload.append('registration_end_date', formData.registration_end_date);
       formPayload.append('category', formData.category);
       formPayload.append('teams', JSON.stringify(formData.teams));
       formPayload.append('content_sections', JSON.stringify(formData.content_sections));
@@ -299,6 +305,29 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
                                 className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
                                 required
                             />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-blue-300 mb-1">Registration Start Date</label>
+                                <input
+                                    type="datetime-local"
+                                    name="registration_start_date"
+                                    value={formData.registration_start_date}
+                                    onChange={handleInputChange}
+                                    className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-blue-300 mb-1">Registration End Date</label>
+                                <input
+                                    type="datetime-local"
+                                    name="registration_end_date"
+                                    value={formData.registration_end_date}
+                                    onChange={handleInputChange}
+                                    className="w-full bg-[#1e293b] border border-blue-500/30 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
+                                />
+                            </div>
                         </div>
 
                         <div>

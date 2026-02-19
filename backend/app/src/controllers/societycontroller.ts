@@ -136,7 +136,9 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
             contact_info: contact_info || {},
             logo: logoUrl || undefined,
             created_by: req.user!._id,
-            status: "ACTIVE"
+            status: "ACTIVE",
+            registration_start_date: req.body.registration_start_date || undefined,
+            registration_end_date: req.body.registration_end_date || undefined
         });
 
         const newSociety = society;
@@ -583,6 +585,9 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
         if (faqs) society.faqs = faqs;
         if (contact_info) society.contact_info = contact_info;
         if (req.body.is_setup !== undefined) society.is_setup = req.body.is_setup === 'true' || req.body.is_setup === true;
+        
+        if (req.body.registration_start_date !== undefined) society.registration_start_date = req.body.registration_start_date;
+        if (req.body.registration_end_date !== undefined) society.registration_end_date = req.body.registration_end_date;
 
         // Handle Team Sync
         if (teams && Array.isArray(teams)) {

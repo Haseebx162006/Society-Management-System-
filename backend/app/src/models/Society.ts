@@ -39,6 +39,8 @@ export interface ISociety extends Document {
     is_setup: boolean;
     created_at: Date;
     updated_at: Date;
+    registration_start_date?: Date;
+    registration_end_date?: Date;
 }
 
 const societySchema: Schema = new Schema({
@@ -116,6 +118,12 @@ const societySchema: Schema = new Schema({
     updated_at: {
         type: Date,
         default: Date.now
+    },
+    registration_start_date: {
+        type: Date
+    },
+    registration_end_date: {
+        type: Date
     }
 }, {
     toJSON: { virtuals: true },
