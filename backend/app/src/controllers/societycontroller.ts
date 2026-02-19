@@ -466,11 +466,15 @@ export const updateMemberRole = async (req: AuthRequest, res: Response) => {
         const { id: society_id, userId: user_id } = req.params;
         const { role, group_id } = req.body;
 
+        if (!user_id || typeof user_id !== 'string' || !mongoose.Types.ObjectId.isValid(user_id)) {
+             return sendError(res, 400, "Invalid user ID");
+        }
+
         if (!role) {
             return sendError(res, 400, "Role is required");
         }
 
-        const validRoles = ["PRESIDENT", "LEAD", "CO-LEAD", "GENERAL SECRETARY", "MEMBER", "FINANCE MANAGER"];
+        const validRoles = ["PRESIDENT", "LEAD", "CO-LEAD", "GENERAL SECRETARY", "MEMBER", "FINANCE MANAGER", "EVENT MANAGER"];
         if (!validRoles.includes(role)) {
             return sendError(res, 400, `Invalid role. Must be one of: ${validRoles.join(", ")}`);
         }

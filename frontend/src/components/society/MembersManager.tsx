@@ -7,8 +7,10 @@ import {
     useAddMemberToGroupMutation,
 } from "@/lib/features/groups/groupApiSlice";
 import { useUpdateMemberRoleMutation } from "@/lib/features/societies/societyApiSlice";
-import { FaWhatsapp, FaEnvelope, FaSearch, FaUserPlus, FaFilePdf, FaFileExcel } from "react-icons/fa";
-import { MdGroups, MdChevronLeft, MdChevronRight } from "react-icons/md";
+import { useSelector } from "react-redux";
+import { RootState } from "@/lib/store";
+import { FaWhatsapp, FaEnvelope, FaSearch, FaUserPlus, FaFilePdf, FaFileExcel, FaUserShield, FaTimes } from "react-icons/fa";
+import { MdGroups, MdChevronLeft, MdChevronRight, MdEdit } from "react-icons/md";
 import { toast } from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -26,6 +28,10 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
     const [search, setSearch] = useState("");
     const [searchInput, setSearchInput] = useState("");
     const [teamDropdownOpen, setTeamDropdownOpen] = useState<string | null>(null);
+    const [roleModalUser, setRoleModalUser] = useState<any | null>(null);
+    const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+
+    const { user: currentUser } = useSelector((state: RootState) => state.auth);
 
     const { data, isLoading, error } = useGetSocietyMembersQuery({
         societyId,
@@ -267,32 +273,25 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                                 {user.phone && <p className="text-xs text-slate-500">Phone: {user.phone}</p>}
                                                 
                                                 {/* Finance Manager Toggle */}
-                                                {member.role !== 'PRESIDENT' && (
-                                                   <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-100">
-                                                       <label className="relative inline-flex items-center cursor-pointer">
-                                                           <input 
-                                                               type="checkbox" 
-                                                               className="sr-only peer"
-                                                               checked={member.role === 'FINANCE MANAGER'}
-                                                               onChange={async (e) => {
-                                                                   try {
-                                                                       const newRole = e.target.checked ? 'FINANCE MANAGER' : 'MEMBER';
-                                                                       await updateMemberRole({
-                                                                           societyId,
-                                                                           userId: user._id,
-                                                                           role: newRole
-                                                                       }).unwrap();
-                                                                       toast.success(`User role updated to ${newRole}`);
-                                                                   } catch (err) {
-                                                                       toast.error("Failed to update role");
-                                                                   }
-                                                               }}
-                                                           />
-                                                           <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-                                                           <span className="ml-2 text-xs font-medium text-slate-600">Finance Manager</span>
-                                                       </label>
-                                                   </div>
-                                                )}
+                                                {/* Role Switcher */}
+                                                <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-100">
+                                                    <span className="text-xs text-slate-500 font-medium">Role:</span>
+                                                    <button
+                                                        onClick={() => {
+                                                            setRoleModalUser(member);
+                                                            setIsRoleModalOpen(true);
+                                                        }}
+                                                        disabled={member.role === 'PRESIDENT' && (currentUser?._id === (typeof member.user_id === 'object' ? member.user_id._id : member.user_id))}
+                                                        className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all shadow-sm ${
+                                                            member.role === 'PRESIDENT' && (currentUser?._id === (typeof member.user_id === 'object' ? member.user_id._id : member.user_id))
+                                                            ? 'bg-slate-50 text-slate-400 cursor-not-allowed border border-slate-100'
+                                                            : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 hover:shadow-md'
+                                                        }`}
+                                                    >
+                                                        <MdEdit className="text-sm" />
+                                                        Change Role
+                                                    </button>
+                                                </div>
                                             </div>
                                         </td>
                                         <td className="p-4 text-right">
@@ -404,6 +403,80 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                     >
                         <MdChevronRight className="text-xl" />
                     </button>
+                </div>
+            )}
+            {/* Role Selection Modal */}
+            {isRoleModalOpen && roleModalUser && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+                        <div className="bg-linear-to-r from-blue-600 to-indigo-600 px-6 py-5 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-lg font-bold text-white tracking-tight">Change Member Role</h3>
+                                <p className="text-blue-100 text-xs mt-0.5 truncate">Updating role for {roleModalUser.user_id?.name}</p>
+                            </div>
+                            <button onClick={() => setIsRoleModalOpen(false)} className="text-white/80 hover:text-white transition-colors">
+                                <FaTimes className="text-xl" />
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-3">
+                            {['MEMBER', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'FINANCE MANAGER', 'EVENT MANAGER', 'PRESIDENT'].map((role) => (
+                                <button
+                                    key={role}
+                                    onClick={async () => {
+                                        if (role === roleModalUser.role) {
+                                            setIsRoleModalOpen(false);
+                                            return;
+                                        }
+
+                                        if (role === 'PRESIDENT') {
+                                            if (!confirm(`Are you sure you want to promote ${roleModalUser.user_id?.name} to PRESIDENT? This will transfer your leadership.`)) return;
+                                        }
+
+                                        const targetUserId = typeof roleModalUser.user_id === 'string' 
+                                            ? roleModalUser.user_id 
+                                            : roleModalUser.user_id?._id;
+
+                                        try {
+                                            await updateMemberRole({
+                                                societyId,
+                                                userId: targetUserId,
+                                                role: role
+                                            }).unwrap();
+                                            toast.success(`Role updated to ${role}`);
+                                            setIsRoleModalOpen(false);
+                                        } catch {
+                                            toast.error("Failed to update role");
+                                        }
+                                    }}
+                                    className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all group ${
+                                        role === roleModalUser.role
+                                        ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold shadow-sm ring-1 ring-blue-100'
+                                        : 'bg-white border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                                            role === roleModalUser.role ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600'
+                                        }`}>
+                                            <FaUserShield />
+                                        </div>
+                                        <span className="uppercase tracking-wider text-xs">{role.replace('_', ' ')}</span>
+                                    </div>
+                                    {role === roleModalUser.role && (
+                                        <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold uppercase">Current</span>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+                            <button 
+                                onClick={() => setIsRoleModalOpen(false)}
+                                className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>

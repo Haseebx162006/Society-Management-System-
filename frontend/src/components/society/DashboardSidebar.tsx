@@ -38,8 +38,8 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
     { id: 'join-form', label: 'Join Form', icon: <FaWpforms />, roles: ['PRESIDENT'] },
     { id: 'join-requests', label: 'Join Requests', icon: <FaClipboardList />, roles: ['PRESIDENT', 'FINANCE MANAGER'] }, // FINANCE MANAGER added here
     { id: 'previous-members', label: 'Previous Members', icon: <FaHistory />, roles: ['PRESIDENT'] },
-    { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'MEMBER'] },
-    { id: 'event-forms', label: 'Event Forms', icon: <FaWpforms />, roles: ['PRESIDENT'] },
+    { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'MEMBER', 'EVENT MANAGER'] },
+    { id: 'event-forms', label: 'Event Forms', icon: <FaWpforms />, roles: ['PRESIDENT', 'EVENT MANAGER'] },
     { id: 'settings', label: 'Society Form', icon: <MdSettings />, roles: ['PRESIDENT'] },
   ];
 
@@ -51,7 +51,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
       <div className="p-6 border-b border-slate-100">
         <h2 className="text-xl font-extrabold text-blue-600 tracking-tight flex items-center gap-2">
           <span className="bg-blue-600 text-white rounded-lg p-1 text-sm">
-             {role === 'PRESIDENT' ? 'SA' : role === 'FINANCE MANAGER' ? 'FM' : 'SM'}
+             {role === 'PRESIDENT' ? 'SA' : role === 'FINANCE MANAGER' ? 'FM' : role === 'EVENT MANAGER' ? 'EM' : 'SM'}
           </span>
           <span className="text-sm truncate max-w-[140px]" title={role}>
              {role === 'PRESIDENT' ? 'Society Admin' : role.replace('_', ' ')}

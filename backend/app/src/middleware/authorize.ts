@@ -33,11 +33,20 @@ export const authorize = (allowedRoles: string[], context: 'SOCIETY' | 'GROUP' =
                 if (!societyId) {
                     return sendError(res, 400, "Society ID required for authorization");
                 }
+                
+                if (!mongoose.Types.ObjectId.isValid(societyId)) {
+                    return sendError(res, 400, "Invalid Society ID");
+                }
+
             } else if (context === 'GROUP') {
                 groupId = req.params.id || req.params.group_id || req.body.group_id;
 
                 if (!groupId) {
                  return sendError(res, 400, "Group ID required for authorization");
+                }
+
+                if (!mongoose.Types.ObjectId.isValid(groupId)) {
+                    return sendError(res, 400, "Invalid Group ID");
                 }
 
                 const group = await Group.findById(groupId);
