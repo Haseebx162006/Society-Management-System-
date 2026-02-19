@@ -17,6 +17,7 @@ import { useRouter, usePathname } from "next/navigation";
 const NAV_LINKS = [
   { label: "HOME", href: "/" },
   { label: "SOCIETIES", href: "/societies" },
+  { label: "EVENTS", href: "/events" },
   { label: "ABOUT", href: "/about" },
   { label: "CONTACT", href: "/contact" },
 ];

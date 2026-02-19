@@ -26,6 +26,7 @@ import Link from "next/link";
 import { toast } from "react-hot-toast";
 import SocietyViewModal from "@/components/society/SocietyViewModal";
 import Header from "@/components/Header";
+import SocietyEventsSection from "@/components/society/SocietyEventsSection";
 
 export default function SocietyDetailsPage() {
     const { id } = useParams();
@@ -336,6 +337,9 @@ export default function SocietyDetailsPage() {
                                 ))}
                             </div>
                         </div>
+
+                        {/* Events Section */}
+                        <SocietyEventsSection societyId={society._id} isMember={isMember} />
 
                         {/* FAQs Section */}
                         {society.faqs && society.faqs.length > 0 && (

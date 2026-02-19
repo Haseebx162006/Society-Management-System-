@@ -9,6 +9,7 @@ import { sendResponse, sendError } from '../util/response';
 import { uploadOnCloudinary } from '../utils/cloudinary';
 import { sendEmail } from '../services/emailService';
 import { emailTemplates } from '../utils/emailTemplates';
+import SocietyUserRole from '../models/SocietyUserRole';
 import * as XLSX from 'xlsx';
 import PDFDocument from 'pdfkit';
 
@@ -280,6 +281,18 @@ export const submitEventRegistration = async (req: AuthRequest, res: Response) =
 
         if (!['PUBLISHED', 'ONGOING'].includes(event.status)) {
             return sendError(res, 400, 'Event is not currently accepting registrations');
+        }
+
+        // Check if event is private and user is a member
+        if (!event.is_public) {
+            const isMember = await SocietyUserRole.findOne({
+                society_id: event.society_id,
+                user_id: req.user!._id
+            });
+
+            if (!isMember) {
+                return sendError(res, 403, 'This event is private. Only society members can register.');
+            }
         }
 
         // Check registration deadline
