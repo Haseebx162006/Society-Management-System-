@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaEye, FaEyeSlash, FaClipboardList, FaFileExcel, FaEnvelope } from 'react-icons/fa';
 import { MdEvent } from 'react-icons/md';
 import {
@@ -11,7 +12,6 @@ import {
     useGetEventFormsBySocietyQuery,
     useSendMailToParticipantsMutation,
     EventData,
-    EventForm,
     EventContentSection
 } from '@/lib/features/events/eventApiSlice';
 import EventRegistrationManager from './EventRegistrationManager';
@@ -177,8 +177,9 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                 resetForm();
                 setView('list');
             }, 1500);
-        } catch (err: any) {
-            setError(err?.data?.message || 'Failed to save event');
+        } catch (err: unknown) {
+            const error = err as { data?: { message?: string } };
+            setError(error?.data?.message || 'Failed to save event');
         }
     };
 
@@ -187,8 +188,9 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         try {
             await deleteEvent({ societyId, eventId }).unwrap();
             setSuccess('Event cancelled successfully!');
-        } catch (err: any) {
-            setError(err?.data?.message || 'Failed to cancel event');
+        } catch (err: unknown) {
+            const error = err as { data?: { message?: string } };
+            setError(error?.data?.message || 'Failed to cancel event');
         }
     };
 
@@ -226,8 +228,9 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
             }).unwrap();
             setMailSuccess(`Emails sent successfully! ${result.successCount} delivered${result.failCount > 0 ? `, ${result.failCount} failed` : ''}.`);
             setTimeout(() => setShowMailModal(false), 2500);
-        } catch (err: any) {
-            setMailError(err?.data?.message || 'Failed to send emails');
+        } catch (err: unknown) {
+            const error = err as { data?: { message?: string } };
+            setMailError(error?.data?.message || 'Failed to send emails');
         }
     };
     const handleToggleVisibility = async (event: EventData) => {
@@ -243,8 +246,9 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
             
             setSuccess(`Event is now ${!event.is_public ? 'Public' : 'Private'}`);
             setTimeout(() => setSuccess(''), 3000);
-        } catch (err: any) {
-            setError(err?.data?.message || 'Failed to update visibility');
+        } catch (err: unknown) {
+            const error = err as { data?: { message?: string } };
+            setError(error?.data?.message || 'Failed to update visibility');
         }
     };
 
@@ -277,7 +281,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
             a.click();
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
-        } catch (err) {
+        } catch {
             setError('Failed to export registrations');
         }
     };
@@ -593,11 +597,12 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                             <div className="flex">
                                 {/* Banner */}
                                 {event.banner && (
-                                    <div className="w-48 h-auto shrink-0">
-                                        <img
+                                    <div className="w-48 h-auto shrink-0 relative">
+                                        <Image
                                             src={event.banner}
                                             alt={event.title}
-                                            className="w-full h-full object-cover"
+                                            fill
+                                            className="object-cover"
                                         />
                                     </div>
                                 )}

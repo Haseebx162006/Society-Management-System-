@@ -9,6 +9,7 @@ import {
     useSubmitEventRegistrationMutation, 
     EventFormField 
 } from "@/lib/features/events/eventApiSlice";
+import { useGetSocietyByIdQuery } from "@/lib/features/societies/societyApiSlice";
 import { 
     FaCalendarAlt, 
     FaMapMarkerAlt, 
@@ -32,17 +33,23 @@ export default function EventDetailsPage() {
     const user = useAppSelector(selectCurrentUser);
 
     const { data: event, isLoading, error } = useGetEventByIdQuery(id as string);
+    // Fetch society details to check membership for private events
+    const { data: societyData, isLoading: isSocietyLoading } = useGetSocietyByIdQuery(
+        event?.society_id && typeof event.society_id === 'object' ? (event.society_id as { _id: string })._id : event?.society_id,
+        { skip: !event || !user } 
+    );
+    
     const [submitRegistration, { isLoading: isSubmitting }] = useSubmitEventRegistrationMutation();
 
     const [showForm, setShowForm] = useState(false);
-    const [formValues, setFormValues] = useState<Record<string, any>>({});
+    const [formValues, setFormValues] = useState<Record<string, string | number | boolean>>({});
     const [fileValues, setFileValues] = useState<Record<string, File>>({});
 
     const registrationForm = event?.registration_form && typeof event.registration_form === 'object'
         ? event.registration_form
         : null;
 
-    const handleFieldChange = (label: string, value: any) => {
+    const handleFieldChange = (label: string, value: string | number | boolean) => {
         setFormValues(prev => ({ ...prev, [label]: value }));
     };
 
@@ -102,8 +109,9 @@ export default function EventDetailsPage() {
                 setShowForm(false);
                 setFormValues({});
                 setFileValues({});
-            } catch (err: any) {
-                toast.error(err?.data?.message || 'Failed to register');
+            } catch (err: unknown) {
+                const error = err as { data?: { message?: string } };
+                toast.error(error?.data?.message || 'Failed to register');
             }
         } else {
             // No form, direct registration
@@ -112,8 +120,9 @@ export default function EventDetailsPage() {
             try {
                 await submitRegistration({ eventId: id as string, body: formData }).unwrap();
                 toast.success('Registration submitted successfully!');
-            } catch (err: any) {
-                toast.error(err?.data?.message || 'Failed to register');
+            } catch (err: unknown) {
+                const error = err as { data?: { message?: string } };
+                toast.error(error?.data?.message || 'Failed to register');
             }
         }
     };
@@ -122,6 +131,12 @@ export default function EventDetailsPage() {
     const renderFormField = (field: EventFormField) => {
         const baseClass = "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-gray-900 transition-all";
 
+        const getValue = () => {
+            const val = formValues[field.label];
+            if (typeof val === 'boolean') return '';
+            return val || '';
+        };
+
         switch (field.field_type) {
             case 'TEXT':
             case 'EMAIL':
@@ -129,7 +144,7 @@ export default function EventDetailsPage() {
                 return (
                     <input
                         type={field.field_type === 'EMAIL' ? 'email' : field.field_type === 'PHONE' ? 'tel' : 'text'}
-                        value={formValues[field.label] || ''}
+                        value={getValue() as string}
                         onChange={(e) => handleFieldChange(field.label, e.target.value)}
                         className={baseClass}
                         placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
@@ -139,7 +154,7 @@ export default function EventDetailsPage() {
                 return (
                     <input
                         type="number"
-                        value={formValues[field.label] || ''}
+                        value={formValues[field.label] !== undefined && typeof formValues[field.label] !== 'boolean' ? formValues[field.label] as number : ''}
                         onChange={(e) => handleFieldChange(field.label, e.target.value)}
                         className={baseClass}
                         placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
@@ -149,7 +164,7 @@ export default function EventDetailsPage() {
                 return (
                     <input
                         type="date"
-                        value={formValues[field.label] || ''}
+                        value={getValue() as string}
                         onChange={(e) => handleFieldChange(field.label, e.target.value)}
                         className={baseClass}
                     />
@@ -157,7 +172,7 @@ export default function EventDetailsPage() {
             case 'TEXTAREA':
                 return (
                     <textarea
-                        value={formValues[field.label] || ''}
+                        value={getValue() as string}
                         onChange={(e) => handleFieldChange(field.label, e.target.value)}
                         className={`${baseClass} resize-none`}
                         rows={3}
@@ -167,7 +182,7 @@ export default function EventDetailsPage() {
             case 'DROPDOWN':
                 return (
                     <select
-                        value={formValues[field.label] || ''}
+                        value={getValue() as string}
                         onChange={(e) => handleFieldChange(field.label, e.target.value)}
                         className={`${baseClass} bg-white`}
                     >
@@ -182,7 +197,7 @@ export default function EventDetailsPage() {
                     <label className="flex items-center gap-3 text-gray-700 cursor-pointer p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
                         <input
                             type="checkbox"
-                            checked={formValues[field.label] || false}
+                            checked={!!formValues[field.label]}
                             onChange={(e) => handleFieldChange(field.label, e.target.checked)}
                             className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300"
                         />
@@ -214,9 +229,9 @@ export default function EventDetailsPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col font-[family-name:var(--font-family-poppins)]">
+            <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
                 <Header />
-                <div className="flex-grow flex items-center justify-center">
+                <div className="grow flex items-center justify-center">
                     <Loader2 className="w-12 h-12 animate-spin text-indigo-600" />
                 </div>
             </div>
@@ -225,9 +240,9 @@ export default function EventDetailsPage() {
 
     if (error || !event) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col font-[family-name:var(--font-family-poppins)]">
+            <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
                 <Header />
-                <div className="flex-grow flex flex-col items-center justify-center text-center px-4">
+                <div className="grow flex flex-col items-center justify-center text-center px-4">
                     <h2 className="text-2xl font-bold text-gray-900 mb-2">Event Not Found</h2>
                     <p className="text-gray-500 mb-6">The event you are looking for does not exist or has been removed.</p>
                     <button 
@@ -244,8 +259,15 @@ export default function EventDetailsPage() {
     const canRegister = ['PUBLISHED', 'ONGOING'].includes(event.status);
     const deadlinePassed = event.registration_deadline && new Date() > new Date(event.registration_deadline);
 
+    // Check membership
+    const isMember = user && societyData?.members?.some(
+        (m: any) => (typeof m.user_id === 'object' ? m.user_id._id : m.user_id) === (user._id || user.id)
+    );
+
+    const isPrivateAndNotMember = !event.is_public && !isMember;
+
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col font-[family-name:var(--font-family-poppins)]">
+        <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
             <Header />
 
             {/* Hero Section / Banner */}
@@ -323,7 +345,7 @@ export default function EventDetailsPage() {
                 </div>
             </div>
 
-            <main className="flex-grow py-12 px-6">
+            <main className="grow py-12 px-6">
                 <div className="max-w-[1400px] mx-auto grid md:grid-cols-3 gap-8">
                     {/* Left Column: Content */}
                     <div className="md:col-span-2 space-y-8">
@@ -379,23 +401,40 @@ export default function EventDetailsPage() {
                             {canRegister && !deadlinePassed ? (
                                 <>
                                     {!showForm ? (
-                                        <button
-                                            onClick={() => {
-                                                if (!user) {
-                                                    router.push(`/login?returnUrl=${encodeURIComponent(`/events/${id}`)}`);
-                                                    return;
-                                                }
-                                                if (registrationForm) {
-                                                    setShowForm(true);
-                                                } else {
-                                                    handleRegister();
-                                                }
-                                            }}
-                                            className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 group"
-                                        >
-                                            Register Now 
-                                            <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                                        </button>
+                                            <button
+                                                onClick={() => {
+                                                    if (!user) {
+                                                        router.push(`/login?returnUrl=${encodeURIComponent(`/events/${id}`)}`);
+                                                        return;
+                                                    }
+                                                    if (isPrivateAndNotMember) {
+                                                        toast.error("This event is for society members only.");
+                                                        return;
+                                                    }
+                                                    if (registrationForm) {
+                                                        setShowForm(true);
+                                                    } else {
+                                                        handleRegister();
+                                                    }
+                                                }}
+                                                disabled={isPrivateAndNotMember && !!user}
+                                                className={`w-full py-4 text-white font-bold rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-2 group ${
+                                                    isPrivateAndNotMember && user
+                                                        ? 'bg-gray-400 cursor-not-allowed opacity-70' 
+                                                        : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl hover:-translate-y-0.5'
+                                                }`}
+                                            >
+                                                {isPrivateAndNotMember && user ? (
+                                                    <>
+                                                        <FaUsers /> Members Only
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        Register Now 
+                                                        <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                                                    </>
+                                                )}
+                                            </button>
                                     ) : (
                                         <AnimatePresence>
                                             <motion.div
