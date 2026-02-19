@@ -13,6 +13,8 @@ import {
 import { useLogoutMutation } from "../lib/features/auth/authApiSlice";
 import { useRouter, usePathname } from "next/navigation";
 
+
+
 const NAV_LINKS = [
   { label: "HOME", href: "/" },
   { label: "SOCIETIES", href: "/societies" },
@@ -192,12 +194,20 @@ export default function Header() {
                 </div>
               </div>
             ) : (
-              <button
-                onClick={() => setIsLoginOpen(true)}
-                className="relative px-6 py-2.5 text-sm font-semibold text-white rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-[length:200%_100%] hover:bg-right shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-500"
-              >
-                Login
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsLoginOpen(true)}
+                  className="px-5 py-2.5 text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors"
+                >
+                  Log in
+                </button>
+                <button
+                  onClick={() => setIsSignupOpen(true)}
+                  className="relative px-6 py-2.5 text-sm font-semibold text-white rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-[length:200%_100%] hover:bg-right shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-500"
+                >
+                  Sign Up
+                </button>
+              </div>
             )}
           </div>
 
@@ -260,46 +270,47 @@ export default function Header() {
             ))}
           </nav>
 
-          <div className="mt-auto pt-6 border-t border-gray-100/80">
+          <div className="mt-auto border-t border-gray-100 pt-6 flex flex-col gap-3">
             {user ? (
-              <div className="space-y-2">
+              <>
                 <Link
                   href="/profile"
                   onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-50/80 transition-colors"
+                  className="flex w-full items-center justify-center gap-2 px-4 py-3 bg-gray-50 text-gray-700 font-semibold rounded-xl hover:bg-gray-100 transition-colors"
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold text-sm shadow-md">
-                    {user.name ? user.name.charAt(0).toUpperCase() : "U"}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      {user.name || "User"}
-                    </p>
-                    <p className="text-xs text-gray-400 truncate max-w-[180px]">
-                      {user.email}
-                    </p>
-                  </div>
+                  My Profile
                 </Link>
                 <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:text-red-600 hover:bg-red-50/80 transition-colors"
+                  onClick={() => {
+                    handleLogout();
+                    setMobileOpen(false);
+                  }}
+                  className="flex w-full items-center justify-center gap-2 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-xl hover:bg-red-100 transition-colors"
                 >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-                  </svg>
                   Sign Out
                 </button>
-              </div>
+              </>
             ) : (
-              <button
-                onClick={() => {
-                  setMobileOpen(false);
-                  setIsLoginOpen(true);
-                }}
-                className="w-full px-6 py-3 text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 shadow-lg shadow-blue-500/25 transition-all duration-300 hover:shadow-blue-500/40"
-              >
-                Login
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    setIsLoginOpen(true);
+                    setMobileOpen(false);
+                  }}
+                  className="w-full py-3.5 text-sm font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all duration-300"
+                >
+                  Log In
+                </button>
+                <button
+                  onClick={() => {
+                    setIsSignupOpen(true);
+                    setMobileOpen(false);
+                  }}
+                  className="w-full py-3.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
+                >
+                  Sign Up
+                </button>
+              </>
             )}
           </div>
         </div>
