@@ -34,7 +34,7 @@ interface SocietyDashboardProps {
 const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [activeTab, setActiveTab] = React.useState('overview');
-  const [showCreateForm, setShowCreateForm] = React.useState(false);
+  // const [showCreateForm, setShowCreateForm] = React.useState(false); // Removed
   const { data: events } = useGetEventsBySocietyQuery(society._id);
 
   // Determine current user's role
@@ -204,7 +204,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
       <DashboardSidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        onViewForm={() => setShowCreateForm(true)}
+
         role={currentUserRole}
       />
 
@@ -222,23 +222,18 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
           {/* Removed Settings and View Society buttons as per request */}
         </div>
 
-        {showCreateForm ? (
+        {activeTab === 'settings' ? (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-            <div className="flex justify-between items-center mb-6">
+             <div className="mb-6">
               <h2 className="text-2xl font-bold text-slate-800">Edit Society Settings</h2>
-              <button
-                onClick={() => setShowCreateForm(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                Close
-              </button>
+              <p className="text-slate-500">Manage your society profile and configuration</p>
             </div>
             <CreateSocietyForm
               initialData={society}
               isEditing={true}
               isModal={false}
               key={society._id}
-              onCancel={() => setShowCreateForm(false)}
+              onCancel={() => setActiveTab('overview')}
             />
           </div>
         ) : (
@@ -305,6 +300,9 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                       )}
                       {(currentUserRole === 'PRESIDENT' || currentUserRole === 'FINANCE MANAGER') && (
                         <ActionButton label="Approve Members" onClick={() => setActiveTab('join-requests')} />
+                      )}
+                      {currentUserRole === 'PRESIDENT' && (
+                        <ActionButton label="Edit Society Settings" onClick={() => setActiveTab('settings')} />
                       )}
                     </div>
                   </div>

@@ -1,5 +1,5 @@
 import { MdDashboard, MdEvent, MdSettings, MdGroups } from 'react-icons/md';
-import { FaEdit, FaSignOutAlt, FaUsers, FaWpforms, FaClipboardList, FaHome, FaHistory } from 'react-icons/fa';
+import { FaSignOutAlt, FaUsers, FaWpforms, FaClipboardList, FaHome, FaHistory } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { logOut, selectRefreshToken } from '@/lib/features/auth/authSlice';
@@ -8,11 +8,11 @@ import { useLogoutMutation } from '@/lib/features/auth/authApiSlice';
 interface DashboardSidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  onViewForm?: () => void;
+
   role?: string;
 }
 
-const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiveTab, onViewForm, role = 'MEMBER' }) => {
+const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiveTab, role = 'MEMBER' }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const refreshToken = useAppSelector(selectRefreshToken);
@@ -40,7 +40,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
     { id: 'previous-members', label: 'Previous Members', icon: <FaHistory />, roles: ['PRESIDENT'] },
     { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'MEMBER'] },
     { id: 'event-forms', label: 'Event Forms', icon: <FaWpforms />, roles: ['PRESIDENT'] },
-    { id: 'settings', label: 'Settings', icon: <MdSettings />, roles: ['PRESIDENT'] },
+    { id: 'settings', label: 'Society Form', icon: <MdSettings />, roles: ['PRESIDENT'] },
   ];
 
   // Filter items based on role
@@ -74,18 +74,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
           </button>
         ))}
 
-        {role === 'PRESIDENT' && (
-            <>
-                <div className="my-4 border-t border-slate-100 mx-2"></div>
-                <button
-                onClick={onViewForm}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-purple-50 hover:text-purple-600 transition-all font-medium"
-                >
-                <span className="text-xl">{<FaEdit />}</span>
-                <span>View Creation Form</span>
-                </button>
-            </>
-        )}
+
 
       </nav>
 

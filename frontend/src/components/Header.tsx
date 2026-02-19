@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import SignupModal from "./SignupModal";
-import LoginModal from "./LoginModal";
+
 import { useAppSelector, useAppDispatch } from "../lib/hooks";
 import {
   selectCurrentUser,
@@ -23,8 +22,7 @@ const NAV_LINKS = [
 ];
 
 export default function Header() {
-  const [isSignupOpen, setIsSignupOpen] = useState(false);
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -195,18 +193,18 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setIsLoginOpen(true)}
+                <Link
+                  href="/login"
                   className="px-5 py-2.5 text-sm font-semibold text-gray-700 hover:text-gray-900 transition-colors"
                 >
                   Log in
-                </button>
-                <button
-                  onClick={() => setIsSignupOpen(true)}
+                </Link>
+                <Link
+                  href="/signup"
                   className="relative px-6 py-2.5 text-sm font-semibold text-white rounded-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-[length:200%_100%] hover:bg-right shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-500"
                 >
                   Sign Up
-                </button>
+                </Link>
               </div>
             )}
           </div>
@@ -292,40 +290,31 @@ export default function Header() {
               </>
             ) : (
               <>
-                <button
+                <Link
+                  href="/login"
                   onClick={() => {
-                    setIsLoginOpen(true);
                     setMobileOpen(false);
                   }}
                   className="w-full py-3.5 text-sm font-semibold text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all duration-300"
                 >
                   Log In
-                </button>
-                <button
+                </Link>
+                <Link
+                  href="/signup"
                   onClick={() => {
-                    setIsSignupOpen(true);
                     setMobileOpen(false);
                   }}
                   className="w-full py-3.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
                 >
                   Sign Up
-                </button>
+                </Link>
               </>
             )}
           </div>
         </div>
       </div>
 
-      <div className="relative z-[60]">
-        <SignupModal
-          isOpen={isSignupOpen}
-          onClose={() => setIsSignupOpen(false)}
-        />
-        <LoginModal
-          isOpen={isLoginOpen}
-          onClose={() => setIsLoginOpen(false)}
-        />
-      </div>
+
     </>
   );
 }
