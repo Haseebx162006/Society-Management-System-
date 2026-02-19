@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaEye, FaClipboardList, FaFileExcel, FaEnvelope } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaEye, FaEyeSlash, FaClipboardList, FaFileExcel, FaEnvelope } from 'react-icons/fa';
 import { MdEvent } from 'react-icons/md';
 import {
     useGetEventsBySocietyQuery,
@@ -230,6 +230,24 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
             setMailError(err?.data?.message || 'Failed to send emails');
         }
     };
+    const handleToggleVisibility = async (event: EventData) => {
+        try {
+            const formData = new FormData();
+            formData.append('is_public', String(!event.is_public));
+            
+            await updateEvent({ 
+                societyId, 
+                eventId: event._id, 
+                body: formData 
+            }).unwrap();
+            
+            setSuccess(`Event is now ${!event.is_public ? 'Public' : 'Private'}`);
+            setTimeout(() => setSuccess(''), 3000);
+        } catch (err: any) {
+            setError(err?.data?.message || 'Failed to update visibility');
+        }
+    };
+
 
     const getToken = (): string => {
         try {
@@ -575,7 +593,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                             <div className="flex">
                                 {/* Banner */}
                                 {event.banner && (
-                                    <div className="w-48 h-auto flex-shrink-0">
+                                    <div className="w-48 h-auto shrink-0">
                                         <img
                                             src={event.banner}
                                             alt={event.title}
@@ -638,6 +656,17 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                                 title="Export to Excel"
                                             >
                                                 <FaFileExcel />
+                                            </button>
+                                            <button
+                                                onClick={() => handleToggleVisibility(event)}
+                                                className={`p-2 rounded-lg transition-colors ${
+                                                    event.is_public 
+                                                        ? 'text-green-500 hover:bg-green-50' 
+                                                        : 'text-amber-500 hover:bg-amber-50'
+                                                }`}
+                                                title={event.is_public ? "Make Private" : "Make Public"}
+                                            >
+                                                {event.is_public ? <FaEye /> : <FaEyeSlash />}
                                             </button>
                                             <button
                                                 onClick={() => openMailModal(event)}
@@ -730,7 +759,7 @@ const SendMailModal = ({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-6 py-5">
+                <div className="bg-linear-to-r from-purple-600 to-indigo-600 px-6 py-5">
                     <h3 className="text-lg font-bold text-white">Send Mail to Participants</h3>
                     <p className="text-purple-200 text-sm mt-0.5 truncate">{eventTitle}</p>
                 </div>
