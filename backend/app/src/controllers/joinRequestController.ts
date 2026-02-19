@@ -31,7 +31,17 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
             responses = req.body.responses || [];
         }
 
-        const selected_team = req.body.selected_team;
+        const selected_teams_raw = req.body.selected_teams;
+        let selected_teams: string[] = [];
+        if (typeof selected_teams_raw === 'string') {
+            try {
+                selected_teams = JSON.parse(selected_teams_raw);
+            } catch {
+                selected_teams = [];
+            }
+        } else if (Array.isArray(selected_teams_raw)) {
+            selected_teams = selected_teams_raw;
+        }
 
         // 1. Find the form
         const form = await JoinForm.findById(formId);
@@ -59,18 +69,27 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
         }
 
         // ── AUTO-APPROVE: Check if user is a previous member ────────────────
+        console.log('[JoinRequest] Checking PreviousMember for email:', req.user!.email);
+        console.log('[JoinRequest] Target Society ID:', form.society_id);
+
+        const normalizedEmail = req.user!.email.trim().toLowerCase();
+        
         const isPreviousMember = await PreviousMember.findOne({
             society_id: form.society_id,
-            email: req.user!.email.toLowerCase()
+            email: normalizedEmail
         });
+
+        console.log('[JoinRequest] PreviousMember match found?', !!isPreviousMember);
 
         if (isPreviousMember) {
             // Create an auto-approved join request (no validation needed)
+            console.log('[JoinRequest] Auto-approving. Selected teams:', selected_teams);
+
             const joinRequest = await JoinRequest.create({
                 user_id: req.user!._id,
                 society_id: form.society_id,
                 form_id: form._id,
-                selected_team: selected_team || null,
+                selected_teams: selected_teams || [],
                 responses: [],           // no responses needed for previous members
                 status: 'APPROVED',
                 reviewed_at: new Date()
@@ -85,16 +104,30 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
                 assigned_by: req.user!._id    // self-assigned via auto-approval
             }]);
 
-            // Assign team if selected
-            if (selected_team) {
-                const team = await Group.findOne({ _id: selected_team, society_id: form.society_id });
-                if (team) {
-                    await GroupMember.create([{
-                        group_id: selected_team,
-                        user_id: req.user!._id,
-                        society_id: form.society_id
-                    }]);
+            // Assign teams if selected
+            if (selected_teams && selected_teams.length > 0) {
+                console.log(`[JoinRequest] Assigning ${selected_teams.length} teams...`);
+                for (const teamId of selected_teams) {
+                    console.log(`[JoinRequest] Processing teamId: ${teamId}`);
+                    try {
+                        const team = await Group.findOne({ _id: teamId, society_id: form.society_id });
+                        if (team) {
+                            console.log(`[JoinRequest] Found team ${team.name}, creating membership...`);
+                            await GroupMember.create([{
+                                group_id: teamId,
+                                user_id: req.user!._id,
+                                society_id: form.society_id
+                            }]);
+                            console.log(`[JoinRequest] Membership created for team ${teamId}`);
+                        } else {
+                            console.warn(`[JoinRequest] Team ${teamId} not found in society ${form.society_id}`);
+                        }
+                    } catch (err) {
+                        console.error(`[JoinRequest] Error assigning team ${teamId}:`, err);
+                    }
                 }
+            } else {
+                console.log('[JoinRequest] No teams selected to assign.');
             }
 
             // Remove from previous members list (one-time use)
@@ -152,14 +185,16 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
             return sendError(res, 400, 'Validation failed', errors);
         }
 
-        // 6. Validate selected_team if provided
-        if (selected_team) {
-            const team = await Group.findOne({
-                _id: selected_team,
-                society_id: form.society_id
-            });
-            if (!team) {
-                return sendError(res, 400, 'Selected team does not belong to this society');
+        // 6. Validate selected_teams if provided
+        if (selected_teams && selected_teams.length > 0) {
+            for (const teamId of selected_teams) {
+                const team = await Group.findOne({
+                    _id: teamId,
+                    society_id: form.society_id
+                });
+                if (!team) {
+                    return sendError(res, 400, `Selected team ${teamId} does not belong to this society`);
+                }
             }
         }
 
@@ -178,7 +213,7 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
             user_id: req.user!._id,
             society_id: form.society_id,
             form_id: form._id,
-            selected_team: selected_team || null,
+            selected_teams: selected_teams || [],
             responses: formattedResponses
         });
 
@@ -212,7 +247,7 @@ export const getJoinRequestsForSociety = async (req: AuthRequest, res: Response)
 
         const requests = await JoinRequest.find(filter)
             .populate('user_id', 'name email phone')
-            .populate('selected_team', 'name')
+            .populate('selected_teams', 'name')
             .populate('form_id', 'title')
             .sort({ created_at: -1 });
 
@@ -231,7 +266,7 @@ export const getJoinRequestById = async (req: AuthRequest, res: Response) => {
 
         const joinRequest = await JoinRequest.findById(requestId)
             .populate('user_id', 'name email phone')
-            .populate('selected_team', 'name description')
+            .populate('selected_teams', 'name description')
             .populate('form_id', 'title fields');
 
         if (!joinRequest) {
@@ -300,20 +335,42 @@ export const updateJoinRequestStatus = async (req: AuthRequest, res: Response) =
             assigned_by: req.user!._id
         }]);
 
-        // 4. Assign team — prefer President's override, fallback to user's selection
-        const teamId = assign_team || joinRequest.selected_team;
-        if (teamId) {
-            const team = await Group.findOne({
-                _id: teamId,
-                society_id
-            });
+        // 4. Assign teams — prefer President's override (assign_team), fallback to user's selections
+        // If president specifically assigns a team, use ONLY that one? Or add to existing?
+        // Logic: if assign_team is present, use ONLY that. If not, use selected_teams.
+        
+        const teamsToAssign: string[] = [];
+        if (assign_team) {
+            teamsToAssign.push(assign_team);
+        } else if (joinRequest.selected_teams && joinRequest.selected_teams.length > 0) {
+            // Need to cast to string because populate might have happened (though usually update uses raw doc)
+            // But here we did findById without populate, so it should be ObjectIds
+            teamsToAssign.push(...joinRequest.selected_teams.map(id => id.toString()));
+        }
 
-            if (team) {
-                await GroupMember.create([{
-                    group_id: teamId,
-                    user_id: joinRequest.user_id,
+        if (teamsToAssign.length > 0) {
+            // Remove duplicates
+            const uniqueTeams = [...new Set(teamsToAssign)];
+            
+            for (const tId of uniqueTeams) {
+                const team = await Group.findOne({
+                    _id: tId,
                     society_id
-                }]);
+                });
+
+                // Check if already a member of this group to avoid duplicates
+                const existingMember = await GroupMember.findOne({
+                    group_id: tId,
+                    user_id: joinRequest.user_id
+                });
+
+                if (team && !existingMember) {
+                    await GroupMember.create([{
+                        group_id: tId,
+                        user_id: joinRequest.user_id,
+                        society_id
+                    }]);
+                }
             }
         }
 
@@ -346,7 +403,7 @@ export const getMyJoinRequests = async (req: AuthRequest, res: Response) => {
         const requests = await JoinRequest.find({ user_id: req.user!._id })
             .populate('society_id', 'name')
             .populate('form_id', 'title')
-            .populate('selected_team', 'name')
+            .populate('selected_teams', 'name')
             .sort({ created_at: -1 });
 
         return sendResponse(res, 200, 'Your join requests', requests);

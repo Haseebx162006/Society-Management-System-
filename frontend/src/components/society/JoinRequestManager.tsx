@@ -100,9 +100,17 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
         return "";
     };
 
-    const getTeamName = (req: JoinRequest): string => {
-        if (req.selected_team && typeof req.selected_team === "object")
+    const getTeamNames = (req: JoinRequest): string => {
+        if (req.selected_teams && Array.isArray(req.selected_teams) && req.selected_teams.length > 0) {
+            return req.selected_teams
+                .map((t) => (typeof t === "object" ? t.name : ""))
+                .filter(Boolean)
+                .join(", ");
+        }
+        // Fallback for old data or if selected_team was used
+        if (req.selected_team && typeof req.selected_team === "object") {
             return req.selected_team.name;
+        }
         return "";
     };
 
@@ -221,10 +229,10 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                                                     <span className="text-slate-600">{getUserPhone(req)}</span>
                                                 </div>
                                             )}
-                                            {getTeamName(req) && (
+                                            {getTeamNames(req) && (
                                                 <div className="flex items-center gap-2 text-sm">
-                                                    <span className="text-slate-400 text-xs">Preferred Team:</span>
-                                                    <span className="text-slate-600">{getTeamName(req)}</span>
+                                                    <span className="text-slate-400 text-xs">Preferred Teams:</span>
+                                                    <span className="text-slate-600">{getTeamNames(req)}</span>
                                                 </div>
                                             )}
                                         </div>

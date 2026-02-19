@@ -186,7 +186,7 @@ async function main() {
             { field_label: 'Department', value: 'CS' },
             { field_label: 'Agree to Code of Conduct', value: true }
         ],
-        selected_team: teamId
+        selected_teams: [teamId]
     }, userToken);
     assert(submitRes.status === 201, 'Join request submitted');
     assert(submitRes.data.data.status === 'PENDING', 'Request status is PENDING');

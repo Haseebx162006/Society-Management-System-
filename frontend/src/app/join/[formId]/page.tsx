@@ -37,7 +37,7 @@ export default function JoinFormPage() {
     const [responses, setResponses] = useState<Record<string, string | boolean>>({});
     const [fileInputs, setFileInputs] = useState<Record<string, File>>({});
     const [filePreviews, setFilePreviews] = useState<Record<string, string>>({});
-    const [selectedTeam, setSelectedTeam] = useState<string>("");
+    const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
     const form = formData?.form;
@@ -155,8 +155,9 @@ export default function JoinFormPage() {
         // Build FormData
         const formData = new FormData();
         formData.append("responses", JSON.stringify(formattedResponses));
-        if (selectedTeam) {
-            formData.append("selected_team", selectedTeam);
+        
+        if (selectedTeams.length > 0) {
+            formData.append("selected_teams", JSON.stringify(selectedTeams));
         }
 
         // Attach files using the field label as the key
@@ -432,23 +433,54 @@ export default function JoinFormPage() {
                             {/* Team Selection */}
                             {teams.length > 0 && (
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                        Preferred Team
+                                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                                        Preferred Teams
                                     </label>
-                                    <select
-                                        value={selectedTeam}
-                                        onChange={(e) => setSelectedTeam(e.target.value)}
-                                        className="w-full h-11 px-4 bg-white border border-gray-200 rounded-lg text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                                    >
-                                        <option value="">No preference</option>
+                                    <div className="space-y-3">
                                         {teams.map((team) => (
-                                            <option key={team._id} value={team._id}>
-                                                {team.name}
-                                            </option>
+                                            <label
+                                                key={team._id}
+                                                className={`flex items-start p-4 border rounded-xl cursor-pointer transition-all ${
+                                                    selectedTeams.includes(team._id)
+                                                        ? "border-indigo-600 bg-indigo-50"
+                                                        : "border-gray-200 hover:border-indigo-200 hover:bg-gray-50"
+                                                }`}
+                                            >
+                                                <div className="flex items-center h-5">
+                                                    <input
+                                                        type="checkbox"
+                                                        value={team._id}
+                                                        checked={selectedTeams.includes(team._id)}
+                                                        onChange={(e) => {
+                                                            const checked = e.target.checked;
+                                                            setSelectedTeams(prev => 
+                                                                checked 
+                                                                    ? [...prev, team._id]
+                                                                    : prev.filter(id => id !== team._id)
+                                                            );
+                                                        }}
+                                                        className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                    />
+                                                </div>
+                                                <div className="ml-3">
+                                                    <span className={`block text-sm font-medium ${
+                                                        selectedTeams.includes(team._id) ? "text-indigo-900" : "text-gray-900"
+                                                    }`}>
+                                                        {team.name}
+                                                    </span>
+                                                    {team.description && (
+                                                        <span className={`block text-xs mt-1 ${
+                                                            selectedTeams.includes(team._id) ? "text-indigo-700" : "text-gray-500"
+                                                        }`}>
+                                                            {team.description}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </label>
                                         ))}
-                                    </select>
-                                    <p className="text-xs text-gray-400 mt-1">
-                                        Optional. The president may assign you to a different team.
+                                    </div>
+                                    <p className="text-xs text-gray-400 mt-2">
+                                        Optional. You can select multiple teams. The president may assign you to different teams based on requirements.
                                     </p>
                                 </div>
                             )}

@@ -20,7 +20,7 @@ export interface IJoinRequest extends Document {
     user_id: mongoose.Types.ObjectId;
     society_id: mongoose.Types.ObjectId;
     form_id: mongoose.Types.ObjectId;
-    selected_team?: mongoose.Types.ObjectId;
+    selected_teams?: mongoose.Types.ObjectId[];
     responses: IFormResponse[];
     status: 'PENDING' | 'APPROVED' | 'REJECTED';
     rejection_reason?: string;
@@ -45,11 +45,10 @@ const joinRequestSchema = new Schema<IJoinRequest>({
         ref: 'JoinForm',
         required: true
     },
-    selected_team: {
+    selected_teams: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Group',
-        default: null
-    },
+        ref: 'Group'
+    }],
     responses: [formResponseSchema],
     status: {
         type: String,

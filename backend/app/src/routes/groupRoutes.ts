@@ -12,12 +12,14 @@ import {
     removeLeadership,
     getGroupById,
     getGroupMembers,
-    updateMemberRole
+    updateMemberRole,
+    getMyGroupMemberships
 } from '../controllers/groupController';
 
 const router = express.Router();
 
 // Group CRUD
+router.get('/my-memberships', protect, getMyGroupMemberships);
 router.post('/', protect, authorize(['PRESIDENT'], 'SOCIETY'), createGroup);
 router.get('/society/:society_id', protect, authorize(['PRESIDENT', 'LEAD', 'CO-LEAD', 'MEMBER'], 'SOCIETY'), getGroupsInSociety);
 router.put('/:id', protect, authorize(['PRESIDENT'], 'GROUP'), updateGroup);

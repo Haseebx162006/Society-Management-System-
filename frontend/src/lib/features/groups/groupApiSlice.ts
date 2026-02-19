@@ -15,14 +15,14 @@ export interface Group {
 
 export interface GroupMember {
     _id: string;
-    group_id: string;
+    group_id: string | { _id: string; name: string; society_id: string };
     user_id: {
         _id: string;
         name: string;
         email: string;
         phone?: string;
     };
-    society_id: string;
+    society_id: string | { _id: string; name: string };
     role: "LEAD" | "CO-LEAD" | "GENERAL SECRETARY" | "MEMBER";
     joined_at: string;
 }
@@ -167,6 +167,11 @@ export const groupApiSlice = apiSlice.injectEndpoints({
                 { type: "GroupMember" as const, id: groupId },
             ],
         }),
+        getMyGroupMemberships: builder.query<GroupMember[], void>({
+            query: () => '/groups/my-memberships',
+            transformResponse: (response: { data: GroupMember[] }) => response.data,
+            providesTags: ['GroupMember'],
+        }),
     }),
 });
 
@@ -180,4 +185,5 @@ export const {
     useAddMemberToGroupMutation,
     useRemoveMemberFromGroupMutation,
     useUpdateMemberRoleMutation,
+    useGetMyGroupMembershipsQuery,
 } = groupApiSlice;

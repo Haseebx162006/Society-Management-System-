@@ -410,3 +410,15 @@ export const updateMemberRole = async (req: AuthRequest, res: Response) => {
         session.endSession();
     }
 };
+
+export const getMyGroupMemberships = async (req: AuthRequest, res: Response) => {
+    try {
+        const memberships = await GroupMember.find({ user_id: req.user!._id })
+            .populate('group_id', 'name society_id')
+            .populate('society_id', 'name');
+
+        return sendResponse(res, 200, "My group memberships fetched", memberships);
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error", error);
+    }
+};

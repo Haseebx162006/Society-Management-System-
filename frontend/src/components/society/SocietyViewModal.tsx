@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Crown, Users, Shield, Lock, ChevronRight } from "lucide-react";
 import Modal from "../ui/Modal";
 import { useState } from "react";
+import { useGetMyGroupMembershipsQuery } from "../../lib/features/groups/groupApiSlice";
 
 interface SocietyViewModalProps {
     isOpen: boolean;
@@ -20,6 +21,8 @@ export default function SocietyViewModal({
     members,
     currentUserMember,
 }: SocietyViewModalProps) {
+    const { data: myGroupMemberships } = useGetMyGroupMembershipsQuery();
+
     const [selectedTeam, setSelectedTeam] = useState<any | null>(null);
 
     const teamMembers = selectedTeam
@@ -28,11 +31,16 @@ export default function SocietyViewModal({
 
     const president = members.find((m) => m.role === "PRESIDENT");
 
+    // Get all my group IDs for this society
+    const myGroupIds = myGroupMemberships
+        ?.filter(m => {
+            const sId = typeof m.society_id === 'object' ? m.society_id._id : m.society_id;
+            return sId === society._id;
+        })
+        .map(m => typeof m.group_id === 'object' ? m.group_id._id : m.group_id) || [];
+
     const handleTeamClick = (group: any) => {        
-        const myGroupId = currentUserMember?.group_id?._id || currentUserMember?.group_id;
-        const targetGroupId = group._id;
-        
-        const isMyTeam = myGroupId === targetGroupId;
+        const isMyTeam = myGroupIds.includes(group._id);
         
         if (isMyTeam) {
             setSelectedTeam(group);
@@ -66,7 +74,7 @@ export default function SocietyViewModal({
                                 ← Back to Society Overview
                             </button>
 
-                            <div className="grid gap-4">
+                            <div className="grid gap-4 max-h-[500px] overflow-y-auto pr-2">
                                 {teamMembers.length > 0 ? (
                                     teamMembers.map((member) => (
                                         <div
@@ -139,9 +147,7 @@ export default function SocietyViewModal({
                                 </h4>
                                 <div className="grid sm:grid-cols-2 gap-4">
                                     {society.groups?.map((group: any) => {
-                                        const isMyTeam =
-                                            currentUserMember?.group_id === group._id ||
-                                            currentUserMember?.group_id?._id === group._id;
+                                        const isMyTeam = myGroupIds.includes(group._id);
 
                                         return (
                                             <button

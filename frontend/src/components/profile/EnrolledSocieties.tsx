@@ -1,9 +1,11 @@
 "use client";
 
 import { useGetMySocietiesQuery } from "../../lib/features/user/userApiSlice";
+import { useGetMyGroupMembershipsQuery, GroupMember } from "../../lib/features/groups/groupApiSlice";
 
 export default function EnrolledSocieties() {
   const { data: societies, isLoading, error } = useGetMySocietiesQuery();
+  const { data: myGroupMemberships } = useGetMyGroupMembershipsQuery();
 
   const getRoleBadge = (role: string) => {
     const styles: Record<string, string> = {
@@ -88,6 +90,14 @@ export default function EnrolledSocieties() {
         <div className="space-y-3">
           {societies.map((society) => {
             const societyData = typeof society.society_id === "object" ? society.society_id : null;
+            const societyIdStr = societyData?._id;
+
+            // Find all teams for this society
+            const myTeams = myGroupMemberships?.filter(m => {
+                const sId = typeof m.society_id === 'object' ? m.society_id._id : m.society_id;
+                return sId === societyIdStr;
+            }) || [];
+
             return (
               <div
                 key={society._id}
@@ -112,7 +122,23 @@ export default function EnrolledSocieties() {
                         {societyData.description}
                       </p>
                     )}
+                    
+                    {/* Display Teams */}
+                    {myTeams.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                             {myTeams.map(team => {
+                                 const groupName = typeof team.group_id === 'object' ? team.group_id.name : 'Unknown Team';
+                                 return (
+                                     <span key={team._id} className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                         {groupName}
+                                     </span>
+                                 );
+                             })}
+                        </div>
+                    )}
+
                   </div>
+
                   <div className="hidden sm:flex items-center gap-2">
                     <span className={`w-2 h-2 rounded-full ${society.is_active ? "bg-emerald-500" : "bg-gray-300"}`} />
                     <span className="text-xs font-medium text-gray-400">

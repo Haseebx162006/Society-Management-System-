@@ -35,6 +35,7 @@ export interface JoinRequest {
     user_id: { _id: string; name: string; email: string; phone?: string } | string;
     society_id: { _id: string; name: string } | string;
     form_id: { _id: string; title: string; fields?: FormField[] } | string;
+    selected_teams?: { _id: string; name: string }[] | string[] | null;
     selected_team?: { _id: string; name: string } | string | null;
     responses: FormResponse[];
     status: "PENDING" | "APPROVED" | "REJECTED";

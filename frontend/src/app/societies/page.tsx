@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Search, Filter, Loader2, X, Menu } from "lucide-react"; // Added icons for mobile toggle
-import Navbar from "@/components/marketing/Navbar";
 import Footer from "@/components/marketing/Footer";
 import SocietyCard from "@/components/society/SocietyCard";
 import { useGetAllSocietiesQuery } from "@/lib/features/societies/societyApiSlice";
