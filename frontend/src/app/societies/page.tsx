@@ -7,6 +7,7 @@ import Navbar from "@/components/marketing/Navbar";
 import Footer from "@/components/marketing/Footer";
 import SocietyCard from "@/components/society/SocietyCard";
 import { useGetAllSocietiesQuery } from "@/lib/features/societies/societyApiSlice";
+import Header from "@/components/Header";
 
 // Types
 interface SocietyData {
@@ -71,7 +72,7 @@ export default function SocietiesPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar />
+      <Header />
 
       {/* Small Header */}
       <div className="bg-white pt-24 pb-6 border-b border-gray-200">

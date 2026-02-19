@@ -4,9 +4,9 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Loader2, X, Menu, Calendar, MapPin, Users, Clock, Tag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import Navbar from '@/components/marketing/Navbar';
 import Footer from '@/components/marketing/Footer';
 import { useGetAllPublicEventsQuery, EventData } from '@/lib/features/events/eventApiSlice';
+import Header from '@/components/Header';
 
 const EVENT_TYPES = ['All', 'WORKSHOP', 'SEMINAR', 'COMPETITION', 'MEETUP', 'CULTURAL', 'SPORTS', 'OTHER'];
 
@@ -77,7 +77,7 @@ export default function EventsPage() {
 
     return (
         <main className="min-h-screen bg-gray-50 flex flex-col">
-            <Navbar />
+            <Header />
 
             {/* Header */}
             <div className="bg-white pt-24 pb-6 border-b border-gray-200">

@@ -18,15 +18,14 @@ import {
     Twitter,
     Loader2,
 } from "lucide-react";
-import Navbar from "@/components/marketing/Navbar";
 import Footer from "@/components/marketing/Footer";
 import { useGetSocietyByIdQuery } from "@/lib/features/societies/societyApiSlice";
-import { useGetJoinFormsBySocietyQuery } from "@/lib/features/join/joinApiSlice";
 import { useAppSelector } from "@/lib/hooks";
 import { selectCurrentUser } from "@/lib/features/auth/authSlice";
 import Link from "next/link";
 import { toast } from "react-hot-toast";
 import SocietyViewModal from "@/components/society/SocietyViewModal";
+import Header from "@/components/Header";
 
 export default function SocietyDetailsPage() {
     const { id } = useParams();
@@ -105,7 +104,7 @@ export default function SocietyDetailsPage() {
 
     return (
         <main className="min-h-screen bg-white font-sans">
-            <Navbar />
+            <Header />
 
             {/* Hero Section */}
             <section className="relative h-[60vh] min-h-[500px] flex items-end pb-20 overflow-hidden">

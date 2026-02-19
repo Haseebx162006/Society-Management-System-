@@ -6,9 +6,9 @@ import { useGetSocietyByIdQuery } from "@/lib/features/societies/societyApiSlice
 import { useGetPublicJoinFormsBySocietyQuery } from "@/lib/features/join/joinApiSlice";
 import { useAppSelector } from "@/lib/hooks";
 import { selectCurrentUser } from "@/lib/features/auth/authSlice";
-import Navbar from "@/components/marketing/Navbar";
 import { ArrowRight, FileText, Loader2 } from "lucide-react";
 import Link from "next/link";
+import Header from "@/components/Header";
 
 export default function SocietyRegisterPage() {
     const { id } = useParams();
@@ -52,7 +52,7 @@ export default function SocietyRegisterPage() {
     if (!user || isLoading) {
         return (
             <main className="min-h-screen bg-gray-50 flex flex-col">
-                <Navbar />
+                <Header />
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-center">
                         <Loader2 className="w-10 h-10 text-indigo-600 animate-spin mx-auto mb-4" />
@@ -68,7 +68,7 @@ export default function SocietyRegisterPage() {
     if (!society) {
         return (
             <main className="min-h-screen bg-gray-50 flex flex-col">
-                <Navbar />
+                <Header />
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-center">
                         <h2 className="text-xl font-bold text-gray-900 mb-2">
@@ -90,7 +90,7 @@ export default function SocietyRegisterPage() {
     if (formsError || activeForms.length === 0) {
         return (
             <main className="min-h-screen bg-gray-50 flex flex-col">
-                <Navbar />
+                <Header />
                 <div className="flex-1 flex items-center justify-center pt-24 pb-16 px-4">
                     <div className="text-center max-w-md">
                         <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -119,7 +119,7 @@ export default function SocietyRegisterPage() {
     if (activeForms.length === 1) {
         return (
             <main className="min-h-screen bg-gray-50 flex flex-col">
-                <Navbar />
+                <Header />
                 <div className="flex-1 flex items-center justify-center">
                     <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
                 </div>
@@ -130,7 +130,7 @@ export default function SocietyRegisterPage() {
     // Multiple forms: let user choose
     return (
         <main className="min-h-screen bg-gray-50 flex flex-col">
-            <Navbar />
+            <Header />
             <div className="flex-1 pt-24 pb-16 px-4 sm:px-6">
                 <div className="max-w-2xl mx-auto">
                     <div className="mb-8">

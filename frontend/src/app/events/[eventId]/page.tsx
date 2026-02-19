@@ -11,6 +11,7 @@ import { useAppSelector } from '@/lib/hooks';
 import { selectCurrentUser } from '@/lib/features/auth/authSlice';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
+import Header from '@/components/Header';
 
 export default function EventDetailPage() {
     const { eventId } = useParams();
@@ -212,7 +213,7 @@ export default function EventDetailPage() {
 
     return (
         <div className="min-h-screen bg-white">
-            <Navbar />
+            <Header />
 
             {/* Banner */}
             {event.banner && (

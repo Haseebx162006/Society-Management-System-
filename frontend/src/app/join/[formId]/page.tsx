@@ -9,8 +9,8 @@ import {
     useSubmitJoinRequestMutation,
     FormResponse,
 } from "@/lib/features/join/joinApiSlice";
-import Navbar from "@/components/marketing/Navbar";
 import { toast } from "react-hot-toast";
+import Header from "@/components/Header";
 
 export default function JoinFormPage() {
     const { formId } = useParams();
@@ -184,7 +184,7 @@ export default function JoinFormPage() {
     if (isLoading || !user) {
         return (
             <main className="min-h-screen bg-gray-50 flex flex-col">
-                <Navbar />
+                <Header />
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-center">
                         <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -201,7 +201,7 @@ export default function JoinFormPage() {
     if (error || !form) {
         return (
             <main className="min-h-screen bg-gray-50 flex flex-col">
-                <Navbar />
+                <Header/>
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-center max-w-md px-6">
                         <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -239,7 +239,7 @@ export default function JoinFormPage() {
 
     return (
         <main className="min-h-screen bg-gray-50 flex flex-col">
-            <Navbar />
+            <Header/>
 
             <div className="flex-1 pt-24 pb-16 px-4 sm:px-6">
                 <div className="max-w-2xl mx-auto">
