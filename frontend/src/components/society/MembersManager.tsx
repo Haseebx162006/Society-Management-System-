@@ -89,7 +89,7 @@ const ROLE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bgColo
     },
 };
 
-const ROLE_ORDER = ["PRESIDENT", "GENERAL SECRETARY", "LEAD", "CO-LEAD", "FINANCE MANAGER", "EVENT MANAGER", "MEMBER"];
+const ROLE_ORDER = ["GENERAL SECRETARY", "FINANCE MANAGER", "EVENT MANAGER", "MEMBER"];
 
 const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
     const [page, setPage] = useState(1);

@@ -229,7 +229,6 @@ const TeamMemberList: React.FC<{
                                         <option value="MEMBER">Member</option>
                                         <option value="LEAD">Lead</option>
                                         <option value="CO-LEAD">Co-Lead</option>
-                                        <option value="GENERAL SECRETARY">Gen. Secretary</option>
                                     </select>
                                     
                                     {user.phone && (
