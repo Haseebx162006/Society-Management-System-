@@ -3,6 +3,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --font-sans: var(--font-titillium-web), sans-serif;
+  --font-display: var(--font-oxanium), sans-serif;
   --font-family-poppins: var(--font-Poppins);
   --font-family-josefin: var(--font-Josefin);
 
@@ -52,7 +54,11 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-titillium-web), sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: var(--font-oxanium), sans-serif;
 }
 
 .hero_animation {

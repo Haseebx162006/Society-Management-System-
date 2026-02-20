@@ -1,6 +1,20 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+import { Oxanium, Titillium_Web } from 'next/font/google';
+
+const oxanium = Oxanium({ 
+  subsets: ['latin'],
+  variable: '--font-oxanium',
+  weight: ['200', '300', '400', '500', '600', '700', '800'] 
+});
+
+const titilliumWeb = Titillium_Web({ 
+  subsets: ['latin'],
+  variable: '--font-titillium-web',
+  weight: ['200', '300', '400', '600', '700', '900'] 
+});
+
 export const metadata: Metadata = {
   title: "COMSOC — COMSATS Lahore Society Portal",
   description:
@@ -17,15 +31,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="en" className={`${oxanium.variable} ${titilliumWeb.variable}`}>
       <body>
         <StoreProvider>
           {children}
@@ -33,7 +39,7 @@ export default function RootLayout({
             style: {
               background: '#1e293b',
               color: '#fff',
-              border: '1px solid #3b82f6',
+              border: '1px solid #ea580c', // Updated to orange from blue
             },
           }} />
         </StoreProvider>
