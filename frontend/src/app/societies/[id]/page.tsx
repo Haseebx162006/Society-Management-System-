@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
     Users,
     MapPin,
@@ -16,11 +16,15 @@ import {
     Linkedin,
     Twitter,
     Loader2,
-    Share2,
     Link as LinkIcon,
     QrCode,
     X,
-    Download
+    Download,
+    Calendar,
+    ChevronDown,
+    Info,
+    Phone,
+    Briefcase
 } from "lucide-react";
 import Footer from "@/components/marketing/Footer";
 import { useGetSocietyByIdQuery } from "@/lib/features/societies/societyApiSlice";
@@ -31,8 +35,36 @@ import { toast } from "react-hot-toast";
 import SocietyViewModal from "@/components/society/SocietyViewModal";
 import Header from "@/components/Header";
 import SocietyEventsSection from "@/components/society/SocietyEventsSection";
-
 import Loading from "@/app/loading";
+
+function FaqItem({ faq }: { faq: any }) {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+        <div className="border border-stone-200 rounded-2xl bg-white overflow-hidden transition-all duration-300 shadow-sm">
+            <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full px-6 py-5 flex items-center justify-between bg-white hover:bg-stone-50 transition-colors"
+            >
+                <span className="font-bold text-stone-900 text-left pr-4">{faq.question}</span>
+                <ChevronDown className={`w-5 h-5 text-stone-400 transition-transform duration-300 shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <div className="px-6 pb-5 pt-2 text-stone-600 bg-white leading-relaxed">
+                            {faq.answer}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
 
 export default function SocietyDetailsPage() {
     const { id } = useParams();
@@ -76,9 +108,7 @@ export default function SocietyDetailsPage() {
         }
     };
 
-    if (isLoading) {
-        return <Loading />;
-    }
+    if (isLoading) return <Loading />;
 
     if (!society) {
         return (
@@ -120,206 +150,115 @@ export default function SocietyDetailsPage() {
         }
     };
 
+    const now = new Date();
+    const startDate = society.registration_start_date ? new Date(society.registration_start_date) : null;
+    const endDate = society.registration_end_date ? new Date(society.registration_end_date) : null;
+    const isNotStarted = startDate && now < startDate;
+    const isEnded = endDate && now > endDate;
+
     return (
-        <main className="min-h-screen bg-white font-sans">
+        <main className="min-h-screen bg-stone-50 font-sans">
             <Header />
 
+            {/* Cover Area */}
+            <div className="relative h-64 md:h-80 w-full overflow-hidden bg-stone-900 flex items-center justify-center">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-600 via-stone-800 to-stone-900 opacity-90"></div>
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay opacity-20"></div>
+            </div>
 
-            <section className="relative h-[60vh] min-h-[500px] flex items-end pb-20 overflow-hidden">
-                <div className="absolute inset-0 z-0">
-                    <div
-                        className="absolute inset-0 bg-cover bg-center"
-                        style={{
-                            backgroundImage: `url(${society.logo ||
-                                "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=2070"
-                                })`,
-                        }}
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-gray-900 via-gray-900/60 to-transparent" />
-                </div>
+            {/* Main Content Container */}
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-24 md:-mt-32 relative z-10 pb-24">
+                
+                {/* Society Header Card */}
+                <div className="bg-white rounded-3xl p-6 md:p-10 shadow-xl shadow-stone-200/50 border border-stone-100 flex flex-col md:flex-row gap-8 items-center md:items-start mb-10">
+                    {/* Logo (overlap) */}
+                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-2xl bg-white shadow-lg border-4 border-white overflow-hidden shrink-0 flex items-center justify-center -mt-16 md:-mt-20 z-20">
+                         <img
+                            src={society.logo || `https://ui-avatars.com/api/?name=${encodeURIComponent(society.name)}&background=random`}
+                            alt={society.name}
+                            className="w-full h-full object-cover md:object-contain"
+                        />
+                    </div>
 
-                <div className="container mx-auto px-6 relative z-10 w-full">
-                    <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8 }}
-                        className="max-w-4xl"
-                    >
-                        <div className="flex items-center gap-4 mb-6">
-                            <span className="px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-widest bg-orange-600 text-white shadow-lg shadow-orange-600/20">
-                                {society.category || "General"}
-                            </span>
+                    {/* Title & Actions */}
+                    <div className="flex-1 w-full text-center md:text-left">
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
+                            <div>
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-3">
+                                    <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-orange-100 text-orange-700">
+                                        {society.category || "General"}
+                                    </span>
+                                    <span className="flex items-center gap-1.5 text-sm font-medium text-stone-500 bg-stone-100 px-3 py-1 rounded-full">
+                                        <Users className="w-4 h-4" />
+                                        {membersData.length} Members
+                                    </span>
+                                </div>
+                                <h1 className="font-display font-bold text-3xl md:text-5xl text-stone-900 mb-2 leading-tight">
+                                    {society.name}
+                                </h1>
+                            </div>
                             
-                            <div className="flex gap-2">
+                            {/* Share Buttons */}
+                            <div className="flex items-center justify-center gap-2 mt-2 md:mt-0 shadow-sm border border-stone-100 rounded-2xl p-1 bg-white">
                                 <button
                                     onClick={handleCopyLink}
-                                    className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 transition-all flex items-center justify-center"
+                                    className="p-3 rounded-xl bg-white hover:bg-stone-50 text-stone-600 transition-colors"
                                     title="Copy Link"
                                 >
-                                    <LinkIcon className="w-4 h-4" />
+                                    <LinkIcon className="w-5 h-5" />
                                 </button>
                                 <button
                                     onClick={() => setIsQrModalOpen(true)}
-                                    className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 transition-all flex items-center justify-center"
+                                    className="p-3 rounded-xl bg-white hover:bg-stone-50 text-stone-600 transition-colors"
                                     title="Show QR Code"
                                 >
-                                    <QrCode className="w-4 h-4" />
+                                    <QrCode className="w-5 h-5" />
                                 </button>
                             </div>
                         </div>
-
-                        <h1 className="font-display font-semibold text-5xl md:text-7xl text-white mb-6 leading-tight tracking-tight">
-                            {society.name}
-                        </h1>
-
-                        <p className="font-body text-xl text-stone-200 max-w-2xl mb-8 leading-relaxed font-light">
+                        
+                        <p className="font-body text-lg text-stone-600 leading-relaxed max-w-4xl mx-auto md:mx-0">
                             {society.description}
                         </p>
-
-                        <div className="flex flex-wrap gap-4">
-                            {isMember ? (
-                                <button
-                                    onClick={() => setIsViewModalOpen(true)}
-                                    className="px-8 py-4 bg-white text-stone-900 font-bold rounded-xl hover:bg-stone-100 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-orange-500/20 flex items-center gap-2"
-                                >
-                                    <Users className="w-5 h-5" />
-                                    View Society
-                                </button>
-                            ) : (
-                                (() => {
-                                    const now = new Date();
-                                    const startDate = society.registration_start_date ? new Date(society.registration_start_date) : null;
-                                    const endDate = society.registration_end_date ? new Date(society.registration_end_date) : null;
-                                    
-                                    const isNotStarted = startDate && now < startDate;
-                                    const isEnded = endDate && now > endDate;
-                                    const isOpen = !isNotStarted && !isEnded;
-
-                                    if (isNotStarted) {
-                                         return (
-                                            <button
-                                                disabled
-                                                className="px-8 py-4 bg-white/50 text-white font-bold rounded-xl cursor-not-allowed flex items-center gap-2"
-                                            >
-                                                <span>Registration Opens: {startDate.toLocaleDateString()}</span>
-                                            </button>
-                                         )
-                                    }
-
-                                     if (isEnded) {
-                                        return (
-                                           <button
-                                               disabled
-                                               className="px-8 py-4 bg-stone-500/50 text-white font-bold rounded-xl cursor-not-allowed flex items-center gap-2"
-                                           >
-                                               <span>Registration Closed</span>
-                                           </button>
-                                        )
-                                   }
-
-                                    return (
-                                        <button
-                                            onClick={handleRegisterClick}
-                                            disabled={registerLoading}
-                                            className="px-8 py-4 bg-white text-stone-900 font-bold rounded-xl hover:bg-stone-100 transition-all duration-300 transform hover:-translate-y-1 shadow-xl hover:shadow-orange-500/20 flex items-center gap-2 disabled:opacity-60"
-                                        >
-                                            {registerLoading ? (
-                                                <Loader2 className="w-5 h-5 animate-spin" />
-                                            ) : (
-                                                <>
-                                                    <span>Register Now</span>
-                                                    <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-sm">
-                                                        {society.registration_fee > 0
-                                                            ? `PKR ${society.registration_fee}`
-                                                            : "Free"}
-                                                    </span>
-                                                    <ArrowRight className="w-5 h-5" />
-                                                </>
-                                            )}
-                                        </button>
-                                    );
-                                })()
-                            )}
-                            <Link href={`/events`} className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300">
-                                View Events
-                            </Link>
-                        </div>
-                    </motion.div>
-                </div>
-            </section>
-
-{/* 
-            <section className="border-b border-gray-100 sticky top-20 z-40 shadow-sm backdrop-blur-md bg-white/90">
-                <div className="container mx-auto px-6 py-6">
-                    <div className="flex flex-wrap items-center justify-between gap-8">
-                        <div className="flex gap-8 md:gap-16">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
-                                    <Users className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">
-                                        Members
-                                    </p>
-                                    <p className="text-xl font-bold text-gray-900">{members}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex gap-4">
-                            {[Instagram, Twitter, Linkedin, Facebook, Globe].map((Icon, i) => (
-                                <a
-                                    key={i}
-                                    href="#"
-                                    className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
-                                >
-                                    <Icon className="w-5 h-5" />
-                                </a>
-                            ))}
-                        </div>
                     </div>
                 </div>
-            </section> */}
 
-
-            <section className="container mx-auto px-6 py-20">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-
-                    <div className="lg:col-span-2 space-y-12">
-                        <div className="prose prose-lg prose-orange max-w-none">
-                            <h2 className="font-display text-3xl font-bold text-stone-900 mb-6 flex items-center gap-3">
-                                About Us
-                                <div className="h-1 w-20 bg-orange-500 rounded-full" />
-                            </h2>
-                            <p className="font-body text-stone-600 leading-relaxed text-lg">
-                                {society.description}
-                            </p>
-
-
-                            {society.content_sections?.length > 0 &&
-                                society.content_sections.map((section: any, index: number) => (
-                                    <div key={index} className="mt-8">
-                                        <h3 className="font-display text-2xl font-bold text-stone-900 mb-4">
+                {/* 2-Column Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+                    
+                    {/* Left Column - Main Details */}
+                    <div className="lg:col-span-8 space-y-10">
+                        {/* Custom Content Sections */}
+                        {society.content_sections?.length > 0 && (
+                            <div className="prose prose-lg prose-orange max-w-none">
+                                {society.content_sections.map((section: any, index: number) => (
+                                    <div key={index} className="mb-10 last:mb-0">
+                                        <h3 className="font-display text-2xl font-bold text-stone-900 mb-4 flex items-center gap-3">
                                             {section.title}
+                                            <div className="h-1 w-12 bg-orange-500 rounded-full" />
                                         </h3>
                                         <p className="font-body text-stone-600 leading-relaxed text-lg whitespace-pre-line">
                                             {section.content}
                                         </p>
                                     </div>
                                 ))}
+                            </div>
+                        )}
 
-
-                            {society.custom_fields?.length > 0 && (
-                                <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Custom Fields (Additional Info) */}
+                        {society.custom_fields?.length > 0 && (
+                            <div className="bg-white rounded-3xl p-8 shadow-sm border border-stone-200">
+                                <h3 className="font-display text-2xl font-bold text-stone-900 mb-6 flex items-center gap-2">
+                                     <span className="bg-orange-500 w-2 h-6 rounded-full inline-block"></span>
+                                     Additional Specs
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {society.custom_fields.map((field: any, index: number) => (
-                                        <div
-                                            key={index}
-                                            className="bg-stone-50 p-4 rounded-xl border border-stone-100"
-                                        >
-                                            <p className="text-sm font-semibold text-stone-500 uppercase tracking-wide mb-1">
+                                        <div key={index} className="bg-stone-50 p-4 rounded-2xl border border-stone-100">
+                                            <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-1">
                                                 {field.label}
                                             </p>
-                                            <p className="text-stone-900 font-medium">
+                                            <p className="text-stone-900 font-medium text-lg">
                                                 {field.type === "date"
                                                     ? "Date Field"
                                                     : field.type === "select"
@@ -329,17 +268,17 @@ export default function SocietyDetailsPage() {
                                         </div>
                                     ))}
                                 </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
 
-
-                        <div className="bg-stone-50/50 backdrop-blur-sm rounded-2xl p-8 border border-stone-200/50 shadow-sm">
-                            <h3 className="font-display text-xl font-bold text-stone-900 mb-6 flex items-center gap-2">
+                        {/* Why Join Us */}
+                        <div className="bg-orange-50 rounded-3xl p-8 border border-orange-100">
+                            <h3 className="font-display text-2xl font-bold text-stone-900 mb-6 flex items-center gap-2">
                                 <span className="bg-orange-500 w-2 h-6 rounded-full inline-block"></span>
                                 Why Join Us?
                             </h3>
-                            <div className="grid sm:grid-cols-2 gap-6">
-                                {(society.why_join_us && society.why_join_us.length > 0
+                            <div className="grid sm:grid-cols-2 gap-4">
+                                {(society.why_join_us?.length > 0
                                     ? society.why_join_us
                                     : [
                                         "Exclusive Workshops & Seminars",
@@ -350,244 +289,214 @@ export default function SocietyDetailsPage() {
                                         "Annual Tech/Cultural Fest",
                                     ]
                                 ).map((item: string, i: number) => (
-                                    <div key={i} className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
-                                            <CheckCircle2 className="w-4 h-4 text-orange-600" />
+                                    <div key={i} className="flex items-start gap-3 bg-white/60 p-3 rounded-xl border border-orange-500/10">
+                                        <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center shrink-0 mt-0.5">
+                                            <CheckCircle2 className="w-3.5 h-3.5 text-orange-600" />
                                         </div>
-                                        <span className="text-stone-700 font-medium">{item}</span>
+                                        <span className="text-stone-800 font-medium text-[15px]">{item}</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-
+                        {/* Events */}
                         <SocietyEventsSection societyId={society._id} isMember={isMember} />
 
-
+                        {/* FAQs */}
                         {society.faqs && society.faqs.length > 0 && (
                             <div>
                                 <h3 className="font-display text-2xl font-bold text-stone-900 mb-6 flex items-center gap-2">
                                     <span className="bg-orange-500 w-2 h-6 rounded-full inline-block"></span>
                                     Frequently Asked Questions
                                 </h3>
-                                <div className="space-y-4">
+                                <div className="space-y-3">
                                     {society.faqs.map((faq: any, index: number) => (
-                                        <div
-                                            key={index}
-                                            className="bg-white border border-stone-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow group"
-                                        >
-                                            <h4 className="text-lg font-bold text-stone-900 mb-2 group-hover:text-orange-600 transition-colors">
-                                                {faq.question}
-                                            </h4>
-                                            <p className="text-stone-600">{faq.answer}</p>
-                                        </div>
+                                        <FaqItem key={index} faq={faq} />
                                     ))}
                                 </div>
                             </div>
                         )}
                     </div>
 
-
-                    <div className="space-y-8">
-
-                        {!isMember && (
-                            <div className="bg-linear-to-br from-orange-500 to-red-500 rounded-2xl p-6 text-white shadow-xl shadow-orange-500/20 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10" />
-                                <h3 className="font-display text-xl font-bold mb-2 relative z-10">Join This Society</h3>
-                                <p className="text-orange-100 text-sm mb-6 relative z-10">
-                                    Become a member and unlock access to events, teams, and a vibrant community.
-                                </p>
-                                
-                                {society.registration_start_date && society.registration_end_date && (
-                                    <div className="mb-6 text-sm text-orange-100 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 relative z-10">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-orange-100">Registration Opens:</span>
-                                            <span className="font-bold text-stone-900 bg-white px-2 py-0.5 rounded-md text-xs">{new Date(society.registration_start_date).toLocaleString()}</span>
+                    {/* Right Column - Sidebar */}
+                    <div className="lg:col-span-4 space-y-6">
+                        
+                        {/* Registration / Status Sticky Box */}
+                        <div className="sticky top-24 space-y-6">
+                            
+                            {/* CTA Card */}
+                            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-xl shadow-stone-200/50 border border-stone-100 relative overflow-hidden">
+                                {isMember ? (
+                                    // Already a Member
+                                    <div className="relative z-10 text-center py-2">
+                                        <div className="w-16 h-16 bg-stone-100 rounded-full mx-auto flex items-center justify-center mb-4">
+                                            <Users className="w-8 h-8 text-stone-400" />
                                         </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-orange-100">Registration Closes:</span>
-                                            <span className="font-bold text-stone-900 bg-white px-2 py-0.5 rounded-md text-xs">{new Date(society.registration_end_date).toLocaleString()}</span>
+                                        <h3 className="font-display text-2xl font-bold text-stone-900 mb-2">Welcome Back!</h3>
+                                        <p className="text-stone-500 mb-6 font-medium text-sm">You are a confirmed member of this society.</p>
+                                        <button 
+                                            onClick={() => setIsViewModalOpen(true)} 
+                                            className="w-full py-4 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-2xl transition-all shadow-md flex items-center justify-center gap-2"
+                                        >
+                                           View Society Dashboard
+                                        </button>
+                                    </div>
+                                ) : (
+                                    // Not a Member
+                                    <div className="relative z-10">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
+                                        <h3 className="font-display text-lg font-bold text-stone-500 mb-2 uppercase tracking-widest">Membership</h3>
+                                        <div className="flex items-end gap-2 mb-6">
+                                            <span className="text-4xl font-black text-stone-900">
+                                                {society.registration_fee > 0 ? `PKR ${society.registration_fee}` : "Free"}
+                                            </span>
+                                            {society.registration_fee > 0 && <span className="mb-1 text-stone-400 font-bold">/ yr</span>}
+                                        </div>
+                                        
+                                        {/* Dates */}
+                                        {society.registration_start_date && (
+                                            <div className="mb-6 bg-stone-50 p-4 rounded-2xl border border-stone-100">
+                                                <div className="flex items-center gap-3 text-[13px] md:text-sm">
+                                                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-stone-500 shadow-sm shrink-0">
+                                                        <Calendar className="w-4 h-4" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-stone-500 font-medium">Registration Opens</p>
+                                                        <p className="font-bold text-stone-900">{new Date(society.registration_start_date).toLocaleDateString()}</p>
+                                                    </div>
+                                                </div>
+                                                {society.registration_end_date && (
+                                                    <div className="flex items-center gap-3 text-[13px] md:text-sm pt-4 mt-4 border-t border-stone-200">
+                                                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-stone-500 shadow-sm shrink-0">
+                                                            <Clock className="w-4 h-4" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-stone-500 font-medium">Registration Closes</p>
+                                                            <p className="font-bold text-stone-900">{new Date(society.registration_end_date).toLocaleDateString()}</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                        
+                                        <div className="mt-2">
+                                            {isNotStarted ? (
+                                                <button disabled className="w-full py-4 bg-stone-100 text-stone-400 font-bold rounded-2xl cursor-not-allowed flex items-center justify-center gap-2 border border-stone-200">
+                                                    Opens {startDate?.toLocaleDateString()}
+                                                </button>
+                                            ) : isEnded ? (
+                                                <button disabled className="w-full py-4 bg-stone-100 text-stone-400 font-bold rounded-2xl cursor-not-allowed flex items-center justify-center gap-2 border border-stone-200">
+                                                    Registration Closed
+                                                </button>
+                                            ) : (
+                                                <button onClick={handleRegisterClick} disabled={registerLoading} className="w-full py-4 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-2xl transition-all shadow-xl shadow-orange-600/30 flex items-center justify-center gap-2 disabled:opacity-70">
+                                                    {registerLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Apply Now <ArrowRight className="w-5 h-5" /></>}
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 )}
-                                
-                                <div className="relative z-10">
-                                {(() => {
-                                    const now = new Date();
-                                    const startDate = society.registration_start_date ? new Date(society.registration_start_date) : null;
-                                    const endDate = society.registration_end_date ? new Date(society.registration_end_date) : null;
-                                    
-                                    const isNotStarted = startDate && now < startDate;
-                                    const isEnded = endDate && now > endDate;
-
-                                    if (isNotStarted) {
-                                         return (
-                                            <button
-                                                disabled
-                                                className="w-full py-3 bg-white/20 text-white font-bold rounded-xl cursor-not-allowed flex items-center justify-center gap-2"
-                                            >
-                                                <span>Opens: {startDate.toLocaleDateString()}</span>
-                                            </button>
-                                         )
-                                    }
-
-                                    if (isEnded) {
-                                        return (
-                                           <button
-                                               disabled
-                                               className="w-full py-3 bg-white/20 text-white font-bold rounded-xl cursor-not-allowed flex items-center justify-center gap-2"
-                                           >
-                                               <span>Registration Closed</span>
-                                           </button>
-                                        )
-                                   }
-
-                                    return (
-                                        <button
-                                            onClick={handleRegisterClick}
-                                            disabled={registerLoading}
-                                            className="w-full py-3 bg-white text-orange-600 font-bold rounded-xl hover:bg-stone-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 shadow-lg"
-                                        >
-                                            {registerLoading ? (
-                                                <Loader2 className="w-5 h-5 animate-spin" />
-                                            ) : (
-                                                <>
-                                                    Apply Now
-                                                    <ArrowRight className="w-4 h-4" />
-                                                </>
-                                            )}
-                                        </button>
-                                    );
-                                })()}
-                                </div>
-
-                                {society.registration_fee > 0 && (
-                                    <p className="text-center text-orange-100 text-xs mt-3 relative z-10 font-medium">
-                                        Registration fee: PKR {society.registration_fee}
-                                    </p>
-                                )}
                             </div>
-                        )}
-                        
-                        {isMember && (
-                             <div className="bg-linear-to-br from-stone-800 to-stone-900 rounded-2xl p-6 text-white shadow-xl shadow-stone-900/20 relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10" />
-                                <h3 className="font-display text-xl font-bold mb-2 relative z-10 text-orange-400">Welcome Back!</h3>
-                                <p className="text-stone-300 text-sm mb-6 relative z-10">
-                                    You are a member of this society. View your team and colleagues.
-                                </p>
-                                <button
-                                    onClick={() => setIsViewModalOpen(true)}
-                                    className="w-full py-3 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl border border-white/20 transition-all font-bold flex items-center justify-center gap-2 relative z-10"
-                                >
-                                    <Users className="w-4 h-4" />
-                                    View Society
-                                </button>
-                            </div>
-                        )}
 
-
-                        <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm border-t-4 border-t-orange-500">
-                            <h3 className="font-display text-xl font-bold text-stone-900 mb-6">Our Teams</h3>
-                            <div className="space-y-4">
-                                {(society.groups && society.groups.length > 0
-                                    ? society.groups
-                                    : [
-                                        { name: "Executive Council" },
-                                        { name: "Events Team" },
-                                        { name: "Marketing & PR" },
-                                        { name: "Technical Wing" },
-                                    ]
-                                ).map((group: any, i: number) => (
-                                    <div
-                                        key={i}
-                                        className="flex items-center justify-between p-3 rounded-xl hover:bg-stone-50 transition-colors group cursor-pointer border border-transparent hover:border-stone-100"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold shadow-inner">
+                            {/* Teams Card */}
+                            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-stone-200">
+                                <h3 className="font-display text-lg font-bold text-stone-900 mb-5 flex items-center gap-2">
+                                    <Briefcase className="w-5 h-5 text-orange-500"/>
+                                    Our Teams
+                                </h3>
+                                <div className="space-y-3">
+                                    {(society.groups?.length > 0
+                                        ? society.groups
+                                        : [
+                                            { name: "Executive Council" },
+                                            { name: "Events Team" },
+                                            { name: "Marketing & PR" },
+                                            { name: "Technical Wing" },
+                                        ]
+                                    ).map((group: any, i: number) => (
+                                        <div key={i} className="flex items-center gap-3 p-3 bg-stone-50 rounded-2xl border border-stone-100">
+                                            <div className="w-10 h-10 rounded-xl bg-white text-orange-600 font-bold flex flex-col items-center justify-center shadow-sm shrink-0">
                                                 {group.name[0]}
                                             </div>
-                                            <div>
-                                                <p className="font-semibold text-stone-900">{group.name}</p>
-                                            </div>
+                                            <p className="font-semibold text-stone-800 text-sm">{group.name}</p>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
-                        </div>
 
+                            {/* Contact Info Card */}
+                            {(society.contact_info?.email || society.contact_info?.phone || society.contact_info?.website || (society.contact_info?.social_links && Object.values(society.contact_info.social_links).some(v => v))) && (
+                                <div className="bg-stone-900 text-stone-100 rounded-3xl p-6 md:p-8 shadow-xl border border-stone-800 relative overflow-hidden">
+                                     <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
+                                    <h3 className="font-display text-lg font-bold text-white mb-5 flex items-center gap-2 relative z-10">
+                                        <Info className="w-5 h-5 text-orange-400" />
+                                        Contact Details
+                                    </h3>
+                                    <ul className="space-y-4 relative z-10">
+                                        {society.contact_info?.email && (
+                                            <li className="flex items-center gap-3 text-sm">
+                                                <div className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center text-orange-400 shrink-0">
+                                                    <Mail className="w-4 h-4" />
+                                                </div>
+                                                <a href={`mailto:${society.contact_info.email}`} className="text-stone-300 font-medium hover:text-white transition-colors break-all">
+                                                    {society.contact_info.email}
+                                                </a>
+                                            </li>
+                                        )}
+                                        {society.contact_info?.phone && (
+                                            <li className="flex items-center gap-3 text-sm">
+                                                <div className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center text-orange-400 shrink-0">
+                                                    <Phone className="w-4 h-4" />
+                                                </div>
+                                                <span className="text-stone-300 font-medium">
+                                                    {society.contact_info.phone}
+                                                </span>
+                                            </li>
+                                        )}
+                                        {society.contact_info?.website && (
+                                            <li className="flex items-center gap-3 text-sm">
+                                                <div className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center text-orange-400 shrink-0">
+                                                    <Globe className="w-4 h-4" />
+                                                </div>
+                                                <a href={society.contact_info.website} target="_blank" rel="noopener noreferrer" className="text-stone-300 font-medium hover:text-white transition-colors break-all">
+                                                    Visit Website
+                                                </a>
+                                            </li>
+                                        )}
+                                    </ul>
 
-                        {society.contact_info && (society.contact_info.email || society.contact_info.phone || society.contact_info.website || (society.contact_info.social_links && (society.contact_info.social_links.facebook || society.contact_info.social_links.instagram || society.contact_info.social_links.twitter || society.contact_info.social_links.linkedin))) && (
-                            <div className="bg-stone-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl -mr-10 -mt-10" />
-                                <h3 className="font-display text-xl font-bold mb-6 text-orange-400 relative z-10">Contact Info</h3>
-                                <ul className="space-y-4 relative z-10">
-                                    {society.contact_info?.email && (
-                                        <li className="flex items-center gap-4">
-                                            <Mail className="w-5 h-5 text-orange-400 shrink-0" />
-                                            <a
-                                                href={`mailto:${society.contact_info.email}`}
-                                                className="text-stone-300 text-sm hover:text-white transition-colors break-all"
-                                            >
-                                                {society.contact_info.email}
-                                            </a>
-                                        </li>
-                                    )}
-                                    {society.contact_info?.phone && (
-                                        <li className="flex items-center gap-4">
-                                            <div className="w-5 h-5 flex items-center justify-center text-orange-400 shrink-0">
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                                                </svg>
-                                            </div>
-                                            <span className="text-stone-300 text-sm">
-                                                {society.contact_info.phone}
-                                            </span>
-                                        </li>
-                                    )}
-                                    {society.contact_info?.website && (
-                                        <li className="flex items-center gap-4">
-                                            <Globe className="w-5 h-5 text-orange-400 shrink-0" />
-                                            <a
-                                                href={society.contact_info.website}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-stone-300 text-sm hover:text-white transition-colors break-all"
-                                            >
-                                                Visit Website
-                                            </a>
-                                        </li>
-                                    )}
-                                    {society.contact_info?.social_links && (society.contact_info.social_links.facebook || society.contact_info.social_links.instagram || society.contact_info.social_links.twitter || society.contact_info.social_links.linkedin) && (
-                                        <li className="flex items-center gap-3 pt-4 border-t border-stone-800 mt-4">
+                                    {/* Socials */}
+                                    {society.contact_info?.social_links && Object.values(society.contact_info.social_links).some(v => v) && (
+                                        <div className="flex gap-2 mt-6 pt-6 border-t border-stone-800 relative z-10">
                                             {society.contact_info.social_links.facebook && (
-                                                <a href={society.contact_info.social_links.facebook} target="_blank" rel="noopener noreferrer" className="p-2 bg-stone-800 rounded-full text-stone-400 hover:text-white hover:bg-[#1877F2] transition-colors">
+                                                <a href={society.contact_info.social_links.facebook} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-stone-800 rounded-full text-stone-400 hover:text-white hover:bg-[#1877F2] transition-colors">
                                                     <Facebook className="w-4 h-4" />
                                                 </a>
                                             )}
                                             {society.contact_info.social_links.instagram && (
-                                                <a href={society.contact_info.social_links.instagram} target="_blank" rel="noopener noreferrer" className="p-2 bg-stone-800 rounded-full text-stone-400 hover:text-white hover:bg-pink-600 transition-colors">
+                                                <a href={society.contact_info.social_links.instagram} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-stone-800 rounded-full text-stone-400 hover:text-white hover:bg-pink-600 transition-colors">
                                                     <Instagram className="w-4 h-4" />
                                                 </a>
                                             )}
                                             {society.contact_info.social_links.twitter && (
-                                                <a href={society.contact_info.social_links.twitter} target="_blank" rel="noopener noreferrer" className="p-2 bg-stone-800 rounded-full text-stone-400 hover:text-white hover:bg-[#1DA1F2] transition-colors">
+                                                <a href={society.contact_info.social_links.twitter} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-stone-800 rounded-full text-stone-400 hover:text-white hover:bg-[#1DA1F2] transition-colors">
                                                     <Twitter className="w-4 h-4" />
                                                 </a>
                                             )}
                                             {society.contact_info.social_links.linkedin && (
-                                                <a href={society.contact_info.social_links.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 bg-stone-800 rounded-full text-stone-400 hover:text-white hover:bg-[#0A66C2] transition-colors">
+                                                <a href={society.contact_info.social_links.linkedin} target="_blank" rel="noopener noreferrer" className="p-2.5 bg-stone-800 rounded-full text-stone-400 hover:text-white hover:bg-[#0A66C2] transition-colors">
                                                     <Linkedin className="w-4 h-4" />
                                                 </a>
                                             )}
-                                        </li>
+                                        </div>
                                     )}
-                                </ul>
-                            </div>
-                        )}
+                                </div>
+                            )}
+                            
+                        </div>
                     </div>
                 </div>
-            </section>
+            </div>
 
             <Footer />
             
@@ -605,7 +514,7 @@ export default function SocietyDetailsPage() {
                     <motion.div 
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white rounded-2xl p-6 shadow-2xl max-w-sm w-full relative"
+                        className="bg-white rounded-3xl p-8 shadow-2xl max-w-sm w-full relative"
                     >
                         <button 
                             onClick={() => setIsQrModalOpen(false)}
@@ -617,14 +526,14 @@ export default function SocietyDetailsPage() {
                             <h3 className="font-display text-2xl font-bold text-stone-900">Scan to Share</h3>
                             <p className="text-stone-500 text-sm mt-1">Share this society with others!</p>
                         </div>
-                        <div className="flex justify-center p-4 bg-stone-50 rounded-xl border border-stone-100">
+                        <div className="flex justify-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
                              <img 
                                 src={`https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(currentUrl)}`} 
                                 alt="Society QR Code"
-                                className="w-full max-w-[200px] h-auto rounded-lg shadow-sm"
+                                className="w-full max-w-[200px] h-auto rounded-xl shadow-sm"
                             />
                         </div>
-                        <div className="grid grid-cols-2 gap-3 mt-6">
+                        <div className="grid grid-cols-2 gap-3 mt-8">
                             <button
                                 onClick={handleDownloadQr}
                                 className="w-full py-3 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 transition-colors flex items-center justify-center gap-2 shadow-sm"
