@@ -91,7 +91,9 @@ export default function ProfilePage() {
     }
 
 
-    if (!user?.is_super_admin) {
+    const isPresident = societies?.some((s) => s.role === "PRESIDENT");
+
+    if (!user?.is_super_admin && !isPresident) {
       items.push({
         key: "request-registration",
         label: "Request Society Registration",
@@ -148,16 +150,16 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen bg-[#fffdfa]">
       <Header />
 
       <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-10">
-        <div className="max-w-screen-xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 font-sans">
+            <h1 className="text-3xl font-bold text-stone-900 font-sans">
               Settings
             </h1>
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-stone-400 mt-1">
               Manage your account settings and preferences
             </p>
           </div>
@@ -165,14 +167,14 @@ export default function ProfilePage() {
           <div className="lg:hidden mb-6">
             <button
               onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
-              className="flex items-center justify-between w-full px-5 py-3.5 rounded-xl bg-white border border-gray-100 shadow-sm text-sm font-medium text-gray-700"
+              className="flex items-center justify-between w-full px-5 py-3.5 rounded-xl bg-stone-50 border border-stone-100 shadow-sm text-sm font-medium text-stone-700"
             >
               <div className="flex items-center gap-3">
                 {SIDEBAR_ITEMS.find((i) => i.key === activeTab)?.icon}
                 {SIDEBAR_ITEMS.find((i) => i.key === activeTab)?.label}
               </div>
               <svg
-                className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${mobileSidebarOpen ? "rotate-180" : ""}`}
+                className={`w-4 h-4 text-stone-400 transition-transform duration-300 ${mobileSidebarOpen ? "rotate-180" : ""}`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -183,7 +185,7 @@ export default function ProfilePage() {
             </button>
 
             <div
-              className={`mt-2 rounded-xl bg-white border border-gray-100 shadow-lg overflow-hidden transition-all duration-300 origin-top ${mobileSidebarOpen
+              className={`mt-2 rounded-xl bg-stone-50 border border-stone-100 shadow-lg overflow-hidden transition-all duration-300 origin-top ${mobileSidebarOpen
                 ? "opacity-100 scale-y-100 max-h-[400px]"
                 : "opacity-0 scale-y-95 max-h-0 pointer-events-none"
                 }`}
@@ -197,8 +199,8 @@ export default function ProfilePage() {
                       setMobileSidebarOpen(false);
                     }}
                     className={`flex items-center gap-3 w-full px-5 py-3 text-sm font-medium transition-colors ${activeTab === item.key
-                      ? "text-blue-600 bg-blue-50/80"
-                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                      ? "text-orange-600 bg-orange-50/80"
+                      : "text-stone-500 hover:text-stone-900 hover:bg-stone-50"
                       }`}
                   >
                     {item.icon}
@@ -206,7 +208,7 @@ export default function ProfilePage() {
                   </button>
                 ))}
 
-                {roleBasedItems.length > 0 && <div className="border-t border-gray-100 my-2 pt-2" />}
+                {roleBasedItems.length > 0 && <div className="border-t border-stone-100 my-2 pt-2" />}
 
                 {roleBasedItems.map((item) => (
                   <button
@@ -215,13 +217,13 @@ export default function ProfilePage() {
                       item.action();
                       setMobileSidebarOpen(false);
                     }}
-                    className="flex items-center gap-3 w-full px-5 py-3 text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-3 w-full px-5 py-3 text-sm font-medium text-stone-500 hover:text-stone-900 hover:bg-stone-50 transition-colors"
                   >
                     {item.icon}
                     {item.label}
                   </button>
                 ))}
-                <div className="border-t border-gray-100 mt-2 pt-2">
+                <div className="border-t border-stone-100 mt-2 pt-2">
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-3 w-full px-5 py-3 text-sm font-medium text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
@@ -238,17 +240,17 @@ export default function ProfilePage() {
 
           <div className="flex gap-8">
             <aside className="hidden lg:block w-[260px] shrink-0">
-              <div className="sticky top-28 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-gray-100/80">
+              <div className="sticky top-28 bg-stone-50 rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
+                <div className="p-5 border-b border-stone-100/80">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#0f172b] flex items-center justify-center text-white font-bold text-sm shadow-md shadow-blue-500/20">
+                    <div className="w-10 h-10 rounded-xl bg-[#0f172b] flex items-center justify-center text-white font-bold text-sm shadow-md shadow-orange-500/20">
                       {user.name?.charAt(0).toUpperCase() || "U"}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate">
+                      <p className="text-sm font-semibold text-stone-900 truncate">
                         {user.name}
                       </p>
-                      <p className="text-xs text-gray-400 truncate">
+                      <p className="text-xs text-stone-400 truncate">
                         {user.email}
                       </p>
                     </div>
@@ -261,8 +263,8 @@ export default function ProfilePage() {
                       key={item.key}
                       onClick={() => setActiveTab(item.key)}
                       className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${activeTab === item.key
-                        ? "text-blue-600 bg-blue-50/80"
-                        : "text-gray-500 hover:text-gray-900 hover:bg-gray-50/80"
+                        ? "text-orange-600 bg-orange-50/80"
+                        : "text-stone-500 hover:text-stone-900 hover:bg-stone-50/80"
                         }`}
                     >
                       {item.icon}
@@ -270,13 +272,13 @@ export default function ProfilePage() {
                     </button>
                   ))}
 
-                  {roleBasedItems.length > 0 && <div className="border-t border-gray-100/80 my-2" />}
+                  {roleBasedItems.length > 0 && <div className="border-t border-stone-100/80 my-2" />}
 
                   {roleBasedItems.map((item) => (
                     <button
                       key={item.key}
                       onClick={item.action}
-                      className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50/80 transition-all duration-300"
+                      className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-stone-500 hover:text-stone-900 hover:bg-stone-50/80 transition-all duration-300"
                     >
                       {item.icon}
                       {item.label}
@@ -285,7 +287,7 @@ export default function ProfilePage() {
                 </nav>
 
                 <div className="p-2 pt-0">
-                  <div className="border-t border-gray-100/80 pt-2">
+                  <div className="border-t border-stone-100/80 pt-2">
                     <button
                       onClick={handleLogout}
                       className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-red-500 hover:text-red-600 hover:bg-red-50/80 transition-all duration-300"
@@ -301,7 +303,7 @@ export default function ProfilePage() {
             </aside>
 
             <main className="flex-1 min-w-0">
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
+              <div className="bg-stone-50 rounded-2xl border border-stone-100 shadow-sm p-6 sm:p-8">
                 {renderContent()}
               </div>
             </main>

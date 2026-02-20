@@ -46,10 +46,10 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
   const navItems = allNavItems.filter(item => item.roles.includes(role));
 
   return (
-    <div className="w-64 bg-white border-r border-slate-200 flex flex-col h-screen fixed left-0 top-0 overflow-y-auto shadow-sm z-50">
-      <div className="p-6 border-b border-slate-100">
-        <h2 className="text-xl font-extrabold text-blue-600 tracking-tight flex items-center gap-2">
-          <span className="bg-blue-600 text-white rounded-lg p-1 text-sm">
+    <div className="w-64 bg-[#fffdfa] border-r border-stone-200 flex flex-col h-screen fixed left-0 top-0 overflow-y-auto shadow-sm z-50">
+      <div className="p-6 border-b border-stone-100">
+        <h2 className="text-xl font-extrabold text-orange-600 tracking-tight flex items-center gap-2">
+          <span className="bg-orange-600 text-white rounded-lg p-1 text-sm">
              {role === 'PRESIDENT' ? 'SA' : role === 'FINANCE MANAGER' ? 'FM' : role === 'EVENT MANAGER' ? 'EM' : 'SM'}
           </span>
           <span className="text-sm truncate max-w-[140px]" title={role}>
@@ -64,8 +64,8 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
             key={item.id}
             onClick={() => setActiveTab(item.id)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeTab === item.id
-                ? 'bg-blue-50 text-blue-600 border border-blue-100 shadow-sm'
-                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                ? 'bg-orange-50 text-orange-600 border border-orange-100 shadow-sm'
+                : 'text-stone-500 hover:bg-stone-50 hover:text-stone-900'
               }`}
           >
             <span className="text-xl">{item.icon}</span>
@@ -77,16 +77,16 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
 
       </nav>
 
-      <div className="p-4 border-t border-slate-100 space-y-2">
+      <div className="p-4 border-t border-stone-100 space-y-2">
         <button 
           onClick={() => router.push('/')}
-          className="w-full flex items-center gap-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 p-3 rounded-xl transition-all font-medium text-sm"
+          className="w-full flex items-center gap-2 text-stone-500 hover:text-orange-600 hover:bg-orange-50 p-3 rounded-xl transition-all font-medium text-sm"
         >
           <span className="text-xl">{<FaHome />}</span> Return Home
         </button>
         <button 
           onClick={handleLogout}
-          className="w-full flex items-center gap-2 text-slate-500 hover:text-red-600 hover:bg-red-50 p-3 rounded-xl transition-all font-medium text-sm"
+          className="w-full flex items-center gap-2 text-stone-500 hover:text-red-600 hover:bg-red-50 p-3 rounded-xl transition-all font-medium text-sm"
         >
           <span className="text-xl">{<FaSignOutAlt />}</span> Log Out
         </button>

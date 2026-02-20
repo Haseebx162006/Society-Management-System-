@@ -55,10 +55,10 @@ export default function ChangePassword() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 font-[var(--font-family-poppins)]">
+        <h2 className="text-2xl font-bold text-stone-900 font-[var(--font-family-poppins)]">
           Change Password
         </h2>
-        <p className="text-sm text-gray-400 mt-1">Update your password to keep your account secure</p>
+        <p className="text-sm text-stone-400 mt-1">Update your password to keep your account secure</p>
       </div>
 
       {toast && (
@@ -80,15 +80,15 @@ export default function ChangePassword() {
         </div>
       )}
 
-      <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 flex items-start gap-4">
-        <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-          <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <div className="bg-orange-50/50 border border-orange-100 rounded-2xl p-5 flex items-start gap-4">
+        <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center shrink-0">
+          <svg className="w-5 h-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
           </svg>
         </div>
         <div>
           <p className="text-sm font-semibold text-blue-900">Security Tip</p>
-          <p className="text-xs text-blue-600 mt-0.5">
+          <p className="text-xs text-orange-600 mt-0.5">
             Use a strong password with at least 8 characters, including uppercase, lowercase, numbers, and symbols.
           </p>
         </div>
@@ -96,7 +96,7 @@ export default function ChangePassword() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">
             Current Password
           </label>
           <div className="relative">
@@ -105,12 +105,12 @@ export default function ChangePassword() {
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               placeholder="Enter current password"
-              className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all duration-300 placeholder:text-gray-300"
+              className="w-full px-4 py-3 pr-12 rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-blue-400 transition-all duration-300 placeholder:text-stone-300"
             />
             <button
               type="button"
               onClick={() => setShowCurrent(!showCurrent)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-3 top-1/2 -transtone-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
             >
               {showCurrent ? <FaRegEyeSlash size={20} /> : <FaRegEye size={20} />}
             </button>
@@ -118,7 +118,7 @@ export default function ChangePassword() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">
             New Password
           </label>
           <div className="relative">
@@ -127,25 +127,25 @@ export default function ChangePassword() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Enter new password"
-              className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all duration-300 placeholder:text-gray-300"
+              className="w-full px-4 py-3 pr-12 rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-blue-400 transition-all duration-300 placeholder:text-stone-300"
             />
             <button
               type="button"
               onClick={() => setShowNew(!showNew)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-3 top-1/2 -transtone-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
             >
               {showNew ? <FaRegEyeSlash size={20} /> : <FaRegEye size={20} />}
             </button>
           </div>
           {newPassword && (
             <div className="mt-3 space-y-1.5">
-              <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-1.5 w-full bg-stone-100 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${strength.color}`}
                   style={{ width: strength.width }}
                 />
               </div>
-              <p className="text-xs font-medium text-gray-400">
+              <p className="text-xs font-medium text-stone-400">
                 Strength: <span className={strength.label === "Strong" ? "text-emerald-600" : strength.label === "Medium" ? "text-amber-600" : "text-red-600"}>{strength.label}</span>
               </p>
             </div>
@@ -153,7 +153,7 @@ export default function ChangePassword() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-semibold text-stone-400 uppercase tracking-wider mb-2">
             Confirm New Password
           </label>
           <div className="relative">
@@ -162,12 +162,12 @@ export default function ChangePassword() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm new password"
-              className="w-full px-4 py-3 pr-12 rounded-xl border border-gray-200 bg-gray-50/50 text-gray-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all duration-300 placeholder:text-gray-300"
+              className="w-full px-4 py-3 pr-12 rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-blue-400 transition-all duration-300 placeholder:text-stone-300"
             />
             <button
               type="button"
               onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-3 top-1/2 -transtone-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
             >
               {showConfirm ? <FaRegEyeSlash size={20} /> : <FaRegEye size={20} />}
             </button>
@@ -179,7 +179,7 @@ export default function ChangePassword() {
 
         <button
           type="submit"
-          className="px-6 py-3 text-sm font-semibold text-white rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
+          className="px-6 py-3 text-sm font-semibold text-white rounded-xl bg-orange-600 hover:bg-blue-700 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-300"
         >
           Update Password
         </button>
