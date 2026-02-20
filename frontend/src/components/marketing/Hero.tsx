@@ -105,10 +105,10 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="relative pt-7 pb-20 lg:pt-17 lg:pb-27 overflow-hidden bg-white">
+    <section className="relative pt-7 pb-20 lg:pt-17 lg:pb-27 overflow-hidden bg-[#fffdfa]">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl mix-blend-multiply animate-blob" />
-        <div className="absolute top-20 right-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl mix-blend-multiply animate-blob animation-delay-2000" />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-orange-500/10 rounded-full blur-3xl mix-blend-multiply animate-blob" />
+        <div className="absolute top-20 right-10 w-72 h-72 bg-yellow-500/10 rounded-full blur-3xl mix-blend-multiply animate-blob animation-delay-2000" />
       </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-8">
@@ -118,11 +118,11 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-sm font-medium mb-8"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-600 text-sm font-medium mb-8"
           >
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
             </span>
             COMSATS Lahore Official Portal
           </motion.div>
@@ -131,10 +131,10 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-gray-900 mb-6 max-w-5xl"
+            className="text-5xl md:text-7xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-stone-900 mb-6 max-w-5xl"
           >
             The Heart of Campus Life at <br className="hidden lg:block" />
-            <span className="text-indigo-600">
+            <span className="text-orange-600">
               COMSATS
             </span>
           </motion.h1>
@@ -143,10 +143,10 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-xl text-gray-600 mb-10 max-w-3xl leading-relaxed mx-auto lg:mx-0"
+            className="text-xl text-stone-600 mb-10 max-w-3xl leading-relaxed mx-auto lg:mx-0"
           >
-            The unified platform for <span className="font-semibold text-gray-900">societies</span> to manage operations, 
-            and for <span className="font-semibold text-gray-900">students</span> to discover, join, and lead communities.
+            The unified platform for <span className="font-semibold text-stone-900">societies</span> to manage operations, 
+            and for <span className="font-semibold text-stone-900">students</span> to discover, join, and lead communities.
           </motion.p>
 
           <motion.div
@@ -157,16 +157,16 @@ export default function Hero() {
           >
             <Link
               href="/societies"
-              className="w-full sm:w-auto px-8 py-3.5 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-200 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-3.5 bg-orange-600 text-white rounded-full font-semibold hover:bg-orange-700 transition-all shadow-lg hover:shadow-orange-200 flex items-center justify-center gap-2"
             >
               <Users className="w-4 h-4" />
               Find a Society
             </Link>
             <Link
               href="/register-society"
-              className="w-full sm:w-auto px-8 py-3.5 bg-white text-gray-700 border border-gray-200 rounded-full font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-3.5 bg-[#fffdfa] text-stone-700 border border-stone-200 rounded-full font-semibold hover:bg-stone-50 hover:border-stone-300 transition-all flex items-center justify-center gap-2"
             >
-              <Shield className="w-4 h-4 text-gray-500" />
+              <Shield className="w-4 h-4 text-stone-500" />
               Manage Society
             </Link>
           </motion.div>

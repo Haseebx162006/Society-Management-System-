@@ -13,9 +13,9 @@ const integrations = [
 
 export default function Integrations() {
   return (
-    <section className="py-24 bg-white border-y border-gray-100">
+    <section className="py-24 bg-[#fffdfa] border-y border-stone-100">
       <div className="max-w-7xl mx-auto px-6 text-center">
-        <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-12">
+        <p className="text-sm font-semibold text-stone-500 uppercase tracking-widest mb-12">
           Seamlessly integrates with your favorite tools
         </p>
         

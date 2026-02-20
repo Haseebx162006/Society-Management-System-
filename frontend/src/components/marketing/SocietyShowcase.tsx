@@ -78,7 +78,7 @@ export default function SocietyShowcase() {
   if (isLoading) {
       return (
           <div className="h-[800px] w-full bg-gray-900 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
+              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-orange-500"></div>
           </div>
       );
   }
@@ -186,7 +186,7 @@ export default function SocietyShowcase() {
                          <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent" />
                          
                          <div className="absolute bottom-0 left-0 p-4 w-full">
-                            <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1 block">
+                            <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wider mb-1 block">
                                 {society.category}
                             </span>
                             <h3 className="text-lg font-bold text-white leading-tight">

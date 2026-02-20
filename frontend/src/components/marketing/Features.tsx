@@ -45,14 +45,14 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="features" className="py-24 bg-gray-50">
+    <section id="features" className="py-24 bg-stone-50">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl mb-4">
+          <h2 className="text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl mb-4">
             Bridging the gap between
-            <span className="text-indigo-600"> students and societies</span>
+            <span className="text-orange-600"> students and societies</span>
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-stone-600">
             A complete ecosystem for campus life. Whether you&apos;re looking to lead or looking to join, COMSOC has you covered.
           </p>
         </div>
@@ -65,15 +65,15 @@ export default function Features() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow group"
+              className="bg-white p-8 rounded-2xl border border-stone-100 shadow-sm hover:shadow-md transition-shadow group"
             >
-              <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600 mb-6 group-hover:scale-110 transition-transform duration-300">
                 <feature.icon className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">
+              <h3 className="text-xl font-semibold text-stone-900 mb-3">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 leading-relaxed">
+              <p className="text-stone-600 leading-relaxed">
                 {feature.description}
               </p>
             </motion.div>

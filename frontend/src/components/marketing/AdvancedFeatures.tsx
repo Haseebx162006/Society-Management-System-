@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 
 const advancedFeatures = [
   {
@@ -38,7 +37,7 @@ const advancedFeatures = [
 
 export default function AdvancedFeatures() {
   return (
-    <section id="advanced-features" className="py-24 bg-white overflow-hidden">
+    <section id="advanced-features" className="py-24 bg-[#fffdfa] overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 space-y-32">
         {advancedFeatures.map((feature, index) => (
           <motion.div
@@ -51,21 +50,21 @@ export default function AdvancedFeatures() {
           >
             {/* Text Content */}
             <div className="flex-1 space-y-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-xs font-semibold uppercase tracking-wide">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-orange-600 text-xs font-semibold uppercase tracking-wide">
                 Feature Spotlight
               </div>
-              <h3 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+              <h3 className="text-3xl md:text-4xl font-bold text-stone-900 leading-tight">
                 {feature.title}
               </h3>
-              <p className="text-lg text-gray-600 leading-relaxed">
+              <p className="text-lg text-stone-600 leading-relaxed">
                 {feature.description}
               </p>
               
               <ul className="space-y-4">
                 {feature.benefits.map((benefit, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-indigo-600 mt-0.5" />
-                    <span className="text-gray-700 font-medium">{benefit}</span>
+                    <CheckCircle2 className="w-5 h-5 text-orange-600 mt-0.5" />
+                    <span className="text-stone-700 font-medium">{benefit}</span>
                   </li>
                 ))}
               </ul>
@@ -73,7 +72,7 @@ export default function AdvancedFeatures() {
               <div className="pt-4">
                 <Link 
                   href="/features" 
-                  className="inline-flex items-center gap-2 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors group"
+                  className="inline-flex items-center gap-2 text-orange-600 font-semibold hover:text-orange-700 transition-colors group"
                 >
                   Learn more about {feature.title.split(' ')[0]}
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -83,22 +82,22 @@ export default function AdvancedFeatures() {
 
             {/* Image/Mockup */}
             <div className="flex-1 w-full">
-              <div className={`relative w-full aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-gray-100 ${feature.placeholderColor}`}>
+              <div className={`relative w-full aspect-4/3 rounded-2xl overflow-hidden shadow-2xl border border-stone-100 ${feature.placeholderColor}`}>
                 {/* Abstract UI representation since we don't have real screenshots yet */}
                 <div className="absolute inset-4 bg-white rounded-xl shadow-inner overflow-hidden flex flex-col">
-                    <div className="h-12 border-b border-gray-100 flex items-center px-4 gap-4 bg-gray-50/50">
-                        <div className="w-24 h-4 bg-gray-200 rounded-md" />
+                    <div className="h-12 border-b border-stone-100 flex items-center px-4 gap-4 bg-stone-50/50">
+                        <div className="w-24 h-4 bg-stone-200 rounded-md" />
                         <div className="flex-1" />
-                        <div className="w-8 h-8 rounded-full bg-gray-200" />
+                        <div className="w-8 h-8 rounded-full bg-stone-200" />
                     </div>
                     <div className="p-6 flex-1 flex flex-col gap-4">
-                        <div className="w-1/3 h-8 bg-gray-100 rounded-md mb-4" />
+                        <div className="w-1/3 h-8 bg-stone-100 rounded-md mb-4" />
                         <div className="flex gap-4 h-32">
-                            <div className="flex-1 bg-gray-50 rounded-lg border border-gray-100" />
-                            <div className="flex-1 bg-gray-50 rounded-lg border border-gray-100" />
-                            <div className="flex-1 bg-gray-50 rounded-lg border border-gray-100" />
+                            <div className="flex-1 bg-stone-50 rounded-lg border border-stone-100" />
+                            <div className="flex-1 bg-stone-50 rounded-lg border border-stone-100" />
+                            <div className="flex-1 bg-stone-50 rounded-lg border border-stone-100" />
                         </div>
-                         <div className="flex-1 bg-gray-50 rounded-lg border border-gray-100 mt-2" />
+                         <div className="flex-1 bg-stone-50 rounded-lg border border-stone-100 mt-2" />
                     </div>
                 </div>
               </div>
