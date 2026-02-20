@@ -2,26 +2,17 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useMemo } from "react";
-import { ArrowRight, Users, Calendar } from "lucide-react";
-import Link from "next/link"
-import { useGetAllSocietiesQuery } from "@/lib/features/societies/societyApiSlice";
+import { ArrowRight, MapPin, Calendar } from "lucide-react";
+import Link from "next/link";
+import { useGetAllPublicEventsQuery, EventData } from "@/lib/features/events/eventApiSlice";
 
-interface SocietyData {
-  _id: string;
-  name: string;
-  description: string;
-  category?: string;
-  status: string;
-  logo?: string;
-  [key: string]: unknown;
-}
 
-interface DisplaySociety {
+interface DisplayEvent {
   id: string;
-  name: string;
-  category: string;
+  title: string;
+  type: string;
   description: string;
-  stats: { members: string; events: string };
+  stats: { venue: string; date: string };
   color: string;
   image: string;
 }
@@ -34,46 +25,40 @@ const GRADIENTS = [
   "from-indigo-600 to-blue-700",
 ];
 
-// const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=2070";
 const DEFAULT_IMAGE = "/logos/building.png";
-
-export default function SocietyShowcase() {
-  const { data: societiesData, isLoading } = useGetAllSocietiesQuery({});
+export default function EventShowcase() {
+  const { data: eventsResponse, isLoading } = useGetAllPublicEventsQuery({});
   
-  const displaySocieties = useMemo<DisplaySociety[]>(() => {
-    if (!societiesData || !Array.isArray(societiesData)) return [];
+  const displayEvents = useMemo<DisplayEvent[]>(() => {
+    if (!eventsResponse || !eventsResponse.events || !Array.isArray(eventsResponse.events)) return [];
     
-    return societiesData
-      .filter((s: SocietyData) => s.status === 'ACTIVE')
-      .map((s: SocietyData, index: number) => {
-        const seed = s._id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const members = (seed % 450) + 50; 
-        const events = (seed % 15) + 5;
-
+    return eventsResponse.events
+      .filter((e: EventData) => e.status === 'PUBLISHED' || e.status === 'ONGOING')
+      .map((e: EventData, index: number) => {
         return {
-            id: s._id,
-            name: s.name,
-            category: s.category || "General",
-            description: s.description || "No description available.",
+            id: e._id,
+            title: e.title,
+            type: e.event_type || "Event",
+            description: e.description || "No description available.",
             stats: { 
-                members: `${members}+`, 
-                events: `${events}/yr` 
+                venue: e.venue || "TBA", 
+                date: new Date(e.event_date).toLocaleDateString() 
             },
             color: GRADIENTS[index % GRADIENTS.length],
-            image: s.logo || DEFAULT_IMAGE,
+            image: e.banner || DEFAULT_IMAGE,
         };
       });
-  }, [societiesData]);
+  }, [eventsResponse]);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const activeSociety = useMemo(() => {
-      if (displaySocieties.length === 0) return null;
+  const activeEvent = useMemo(() => {
+      if (displayEvents.length === 0) return null;
       if (selectedId) {
-          return displaySocieties.find(s => s.id === selectedId) || displaySocieties[0];
+          return displayEvents.find(e => e.id === selectedId) || displayEvents[0];
       }
-      return displaySocieties[0];
-  }, [displaySocieties, selectedId]);
+      return displayEvents[0];
+  }, [displayEvents, selectedId]);
 
   if (isLoading) {
       return (
@@ -83,7 +68,7 @@ export default function SocietyShowcase() {
       );
   }
 
-  if (!activeSociety) {
+  if (!activeEvent) {
       return null;
   }
 
@@ -92,7 +77,7 @@ export default function SocietyShowcase() {
       
       <AnimatePresence mode="popLayout">
         <motion.div
-            key={activeSociety.id}
+            key={activeEvent.id}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -102,9 +87,9 @@ export default function SocietyShowcase() {
              <div className="absolute inset-0 bg-black/60 z-10" /> 
              <div 
                 className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${activeSociety.image})` }}
+                style={{ backgroundImage: `url(${activeEvent.image})` }}
              />
-             <div className={`absolute inset-0 bg-linear-to-r ${activeSociety.color} opacity-20 mix-blend-overlay z-10`} />
+             <div className={`absolute inset-0 bg-linear-to-r ${activeEvent.color} opacity-20 mix-blend-overlay z-10`} />
         </motion.div>
       </AnimatePresence>
 
@@ -113,7 +98,7 @@ export default function SocietyShowcase() {
         <div className="flex-1 text-white space-y-8 w-full">
             <AnimatePresence mode="wait">
                 <motion.div
-                    key={activeSociety.id}
+                    key={activeEvent.id}
                     initial={{ opacity: 0, x: -50 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
@@ -121,30 +106,30 @@ export default function SocietyShowcase() {
                 >
                     <div className="flex items-center space-x-3 mb-4">
                          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-white/10 backdrop-blur-md border border-white/20`}>
-                            {activeSociety.category}
+                            {activeEvent.type}
                          </span>
                     </div>
 
                     <h2 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
-                        {activeSociety.name}
+                        {activeEvent.title}
                     </h2>
                     
                     <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mb-8">
-                        {activeSociety.description}
+                        {activeEvent.description}
                     </p>
 
                     <div className="flex items-center gap-8 mb-10 text-sm font-medium text-gray-300">
                         <div className="flex items-center gap-2">
-                            <Users className="w-5 h-5 text-current" />
-                            <span>{activeSociety.stats.members} Members</span>
+                            <MapPin className="w-5 h-5 text-current" />
+                            <span>{activeEvent.stats.venue}</span>
                         </div>
                          <div className="flex items-center gap-2">
                              <Calendar className="w-5 h-5 text-current" />
-                             <span>{activeSociety.stats.events} Events</span>
+                             <span>{activeEvent.stats.date}</span>
                          </div>
                     </div>
 
-                    <Link href={`/societies/${activeSociety.id}`} className="group w-fit flex items-center gap-3 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-100 transition-colors">
+                    <Link href={`/events/${activeEvent.id}`} className="group w-fit flex items-center gap-3 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-100 transition-colors">
                         <span>Learn More</span>
                         <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                     </Link>
@@ -167,13 +152,13 @@ export default function SocietyShowcase() {
                 [&::-webkit-scrollbar-thumb]:rounded-full 
                 hover:[&::-webkit-scrollbar-thumb]:bg-white/40 
                 transition-colors w-full md:w-[600px] pointer-events-auto">
-                {displaySocieties.map((society) => (
+                {displayEvents.map((event) => (
                     <motion.div 
-                        key={society.id}
-                        onClick={() => setSelectedId(society.id)}
+                        key={event.id}
+                        onClick={() => setSelectedId(event.id)}
                         className={`
                             relative shrink-0 w-48 h-72 rounded-xl overflow-hidden cursor-pointer transition-all duration-500 snap-center group
-                            ${activeSociety.id === society.id 
+                            ${activeEvent.id === event.id 
                                 ? "ring-2 ring-white shadow-2xl scale-105 z-10" 
                                 : "opacity-60 hover:opacity-100 hover:scale-105"}
                         `}
@@ -181,16 +166,16 @@ export default function SocietyShowcase() {
                     >
                          <div 
                             className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
-                            style={{ backgroundImage: `url(${society.image})` }}
+                            style={{ backgroundImage: `url(${event.image})` }}
                          />
                          <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent" />
                          
                          <div className="absolute bottom-0 left-0 p-4 w-full">
                             <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1 block">
-                                {society.category}
+                                {event.type}
                             </span>
                             <h3 className="text-lg font-bold text-white leading-tight">
-                                {society.name}
+                                {event.title}
                             </h3>
                          </div>
                     </motion.div>

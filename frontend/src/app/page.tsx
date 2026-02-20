@@ -1,8 +1,8 @@
-
 import Hero from "@/components/marketing/Hero";
 import Integrations from "@/components/marketing/Integrations";
 import Features from "@/components/marketing/Features";
 import SocietyShowcase from "@/components/marketing/SocietyShowcase";
+import EventShowcase from "@/components/marketing/EventShowcase";
 import AdvancedFeatures from "@/components/marketing/AdvancedFeatures";
 import Testimonials from "@/components/marketing/Testimonials";
 import CTA from "@/components/marketing/CTA";
@@ -18,6 +18,7 @@ export default function Home() {
       <Features />
       <SocietyShowcase />
       <AdvancedFeatures />
+      <EventShowcase />
       <Testimonials />
       <CTA />
       <Footer />
