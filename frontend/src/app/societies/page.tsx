@@ -2,13 +2,12 @@
 
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search, Filter, Loader2, X, Menu } from "lucide-react"; // Added icons for mobile toggle
+import { Search, Filter, Loader2, X, Menu } from "lucide-react";
 import Footer from "@/components/marketing/Footer";
 import SocietyCard from "@/components/society/SocietyCard";
 import { useGetAllSocietiesQuery } from "@/lib/features/societies/societyApiSlice";
 import Header from "@/components/Header";
 
-// Types
 interface SocietyData {
   _id: string;
   name: string;
@@ -33,16 +32,14 @@ export default function SocietiesPage() {
   const { data: societiesData, isLoading } = useGetAllSocietiesQuery({});
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false); // Mobile state
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // Transform and Filter Data
   const filteredSocieties = useMemo(() => {
     if (!societiesData || !Array.isArray(societiesData)) return [];
 
     return societiesData
       .filter((s: SocietyData) => s.status === "ACTIVE")
       .map((s: SocietyData, index: number) => {
-        // Deterministic mock data generation for stats only
         const seed = s._id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
         const members = (seed % 450) + 50;
         const events = (seed % 15) + 5;
@@ -57,7 +54,9 @@ export default function SocietiesPage() {
             events: `${events}/yr`
           },
           image: s.logo,
-          color: GRADIENTS[index % GRADIENTS.length]
+          color: GRADIENTS[index % GRADIENTS.length],
+          registration_start_date: s.registration_start_date as string | undefined,
+          registration_end_date: s.registration_end_date as string | undefined,
         };
       })
       .filter((s) => {
@@ -73,7 +72,7 @@ export default function SocietiesPage() {
     <main className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
 
-      {/* Small Header */}
+
       <div className="bg-white pt-24 pb-6 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6">
             <h1 className="text-3xl font-bold text-gray-900">
@@ -87,9 +86,9 @@ export default function SocietiesPage() {
 
       <div className="flex-1 max-w-7xl mx-auto w-full px-6 py-8 flex items-start gap-8">
         
-        {/* Sidebar Filters (Desktop) */}
+
         <aside className="hidden lg:block w-64 sticky top-28 space-y-8">
-            {/* Search */}
+
             <div>
                 <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Search</h3>
                 <div className="relative group">
@@ -104,7 +103,7 @@ export default function SocietiesPage() {
                 </div>
             </div>
 
-            {/* Categories */}
+
             <div>
                 <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Categories</h3>
                 <div className="space-y-1">
@@ -129,7 +128,7 @@ export default function SocietiesPage() {
             </div>
         </aside>
 
-        {/* Mobile Filter Toggle */}
+
         <div className="lg:hidden w-full mb-6">
             <button 
                 onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
@@ -183,7 +182,7 @@ export default function SocietiesPage() {
             )}
         </div>
 
-        {/* Results Grid */}
+
         <div className="flex-1">
             {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-gray-100 min-h-[400px]">

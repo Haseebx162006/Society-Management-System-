@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
     Users,
@@ -36,14 +36,12 @@ export default function SocietyDetailsPage() {
     const society = societyData?.society;
     const membersData = societyData?.members || [];
 
-    // We only fetch join forms if user exists (president-level auth).
-    // For the Register Now button, we use a lazy approach: try to fetch and handle gracefully.
     const [registerLoading, setRegisterLoading] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
     const currentUserMember = user ? membersData.find((m: any) => {
         const memberUserId = m.user_id?._id || m.user_id;
-        const currentUserId = user.id || user._id; // Handle both id formats
+        const currentUserId = user.id || user._id;
         return memberUserId === currentUserId;
     }) : null;
     
@@ -58,16 +56,11 @@ export default function SocietyDetailsPage() {
         setRegisterLoading(true);
 
         try {
-            // Fetch active forms for this society by calling the API directly
-            const response = await fetch(
+            await fetch(
                 `${process.env.NEXT_PUBLIC_API_URL}/join-forms/${id}`,
                 { headers: { Authorization: `Bearer ${(() => { try { const s = localStorage.getItem("authState"); return s ? JSON.parse(s).token || "" : ""; } catch { return ""; } })()}`} }
             );
 
-            // We need a different approach: societies can have forms listed publicly.
-            // The backend has a route GET /society/:id/join-forms for president.
-            // For users, we need to find the active form. Let's use a simpler approach:
-            // navigate to a dedicated page that lists available forms for the society.
             router.push(`/societies/${id}/register`);
         } catch {
             toast.error("Could not load registration forms.");
@@ -95,7 +88,6 @@ export default function SocietyDetailsPage() {
         );
     }
 
-    // Deterministic mock data generation (consistent with other pages)
     const seed = society._id
         .split("")
         .reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
@@ -107,7 +99,7 @@ export default function SocietyDetailsPage() {
         <main className="min-h-screen bg-white font-sans">
             <Header />
 
-            {/* Hero Section */}
+
             <section className="relative h-[60vh] min-h-[500px] flex items-end pb-20 overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <div
@@ -118,7 +110,7 @@ export default function SocietyDetailsPage() {
                                 })`,
                         }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-gray-900 via-gray-900/60 to-transparent" />
                 </div>
 
                 <div className="container mx-auto px-6 relative z-10 w-full">
@@ -218,7 +210,7 @@ export default function SocietyDetailsPage() {
                 </div>
             </section>
 
-            {/* Stats Bar */}
+
             <section className="border-b border-gray-100 sticky top-20 z-40 shadow-sm backdrop-blur-md bg-white/90">
                 <div className="container mx-auto px-6 py-6">
                     <div className="flex flex-wrap items-center justify-between gap-8">
@@ -262,10 +254,10 @@ export default function SocietyDetailsPage() {
                 </div>
             </section>
 
-            {/* Main Content Grid */}
+
             <section className="container mx-auto px-6 py-20">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                    {/* Left Column: About and Content */}
+
                     <div className="lg:col-span-2 space-y-12">
                         <div className="prose prose-lg prose-indigo max-w-none">
                             <h2 className="text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
@@ -276,7 +268,7 @@ export default function SocietyDetailsPage() {
                                 {society.description}
                             </p>
 
-                            {/* Dynamic Content Sections */}
+
                             {society.content_sections?.length > 0 &&
                                 society.content_sections.map((section: any, index: number) => (
                                     <div key={index} className="mt-8">
@@ -289,7 +281,7 @@ export default function SocietyDetailsPage() {
                                     </div>
                                 ))}
 
-                            {/* Custom Fields as Info */}
+
                             {society.custom_fields?.length > 0 && (
                                 <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {society.custom_fields.map((field: any, index: number) => (
@@ -313,7 +305,7 @@ export default function SocietyDetailsPage() {
                             )}
                         </div>
 
-                        {/* Highlights/Benefits */}
+
                         <div className="bg-gray-50 rounded-2xl p-8 border border-gray-100">
                             <h3 className="text-xl font-bold text-gray-900 mb-6">
                                 Why Join Us?
@@ -338,10 +330,10 @@ export default function SocietyDetailsPage() {
                             </div>
                         </div>
 
-                        {/* Events Section */}
+
                         <SocietyEventsSection societyId={society._id} isMember={isMember} />
 
-                        {/* FAQs Section */}
+
                         {society.faqs && society.faqs.length > 0 && (
                             <div>
                                 <h3 className="text-2xl font-bold text-gray-900 mb-6">
@@ -364,15 +356,28 @@ export default function SocietyDetailsPage() {
                         )}
                     </div>
 
-                    {/* Right Column: Sidebar */}
+
                     <div className="space-y-8">
-                        {/* Register CTA Card */}
+
                         {!isMember && (
                             <div className="bg-indigo-600 rounded-2xl p-6 text-white shadow-xl">
                                 <h3 className="text-lg font-bold mb-2">Join This Society</h3>
                                 <p className="text-indigo-100 text-sm mb-6">
                                     Become a member and unlock access to events, teams, and a vibrant community.
                                 </p>
+                                
+                                {society.registration_start_date && society.registration_end_date && (
+                                    <div className="mb-6 text-sm text-indigo-100 bg-indigo-700/50 p-4 rounded-xl border border-indigo-500/30">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-indigo-200">Registration Opens:</span>
+                                            <span className="font-bold text-white bg-indigo-500/50 px-2 py-0.5 rounded-md text-xs">{new Date(society.registration_start_date).toLocaleString()}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-indigo-200">Registration Closes:</span>
+                                            <span className="font-bold text-white bg-indigo-500/50 px-2 py-0.5 rounded-md text-xs">{new Date(society.registration_end_date).toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                )}
                                 
                                 {(() => {
                                     const now = new Date();
@@ -446,7 +451,7 @@ export default function SocietyDetailsPage() {
                             </div>
                         )}
 
-                        {/* Teams Widget */}
+
                         <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                             <h3 className="text-lg font-bold text-gray-900 mb-6">Our Teams</h3>
                             <div className="space-y-4">
@@ -464,7 +469,7 @@ export default function SocietyDetailsPage() {
                                         className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors group cursor-pointer"
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-600 font-bold">
+                                            <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-600 font-bold">
                                                 {group.name[0]}
                                             </div>
                                             <div>
@@ -478,7 +483,7 @@ export default function SocietyDetailsPage() {
                             </div>
                         </div>
 
-                        {/* Contact Widget */}
+
                         <div className="bg-gray-900 rounded-2xl p-6 text-white shadow-xl">
                             <h3 className="text-lg font-bold mb-6">Contact Info</h3>
                             <ul className="space-y-4">
