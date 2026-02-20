@@ -21,11 +21,13 @@ import {
     FaShareAlt
 } from 'react-icons/fa';
 import Image from 'next/image';
-import { Loader2, DoorOpen, DoorClosed } from 'lucide-react';
+import { Loader2, DoorOpen, DoorClosed, Link as LinkIcon, QrCode, X, Download, Maximize2 } from 'lucide-react';
 import { useAppSelector } from "@/lib/hooks";
 import { selectCurrentUser } from "@/lib/features/auth/authSlice";
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import Footer from '@/components/marketing/Footer';
+import Loading from '@/app/loading';
 
 export default function EventDetailsPage() {
     const { id } = useParams();
@@ -42,12 +44,16 @@ export default function EventDetailsPage() {
     const [submitRegistration, { isLoading: isSubmitting }] = useSubmitEventRegistrationMutation();
 
     const [showForm, setShowForm] = useState(false);
+    const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+    const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
     const [formValues, setFormValues] = useState<Record<string, string | number | boolean>>({});
     const [fileValues, setFileValues] = useState<Record<string, File>>({});
 
     const registrationForm = event?.registration_form && typeof event.registration_form === 'object'
         ? event.registration_form
         : null;
+
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
     const handleFieldChange = (label: string, value: string | number | boolean) => {
         setFormValues(prev => ({ ...prev, [label]: value }));
@@ -58,8 +64,30 @@ export default function EventDetailsPage() {
     };
 
     const handleShare = () => {
-        navigator.clipboard.writeText(window.location.href);
-        toast.success('Event link copied to clipboard!');
+        if (typeof window !== 'undefined') {
+            navigator.clipboard.writeText(window.location.href);
+            toast.success('Event link copied to clipboard!');
+        }
+    };
+
+    const handleDownloadQr = async () => {
+        try {
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(currentUrl)}`;
+            const response = await fetch(qrUrl);
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            
+            const a = document.createElement("a");
+            a.href = blobUrl;
+            a.download = `${event?.title?.replace(/\s+/g, '-').toLowerCase() || 'event'}-qr-code.png`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(blobUrl);
+            toast.success("QR Code downloaded!");
+        } catch (error) {
+            toast.error("Failed to download QR Code");
+        }
     };
 
     const handleRegister = async () => {
@@ -129,7 +157,7 @@ export default function EventDetailsPage() {
 
     // Helper to render form fields
     const renderFormField = (field: EventFormField) => {
-        const baseClass = "w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-gray-900 transition-all";
+        const baseClass = "w-full px-4 py-3 border border-stone-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-stone-900 transition-all bg-white";
 
         const getValue = () => {
             const val = formValues[field.label];
@@ -194,12 +222,12 @@ export default function EventDetailsPage() {
                 );
             case 'CHECKBOX':
                 return (
-                    <label className="flex items-center gap-3 text-gray-700 cursor-pointer p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                    <label className="flex items-center gap-3 text-stone-700 cursor-pointer p-3 border border-stone-100 rounded-xl hover:bg-stone-50 transition-colors bg-white">
                         <input
                             type="checkbox"
                             checked={!!formValues[field.label]}
                             onChange={(e) => handleFieldChange(field.label, e.target.checked)}
-                            className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                            className="w-5 h-5 rounded text-orange-600 focus:ring-orange-500 border-stone-300"
                         />
                         <span className="font-medium">{field.placeholder || field.label}</span>
                     </label>
@@ -213,7 +241,7 @@ export default function EventDetailsPage() {
                                 const file = e.target.files?.[0];
                                 if (file) handleFileChange(field.label, file);
                             }}
-                            className="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-indigo-50 file:text-indigo-600 file:font-bold file:cursor-pointer hover:file:bg-indigo-100 transition-all"
+                            className="w-full text-sm text-stone-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:bg-orange-50 file:text-orange-600 file:font-bold file:cursor-pointer hover:file:bg-orange-100 transition-all"
                         />
                         {fileValues[field.label] && (
                             <p className="text-xs text-green-600 mt-2 font-medium flex items-center gap-1">
@@ -227,27 +255,18 @@ export default function EventDetailsPage() {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-                <Header />
-                <div className="grow flex items-center justify-center">
-                    <Loader2 className="w-12 h-12 animate-spin text-indigo-600" />
-                </div>
-            </div>
-        );
-    }
+    if (isLoading) return <Loading />;
 
     if (error || !event) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+            <div className="min-h-screen bg-stone-50 flex flex-col font-sans">
                 <Header />
                 <div className="grow flex flex-col items-center justify-center text-center px-4">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Event Not Found</h2>
-                    <p className="text-gray-500 mb-6">The event you are looking for does not exist or has been removed.</p>
+                    <h2 className="text-2xl font-bold text-stone-900 mb-2">Event Not Found</h2>
+                    <p className="text-stone-500 mb-6">The event you are looking for does not exist or has been removed.</p>
                     <button 
                         onClick={() => router.push('/events')}
-                        className="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition"
+                        className="px-6 py-2 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition"
                     >
                         Back to Events
                     </button>
@@ -274,114 +293,151 @@ export default function EventDetailsPage() {
     const isPrivateAndNotMember = !event.is_public && !isMember;
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+        <div className="min-h-screen bg-stone-50 font-sans">
             <Header />
 
-            {/* Hero Section / Banner */}
-            <div className="relative h-[400px] w-full mt-20">
-                {event.banner ? (
-                    <Image
-                        src={event.banner}
-                        alt={event.title}
-                        fill
-                        className="object-cover"
-                        priority
-                    />
-                ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-purple-800 flex items-center justify-center">
-                        <span className="text-6xl">📅</span>
-                    </div>
-                )}
-                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
-                
-                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12 text-white">
-                    <div className="max-w-[1400px] mx-auto relative z-10">
-                        <button 
-                            onClick={() => router.back()}
-                            className="mb-6 flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm font-medium bg-black/20 px-4 py-2 rounded-full backdrop-blur-md"
-                        >
-                            <FaArrowLeft /> Back
-                        </button>
-                        
-                        <div className="flex flex-wrap gap-3 mb-4">
-                            <span className="px-3 py-1 bg-white/20 backdrop-blur-md border border-white/10 rounded-full text-sm font-semibold">
-                                {event.event_type}
-                            </span>
-                            {event.is_public ? (
-                                <span className="px-3 py-1 bg-green-500/20 backdrop-blur-md border border-green-500/30 text-green-300 rounded-full text-sm font-semibold">
-                                    Public
-                                </span>
-                            ) : (
-                                <span className="px-3 py-1 bg-amber-500/20 backdrop-blur-md border border-amber-500/30 text-amber-300 rounded-full text-sm font-semibold">
-                                    Members Only
-                                </span>
-                            )}
-                        </div>
-
-                        <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight drop-shadow-lg">
-                            {event.title}
-                        </h1>
-
-                        <div className="flex flex-wrap gap-6 text-white/90 font-medium">
-                            <div className="flex items-center gap-2">
-                                <FaCalendarAlt className="text-indigo-300" />
-                                <span>
-                                    {new Date(event.event_date).toLocaleDateString('en-US', { 
-                                        weekday: 'long', 
-                                        month: 'long', 
-                                        day: 'numeric', 
-                                        year: 'numeric' 
-                                    })}
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <FaClock className="text-teal-300" />
-                                <span>
-                                    {new Date(event.event_date).toLocaleTimeString('en-US', { 
-                                        hour: '2-digit', 
-                                        minute: '2-digit' 
-                                    })}
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <FaMapMarkerAlt className="text-red-300" />
-                                <span>{event.venue}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+             {/* Cover Area */}
+             <div className="relative h-64 md:h-80 w-full overflow-hidden bg-stone-900 flex items-center justify-center -mb-8">
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-600 via-stone-800 to-stone-900 opacity-90 z-10"></div>
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay opacity-20 z-10"></div>
             </div>
 
-            <main className="grow py-12 px-6">
-                <div className="max-w-[1400px] mx-auto grid md:grid-cols-3 gap-8">
-                    {/* Left Column: Content */}
-                    <div className="md:col-span-2 space-y-8">
+            {/* Main Content Container */}
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-24 md:-mt-32 relative z-20 pb-24">
+                
+                {/* Event Header Card */}
+                <div className="bg-white rounded-3xl p-6 md:p-10 shadow-xl shadow-stone-200/50 border border-stone-100 mb-10 flex flex-col md:flex-row gap-8 items-center md:items-start">
+                    
+                    {/* Banner Thumbnail (overlap) */}
+                    {event.banner && (
+                        <div 
+                            onClick={() => setIsBannerModalOpen(true)}
+                            className="w-full md:w-64 aspect-video md:aspect-auto md:h-40 rounded-2xl bg-stone-100 shadow-lg border-4 border-white overflow-hidden shrink-0 cursor-pointer -mt-16 md:-mt-20 z-30 group relative"
+                        >
+                            <img
+                                src={event.banner}
+                                alt={event.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                <Maximize2 className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md" />
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex-1 w-full text-center md:text-left">
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-6">
+                            <div className="flex-1">
+                            <button 
+                                onClick={() => router.back()}
+                                className="mb-6 flex items-center gap-2 text-stone-500 hover:text-orange-600 transition-colors text-sm font-medium w-fit border border-stone-200 hover:border-orange-200 bg-stone-50 px-4 py-1.5 rounded-full"
+                            >
+                                <FaArrowLeft /> Back to Directory
+                            </button>
+                            
+                            <div className="flex flex-wrap gap-3 mb-4">
+                                <span className="px-3 py-1 bg-stone-100 text-stone-600 rounded-full text-xs font-bold uppercase tracking-wider">
+                                    {event.event_type}
+                                </span>
+                                {event.is_public ? (
+                                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase tracking-wider border border-green-200">
+                                        Public Event
+                                    </span>
+                                ) : (
+                                    <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold uppercase tracking-wider border border-amber-200">
+                                        Members Only
+                                    </span>
+                                )}
+                            </div>
+
+                            <h1 className="font-display font-bold text-3xl md:text-5xl text-stone-900 mb-4 leading-tight">
+                                {event.title}
+                            </h1>
+
+                            <div className="flex flex-wrap gap-4 text-stone-600 font-medium">
+                                <div className="flex items-center gap-2 bg-stone-50 px-4 py-2 rounded-xl text-sm border border-stone-100">
+                                    <FaCalendarAlt className="text-orange-500" />
+                                    <span>
+                                        {new Date(event.event_date).toLocaleDateString('en-US', { 
+                                            weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' 
+                                        })}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2 bg-stone-50 px-4 py-2 rounded-xl text-sm border border-stone-100">
+                                    <FaClock className="text-stone-500" />
+                                    <span>
+                                        {new Date(event.event_date).toLocaleTimeString('en-US', { 
+                                            hour: '2-digit', minute: '2-digit' 
+                                        })}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2 bg-stone-50 px-4 py-2 rounded-xl text-sm border border-stone-100">
+                                    <FaMapMarkerAlt className="text-orange-500" />
+                                    <span>{event.venue}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Share & Actions */}
+                        <div className="flex items-center gap-2 shadow-sm border border-stone-100 rounded-2xl p-1 bg-stone-50 h-fit shrink-0 mt-2 md:mt-0">
+                             <button
+                                onClick={handleShare}
+                                className="p-3 rounded-xl bg-white hover:bg-stone-50 text-stone-600 transition-colors"
+                                title="Copy Link"
+                            >
+                                <LinkIcon className="w-5 h-5" />
+                            </button>
+                            <button
+                                onClick={() => setIsQrModalOpen(true)}
+                                className="p-3 rounded-xl bg-white hover:bg-stone-50 text-stone-600 transition-colors"
+                                title="Show QR Code"
+                            >
+                                <QrCode className="w-5 h-5" />
+                            </button>
+                        </div>
+                </div>
+            </div>
+        </div>
+
+                {/* 2-Column Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+                    
+                    {/* Left Column - Main Content */}
+                    <div className="lg:col-span-8 space-y-10">
                         {/* Description */}
-                        <section className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-4">About the Event</h2>
-                            <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">
+                        <section className="bg-white rounded-3xl p-8 shadow-sm border border-stone-200">
+                            <h3 className="font-display text-2xl font-bold text-stone-900 mb-6 flex items-center gap-2">
+                                <span className="bg-orange-500 w-2 h-6 rounded-full inline-block"></span>
+                                About the Event
+                            </h3>
+                            <p className="font-body text-stone-600 text-lg leading-relaxed whitespace-pre-wrap">
                                 {event.description}
                             </p>
                         </section>
 
                         {/* Content Sections */}
-                        {event.content_sections && event.content_sections.map((section, idx) => (
-                            <section key={idx} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                                <h3 className="text-xl font-bold text-gray-900 mb-4">{section.title}</h3>
-                                <div className="text-gray-600 leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: section.content }} />
+                        {event.content_sections && event.content_sections.map((section: any, idx: number) => (
+                             <section key={idx} className="bg-white rounded-3xl p-8 shadow-sm border border-stone-200">
+                                <h3 className="font-display text-2xl font-bold text-stone-900 mb-6 flex items-center gap-2">
+                                    <span className="bg-orange-500 w-2 h-6 rounded-full inline-block"></span>
+                                    {section.title}
+                                </h3>
+                                <div className="prose prose-orange max-w-none text-stone-600 leading-relaxed font-body text-lg whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: section.content }} />
                             </section>
                         ))}
                     </div>
 
-                    {/* Right Column: Sidebar */}
-                    <div className="space-y-6">
-                        {/* Registration Card */}
-                        <div className="bg-white p-6 rounded-2xl shadow-lg border border-indigo-100 sticky top-28 transition-all">
-                            <div className="mb-6 pb-6 border-b border-gray-100">
-                                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Organized by</p>
-                                <Link href={`/societies/${(event.society_id as any)?._id}`} className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-xl transition-colors group">
+                    {/* Right Column - Sidebar */}
+                    <div className="lg:col-span-4 space-y-6">
+                        
+                        <div className="sticky top-24 space-y-6">
+                            
+                            {/* Organizer Card */}
+                            <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200">
+                                <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4">Organized By</p>
+                                <Link href={`/societies/${(event.society_id as any)?._id}`} className="flex items-center gap-4 hover:bg-stone-50 p-3 rounded-2xl transition-colors group border border-transparent hover:border-stone-100 -mx-3">
                                     {(event.society_id as any)?.logo ? (
-                                        <div className="relative w-12 h-12 rounded-full overflow-hidden border border-gray-200 shadow-sm group-hover:border-indigo-200 transition-colors">
+                                        <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-stone-200 shadow-sm group-hover:border-orange-200 transition-colors shrink-0">
                                             <Image 
                                                 src={(event.society_id as any).logo} 
                                                 alt={(event.society_id as any).name}
@@ -390,173 +446,247 @@ export default function EventDetailsPage() {
                                             />
                                         </div>
                                     ) : (
-                                        <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg group-hover:bg-indigo-200 transition-colors">
+                                        <div className="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xl group-hover:bg-orange-200 transition-colors shrink-0">
                                             {(event.society_id as any)?.name?.charAt(0) || 'S'}
                                         </div>
                                     )}
                                      <div>
-                                        <h4 className="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                                        <h4 className="font-bold text-stone-900 group-hover:text-orange-600 transition-colors line-clamp-2">
                                             {typeof event.society_id === 'object' ? (event.society_id as any).name : 'Society'}
                                         </h4>
-                                        <p className="text-xs text-gray-500 flex items-center gap-1 group-hover:text-indigo-500 transition-colors">
-                                            View Society Profile <FaArrowRight className="text-[10px]" />
+                                        <p className="text-xs text-stone-500 flex items-center gap-1 mt-1 font-medium hover:text-orange-500">
+                                            View Society <FaArrowRight className="text-[10px]" />
                                         </p>
                                      </div>
                                 </Link>
                             </div>
 
-                            {/* Registration Status Badges & Times */}
-                            <div className="mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-3">
-                                <div className="flex items-center gap-2">
+                            {/* Registration CTA Card */}
+                            <div className="bg-stone-900 rounded-3xl p-6 shadow-xl border border-stone-800 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
+                                
+                                <h3 className="font-display text-lg font-bold text-white mb-5 relative z-10 flex items-center justify-between">
+                                    Registration
                                     {isOpen ? (
-                                        <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-600 text-xs font-bold rounded-lg uppercase tracking-wide">
-                                            <DoorOpen className="w-3.5 h-3.5" />
-                                            Registration Open
+                                        <span className="flex items-center gap-1.5 px-3 py-1 bg-green-500/20 border border-green-500/30 text-green-400 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                                            <DoorOpen className="w-3 h-3" /> Open
                                         </span>
                                     ) : (
-                                        <span className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 text-rose-600 text-xs font-bold rounded-lg uppercase tracking-wide">
-                                            <DoorClosed className="w-3.5 h-3.5" />
-                                            Registration Closed
+                                        <span className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/20 border border-rose-500/30 text-rose-400 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                                            <DoorClosed className="w-3 h-3" /> Closed
                                         </span>
                                     )}
-                                </div>
-                                <div className="space-y-1.5 text-sm">
+                                </h3>
+
+                                <div className="space-y-4 mb-6 relative z-10 text-sm border-b border-stone-800 pb-6">
                                     {startDate && (
                                         <div className="flex items-center justify-between">
-                                            <span className="text-gray-500">Opens:</span>
-                                            <span className="font-medium text-gray-900">
-                                                {startDate.toLocaleDateString()} {startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            <span className="text-stone-400">Opens</span>
+                                            <span className="font-medium text-stone-200">
+                                                {startDate.toLocaleDateString()}
                                             </span>
                                         </div>
                                     )}
                                     {endDate && (
                                         <div className="flex items-center justify-between">
-                                            <span className="text-gray-500">Closes:</span>
-                                            <span className="font-medium text-gray-900">
-                                                {endDate.toLocaleDateString()} {endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            <span className="text-stone-400">Closes</span>
+                                            <span className="font-medium text-stone-200">
+                                                {endDate.toLocaleDateString()}
                                             </span>
                                         </div>
                                     )}
                                 </div>
-                            </div>
 
-                            {canRegister ? (
-                                <>
-                                    {!showForm ? (
-                                            <button
-                                                onClick={() => {
-                                                    if (!user) {
-                                                        router.push(`/login?returnUrl=${encodeURIComponent(`/events/${id}`)}`);
-                                                        return;
-                                                    }
-                                                    if (isPrivateAndNotMember) {
-                                                        toast.error("This event is for society members only.");
-                                                        return;
-                                                    }
-                                                    if (registrationForm) {
-                                                        setShowForm(true);
-                                                    } else {
-                                                        handleRegister();
-                                                    }
-                                                }}
-                                                disabled={isPrivateAndNotMember && !!user}
-                                                className={`w-full py-4 text-white font-bold rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-2 group ${
-                                                    isPrivateAndNotMember && user
-                                                        ? 'bg-gray-400 cursor-not-allowed opacity-70' 
-                                                        : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-xl hover:-translate-y-0.5'
-                                                }`}
-                                            >
-                                                {isPrivateAndNotMember && user ? (
-                                                    <>
-                                                        <FaUsers /> Members Only
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        Register Now 
-                                                        <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
-                                                    </>
+                                <div className="relative z-10">
+                                    {canRegister ? (
+                                        <>
+                                            <AnimatePresence>
+                                                {showForm && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, height: 0 }}
+                                                        animate={{ opacity: 1, height: 'auto' }}
+                                                        exit={{ opacity: 0, height: 0 }}
+                                                        className="space-y-4 overflow-hidden mb-6 bg-stone-50 rounded-2xl p-4 border border-stone-200 text-stone-900"
+                                                    >
+                                                        <h3 className="font-bold mb-2">Registration Form</h3>
+                                                        {registrationForm && registrationForm.fields
+                                                            .sort((a: EventFormField, b: EventFormField) => a.order - b.order)
+                                                            .map((field: EventFormField, idx: number) => (
+                                                                <div key={idx}>
+                                                                    <label className="block text-xs font-bold text-stone-600 mb-1.5 uppercase tracking-wide">
+                                                                        {field.label}
+                                                                        {field.is_required && <span className="text-red-500 ml-1">*</span>}
+                                                                    </label>
+                                                                    {renderFormField(field)}
+                                                                </div>
+                                                            ))}
+                                                    </motion.div>
                                                 )}
-                                            </button>
-                                    ) : (
-                                        <AnimatePresence>
-                                            <motion.div
-                                                initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: 'auto' }}
-                                                exit={{ opacity: 0, height: 0 }}
-                                                className="space-y-4 overflow-hidden"
-                                            >
-                                                <h3 className="text-lg font-bold text-gray-900 mb-2">Registration Form</h3>
-                                                {registrationForm && registrationForm.fields
-                                                    .sort((a: EventFormField, b: EventFormField) => a.order - b.order)
-                                                    .map((field: EventFormField, idx: number) => (
-                                                        <div key={idx}>
-                                                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                                                {field.label}
-                                                                {field.is_required && <span className="text-red-500 ml-1">*</span>}
-                                                            </label>
-                                                            {renderFormField(field)}
-                                                        </div>
-                                                    ))}
-
-                                                <div className="flex gap-3 pt-4">
+                                            </AnimatePresence>
+                                            
+                                            {showForm ? (
+                                                <div className="flex gap-3">
                                                     <button
                                                         onClick={handleRegister}
                                                         disabled={isSubmitting}
-                                                        className="flex-1 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 transition-colors font-bold shadow-md"
+                                                        className="flex-1 py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 disabled:opacity-50 transition-colors font-bold shadow-md"
                                                     >
-                                                        {isSubmitting ? 'Submitting...' : 'Submit'}
+                                                        {isSubmitting ? 'Submitting...' : 'Submit Form'}
                                                     </button>
                                                     <button
                                                         onClick={() => setShowForm(false)}
-                                                        className="px-4 py-3 bg-white text-gray-600 rounded-xl hover:bg-gray-50 transition-colors font-medium border border-gray-200"
+                                                        className="px-4 py-3 bg-stone-800 text-white rounded-xl hover:bg-stone-700 transition-colors font-medium border border-stone-700"
                                                     >
                                                         Cancel
                                                     </button>
                                                 </div>
-                                            </motion.div>
-                                        </AnimatePresence>
+                                            ) : (
+                                                    <button
+                                                        onClick={() => {
+                                                            if (!user) {
+                                                                router.push(`/login?returnUrl=${encodeURIComponent(`/events/${id}`)}`);
+                                                                return;
+                                                            }
+                                                            if (isPrivateAndNotMember) {
+                                                                toast.error("This event is for society members only.");
+                                                                return;
+                                                            }
+                                                            if (registrationForm) {
+                                                                setShowForm(true);
+                                                            } else {
+                                                                handleRegister();
+                                                            }
+                                                        }}
+                                                        disabled={isPrivateAndNotMember && !!user}
+                                                        className={`w-full py-4 text-white font-bold rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-2 group ${
+                                                            isPrivateAndNotMember && user
+                                                                ? 'bg-stone-800 cursor-not-allowed text-stone-500 border border-stone-700' 
+                                                                : 'bg-orange-600 hover:bg-orange-700 shadow-orange-600/20 shadow-xl'
+                                                        }`}
+                                                    >
+                                                        {isPrivateAndNotMember && user ? (
+                                                            <>
+                                                                <FaUsers /> Members Only
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                Register Now
+                                                                <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                                                            </>
+                                                        )}
+                                                    </button>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <button disabled className="w-full py-4 bg-stone-800 text-stone-500 font-bold rounded-xl cursor-not-allowed border border-stone-700 text-sm">
+                                            Registration is Currently Closed
+                                        </button>
                                     )}
-                                </>
-                            ) : (
-                                <button disabled className="w-full py-4 bg-gray-100 text-gray-400 font-bold rounded-xl cursor-not-allowed border border-gray-200">
-                                    Registration Closed
-                                </button>
-                            )}
-                            
-                            {event.max_participants && (
-                                <p className="text-center text-xs text-gray-500 mt-4 flex items-center justify-center gap-1 font-medium">
-                                    <FaUsers className="text-indigo-400" /> Limited to {event.max_participants} participants
-                                </p>
-                            )}
-                        </div>
 
-                        {/* Tags */}
-                        {event.tags && event.tags.length > 0 && (
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                                <h4 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                    <FaTag className="text-indigo-500" /> Tags
-                                </h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {event.tags.map((tag, i) => (
-                                        <span key={i} className="px-3 py-1 bg-gray-50 text-gray-600 text-xs font-semibold rounded-lg border border-gray-100">
-                                            #{tag}
-                                        </span>
-                                    ))}
+                                    {event.max_participants && (
+                                        <p className="text-center text-xs text-stone-400 mt-4 flex items-center justify-center gap-1.5 font-medium">
+                                            <FaUsers className="text-stone-500" /> max {event.max_participants} participants
+                                        </p>
+                                    )}
                                 </div>
                             </div>
-                        )}
-                         
-                        <div className="text-center">
-                            <button 
-                                onClick={handleShare}
-                                className="text-indigo-600 font-bold text-sm flex items-center justify-center gap-2 hover:underline transition-all w-full py-2 hover:bg-indigo-50 rounded-lg"
-                            >
-                                <FaShareAlt /> Share Event
-                            </button>
+
+                            {/* Tags */}
+                            {event.tags && event.tags.length > 0 && (
+                                <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-200">
+                                    <h4 className="text-sm font-bold text-stone-900 mb-4 flex items-center gap-2">
+                                        <FaTag className="text-stone-400" /> Tags
+                                    </h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {event.tags.map((tag: string, i: number) => (
+                                            <span key={i} className="px-3 py-1.5 bg-stone-50 text-stone-600 text-xs font-semibold rounded-lg border border-stone-100 uppercase tracking-wide">
+                                                {tag}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
+            
+            <Footer />
+
+            {/* QR Code Modal */}
+            {isQrModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/80 backdrop-blur-sm">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-white rounded-3xl p-8 shadow-2xl max-w-sm w-full relative"
+                    >
+                        <button 
+                            onClick={() => setIsQrModalOpen(false)}
+                            className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-900 hover:bg-stone-100 rounded-full transition-colors"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                        <div className="text-center mb-6 mt-2">
+                            <h3 className="font-display text-2xl font-bold text-stone-900">Scan to Share</h3>
+                            <p className="text-stone-500 text-sm mt-1">Share this event with others!</p>
+                        </div>
+                        <div className="flex justify-center p-4 bg-stone-50 rounded-2xl border border-stone-100">
+                             <img 
+                                src={`https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(currentUrl)}`} 
+                                alt="Event QR Code"
+                                className="w-full max-w-[200px] h-auto rounded-xl shadow-sm"
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 mt-8">
+                            <button
+                                onClick={handleDownloadQr}
+                                className="w-full py-3 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 transition-colors flex items-center justify-center gap-2 shadow-sm"
+                            >
+                                <Download className="w-4 h-4" />
+                                Download
+                            </button>
+                            <button
+                                onClick={handleShare}
+                                className="w-full py-3 bg-stone-100 text-stone-900 font-bold rounded-xl hover:bg-stone-200 transition-colors flex items-center justify-center gap-2"
+                            >
+                                <LinkIcon className="w-4 h-4" />
+                                Copy Link
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Banner Modal */}
+            {isBannerModalOpen && event.banner && (
+                 <div 
+                    className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-stone-900/90 backdrop-blur-md" 
+                    onClick={() => setIsBannerModalOpen(false)}
+                >
+                    <button 
+                        onClick={(e) => { e.stopPropagation(); setIsBannerModalOpen(false); }}
+                        className="absolute top-6 right-6 p-3 text-white/70 hover:text-white hover:bg-white/10 rounded-full transition-colors z-10"
+                    >
+                        <X className="w-6 h-6" />
+                    </button>
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="relative w-full max-w-5xl aspect-video rounded-3xl overflow-hidden shadow-2xl"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <Image
+                            src={event.banner}
+                            alt={event.title}
+                            fill
+                            className="object-contain"
+                            priority
+                        />
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 }
