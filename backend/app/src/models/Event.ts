@@ -10,6 +10,7 @@ export interface IEvent extends Document {
     event_type: 'WORKSHOP' | 'SEMINAR' | 'COMPETITION' | 'MEETUP' | 'CULTURAL' | 'SPORTS' | 'OTHER';
     banner?: string;
     max_participants?: number;
+    registration_start_date?: Date;
     registration_deadline?: Date;
     registration_form?: mongoose.Types.ObjectId;   // references EventForm
     content_sections: Array<{
@@ -59,6 +60,9 @@ const eventSchema = new Schema<IEvent>({
     },
     max_participants: {
         type: Number
+    },
+    registration_start_date: {
+        type: Date
     },
     registration_deadline: {
         type: Date

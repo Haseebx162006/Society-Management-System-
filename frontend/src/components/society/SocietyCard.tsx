@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Users, Calendar, DoorOpen, DoorClosed } from "lucide-react";
+import { ArrowRight, Users, DoorOpen, DoorClosed } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface SocietyCardProps {
@@ -9,7 +9,6 @@ interface SocietyCardProps {
   category?: string;
   stats?: {
     members: string;
-    events: string;
   };
   image?: string;
   color?: string;
@@ -24,7 +23,7 @@ export default function SocietyCard({
   name,
   description,
   category = "General",
-  stats = { members: "50+", events: "5/yr" },
+  stats = { members: "0" },
   image = DEFAULT_IMAGE,
   color = "from-indigo-600 to-blue-700",
   registration_start_date,
@@ -84,12 +83,7 @@ export default function SocietyCard({
         <div className="flex items-center gap-4 mb-6 text-sm text-gray-500 font-medium bg-gray-50 p-3 rounded-lg border border-gray-100">
              <div className="flex items-center gap-1.5">
                 <Users className="w-4 h-4 text-indigo-500" />
-                <span>{stats.members}</span>
-             </div>
-             <div className="w-px h-4 bg-gray-300" />
-             <div className="flex items-center gap-1.5">
-                 <Calendar className="w-4 h-4 text-indigo-500" />
-                 <span>{stats.events}</span>
+                <span>{stats.members} Member{stats.members !== "1" ? "s" : ""}</span>
              </div>
         </div>
 

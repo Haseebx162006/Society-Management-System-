@@ -5,7 +5,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
     Users,
-    Calendar,
     MapPin,
     Mail,
     Globe,
@@ -88,13 +87,6 @@ export default function SocietyDetailsPage() {
         );
     }
 
-    const seed = society._id
-        .split("")
-        .reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0);
-    const members = (seed % 450) + 50;
-    const events = (seed % 15) + 5;
-    const established = 2010 + (seed % 14);
-
     return (
         <main className="min-h-screen bg-white font-sans">
             <Header />
@@ -124,10 +116,7 @@ export default function SocietyDetailsPage() {
                             <span className="px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-widest bg-indigo-600 text-white shadow-lg shadow-indigo-600/20">
                                 {society.category || "General"}
                             </span>
-                            <span className="flex items-center gap-2 text-gray-300 text-sm font-medium bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
-                                <Clock className="w-4 h-4" />
-                                Est. {established}
-                            </span>
+                           
                         </div>
 
                         <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight tracking-tight">
@@ -202,15 +191,15 @@ export default function SocietyDetailsPage() {
                                     );
                                 })()
                             )}
-                            <button className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300">
+                            <Link href={`/events`} className="px-8 py-4 bg-white/10 backdrop-blur-md text-white font-bold rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300">
                                 View Events
-                            </button>
+                            </Link>
                         </div>
                     </motion.div>
                 </div>
             </section>
 
-
+{/* 
             <section className="border-b border-gray-100 sticky top-20 z-40 shadow-sm backdrop-blur-md bg-white/90">
                 <div className="container mx-auto px-6 py-6">
                     <div className="flex flex-wrap items-center justify-between gap-8">
@@ -223,18 +212,7 @@ export default function SocietyDetailsPage() {
                                     <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">
                                         Members
                                     </p>
-                                    <p className="text-xl font-bold text-gray-900">{members}+</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
-                                    <Calendar className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <p className="text-sm text-gray-500 font-semibold uppercase tracking-wide">
-                                        Events
-                                    </p>
-                                    <p className="text-xl font-bold text-gray-900">{events}/Year</p>
+                                    <p className="text-xl font-bold text-gray-900">{members}</p>
                                 </div>
                             </div>
                         </div>
@@ -252,7 +230,7 @@ export default function SocietyDetailsPage() {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> */}
 
 
             <section className="container mx-auto px-6 py-20">
@@ -474,10 +452,8 @@ export default function SocietyDetailsPage() {
                                             </div>
                                             <div>
                                                 <p className="font-semibold text-gray-900">{group.name}</p>
-                                                <p className="text-xs text-gray-500">View Members</p>
                                             </div>
                                         </div>
-                                        <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-indigo-600 transition-colors" />
                                     </div>
                                 ))}
                             </div>

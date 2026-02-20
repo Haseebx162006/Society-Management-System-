@@ -272,7 +272,20 @@ export const getAllSocieties = async (req: AuthRequest, res: Response) => {
             .populate("groups", "name")
             .sort({ created_at: -1 });
 
-        return sendResponse(res, 200, "Societies fetched successfully", societies);
+        const societyIds = societies.map(s => s._id);
+        const memberCounts = await SocietyUserRole.aggregate([
+            { $match: { society_id: { $in: societyIds } } },
+            { $group: { _id: "$society_id", count: { $sum: 1 } } }
+        ]);
+
+        const societiesWithCounts = societies.map(society => {
+            const societyObj = society.toObject();
+            const countObj = memberCounts.find(mc => mc._id.toString() === society._id.toString());
+            (societyObj as any).membersCount = countObj ? countObj.count : 0;
+            return societyObj;
+        });
+
+        return sendResponse(res, 200, "Societies fetched successfully", societiesWithCounts);
 
     } catch (error: any) {
         return sendError(res, 500, "Internal server error while fetching societies", error);

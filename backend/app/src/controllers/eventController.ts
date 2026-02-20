@@ -20,7 +20,8 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
         const { id: society_id } = req.params;
         const {
             title, description, event_date, event_end_date,
-            venue, event_type, max_participants, registration_deadline,
+            venue, event_type, max_participants,
+            registration_start_date, registration_deadline,
             registration_form, content_sections, tags, is_public, status
         } = req.body;
 
@@ -67,6 +68,7 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
             event_type: event_type || 'OTHER',
             banner: bannerUrl,
             max_participants: max_participants ? Number(max_participants) : undefined,
+            registration_start_date,
             registration_deadline,
             registration_form: registration_form || undefined,
             content_sections: parsedContentSections || [],
@@ -199,7 +201,8 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
         const { eventId } = req.params;
         const {
             title, description, event_date, event_end_date,
-            venue, event_type, max_participants, registration_deadline,
+            venue, event_type, max_participants,
+            registration_start_date, registration_deadline,
             registration_form, content_sections, tags, is_public, status
         } = req.body;
 
@@ -213,6 +216,7 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
         if (venue) event.venue = venue;
         if (event_type) event.event_type = event_type;
         if (max_participants !== undefined) event.max_participants = max_participants ? Number(max_participants) : undefined;
+        if (registration_start_date !== undefined) event.registration_start_date = registration_start_date;
         if (registration_deadline !== undefined) event.registration_deadline = registration_deadline;
         if (registration_form !== undefined) event.registration_form = registration_form || undefined;
         if (is_public !== undefined) event.is_public = is_public;

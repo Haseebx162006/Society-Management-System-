@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import Header from "@/components/Header";
 import { useGetAllPublicEventsQuery, EventData } from "@/lib/features/events/eventApiSlice";
-import { FaCalendarAlt, FaMapMarkerAlt, FaSearch, FaFilter, FaArrowRight, FaUsers } from 'react-icons/fa';
+import { FaMapMarkerAlt, FaSearch, FaFilter, FaArrowRight, FaUsers } from 'react-icons/fa';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
+import { Loader2, DoorOpen, DoorClosed } from 'lucide-react';
 
 const EVENT_TYPES = [
     { value: 'ALL', label: 'All Types' },
@@ -109,10 +109,34 @@ export default function EventsPage() {
                                                 <span className="text-4xl">📅</span>
                                             </div>
                                         )}
-                                        <div className="absolute top-4 left-4">
+                                        <div className="absolute top-4 left-4 flex gap-2">
                                             <span className="px-3 py-1 bg-white/90 backdrop-blur-md text-gray-900 text-xs font-bold rounded-lg uppercase tracking-wide shadow-sm">
                                                 {event.event_type}
                                             </span>
+                                            {(() => {
+                                                const now = new Date();
+                                                const startDate = event.registration_start_date ? new Date(event.registration_start_date) : null;
+                                                const endDate = event.registration_deadline ? new Date(event.registration_deadline) : null;
+                                                
+                                                const isNotStarted = startDate && now < startDate;
+                                                const isEnded = endDate && now > endDate;
+                                                const isOpen = !isNotStarted && !isEnded;
+
+                                                if (isOpen) {
+                                                    return (
+                                                        <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/90 backdrop-blur-md text-white text-xs font-bold rounded-lg uppercase tracking-wide shadow-sm">
+                                                            <DoorOpen className="w-3.5 h-3.5" />
+                                                            Open
+                                                        </span>
+                                                    );
+                                                }
+                                                return (
+                                                    <span className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/90 backdrop-blur-md text-white text-xs font-bold rounded-lg uppercase tracking-wide shadow-sm">
+                                                        <DoorClosed className="w-3.5 h-3.5" />
+                                                        Closed
+                                                    </span>
+                                                );
+                                            })()}
                                         </div>
                                     </div>
 

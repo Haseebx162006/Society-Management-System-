@@ -15,6 +15,7 @@ interface SocietyData {
   category?: string;
   status: string;
   logo?: string;
+  membersCount?: number;
   [key: string]: unknown;
 }
 
@@ -40,18 +41,13 @@ export default function SocietiesPage() {
     return societiesData
       .filter((s: SocietyData) => s.status === "ACTIVE")
       .map((s: SocietyData, index: number) => {
-        const seed = s._id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const members = (seed % 450) + 50;
-        const events = (seed % 15) + 5;
-
         return {
           id: s._id,
           name: s.name,
           category: s.category || "General",
           description: s.description || "No description available.",
           stats: {
-            members: `${members}+`,
-            events: `${events}/yr`
+            members: `${s.membersCount || 0}`
           },
           image: s.logo,
           color: GRADIENTS[index % GRADIENTS.length],

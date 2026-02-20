@@ -21,7 +21,7 @@ import {
     FaShareAlt
 } from 'react-icons/fa';
 import Image from 'next/image';
-import { Loader2 } from 'lucide-react';
+import { Loader2, DoorOpen, DoorClosed } from 'lucide-react';
 import { useAppSelector } from "@/lib/hooks";
 import { selectCurrentUser } from "@/lib/features/auth/authSlice";
 import { toast } from 'react-hot-toast';
@@ -256,8 +256,15 @@ export default function EventDetailsPage() {
         );
     }
 
-    const canRegister = ['PUBLISHED', 'ONGOING'].includes(event.status);
-    const deadlinePassed = event.registration_deadline && new Date() > new Date(event.registration_deadline);
+    const now = new Date();
+    const startDate = event.registration_start_date ? new Date(event.registration_start_date) : null;
+    const endDate = event.registration_deadline ? new Date(event.registration_deadline) : null;
+    
+    const isNotStarted = startDate && now < startDate;
+    const isEnded = endDate && now > endDate;
+    const isOpen = !isNotStarted && !isEnded;
+
+    const canRegister = ['PUBLISHED', 'ONGOING'].includes(event.status) && isOpen;
 
     // Check membership
     const isMember = user && societyData?.members?.some(
@@ -398,7 +405,42 @@ export default function EventDetailsPage() {
                                 </Link>
                             </div>
 
-                            {canRegister && !deadlinePassed ? (
+                            {/* Registration Status Badges & Times */}
+                            <div className="mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-3">
+                                <div className="flex items-center gap-2">
+                                    {isOpen ? (
+                                        <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-600 text-xs font-bold rounded-lg uppercase tracking-wide">
+                                            <DoorOpen className="w-3.5 h-3.5" />
+                                            Registration Open
+                                        </span>
+                                    ) : (
+                                        <span className="flex items-center gap-1.5 px-3 py-1 bg-rose-500/10 text-rose-600 text-xs font-bold rounded-lg uppercase tracking-wide">
+                                            <DoorClosed className="w-3.5 h-3.5" />
+                                            Registration Closed
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="space-y-1.5 text-sm">
+                                    {startDate && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-500">Opens:</span>
+                                            <span className="font-medium text-gray-900">
+                                                {startDate.toLocaleDateString()} {startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {endDate && (
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-gray-500">Closes:</span>
+                                            <span className="font-medium text-gray-900">
+                                                {endDate.toLocaleDateString()} {endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {canRegister ? (
                                 <>
                                     {!showForm ? (
                                             <button
