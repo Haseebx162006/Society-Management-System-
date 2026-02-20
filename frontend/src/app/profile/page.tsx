@@ -61,7 +61,7 @@ export default function ProfilePage() {
   const roleBasedItems = useMemo(() => {
     const items: { key: string; label: string; icon: React.ReactNode; action: () => void }[] = [];
 
-    // Super Admin - Dashboard
+
     if (user?.is_super_admin) {
       items.push({
         key: "admin-dashboard",
@@ -76,9 +76,7 @@ export default function ProfilePage() {
       });
     }
 
-    // President - Society Dashboard
-    // Check if user is president or finance manager of ANY society
-    const canAccessDashboard = societies?.some((s) => s.role === "PRESIDENT" || s.role === "FINANCE MANAGER");
+    const canAccessDashboard = societies?.some((s) => s.role === "PRESIDENT" || s.role === "FINANCE MANAGER" || s.role === "EVENT MANAGER");
     if (canAccessDashboard) {
       items.push({
         key: "society-dashboard",
@@ -92,9 +90,7 @@ export default function ProfilePage() {
       });
     }
 
-    // Member - Request Society Registration
-    // Show for everyone (or non-admins?) - "if member" usually implies standard user.
-    // Let's show it for everyone who isn't a super admin, to allow them to create societies.
+
     if (!user?.is_super_admin) {
       items.push({
         key: "request-registration",

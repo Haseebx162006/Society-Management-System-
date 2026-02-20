@@ -28,50 +28,48 @@ import {
 
 const router = express.Router();
 
-// ─── Event Form CRUD (President) ─────────────────────────────────────────────
 router.post(
     '/society/:id/event-forms',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER'], 'SOCIETY'),
     createEventForm
 );
 router.get(
     '/society/:id/event-forms',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER'], 'SOCIETY'),
     getEventFormsBySociety
 );
 router.get(
     '/society/:id/event-forms/:formId',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER'], 'SOCIETY'),
     getEventFormById
 );
 router.put(
     '/society/:id/event-forms/:formId',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER'], 'SOCIETY'),
     updateEventForm
 );
 router.delete(
     '/society/:id/event-forms/:formId',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER'], 'SOCIETY'),
     deleteEventForm
 );
 
-// ─── Event CRUD (President) ─────────────────────────────────────────────────
 router.post(
     '/society/:id/events',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER'], 'SOCIETY'),
     upload.single('banner'),
     createEvent
 );
 router.get(
     '/society/:id/events',
     protect,
-    authorize(['PRESIDENT', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY'], 'SOCIETY'),
     getEventsBySociety
 );
 router.get(
@@ -82,18 +80,17 @@ router.get(
 router.put(
     '/society/:id/events/:eventId',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER'], 'SOCIETY'),
     upload.single('banner'),
     updateEvent
 );
 router.delete(
     '/society/:id/events/:eventId',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER'], 'SOCIETY'),
     deleteEvent
 );
 
-// ─── Public Events ──────────────────────────────────────────────────────────
 router.get(
     '/events',
     getAllPublicEvents
@@ -108,7 +105,6 @@ router.get(
     getEventById
 );
 
-// ─── Event Registration ─────────────────────────────────────────────────────
 router.post(
     '/events/:eventId/register',
     protect,
@@ -116,39 +112,36 @@ router.post(
     submitEventRegistration
 );
 
-// ─── Registration Management (President) ─────────────────────────────────────
 router.get(
     '/society/:id/events/:eventId/registrations',
     protect,
-    authorize(['PRESIDENT', 'FINANCE MANAGER'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER'], 'SOCIETY'),
     getEventRegistrations
 );
 router.put(
     '/society/:id/events/:eventId/registrations/:registrationId',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER'], 'SOCIETY'),
     updateRegistrationStatus
 );
 
-// ─── Export Registrations to Excel / PDF ────────────────────────────────────
 router.get(
     '/society/:id/events/:eventId/export',
     protect,
-    authorize(['PRESIDENT', 'FINANCE MANAGER'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER'], 'SOCIETY'),
     exportRegistrationsToExcel
 );
 router.get(
     '/society/:id/events/:eventId/export-pdf',
     protect,
-    authorize(['PRESIDENT', 'FINANCE MANAGER'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER'], 'SOCIETY'),
     exportRegistrationsToPdf
 );
 
-// ─── Send Mail to Participants ──────────────────────────────────────────────
 router.post(
     '/society/:id/events/:eventId/send-mail',
     protect,
-    authorize(['PRESIDENT'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER'], 'SOCIETY'),
     sendMailToParticipants
 );
 

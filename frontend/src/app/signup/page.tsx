@@ -5,7 +5,7 @@ import { useSignupMutation } from "../../lib/features/auth/authApiSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, Phone, UserPlus } from "lucide-react";
+import { Mail, Lock, User, Phone, UserPlus, ArrowLeft } from "lucide-react";
 import { FuturisticInput } from "../../components/ui/FuturisticInput";
 import { FuturisticButton } from "../../components/ui/FuturisticButton";
 import Link from "next/link";
@@ -63,7 +63,10 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
-      {/* Background Ambience */}
+      <Link href="/" className="absolute top-6 left-6 z-20 flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
+        <ArrowLeft size={16} />
+        Back to Home
+      </Link>
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[20%] right-[10%] w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-3xl mix-blend-multiply animate-blob" />
         <div className="absolute bottom-[20%] left-[10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-3xl mix-blend-multiply animate-blob animation-delay-2000" />

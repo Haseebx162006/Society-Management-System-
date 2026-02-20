@@ -34,36 +34,31 @@ interface SocietyDashboardProps {
 const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [activeTab, setActiveTab] = React.useState('overview');
-  // const [showCreateForm, setShowCreateForm] = React.useState(false); // Removed
   const { data: events } = useGetEventsBySocietyQuery(society._id);
 
-  // Determine current user's role
   const currentUserRole = useMemo(() => {
       if (!user || !society.members) return 'MEMBER';
       const userId = user._id || user.id;
-      // Member objects usually have populated user_id object OR just string id
-      const member = society.members.find((m: any) => {
+      const member = society.members.find((m: { user_id: { _id: string } | string; role: string }) => {
           const mUserId = typeof m.user_id === 'object' ? m.user_id._id : m.user_id;
           return mUserId === userId;
       });
       return member?.role || 'MEMBER';
   }, [user, society.members]);
 
-  // --- Process Dynamic Data ---
 
-  // 1. Team Distribution
+
+
   const teamDistributionData = useMemo(() => {
     if (!society.groups || !society.members) return null;
 
     const groupCounts: Record<string, number> = {};
     const groupNames: Record<string, string> = {};
 
-    console.log("Society Groups:", society.groups);
-    console.log("Society Members sample:", society.members.slice(0, 3));
 
-    // Initialize counts for all groups
-    society.groups.forEach((g: any) => {
-      // Ensure we use string IDs
+
+
+    society.groups.forEach((g: { _id: string | { toString(): string }; name: string }) => {
       const gId = typeof g._id === 'object' ? g._id.toString() : g._id;
       groupCounts[gId] = 0;
       groupNames[gId] = g.name;
@@ -71,30 +66,22 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
     
     let unassignedCount = 0;
 
-    society.members.forEach((m: any) => {
+    society.members.forEach((m: { group_id?: { _id?: string; toString(): string } | string; user_id?: { name?: string } }) => {
         let groupId: string | null = null;
         
         if (m.group_id) {
-            // Handle populated object or string ID
             if (typeof m.group_id === 'object' && m.group_id._id) {
                 groupId = m.group_id._id.toString();
             } else if (typeof m.group_id === 'object' && !m.group_id._id) { 
-                 // It might be just the string ID wrapped in an object or something else? 
-                 // Or if it was populated but structure is different. 
-                 // Since we added populate('group_id', 'name'), it should have _id.
-                 // But let's handle the toString if it's an ObjectId-like object
                  groupId = m.group_id.toString();
             } else {
                 groupId = m.group_id.toString();
             }
         }
 
-        console.log(`Member ${m.user_id?.name} GroupID: ${groupId} (Matching: ${groupId ? groupCounts[groupId] !== undefined : 'N/A'})`);
-
         if (groupId && groupCounts[groupId] !== undefined) {
             groupCounts[groupId]++;
         } else {
-            console.log(`-> Unassigned or Group Not Found: ${groupId}`);
             unassignedCount++;
         }
     });
@@ -133,11 +120,10 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   }, [society.groups, society.members]);
 
 
-  // 2. Growth Trend (Members joined over time)
+
   const growthData = useMemo(() => {
       if (!society.members) return null;
 
-      // Sort members by join date
       const sortedMembers = [...society.members].sort((a, b) => 
         new Date(a.assigned_at).getTime() - new Date(b.assigned_at).getTime()
       );
@@ -147,18 +133,15 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
 
       sortedMembers.forEach((m) => {
           const date = new Date(m.assigned_at);
-          const key = date.toLocaleString('default', { month: 'short' }); // e.g., "Jan", "Feb"
+          const key = date.toLocaleString('default', { month: 'short' });
           cumulativeCount++;
-          monthsMap[key] = cumulativeCount; // This is a simplified cumulative approach. 
-          // For a true time-series we might need to bucket by specific month/year, 
-          // but for this view, last 6 months buckets or just existing months is fine.
+          monthsMap[key] = cumulativeCount;
       });
-      
-      // Ensure we have labels for the keys found
+
       const labels = Object.keys(monthsMap);
       const dataPoints = Object.values(monthsMap);
 
-      // If no data, show empty state or single point
+
       if (labels.length === 0) {
            return {
             labels: ['Start'],
@@ -188,10 +171,8 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
       };
   }, [society.members]);
 
-  // 3. Recent Activity (Latest members joined)
+
   const recentActivity = useMemo(() => {
-      if (!society.members) return [];
-      // Get last 5 members
       return [...society.members]
         .sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime())
         .slice(0, 5);
@@ -200,7 +181,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
-      {/* Sidebar - Fixed Left */}
+
       <DashboardSidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -208,18 +189,18 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
         role={currentUserRole}
       />
 
-      {/* Main Content - Pushed Right */}
+
       <div className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
 
-        {/* Header */}
+
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
               {society.name} <span className="text-blue-600">Dashboard</span>
             </h1>
-            <p className="text-slate-500 mt-1 font-medium">Welcome back, President {user?.name}</p>
+            <p className="text-slate-500 mt-1 font-medium">Welcome back, {currentUserRole === 'PRESIDENT' ? 'President' : currentUserRole === 'EVENT MANAGER' ? 'Event Manager' : currentUserRole === 'FINANCE MANAGER' ? 'Finance Manager' : ''} {user?.name}</p>
           </div>
-          {/* Removed Settings and View Society buttons as per request */}
+
         </div>
 
         {activeTab === 'settings' ? (
@@ -240,15 +221,14 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
           <>
             {activeTab === 'overview' ? (
               <>
-                {/* Stats Grid */}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                   <StatCard title="Total Members" value={society.members?.length || 0} icon={<FaUsers />} color="blue" />
                   <StatCard title="Total Teams" value={society.groups?.length || 0} icon={<MdGroups />} color="indigo" />
-                  <StatCard title="Events Held" value={events?.length || 0} icon={<MdEvent />} color="purple" /> 
-                  {/* Revenue card removed as per request */}
+                  <StatCard title="Events Held" value={events?.length || 0} icon={<MdEvent />} color="purple" />
                 </div>
 
-                {/* Charts Section */}
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                   <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                     <h3 className="text-lg font-semibold text-slate-800 mb-6">Member Growth</h3>

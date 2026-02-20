@@ -36,14 +36,13 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
     { id: 'members', label: 'Members', icon: <FaUsers />, roles: ['PRESIDENT', 'GENERAL SECRETARY'] },
     { id: 'teams', label: 'Teams', icon: <MdGroups />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD'] },
     { id: 'join-form', label: 'Join Form', icon: <FaWpforms />, roles: ['PRESIDENT'] },
-    { id: 'join-requests', label: 'Join Requests', icon: <FaClipboardList />, roles: ['PRESIDENT', 'FINANCE MANAGER'] }, // FINANCE MANAGER added here
+    { id: 'join-requests', label: 'Join Requests', icon: <FaClipboardList />, roles: ['PRESIDENT', 'FINANCE MANAGER'] },
     { id: 'previous-members', label: 'Previous Members', icon: <FaHistory />, roles: ['PRESIDENT'] },
     { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'MEMBER', 'EVENT MANAGER'] },
     { id: 'event-forms', label: 'Event Forms', icon: <FaWpforms />, roles: ['PRESIDENT', 'EVENT MANAGER'] },
     { id: 'settings', label: 'Society Form', icon: <MdSettings />, roles: ['PRESIDENT'] },
   ];
 
-  // Filter items based on role
   const navItems = allNavItems.filter(item => item.roles.includes(role));
 
   return (

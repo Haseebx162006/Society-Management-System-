@@ -1,7 +1,7 @@
 import { apiSlice } from "../api/apiSlice";
 
 export const societyApiSlice = apiSlice.injectEndpoints({
-  overrideExisting: true,
+  overrideExisting: false,
   endpoints: (builder) => ({
     createSocietyRequest: builder.mutation({
       query: (data) => ({
@@ -9,7 +9,7 @@ export const societyApiSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["User"], // Refresh user requests list
+      invalidatesTags: ["User"],
     }),
     createSociety: builder.mutation({
       query: (data) => ({
@@ -58,7 +58,7 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Society"],
     }),
-    updateMemberRole: builder.mutation({
+    updateSocietyMemberRole: builder.mutation({
         query: ({ societyId, userId, role }) => ({
             url: `/society/${societyId}/members/${userId}`,
             method: "PUT",
@@ -78,5 +78,5 @@ export const {
   useUpdateSocietyRequestStatusMutation,
   useUpdateSocietyMutation,
   useGetSocietyByIdQuery,
-  useUpdateMemberRoleMutation,
+  useUpdateSocietyMemberRoleMutation,
 } = societyApiSlice;

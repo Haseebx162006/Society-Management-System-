@@ -281,10 +281,9 @@ export const getAllSocieties = async (req: AuthRequest, res: Response) => {
 
 export const getMyManageableSocieties = async (req: AuthRequest, res: Response) => {
     try {
-        // Find roles for this user where they are PRESIDENT or FINANCE MANAGER
         const userRoles = await SocietyUserRole.find({
             user_id: req.user!._id,
-            role: { $in: ["PRESIDENT", "FINANCE MANAGER"] }
+            role: { $in: ["PRESIDENT", "FINANCE MANAGER", "EVENT MANAGER"] }
         });
 
         if (!userRoles.length) {

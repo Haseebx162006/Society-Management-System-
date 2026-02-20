@@ -1,6 +1,6 @@
 import { apiSlice } from "../api/apiSlice";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+
 
 export interface Group {
     _id: string;
@@ -51,12 +51,12 @@ export interface PaginatedMembers {
     };
 }
 
-// ─── API Slice ───────────────────────────────────────────────────────────────
+
 
 export const groupApiSlice = apiSlice.injectEndpoints({
     overrideExisting: true,
     endpoints: (builder) => ({
-        // ─── Society Members (paginated) ─────────────────────────────
+
         getSocietyMembers: builder.query<
             PaginatedMembers,
             { societyId: string; page?: number; limit?: number; search?: string }
@@ -71,7 +71,7 @@ export const groupApiSlice = apiSlice.injectEndpoints({
             ],
         }),
 
-        // ─── Group CRUD ──────────────────────────────────────────────
+
         getGroupsInSociety: builder.query<Group[], string>({
             query: (societyId) => `/groups/society/${societyId}`,
             transformResponse: (response: { data: Group[] }) => response.data,
@@ -118,7 +118,7 @@ export const groupApiSlice = apiSlice.injectEndpoints({
             ],
         }),
 
-        // ─── Group Members ───────────────────────────────────────────
+
         getGroupMembers: builder.query<GroupMember[], string>({
             query: (groupId) => `/groups/${groupId}/members`,
             transformResponse: (response: { data: GroupMember[] }) => response.data,

@@ -6,11 +6,11 @@ import {
     useGetGroupsInSocietyQuery,
     useAddMemberToGroupMutation,
 } from "@/lib/features/groups/groupApiSlice";
-import { useUpdateMemberRoleMutation } from "@/lib/features/societies/societyApiSlice";
+import { useUpdateSocietyMemberRoleMutation } from "@/lib/features/societies/societyApiSlice";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import { FaWhatsapp, FaEnvelope, FaSearch, FaUserPlus, FaFilePdf, FaFileExcel, FaUserShield, FaTimes } from "react-icons/fa";
-import { MdGroups, MdChevronLeft, MdChevronRight, MdEdit } from "react-icons/md";
+import { FaWhatsapp, FaEnvelope, FaSearch, FaUserPlus, FaFilePdf, FaFileExcel, FaTimes } from "react-icons/fa";
+import { MdGroups, MdChevronLeft, MdChevronRight, MdEdit, MdStar, MdManageAccounts, MdAdminPanelSettings, MdAccountBalance, MdEvent, MdPeople, MdShield } from "react-icons/md";
 import { toast } from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -23,13 +23,89 @@ interface MembersManagerProps {
 
 const ITEMS_PER_PAGE = 10;
 
+const ROLE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bgColor: string; borderColor: string; ringColor: string; description: string; category: string }> = {
+    PRESIDENT: {
+        icon: <MdStar className="text-base" />,
+        color: "text-amber-700",
+        bgColor: "bg-amber-50",
+        borderColor: "border-amber-200",
+        ringColor: "ring-amber-400",
+        description: "Full control over the society",
+        category: "Leadership",
+    },
+    "GENERAL SECRETARY": {
+        icon: <MdAdminPanelSettings className="text-base" />,
+        color: "text-emerald-700",
+        bgColor: "bg-emerald-50",
+        borderColor: "border-emerald-200",
+        ringColor: "ring-emerald-400",
+        description: "Manages day-to-day operations",
+        category: "Leadership",
+    },
+    LEAD: {
+        icon: <MdManageAccounts className="text-base" />,
+        color: "text-purple-700",
+        bgColor: "bg-purple-50",
+        borderColor: "border-purple-200",
+        ringColor: "ring-purple-400",
+        description: "Leads a specific team",
+        category: "Management",
+    },
+    "CO-LEAD": {
+        icon: <MdShield className="text-base" />,
+        color: "text-indigo-700",
+        bgColor: "bg-indigo-50",
+        borderColor: "border-indigo-200",
+        ringColor: "ring-indigo-400",
+        description: "Assists the team lead",
+        category: "Management",
+    },
+    "FINANCE MANAGER": {
+        icon: <MdAccountBalance className="text-base" />,
+        color: "text-teal-700",
+        bgColor: "bg-teal-50",
+        borderColor: "border-teal-200",
+        ringColor: "ring-teal-400",
+        description: "Manages society finances",
+        category: "Management",
+    },
+    "EVENT MANAGER": {
+        icon: <MdEvent className="text-base" />,
+        color: "text-orange-700",
+        bgColor: "bg-orange-50",
+        borderColor: "border-orange-200",
+        ringColor: "ring-orange-400",
+        description: "Organizes and manages events",
+        category: "Management",
+    },
+    MEMBER: {
+        icon: <MdPeople className="text-base" />,
+        color: "text-slate-600",
+        bgColor: "bg-slate-50",
+        borderColor: "border-slate-200",
+        ringColor: "ring-slate-400",
+        description: "Regular society member",
+        category: "General",
+    },
+};
+
+const ROLE_ORDER = ["PRESIDENT", "GENERAL SECRETARY", "LEAD", "CO-LEAD", "FINANCE MANAGER", "EVENT MANAGER", "MEMBER"];
+
 const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const [searchInput, setSearchInput] = useState("");
     const [teamDropdownOpen, setTeamDropdownOpen] = useState<string | null>(null);
-    const [roleModalUser, setRoleModalUser] = useState<any | null>(null);
+    const [roleModalUser, setRoleModalUser] = useState<{
+        _id: string;
+        user_id: { _id: string; name: string; email: string; phone?: string } | string;
+        role: string;
+        assigned_at: string;
+    } | null>(null);
     const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
+    const [isUpdatingRole, setIsUpdatingRole] = useState(false);
+    const [confirmTransfer, setConfirmTransfer] = useState(false);
+    const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
     const { user: currentUser } = useSelector((state: RootState) => state.auth);
 
@@ -42,7 +118,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
 
     const { data: groups } = useGetGroupsInSocietyQuery(societyId);
     const [addMemberToGroup] = useAddMemberToGroupMutation();
-    const [updateMemberRole] = useUpdateMemberRoleMutation();
+    const [updateMemberRole] = useUpdateSocietyMemberRoleMutation();
 
     const members = data?.members || [];
     const pagination = data?.pagination || { page: 1, totalPages: 1, total: 0, limit: ITEMS_PER_PAGE };
@@ -65,7 +141,6 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
     };
 
     const formatPhone = (phone: string) => {
-        // Remove non-digit characters
         let cleaned = phone.replace(/[^\d+]/g, "");
         if (!cleaned.startsWith("+")) {
             cleaned = "+" + cleaned;
@@ -74,18 +149,56 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
     };
 
     const getRoleBadgeColor = (role: string) => {
-        switch (role) {
-            case "PRESIDENT":
-                return "bg-amber-100 text-amber-700 border-amber-200";
-            case "LEAD":
-                return "bg-purple-100 text-purple-700 border-purple-200";
-            case "CO-LEAD":
-                return "bg-indigo-100 text-indigo-700 border-indigo-200";
-            case "GENERAL SECRETARY":
-                return "bg-emerald-100 text-emerald-700 border-emerald-200";
-            default:
-                return "bg-blue-100 text-blue-700 border-blue-200";
+        const config = ROLE_CONFIG[role];
+        if (config) return `${config.bgColor} ${config.color} ${config.borderColor}`;
+        return "bg-blue-100 text-blue-700 border-blue-200";
+    };
+
+    const handleRoleUpdate = async (role: string) => {
+        if (!roleModalUser) return;
+        if (role === roleModalUser.role) {
+            setIsRoleModalOpen(false);
+            return;
         }
+
+        if (role === "PRESIDENT") {
+            setSelectedRole(role);
+            setConfirmTransfer(true);
+            return;
+        }
+
+        await executeRoleUpdate(role);
+    };
+
+    const executeRoleUpdate = async (role: string) => {
+        if (!roleModalUser) return;
+        const targetUserId = typeof roleModalUser.user_id === "string"
+            ? roleModalUser.user_id
+            : roleModalUser.user_id?._id;
+
+        setIsUpdatingRole(true);
+        try {
+            await updateMemberRole({
+                societyId,
+                userId: targetUserId,
+                role: role,
+            }).unwrap();
+            toast.success(`Role updated to ${role}`);
+            setIsRoleModalOpen(false);
+            setConfirmTransfer(false);
+            setSelectedRole(null);
+        } catch {
+            toast.error("Failed to update role");
+        } finally {
+            setIsUpdatingRole(false);
+        }
+    };
+
+    const openRoleModal = (member: typeof roleModalUser) => {
+        setRoleModalUser(member);
+        setIsRoleModalOpen(true);
+        setConfirmTransfer(false);
+        setSelectedRole(null);
     };
 
     const exportToPDF = () => {
@@ -155,9 +268,10 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
         );
     }
 
+    const roleModalUserName = roleModalUser && typeof roleModalUser.user_id === "object" ? roleModalUser.user_id.name : "";
+
     return (
         <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-            {/* Header */}
             <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-6">
                 <div>
                     <h2 className="text-2xl font-bold text-slate-800">Members</h2>
@@ -167,7 +281,6 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-2 w-full xl:w-auto">
-                    {/* Search */}
                     <form onSubmit={handleSearch} className="flex gap-2 w-full sm:w-auto">
                         <div className="relative grow sm:grow-0">
                             <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
@@ -200,7 +313,6 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                         )}
                     </form>
 
-                    {/* Export Buttons */}
                     <div className="flex gap-2">
                         <button
                             onClick={exportToPDF}
@@ -220,7 +332,6 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                 </div>
             </div>
 
-            {/* Members Table */}
             {members.length === 0 ? (
                 <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm">
                     <MdGroups className="text-5xl text-slate-300 mx-auto mb-4" />
@@ -271,16 +382,11 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                                     Joined: {new Date(member.assigned_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
                                                 </p>
                                                 {user.phone && <p className="text-xs text-slate-500">Phone: {user.phone}</p>}
-                                                
-                                                {/* Finance Manager Toggle */}
-                                                {/* Role Switcher */}
+
                                                 <div className="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-100">
                                                     <span className="text-xs text-slate-500 font-medium">Role:</span>
                                                     <button
-                                                        onClick={() => {
-                                                            setRoleModalUser(member);
-                                                            setIsRoleModalOpen(true);
-                                                        }}
+                                                        onClick={() => openRoleModal(member)}
                                                         disabled={member.role === 'PRESIDENT' && (currentUser?._id === (typeof member.user_id === 'object' ? member.user_id._id : member.user_id))}
                                                         className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all shadow-sm ${
                                                             member.role === 'PRESIDENT' && (currentUser?._id === (typeof member.user_id === 'object' ? member.user_id._id : member.user_id))
@@ -296,7 +402,6 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                         </td>
                                         <td className="p-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                {/* WhatsApp */}
                                                 {user.phone && (
                                                     <a
                                                         href={`https://wa.me/${formatPhone(user.phone)}`}
@@ -309,7 +414,6 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                                     </a>
                                                 )}
 
-                                                {/* Email */}
                                                 <a
                                                     href={`mailto:${user.email}`}
                                                     className="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 hover:text-blue-700 transition-all shadow-sm"
@@ -318,7 +422,6 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                                     <FaEnvelope className="text-sm" />
                                                 </a>
 
-                                                {/* Add to Team dropdown */}
                                                 {groups && groups.length > 0 && member.role !== "PRESIDENT" && (
                                                     <div className="relative">
                                                         <button
@@ -361,7 +464,6 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                 </div>
             )}
 
-            {/* Pagination */}
             {pagination.totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 mt-8">
                     <button
@@ -405,77 +507,155 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                     </button>
                 </div>
             )}
-            {/* Role Selection Modal */}
+
             {isRoleModalOpen && roleModalUser && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="bg-linear-to-r from-blue-600 to-indigo-600 px-6 py-5 flex justify-between items-center">
-                            <div>
-                                <h3 className="text-lg font-bold text-white tracking-tight">Change Member Role</h3>
-                                <p className="text-blue-100 text-xs mt-0.5 truncate">Updating role for {roleModalUser.user_id?.name}</p>
-                            </div>
-                            <button onClick={() => setIsRoleModalOpen(false)} className="text-white/80 hover:text-white transition-colors">
-                                <FaTimes className="text-xl" />
-                            </button>
-                        </div>
-                        <div className="p-6 space-y-3">
-                            {['MEMBER', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'FINANCE MANAGER', 'EVENT MANAGER', 'PRESIDENT'].map((role) => (
-                                <button
-                                    key={role}
-                                    onClick={async () => {
-                                        if (role === roleModalUser.role) {
-                                            setIsRoleModalOpen(false);
-                                            return;
-                                        }
-
-                                        if (role === 'PRESIDENT') {
-                                            if (!confirm(`Are you sure you want to promote ${roleModalUser.user_id?.name} to PRESIDENT? This will transfer your leadership.`)) return;
-                                        }
-
-                                        const targetUserId = typeof roleModalUser.user_id === 'string' 
-                                            ? roleModalUser.user_id 
-                                            : roleModalUser.user_id?._id;
-
-                                        try {
-                                            await updateMemberRole({
-                                                societyId,
-                                                userId: targetUserId,
-                                                role: role
-                                            }).unwrap();
-                                            toast.success(`Role updated to ${role}`);
-                                            setIsRoleModalOpen(false);
-                                        } catch {
-                                            toast.error("Failed to update role");
-                                        }
-                                    }}
-                                    className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all group ${
-                                        role === roleModalUser.role
-                                        ? 'bg-blue-50 border-blue-200 text-blue-700 font-bold shadow-sm ring-1 ring-blue-100'
-                                        : 'bg-white border-slate-200 text-slate-700 hover:border-blue-400 hover:bg-slate-50'
-                                    }`}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                                            role === roleModalUser.role ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-blue-100 group-hover:text-blue-600'
-                                        }`}>
-                                            <FaUserShield />
-                                        </div>
-                                        <span className="uppercase tracking-wider text-xs">{role.replace('_', ' ')}</span>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
+                        <div className="relative overflow-hidden">
+                            <div className="absolute inset-0 bg-linear-to-br from-blue-600 via-indigo-600 to-purple-700" />
+                            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='1' fill-rule='evenodd'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/svg%3E\")" }} />
+                            <div className="relative px-6 py-5 flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-xl font-bold border border-white/20">
+                                        {roleModalUserName?.charAt(0).toUpperCase()}
                                     </div>
-                                    {role === roleModalUser.role && (
-                                        <span className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold uppercase">Current</span>
-                                    )}
+                                    <div>
+                                        <h3 className="text-lg font-bold text-white tracking-tight">Change Role</h3>
+                                        <p className="text-blue-100 text-sm mt-0.5 truncate max-w-[200px]">{roleModalUserName}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setIsRoleModalOpen(false);
+                                        setConfirmTransfer(false);
+                                        setSelectedRole(null);
+                                    }}
+                                    className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-sm flex items-center justify-center text-white/80 hover:text-white transition-all border border-white/10"
+                                >
+                                    <FaTimes className="text-sm" />
                                 </button>
-                            ))}
+                            </div>
                         </div>
-                        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end">
-                            <button 
-                                onClick={() => setIsRoleModalOpen(false)}
-                                className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-800 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                        </div>
+
+                        {confirmTransfer ? (
+                            <div className="p-6">
+                                <div className="bg-red-50 border border-red-200 rounded-xl p-5 mb-5">
+                                    <div className="flex items-start gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+                                            <MdStar className="text-red-600 text-xl" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-red-800 text-sm">Transfer Presidency</h4>
+                                            <p className="text-red-600 text-xs mt-1.5 leading-relaxed">
+                                                You are about to transfer your President role to <span className="font-bold">{roleModalUserName}</span>. 
+                                                This action cannot be undone. You will lose all presidential privileges.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={() => {
+                                            setConfirmTransfer(false);
+                                            setSelectedRole(null);
+                                        }}
+                                        disabled={isUpdatingRole}
+                                        className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-all disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={() => selectedRole && executeRoleUpdate(selectedRole)}
+                                        disabled={isUpdatingRole}
+                                        className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-all shadow-sm shadow-red-200 disabled:opacity-50 flex items-center justify-center gap-2"
+                                    >
+                                        {isUpdatingRole ? (
+                                            <>
+                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                Transferring...
+                                            </>
+                                        ) : (
+                                            "Confirm Transfer"
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="p-5 space-y-1.5 max-h-[420px] overflow-y-auto">
+                                    {(() => {
+                                        let lastCategory = "";
+                                        return ROLE_ORDER.map((role) => {
+                                            const config = ROLE_CONFIG[role];
+                                            if (!config) return null;
+                                            const isCurrent = role === roleModalUser.role;
+                                            const showCategory = config.category !== lastCategory;
+                                            lastCategory = config.category;
+
+                                            return (
+                                                <React.Fragment key={role}>
+                                                    {showCategory && (
+                                                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 pt-3 pb-1 px-1">
+                                                            {config.category}
+                                                        </p>
+                                                    )}
+                                                    <button
+                                                        onClick={() => handleRoleUpdate(role)}
+                                                        disabled={isUpdatingRole}
+                                                        className={`w-full flex items-center gap-3.5 p-3.5 rounded-xl border-2 transition-all duration-200 group relative ${
+                                                            isCurrent
+                                                                ? `${config.bgColor} ${config.borderColor} ring-2 ${config.ringColor}/30`
+                                                                : "bg-white border-slate-100 hover:border-slate-200 hover:shadow-sm"
+                                                        } ${isUpdatingRole ? "opacity-50 cursor-not-allowed" : ""}`}
+                                                    >
+                                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all ${
+                                                            isCurrent
+                                                                ? `${config.bgColor} ${config.color} ring-2 ${config.ringColor}/40`
+                                                                : `bg-slate-50 text-slate-400 group-hover:${config.bgColor} group-hover:${config.color}`
+                                                        }`}>
+                                                            {config.icon}
+                                                        </div>
+                                                        <div className="flex-1 text-left min-w-0">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={`text-sm font-bold tracking-wide ${isCurrent ? config.color : "text-slate-800"}`}>
+                                                                    {role}
+                                                                </span>
+                                                                {isCurrent && (
+                                                                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${config.bgColor} ${config.color} border ${config.borderColor}`}>
+                                                                        Current
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <p className="text-xs text-slate-400 mt-0.5 truncate">{config.description}</p>
+                                                        </div>
+                                                        {!isCurrent && (
+                                                            <div className="w-5 h-5 rounded-full border-2 border-slate-200 group-hover:border-blue-400 transition-colors shrink-0" />
+                                                        )}
+                                                        {isCurrent && (
+                                                            <div className={`w-5 h-5 rounded-full ${config.borderColor} border-2 flex items-center justify-center shrink-0`}>
+                                                                <div className={`w-2.5 h-2.5 rounded-full ${config.color.replace("text-", "bg-")}`} />
+                                                            </div>
+                                                        )}
+                                                    </button>
+                                                </React.Fragment>
+                                            );
+                                        });
+                                    })()}
+                                </div>
+                                <div className="px-5 py-4 bg-slate-50/80 border-t border-slate-100 flex justify-end">
+                                    <button
+                                        onClick={() => {
+                                            setIsRoleModalOpen(false);
+                                            setConfirmTransfer(false);
+                                            setSelectedRole(null);
+                                        }}
+                                        className="px-5 py-2 text-sm font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-all"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
