@@ -6,6 +6,7 @@ import { useAppSelector } from '@/lib/hooks';
 import { selectCurrentUser } from '@/lib/features/auth/authSlice';
 import { useGetSocietyByIdQuery, useGetMyManageableSocietiesQuery } from '@/lib/features/societies/societyApiSlice';
 import SocietyDashboard from '@/components/society/SocietyDashboard';
+import Loading from '@/app/loading';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -46,11 +47,7 @@ export default function DashboardPage() {
   if (!isMounted || !user) return null;
 
   if (isSocietiesLoading || (societyId && isDetailsLoading)) {
-    return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-            <div className="text-blue-500 animate-pulse text-xl">Loading Dashboard...</div>
-        </div>
-    );
+    return <Loading />;
   }
 
   if (societyDetails) {

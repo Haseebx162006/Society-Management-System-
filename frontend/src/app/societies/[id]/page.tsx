@@ -27,6 +27,8 @@ import SocietyViewModal from "@/components/society/SocietyViewModal";
 import Header from "@/components/Header";
 import SocietyEventsSection from "@/components/society/SocietyEventsSection";
 
+import Loading from "@/app/loading";
+
 export default function SocietyDetailsPage() {
     const { id } = useParams();
     const router = useRouter();
@@ -69,11 +71,7 @@ export default function SocietyDetailsPage() {
     };
 
     if (isLoading) {
-        return (
-            <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-indigo-500"></div>
-            </div>
-        );
+        return <Loading />;
     }
 
     if (!society) {
@@ -460,54 +458,73 @@ export default function SocietyDetailsPage() {
                         </div>
 
 
-                        <div className="bg-gray-900 rounded-2xl p-6 text-white shadow-xl">
-                            <h3 className="text-lg font-bold mb-6">Contact Info</h3>
-                            <ul className="space-y-4">
-                                <li className="flex items-start gap-4">
-                                    <MapPin className="w-5 h-5 text-indigo-400 shrink-0 mt-1" />
-                                    <span className="text-gray-300 text-sm">
-                                        Student Service Center, COMSATS University Lahore Campus
-                                    </span>
-                                </li>
-                                <li className="flex items-center gap-4">
-                                    <Mail className="w-5 h-5 text-indigo-400 shrink-0" />
-                                    <a
-                                        href={`mailto:${society.contact_info?.email ||
-                                            `contact@${society.name.toLowerCase().replace(/\s/g, "")}.com`
-                                            }`}
-                                        className="text-gray-300 text-sm hover:text-white transition-colors break-all"
-                                    >
-                                        {society.contact_info?.email ||
-                                            `contact@${society.name.toLowerCase().replace(/\s/g, "")}.com`}
-                                    </a>
-                                </li>
-                                {society.contact_info?.phone && (
-                                    <li className="flex items-center gap-4">
-                                        <div className="w-5 h-5 flex items-center justify-center text-indigo-400 shrink-0">
-                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-                                            </svg>
-                                        </div>
-                                        <span className="text-gray-300 text-sm">
-                                            {society.contact_info.phone}
-                                        </span>
-                                    </li>
-                                )}
-                                {society.contact_info?.website && (
-                                    <li className="flex items-center gap-4">
-                                        <Globe className="w-5 h-5 text-indigo-400 shrink-0" />
-                                        <a
-                                            href={society.contact_info.website}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-gray-300 text-sm hover:text-white transition-colors break-all"
-                                        >
-                                            Visit Website
-                                        </a>
-                                    </li>
-                                )}
-                            </ul>
-                        </div>
+                        {society.contact_info && (society.contact_info.email || society.contact_info.phone || society.contact_info.website || (society.contact_info.social_links && (society.contact_info.social_links.facebook || society.contact_info.social_links.instagram || society.contact_info.social_links.twitter || society.contact_info.social_links.linkedin))) && (
+                            <div className="bg-gray-900 rounded-2xl p-6 text-white shadow-xl">
+                                <h3 className="text-lg font-bold mb-6">Contact Info</h3>
+                                <ul className="space-y-4">
+                                    {society.contact_info?.email && (
+                                        <li className="flex items-center gap-4">
+                                            <Mail className="w-5 h-5 text-indigo-400 shrink-0" />
+                                            <a
+                                                href={`mailto:${society.contact_info.email}`}
+                                                className="text-gray-300 text-sm hover:text-white transition-colors break-all"
+                                            >
+                                                {society.contact_info.email}
+                                            </a>
+                                        </li>
+                                    )}
+                                    {society.contact_info?.phone && (
+                                        <li className="flex items-center gap-4">
+                                            <div className="w-5 h-5 flex items-center justify-center text-indigo-400 shrink-0">
+                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                                                </svg>
+                                            </div>
+                                            <span className="text-gray-300 text-sm">
+                                                {society.contact_info.phone}
+                                            </span>
+                                        </li>
+                                    )}
+                                    {society.contact_info?.website && (
+                                        <li className="flex items-center gap-4">
+                                            <Globe className="w-5 h-5 text-indigo-400 shrink-0" />
+                                            <a
+                                                href={society.contact_info.website}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-gray-300 text-sm hover:text-white transition-colors break-all"
+                                            >
+                                                Visit Website
+                                            </a>
+                                        </li>
+                                    )}
+                                    {society.contact_info?.social_links && (society.contact_info.social_links.facebook || society.contact_info.social_links.instagram || society.contact_info.social_links.twitter || society.contact_info.social_links.linkedin) && (
+                                        <li className="flex items-center gap-4 pt-4 border-t border-gray-800 mt-4">
+                                            {society.contact_info.social_links.facebook && (
+                                                <a href={society.contact_info.social_links.facebook} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800 rounded-full text-indigo-400 hover:text-white hover:bg-indigo-600 transition-colors">
+                                                    <Facebook className="w-4 h-4" />
+                                                </a>
+                                            )}
+                                            {society.contact_info.social_links.instagram && (
+                                                <a href={society.contact_info.social_links.instagram} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800 rounded-full text-indigo-400 hover:text-white hover:bg-pink-600 transition-colors">
+                                                    <Instagram className="w-4 h-4" />
+                                                </a>
+                                            )}
+                                            {society.contact_info.social_links.twitter && (
+                                                <a href={society.contact_info.social_links.twitter} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800 rounded-full text-indigo-400 hover:text-white hover:bg-blue-400 transition-colors">
+                                                    <Twitter className="w-4 h-4" />
+                                                </a>
+                                            )}
+                                            {society.contact_info.social_links.linkedin && (
+                                                <a href={society.contact_info.social_links.linkedin} target="_blank" rel="noopener noreferrer" className="p-2 bg-gray-800 rounded-full text-indigo-400 hover:text-white hover:bg-blue-600 transition-colors">
+                                                    <Linkedin className="w-4 h-4" />
+                                                </a>
+                                            )}
+                                        </li>
+                                    )}
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>

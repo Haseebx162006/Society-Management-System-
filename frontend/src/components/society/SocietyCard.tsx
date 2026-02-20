@@ -25,7 +25,7 @@ export default function SocietyCard({
   category = "General",
   stats = { members: "0" },
   image = DEFAULT_IMAGE,
-  color = "from-indigo-600 to-blue-700",
+  color = "from-orange-500 to-amber-500",
   registration_start_date,
   registration_end_date,
 }: SocietyCardProps) {
@@ -44,14 +44,14 @@ export default function SocietyCard({
       viewport={{ once: true }}
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
-      className="group relative bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full"
+      className="group relative bg-white rounded-2xl overflow-hidden border border-stone-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full"
     >
       <div className="relative h-48 overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
           style={{ backgroundImage: `url(${image})` }}
         />
-        <div className="absolute inset-0 bg-linear-to-t from-gray-900/60 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-stone-900/60 to-transparent" />
         
         <div className="absolute top-4 left-4 flex flex-col gap-2">
             <span className="px-3 py-1 text-xs font-bold text-white uppercase tracking-wider bg-white/20 backdrop-blur-md rounded-full border border-white/30 w-fit">
@@ -73,16 +73,16 @@ export default function SocietyCard({
       </div>
 
       <div className="p-6 flex flex-col grow">
-        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-indigo-600 transition-colors">
+        <h3 className="text-xl font-bold text-stone-900 mb-2 line-clamp-1 group-hover:text-orange-600 transition-colors">
           {name}
         </h3>
-        <p className="text-gray-600 text-base mb-6 line-clamp-2 grow">
+        <p className="text-stone-600 text-base mb-6 line-clamp-2 grow">
           {description}
         </p>
 
-        <div className="flex items-center gap-4 mb-6 text-sm text-gray-500 font-medium bg-gray-50 p-3 rounded-lg border border-gray-100">
+        <div className="flex items-center gap-4 mb-6 text-sm text-stone-500 font-medium bg-stone-50 p-3 rounded-lg border border-stone-100">
              <div className="flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-indigo-500" />
+                <Users className="w-4 h-4 text-orange-500" />
                 <span>{stats.members} Member{stats.members !== "1" ? "s" : ""}</span>
              </div>
         </div>
@@ -90,7 +90,7 @@ export default function SocietyCard({
         <Link
           href={`/societies/${id}`}
           className={`mt-auto w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all duration-300
-            bg-white text-gray-900 border border-gray-200 hover:bg-gray-50 hover:border-indigo-200 group-hover:text-indigo-600
+            bg-white text-stone-900 border border-stone-200 hover:bg-stone-50 hover:border-orange-200 group-hover:text-orange-600
           `}
         >
           <span>View Details</span>
