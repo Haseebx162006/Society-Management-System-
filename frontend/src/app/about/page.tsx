@@ -33,7 +33,7 @@ export default function AboutPage() {
         <div className="min-h-screen bg-[#fffdfa] text-stone-900 overflow-hidden">
             <Header />
 
-            <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32">
+            <section className="relative pt-15 pb-20 lg:pt-34 lg:pb-34">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none overflow-hidden">
                     <motion.div 
                         animate={{ 
