@@ -1,15 +1,52 @@
 import React from 'react';
 import { useGetAllSocietiesQuery } from '@/lib/features/societies/societyApiSlice';
-import { FaUserTie, FaUsers } from 'react-icons/fa';
+import { FaUserTie, FaUsers, FaDownload } from 'react-icons/fa';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const AdminSocieties: React.FC = () => {
   const { data: societies, isLoading } = useGetAllSocietiesQuery(undefined);
 
+  const downloadPDF = () => {
+    if (!societies || societies.length === 0) return;
+
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text("Approved Societies", 14, 22);
+
+    const tableData = societies.map((society: any) => [
+      society.name,
+      society.status,
+      society.membersCount || 0,
+      society.created_by?.name || "Unknown"
+    ]);
+
+    autoTable(doc, {
+      startY: 30,
+      head: [['Society Name', 'Status', 'Members', 'Created By']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { fillColor: [234, 88, 12] },
+    });
+
+    doc.save("societies_list.pdf");
+  };
+
   return (
     <>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-slate-800">Approved Societies</h2>
-        <p className="text-slate-500">View and manage all societies active on the platform</p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800">Approved Societies</h2>
+          <p className="text-slate-500">View and manage all societies active on the platform</p>
+        </div>
+        <button
+          onClick={downloadPDF}
+          disabled={isLoading || !societies || societies.length === 0}
+          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white font-medium rounded-xl hover:bg-orange-700 transition-colors disabled:opacity-50 shadow-sm text-sm max-w-fit"
+        >
+          <FaDownload /> Download PDF
+        </button>
       </div>
 
       <div className="bg-white shadow-sm border border-slate-100 overflow-hidden rounded-2xl">
