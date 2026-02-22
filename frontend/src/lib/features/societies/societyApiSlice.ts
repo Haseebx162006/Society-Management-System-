@@ -24,6 +24,11 @@ export const societyApiSlice = apiSlice.injectEndpoints({
         providesTags: ["Society"],
         transformResponse: (response: { data: any }) => response.data,
     }),
+    getAllSocietiesAdmin: builder.query({
+        query: () => "/society/admin/all",
+        providesTags: ["Society"],
+        transformResponse: (response: { data: any }) => response.data,
+    }),
     getAllPlatformMembers: builder.query({
         query: () => "/society/members/all",
         providesTags: ["SocietyMember"],
@@ -71,6 +76,20 @@ export const societyApiSlice = apiSlice.injectEndpoints({
         }),
         invalidatesTags: ["SocietyMember", "Society"],
     }),
+    suspendSociety: builder.mutation({
+      query: (id) => ({
+        url: `/society/${id}/suspend`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Society"],
+    }),
+    reactivateSociety: builder.mutation({
+      query: (id) => ({
+        url: `/society/${id}/reactivate`,
+        method: "POST",
+      }),
+      invalidatesTags: ["Society"],
+    }),
   }),
 });
 
@@ -85,4 +104,7 @@ export const {
   useUpdateSocietyMutation,
   useGetSocietyByIdQuery,
   useUpdateSocietyMemberRoleMutation,
+  useGetAllSocietiesAdminQuery,
+  useSuspendSocietyMutation,
+  useReactivateSocietyMutation,
 } = societyApiSlice;

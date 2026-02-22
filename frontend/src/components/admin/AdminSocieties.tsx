@@ -1,12 +1,48 @@
-import React from 'react';
-import { useGetAllSocietiesQuery } from '@/lib/features/societies/societyApiSlice';
-import { FaUserTie, FaUsers, FaDownload } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { useGetAllSocietiesAdminQuery, useSuspendSocietyMutation, useReactivateSocietyMutation } from '@/lib/features/societies/societyApiSlice';
+import { FaUserTie, FaUsers, FaDownload, FaBan, FaCheckCircle, FaExclamationTriangle, FaTimes } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Image from 'next/image';
 
 const AdminSocieties: React.FC = () => {
-  const { data: societies, isLoading } = useGetAllSocietiesQuery(undefined);
+  const { data: societies, isLoading, refetch } = useGetAllSocietiesAdminQuery(undefined);
+  const [suspendSociety, { isLoading: isSuspending }] = useSuspendSocietyMutation();
+  const [reactivateSociety, { isLoading: isReactivating }] = useReactivateSocietyMutation();
+
+  const [modalConfig, setModalConfig] = useState({
+    isOpen: false,
+    societyId: '',
+    societyName: '',
+    actionType: 'SUSPEND' as 'SUSPEND' | 'REACTIVATE'
+  });
+
+  const handleToggleStatus = (id: string, name: string, currentStatus: string) => {
+    setModalConfig({
+      isOpen: true,
+      societyId: id,
+      societyName: name,
+      actionType: currentStatus === 'ACTIVE' ? 'SUSPEND' : 'REACTIVATE'
+    });
+  };
+
+  const confirmAction = async () => {
+    try {
+      if (modalConfig.actionType === 'SUSPEND') {
+         await suspendSociety(modalConfig.societyId).unwrap();
+      } else {
+         await reactivateSociety(modalConfig.societyId).unwrap();
+      }
+      setModalConfig({ ...modalConfig, isOpen: false });
+      refetch();
+    } catch (err) {
+      console.error(`Failed to ${modalConfig.actionType.toLowerCase()} society`, err);
+    }
+  };
+
+  const closeModal = () => {
+    setModalConfig({ ...modalConfig, isOpen: false });
+  };
 
   const downloadPDF = () => {
     if (!societies || societies.length === 0) return;
@@ -81,7 +117,26 @@ const AdminSocieties: React.FC = () => {
                           </span>
                         </div>
                       </div>
-                      <p className="text-sm text-slate-600 line-clamp-2 mt-2">
+                      <div className="mt-4 flex items-center gap-3">
+                           {society.status === 'ACTIVE' ? (
+                               <button 
+                                 onClick={() => handleToggleStatus(society._id, society.name, society.status)}
+                                 disabled={isSuspending || isReactivating}
+                                 className="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded drop-shadow-sm text-xs font-semibold hover:bg-red-100 disabled:opacity-50 transition-colors border border-red-200"
+                               >
+                                 <FaBan /> Suspend Society
+                               </button>
+                           ) : society.status === 'SUSPENDED' ? (
+                               <button 
+                                 onClick={() => handleToggleStatus(society._id, society.name, society.status)}
+                                 disabled={isSuspending || isReactivating}
+                                 className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded drop-shadow-sm text-xs font-semibold hover:bg-green-100 disabled:opacity-50 transition-colors border border-green-200"
+                               >
+                                 <FaCheckCircle /> Reactivate Society
+                               </button>
+                           ) : null}
+                      </div>
+                      <p className="text-sm text-slate-600 line-clamp-2 mt-3">
                         {society.description || "No description available."}
                       </p>
                     </div>
@@ -110,6 +165,65 @@ const AdminSocieties: React.FC = () => {
           )}
         </div>
       </div>
+
+      {modalConfig.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center p-6 border-b border-slate-100">
+              <h3 className="text-xl font-bold flex items-center gap-2 text-slate-800">
+                {modalConfig.actionType === 'SUSPEND' ? (
+                  <><FaExclamationTriangle className="text-red-500" /> Suspend Society</>
+                ) : (
+                  <><FaCheckCircle className="text-green-500" /> Reactivate Society</>
+                )}
+              </h3>
+              <button 
+                onClick={closeModal}
+                className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+              >
+                <FaTimes />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <p className="text-slate-600 mb-2">
+                Are you sure you want to {modalConfig.actionType === 'SUSPEND' ? 'suspend' : 'reactivate'}{' '}
+                <span className="font-bold text-slate-800">{modalConfig.societyName}</span>?
+              </p>
+              
+              {modalConfig.actionType === 'SUSPEND' && (
+                <div className="bg-red-50 border border-red-100 rounded-xl p-4 mt-4">
+                  <p className="text-sm text-red-700 font-medium flex items-start gap-2">
+                    <FaBan className="mt-0.5 shrink-0" />
+                    If suspended, this society will be hidden from all standard users and they will lose access to its dashboard and features until reactivated.
+                  </p>
+                </div>
+              )}
+            </div>
+            
+            <div className="p-6 pt-2 flex flex-col sm:flex-row gap-3 sm:justify-end">
+              <button
+                onClick={closeModal}
+                disabled={isSuspending || isReactivating}
+                className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmAction}
+                disabled={isSuspending || isReactivating}
+                className={`px-5 py-2.5 rounded-xl text-white font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${
+                  modalConfig.actionType === 'SUSPEND' 
+                    ? 'bg-red-600 hover:bg-red-700 shadow-sm shadow-red-200' 
+                    : 'bg-green-600 hover:bg-green-700 shadow-sm shadow-green-200'
+                }`}
+              >
+                {(isSuspending || isReactivating) ? 'Processing...' : modalConfig.actionType === 'SUSPEND' ? 'Yes, Suspend Society' : 'Yes, Reactivate Society'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

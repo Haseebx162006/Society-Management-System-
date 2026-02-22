@@ -130,7 +130,6 @@ const societySchema: Schema = new Schema({
     toObject: { virtuals: true }
 });
 
-// Virtual for groups
 societySchema.virtual('groups', {
     ref: 'Group',
     localField: '_id',

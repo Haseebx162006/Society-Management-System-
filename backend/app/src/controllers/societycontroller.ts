@@ -265,6 +265,33 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
 
 
 
+export const getAllSocietiesAdmin = async (req: AuthRequest, res: Response) => {
+    try {
+        const societies = await Society.find({ status: { $ne: "DELETED" } })
+            .populate("created_by", "name email phone")
+            .populate("groups", "name")
+            .sort({ created_at: -1 });
+
+        const societyIds = societies.map(s => s._id);
+        const memberCounts = await SocietyUserRole.aggregate([
+            { $match: { society_id: { $in: societyIds } } },
+            { $group: { _id: "$society_id", count: { $sum: 1 } } }
+        ]);
+
+        const societiesWithCounts = societies.map(society => {
+            const societyObj = society.toObject();
+            const countObj = memberCounts.find(mc => mc._id.toString() === society._id.toString());
+            (societyObj as any).membersCount = countObj ? countObj.count : 0;
+            return societyObj;
+        });
+
+        return sendResponse(res, 200, "Admin societies fetched successfully", societiesWithCounts);
+
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error while fetching admin societies", error);
+    }
+};
+
 export const getAllSocieties = async (req: AuthRequest, res: Response) => {
     try {
         const societies = await Society.find({ status: "ACTIVE" })
@@ -330,8 +357,12 @@ export const getSocietyById = async (req: AuthRequest, res: Response) => {
             .populate("created_by", "name email phone")
             .populate("groups", "name");
 
-        if (!society) {
+        if (!society || society.status === "DELETED") {
             return sendError(res, 404, "Society not found");
+        }
+
+        if (society.status === "SUSPENDED") {
+             return sendError(res, 403, "This society has been temporarily suspended by the administrator.");
         }
 
         // Fetch members of this society
@@ -732,18 +763,19 @@ export const changePresident = async (req: AuthRequest, res: Response) => {
 export const suspendSociety = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
-        const { reason } = req.body; // Unused for now but kept for compatibility
 
         const society = await Society.findById(id);
         if (!society) return sendError(res, 404, "Society not found");
 
         if (society.status === "SUSPENDED") return sendError(res, 400, "Society is already suspended");
 
-        society.status = "SUSPENDED";
-        society.updated_at = new Date();
-        await society.save();
+        const updated = await Society.findByIdAndUpdate(
+            id,
+            { $set: { status: "SUSPENDED", updated_at: new Date() } },
+            { new: true }
+        );
 
-        return sendResponse(res, 200, "Society suspended successfully", society);
+        return sendResponse(res, 200, "Society suspended successfully", updated);
 
     } catch (error: any) {
         return sendError(res, 500, "Internal server error", error);
@@ -759,11 +791,13 @@ export const reactivateSociety = async (req: AuthRequest, res: Response) => {
 
         if (society.status === "ACTIVE") return sendError(res, 400, "Society is already active");
 
-        society.status = "ACTIVE";
-        society.updated_at = new Date();
-        await society.save();
+        const updated = await Society.findByIdAndUpdate(
+            id,
+            { $set: { status: "ACTIVE", updated_at: new Date() } },
+            { new: true }
+        );
 
-        return sendResponse(res, 200, "Society reactivated successfully", society);
+        return sendResponse(res, 200, "Society reactivated successfully", updated);
 
     } catch (error: any) {
         return sendError(res, 500, "Internal server error", error);

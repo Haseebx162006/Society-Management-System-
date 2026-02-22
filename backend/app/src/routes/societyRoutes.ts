@@ -8,6 +8,7 @@ import {
     getAllSocietyRequests,
     updateSocietyRequestStatus,
     getAllSocieties,
+    getAllSocietiesAdmin,
     getMyManageableSocieties,
     getSocietyById,
     getAllPlatformMembers,
@@ -32,6 +33,7 @@ router.put('/requests/:id', protect, adminOnly, updateSocietyRequestStatus);
 
 router.post('/', protect, upload.single("logo"), createSociety);
 router.get('/manageable', protect, getMyManageableSocieties);
+router.get('/admin/all', protect, adminOnly, getAllSocietiesAdmin);
 router.get('/', getAllSocieties);
 router.get('/members/all', protect, adminOnly, getAllPlatformMembers);
 router.get('/:id', getSocietyById);
