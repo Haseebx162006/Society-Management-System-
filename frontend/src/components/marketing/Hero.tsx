@@ -163,7 +163,7 @@ export default function Hero() {
               Find a Society
             </Link>
             <Link
-              href="/register-society"
+              href="/profile"
               className="w-full sm:w-auto px-8 py-3.5 bg-[#fffdfa] text-stone-700 border border-stone-200 rounded-full font-semibold hover:bg-stone-50 hover:border-stone-300 transition-all flex items-center justify-center gap-2"
             >
               <Shield className="w-4 h-4 text-stone-500" />

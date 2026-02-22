@@ -201,7 +201,7 @@ export default function AboutPage() {
                                 Explore Societies <ArrowRight className="w-5 h-5" />
                             </Link>
                             <Link 
-                                href="/register-society" 
+                                href="/profile" 
                                 className="px-8 py-4 bg-orange-700 text-white rounded-full font-black border border-orange-500/50 flex items-center justify-center gap-2 hover:bg-orange-800 transition-colors shadow-xl"
                             >
                                 Register Yours
