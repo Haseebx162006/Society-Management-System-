@@ -22,11 +22,11 @@ export const FuturisticButton = ({
 
   const variants = {
     primary:
-      "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg hover:shadow-indigo-500/30 hover:scale-[1.02]",
+      "bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-500/30 hover:scale-[1.02]",
     secondary:
-      "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm",
+      "bg-white text-stone-700 border border-stone-200 hover:bg-stone-50 hover:border-stone-300 shadow-sm transition-all",
     outline:
-      "border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50",
+      "border-2 border-orange-600 text-orange-600 hover:bg-orange-50",
   };
 
   return (

@@ -7,16 +7,18 @@ import { setCredentials } from "../../lib/features/auth/authSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
-import { Mail, Lock, LogIn, ArrowLeft } from "lucide-react";
+import { Mail, Lock, LogIn, ArrowLeft, Eye, EyeOff, Sparkles, ShieldCheck } from "lucide-react";
 import { FuturisticInput } from "../../components/ui/FuturisticInput";
 import { FuturisticButton } from "../../components/ui/FuturisticButton";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const [login, { isLoading }] = useLoginMutation();
   const dispatch = useAppDispatch();
@@ -42,117 +44,164 @@ export default function LoginPage() {
         })
       );
 
-      toast.success("Welcome back, Commander!", {
+      toast.success("Welcome back!", {
         style: {
           background: "#ffffff",
-          color: "#1f2937",
-          border: "1px solid #e5e7eb",
-          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-        },
-        iconTheme: {
-          primary: "#4f46e5",
-          secondary: "#e0e7ff",
+          color: "#1c1917",
+          border: "1px solid #e7e5e4",
         },
       });
 
       router.push("/profile");
-    } catch (err: any) {
+    } catch (err) {
       console.error("Login failed:", err);
       const errorMessage =
-        (err as { data?: { message?: string } })?.data?.message || "Authentication protocols failed. Access denied.";
-      toast.error(errorMessage, {
-        style: {
-          background: "#ffffff",
-          color: "#1f2937",
-          border: "1px solid #fee2e2",
-          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-        },
-        iconTheme: {
-          primary: "#ef4444",
-          secondary: "#fee2e2",
-        },
-      });
+        (err as { data?: { message?: string } })?.data?.message || "Authentication failed. Access denied.";
+      toast.error(errorMessage);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
-      <Link href="/" className="absolute top-6 left-6 z-20 flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors">
-        <ArrowLeft size={16} />
-        Back to Home
-      </Link>
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-3xl mix-blend-multiply animate-blob" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-3xl mix-blend-multiply animate-blob animation-delay-2000" />
+    <div className="min-h-screen flex bg-white font-[var(--font-family-poppins)]">
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-stone-900">
+        <Image 
+            src="/auth-hero.png" 
+            alt="Premium Background" 
+            fill 
+            className="object-cover opacity-60 mix-blend-luminosity scale-105"
+            priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent" />
+        
+        <div className="relative z-10 w-full p-16 flex flex-col justify-between">
+            <Link href="/" className="flex items-center gap-2.5 group w-fit">
+                <div className="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
+                    <span className="text-white font-bold text-lg">C</span>
+                </div>
+                <span className="text-xl font-bold tracking-tight text-white">COMSOC</span>
+            </Link>
+
+            <div className="max-w-md">
+                <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                >
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-[10px] font-black uppercase tracking-widest mb-6">
+                        <Sparkles className="w-3 h-3" />
+                        Next Gen Community
+                    </span>
+                    <h2 className="text-5xl font-black text-white mb-6 leading-[1.1] tracking-tighter">
+                        Empowering the <br /> 
+                        <span className="text-orange-500">Leaders</span> of Tomorrow.
+                    </h2>
+                    <p className="text-stone-400 text-lg leading-relaxed font-medium">
+                        Access the most advanced society management ecosystem and elevate your campus experience.
+                    </p>
+                </motion.div>
+            </div>
+
+            <div className="flex items-center gap-6">
+                <div className="flex -space-x-3">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className="w-10 h-10 rounded-full border-2 border-stone-900 bg-stone-800" />
+                    ))}
+                </div>
+                <span className="text-sm font-bold text-stone-500 tracking-wide uppercase">Join 500+ active members</span>
+            </div>
+        </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-md bg-white/70 backdrop-blur-xl border border-white/50 p-8 rounded-3xl shadow-2xl"
-      >
-        <div className="text-center mb-10">
-          <motion.h1
-            initial={{ opacity: 0, scale: 0.9 }}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16 bg-[#fffdfa] relative">
+        <Link 
+            href="/" 
+            className="absolute top-8 right-8 lg:right-16 flex items-center gap-2 text-xs font-black text-stone-400 hover:text-orange-600 transition-all uppercase tracking-widest group"
+        >
+            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+            Home
+        </Link>
+
+        <motion.div 
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-4xl font-bold text-gray-900 mb-2 tracking-tight"
-          >
-            Welcome Back
-          </motion.h1>
-          <p className="text-gray-500">Access your dashboard to continue.</p>
+            className="w-full max-w-sm"
+        >
+            <div className="mb-12">
+                <h1 className="text-4xl font-black text-stone-900 mb-4 tracking-tighter leading-tight">
+                    Welcome <br className="lg:hidden" /> Back.
+                </h1>
+                <p className="text-stone-500 font-bold text-sm tracking-wide uppercase">
+                    Enter your credentials to continue
+                </p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <FuturisticInput
+                    label="Email Address"
+                    name="email"
+                    type="email"
+                    icon={Mail}
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                />
+
+                <FuturisticInput
+                    label="Password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    icon={Lock}
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    rightElement={
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="p-2 text-stone-300 hover:text-orange-600 transition-colors"
+                        >
+                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                    }
+                />
+
+                <div className="flex justify-between items-center pb-8">
+                    <div className="flex items-center gap-2 cursor-pointer group">
+                        <div className="w-4 h-4 rounded-md border-2 border-stone-200 group-hover:border-orange-500 transition-colors" />
+                        <span className="text-[11px] font-bold text-stone-400 group-hover:text-stone-600 uppercase tracking-wider">Keep me in</span>
+                    </div>
+                    <a href="#" className="text-[11px] font-bold text-stone-400 hover:text-orange-600 transition-colors uppercase tracking-widest">
+                        Recovery?
+                    </a>
+                </div>
+
+                <FuturisticButton
+                    type="submit"
+                    isLoading={isLoading}
+                    className="w-full py-5 text-sm rounded-2xl bg-stone-900 text-white hover:bg-orange-600 transition-all duration-500 font-black uppercase tracking-[0.15em]"
+                >
+                    Authorize Access
+                </FuturisticButton>
+            </form>
+
+            <div className="mt-12 pt-8 border-t border-stone-100/60 text-center">
+                <p className="text-stone-400 text-[11px] font-bold uppercase tracking-widest mb-4">
+                    Don&apos;t have an account?
+                </p>
+                <Link
+                    href="/signup"
+                    className="inline-flex items-center gap-2 py-3 px-8 rounded-full border-2 border-stone-100 text-stone-900 font-black text-xs uppercase tracking-widest hover:border-orange-600 hover:text-orange-600 transition-all duration-300"
+                >
+                    Create Identity
+                </Link>
+            </div>
+        </motion.div>
+
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-30">
+            <ShieldCheck size={14} className="text-stone-400" />
+            <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Secure Environment</span>
         </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <FuturisticInput
-            label="Email Address"
-            name="email"
-            type="email"
-            icon={Mail}
-            value={formData.email}
-            onChange={handleChange}
-            required
-            autoComplete="email"
-          />
-
-          <FuturisticInput
-            label="Password"
-            name="password"
-            type="password"
-            icon={Lock}
-            value={formData.password}
-            onChange={handleChange}
-            required
-            autoComplete="current-password"
-          />
-
-          <div className="flex justify-end relative bottom-4">
-            <a href="#" className="text-sm text-indigo-600 hover:text-indigo-700 font-medium transition-colors">
-              Forgot Password?
-            </a>
-          </div>
-
-          <FuturisticButton
-            type="submit"
-            isLoading={isLoading}
-            className="w-full h-12 text-lg"
-          >
-            <LogIn size={20} className="mr-2" />
-            {isLoading ? "Authenticating..." : "Login"}
-          </FuturisticButton>
-        </form>
-
-        <div className="mt-8 text-center text-gray-500 text-sm">
-          Don&apos;t have an account?{" "}
-          <Link
-            href="/signup"
-            className="text-indigo-600 hover:text-indigo-700 font-semibold transition-colors ml-1"
-          >
-            Sign Up
-          </Link>
-        </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

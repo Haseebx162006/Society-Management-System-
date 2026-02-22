@@ -9,38 +9,38 @@ interface FuturisticInputProps
   label: string;
   icon?: LucideIcon;
   error?: string;
+  rightElement?: React.ReactNode;
 }
 
 export const FuturisticInput = React.forwardRef<
   HTMLInputElement,
   FuturisticInputProps
->(({ label, icon: Icon, error, className, ...props }, ref) => {
+>(({ label, icon: Icon, error, rightElement, className, ...props }, ref) => {
   const [isFocused, setIsFocused] = useState(false);
-  const [hasValue, setHasValue] = useState(false);
 
   return (
     <div className="relative mb-6 group">
       <div
-        className={`relative flex items-center bg-gray-50 border rounded-xl transition-all duration-300 ${
+        className={`relative flex items-center bg-stone-50 border rounded-2xl transition-all duration-500 ${
           error
-            ? "border-red-300 bg-red-50"
+            ? "border-red-200 bg-red-50/30"
             : isFocused
-            ? "border-indigo-500 shadow-md bg-white ring-1 ring-indigo-500/20"
-            : "border-gray-200 hover:border-gray-300 hover:bg-white"
+            ? "border-orange-500/30 bg-white ring-4 ring-orange-500/5 shadow-sm"
+            : "border-stone-100 hover:border-stone-200 hover:bg-stone-100/30 shadow-xs"
         }`}
       >
         {Icon && (
-          <div className={`pl-4 transition-colors ${isFocused ? "text-indigo-600" : "text-gray-400 group-hover:text-gray-500"}`}>
-            <Icon size={20} />
+          <div className={`pl-5 transition-colors duration-300 ${isFocused ? "text-orange-600" : "text-stone-300 group-hover:text-stone-400"}`}>
+            <Icon size={18} strokeWidth={2.5} />
           </div>
         )}
 
         <input
           {...props}
           ref={ref}
-          className={`w-full bg-transparent px-4 py-3.5 text-gray-900 placeholder-transparent focus:outline-none transition-all ${
+          className={`w-full bg-transparent px-5 py-4 text-[15px] font-medium text-stone-900 placeholder-stone-300 focus:outline-none transition-all ${
             Icon ? "pl-3" : ""
-          } ${className || ""}`}
+          } ${rightElement ? "pr-12" : ""} ${className || ""}`}
           placeholder={label}
           onFocus={(e) => {
             setIsFocused(true);
@@ -48,36 +48,25 @@ export const FuturisticInput = React.forwardRef<
           }}
           onBlur={(e) => {
             setIsFocused(false);
-            setHasValue(!!e.target.value);
             props.onBlur?.(e);
           }}
           onChange={(e) => {
-            setHasValue(!!e.target.value);
             props.onChange?.(e);
           }}
         />
 
-        <motion.label
-          initial={false}
-          animate={{
-            y: isFocused || hasValue || props.value ? -28 : 0,
-            x: isFocused || hasValue || props.value ? (Icon ? -32 : 0) : 0,
-            scale: isFocused || hasValue || props.value ? 0.85 : 1,
-            color: error ? "#ef4444" : isFocused ? "#4f46e5" : "#6b7280", // indigo-600 or gray-500
-          }}
-          className={`absolute left-4 pointer-events-none transition-all duration-200 font-medium ${
-            Icon ? "pl-8" : ""
-          }`}
-        >
-          {label}
-        </motion.label>
+        {rightElement && (
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            {rightElement}
+          </div>
+        )}
       </div>
 
       {error && (
         <motion.p
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute -bottom-5 left-1 text-xs text-red-500 font-medium"
+          className="absolute -bottom-5 left-1 text-[10px] text-red-500 font-bold uppercase tracking-wider"
         >
           {error}
         </motion.p>
