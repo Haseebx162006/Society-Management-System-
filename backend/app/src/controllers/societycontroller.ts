@@ -268,7 +268,7 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
 export const getAllSocieties = async (req: AuthRequest, res: Response) => {
     try {
         const societies = await Society.find({ status: "ACTIVE" })
-            .populate("created_by", "name email")
+            .populate("created_by", "name email phone")
             .populate("groups", "name")
             .sort({ created_at: -1 });
 
@@ -309,7 +309,7 @@ export const getMyManageableSocieties = async (req: AuthRequest, res: Response) 
             _id: { $in: societyIds },
             status: "ACTIVE"
         })
-        .populate("created_by", "name email")
+        .populate("created_by", "name email phone")
         .populate("groups", "name")
         .sort({ created_at: -1 });
 
@@ -327,7 +327,7 @@ export const getSocietyById = async (req: AuthRequest, res: Response) => {
         const { id } = req.params;
 
         const society = await Society.findById(id)
-            .populate("created_by", "name email")
+            .populate("created_by", "name email phone")
             .populate("groups", "name");
 
         if (!society) {
