@@ -4,60 +4,65 @@ import { motion } from "framer-motion";
 import { Quote } from "lucide-react";
 
 const testimonials = [
-    {
-      content: "COMSOC has completely transformed how we manage our 500+ member engineering society. The event check-in feature alone saved us hours.",
-      name: "Alex Rivera",
-      role: "President, Engineering Society",
-      avatar: "AR"
-    },
-    {
-      content: "Finding clubs at COMSATS used to be hard. Now I can see every active society, their events, and join with just one click. It's a game changer.",
-      name: "Fatima Ali",
-      role: "CS Student, Semester 4",
-      avatar: "FA"
-    },
-    {
-      content: "The user interface is stunning and so easy to use. Setting up our society page took less than 10 minutes.",
-      name: "James Wilson",
-      role: "Secretary, Photography Club",
-      avatar: "JW"
-    }
-  ];
+  {
+    content: "COMSOC transformed how we manage our 500+ member engineering society. The execution is flawless.",
+    name: "Alex Rivera",
+    role: "President, Engineering Society",
+    avatar: "AR"
+  },
+  {
+    content: "The elite standard for campus communities. Discovering my tribe took seconds, not semesters.",
+    name: "Fatima Ali",
+    role: "CS Student, Semester 4",
+    avatar: "FA"
+  },
+  {
+    content: "Stunning interface and institutional-grade management. Our secret weapon for society growth.",
+    name: "James Wilson",
+    role: "Secretary, Photography Club",
+    avatar: "JW"
+  }
+];
 
 export default function Testimonials() {
   return (
-    <section id="testimonials" className="py-24 bg-stone-50">
+    <section id="testimonials" className="py-40 bg-zinc-50/50">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl mb-4">
-            Trusted by student leaders
-          </h2>
-          <p className="text-lg text-stone-600 max-w-2xl mx-auto">
-            See what other society executives are saying about their experience with SocietySync.
+        <div className="mb-24 flex flex-col md:flex-row md:items-end justify-between gap-10">
+          <div className="max-w-xl">
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.4em] text-orange-600 mb-4 block">Proven Excellence</span>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tighter text-stone-900 leading-tight">
+                Trusted by the next <br /> generation of leaders.
+            </h2>
+          </div>
+          <p className="text-stone-500 font-semibold text-sm tracking-wide uppercase max-w-xs md:text-right border-l-2 md:border-l-0 md:border-r-2 border-orange-500/20 px-6">
+            Institutional-grade feedback from active campus executives.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16">
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white p-8 rounded-2xl shadow-sm border border-stone-100 flex flex-col h-full"
+              transition={{ duration: 0.8, delay: index * 0.1 }}
+              className="flex flex-col group"
             >
-              <Quote className="w-10 h-10 text-orange-100 mb-6" />
-              <p className="text-stone-700 leading-relaxed flex-1 mb-8">
-                {testimonial.content}
+              <div className="mb-8">
+                <Quote className="w-8 h-8 text-orange-500/20 group-hover:text-orange-500/40 transition-colors" />
+              </div>
+              <p className="text-[22px] font-bold text-stone-900 leading-tight tracking-tight mb-10 group-hover:text-stone-700 transition-colors italic">
+                &ldquo;{testimonial.content}&rdquo;
               </p>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-lg">
+              <div className="flex items-center gap-5 mt-auto">
+                <div className="w-14 h-14 rounded-2xl bg-white border border-stone-100 flex items-center justify-center text-stone-400 font-bold text-xs shadow-sm shadow-stone-200">
                     {testimonial.avatar}
                 </div>
                 <div>
-                  <h4 className="font-semibold text-stone-900">{testimonial.name}</h4>
-                  <p className="text-sm text-stone-500">{testimonial.role}</p>
+                  <h4 className="font-bold text-stone-900 tracking-tight text-base">{testimonial.name}</h4>
+                  <p className="text-[10px] font-extrabold text-orange-600 uppercase tracking-widest">{testimonial.role}</p>
                 </div>
               </div>
             </motion.div>

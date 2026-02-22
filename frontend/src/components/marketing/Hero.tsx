@@ -124,14 +124,14 @@ export default function Hero() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
             </span>
-            COMSATS Lahore Official Portal
+            COMSATS Lahore Student Portal
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-5xl md:text-7xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-stone-900 mb-6 max-w-5xl"
+            className="text-5xl md:text-7xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-stone-900 mb-6 max-w-5xl"
           >
             The Heart of Campus Life at <br className="hidden lg:block" />
             <span className="text-orange-600">
@@ -145,8 +145,8 @@ export default function Hero() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-xl text-stone-600 mb-10 max-w-3xl leading-relaxed mx-auto lg:mx-0"
           >
-            The unified platform for <span className="font-semibold text-stone-900">societies</span> to manage operations, 
-            and for <span className="font-semibold text-stone-900">students</span> to discover, join, and lead communities.
+            The unified platform for <span className="font-bold text-stone-900">societies</span> to manage operations, 
+            and for <span className="font-bold text-stone-900">students</span> to discover, join, and lead communities.
           </motion.p>
 
           <motion.div
@@ -157,14 +157,14 @@ export default function Hero() {
           >
             <Link
               href="/societies"
-              className="w-full sm:w-auto px-8 py-3.5 bg-orange-600 text-white rounded-full font-semibold hover:bg-orange-700 transition-all shadow-lg hover:shadow-orange-200 flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-3.5 bg-orange-600 text-white rounded-full font-bold hover:bg-orange-700 transition-all shadow-lg hover:shadow-orange-200 flex items-center justify-center gap-2"
             >
               <Users className="w-4 h-4" />
               Find a Society
             </Link>
             <Link
               href="/profile"
-              className="w-full sm:w-auto px-8 py-3.5 bg-[#fffdfa] text-stone-700 border border-stone-200 rounded-full font-semibold hover:bg-stone-50 hover:border-stone-300 transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-3.5 bg-[#fffdfa] text-stone-700 border border-stone-200 rounded-full font-bold hover:bg-stone-50 hover:border-stone-300 transition-all flex items-center justify-center gap-2"
             >
               <Shield className="w-4 h-4 text-stone-500" />
               Manage Society

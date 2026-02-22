@@ -120,12 +120,12 @@ export default function SocietyShowcase() {
                     transition={{ duration: 0.5 }}
                 >
                     <div className="flex items-center space-x-3 mb-4">
-                         <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-white/10 backdrop-blur-md border border-white/20`}>
+                         <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest bg-white/10 backdrop-blur-md border border-white/20`}>
                             {activeSociety.category}
                          </span>
                     </div>
 
-                    <h2 className="text-5xl md:text-7xl font-black mb-6 leading-tight">
+                    <h2 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
                         {activeSociety.name}
                     </h2>
                     
@@ -144,7 +144,7 @@ export default function SocietyShowcase() {
                          </div>
                     </div>
 
-                    <Link href={`/societies/${activeSociety.id}`} className="group w-fit flex items-center gap-3 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-gray-100 transition-colors">
+                    <Link href={`/societies/${activeSociety.id}`} className="group w-fit flex items-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-gray-100 transition-colors">
                         <span>Learn More</span>
                         <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                     </Link>
@@ -186,7 +186,7 @@ export default function SocietyShowcase() {
                          <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent" />
                          
                          <div className="absolute bottom-0 left-0 p-4 w-full">
-                            <span className="text-[10px] font-bold text-orange-400 uppercase tracking-wider mb-1 block">
+                            <span className="text-[10px] font-semibold text-orange-400 uppercase tracking-wider mb-1 block">
                                 {society.category}
                             </span>
                             <h3 className="text-lg font-bold text-white leading-tight">

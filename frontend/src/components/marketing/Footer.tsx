@@ -1,71 +1,67 @@
 import Link from "next/link";
-import { Twitter, Github, Linkedin, Instagram } from "lucide-react";
+import { Twitter, Github, Linkedin, Instagram, Sparkles } from "lucide-react";
 
 const footerLinks = {
-  Product: [
-    { name: "Features", href: "#" },
-    { name: "Pricing", href: "#" },
-    { name: "Integrations", href: "#" },
-    { name: "Changelog", href: "#" },
-    { name: "Docs", href: "#" },
+  Platform: [
+    { name: "Executive Lab", href: "#" },
+    { name: "Portal Access", href: "/login" },
+    { name: "Global Analytics", href: "#" },
+    { name: "Network Status", href: "#" },
   ],
-  Company: [
-    { name: "About", href: "#" },
-    { name: "Blog", href: "#" },
-    { name: "Careers", href: "#" },
-    { name: "Contact", href: "#" },
-    { name: "Privacy", href: "#" },
+  Enterprise: [
+    { name: "Institutional Policy", href: "#" },
+    { name: "Brand Assets", href: "#" },
+    { name: "Security Audit", href: "#" },
+    { name: "Terms of Engagement", href: "#" },
   ],
-  Resources: [
-    { name: "Community", href: "#" },
-    { name: "Help Center", href: "#" },
-    { name: "Partners", href: "#" },
-    { name: "Status", href: "#" },
+  Support: [
+    { name: "Manifesto", href: "/about" },
+    { name: "Developer Docs", href: "#" },
+    { name: "Connect with HQ", href: "/contact" },
   ],
 };
 
 export default function Footer() {
   return (
-    <footer className="bg-[#fffdfa] border-t border-stone-100 pt-16 pb-12">
+    <footer className="bg-white border-t border-stone-100 py-32">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-16">
-          <div className="col-span-2 lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2 mb-6">
-              <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center text-white font-bold text-lg">
-                C
-              </div>
-              <span className="font-bold text-xl text-stone-900">
-                COMSOC
-              </span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-20 lg:gap-12 mb-24">
+          <div className="lg:col-span-3">
+            <Link href="/" className="inline-flex items-center gap-3 mb-10 group">
+                <div className="w-12 h-12 rounded-2xl bg-stone-900 flex items-center justify-center text-white transition-all duration-500 group-hover:bg-orange-600 shadow-xl shadow-stone-900/10">
+                    <Sparkles size={20} />
+                </div>
+                <div className="flex flex-col">
+                    <span className="font-bold text-2xl tracking-tighter text-stone-900 uppercase">COMSOC</span>
+                    <span className="text-[10px] font-extrabold text-orange-600 uppercase tracking-[0.3em]">Next Gen Platform</span>
+                </div>
             </Link>
-            <p className="text-stone-500 text-sm leading-relaxed max-w-xs mb-8">
-              The unified platform for COMSATS Lahore students to discover communities and for societies to manage operations.
+            <p className="text-stone-500 font-normal text-lg leading-relaxed max-w-sm mb-12">
+              The institutional standard for campus communities. Discover. Lead. Dominate.
             </p>
-            <div className="flex gap-4">
-              <Link href="#" className="text-stone-400 hover:text-stone-600 transition-colors">
-                <Twitter className="w-5 h-5" />
-              </Link>
-              <Link href="#" className="text-stone-400 hover:text-stone-600 transition-colors">
-                <Github className="w-5 h-5" />
-              </Link>
-              <Link href="#" className="text-stone-400 hover:text-stone-600 transition-colors">
-                <Linkedin className="w-5 h-5" />
-              </Link>
-              <Link href="#" className="text-stone-400 hover:text-stone-600 transition-colors">
-                <Instagram className="w-5 h-5" />
-              </Link>
+            <div className="flex gap-6">
+              {[
+                { icon: Twitter, href: "#" },
+                { icon: Github, href: "#" },
+                { icon: Linkedin, href: "#" },
+                { icon: Instagram, href: "#" }
+              ].map((social, i) => (
+                <Link key={i} href={social.href} className="w-10 h-10 rounded-xl border border-stone-100 flex items-center justify-center text-stone-400 hover:text-orange-600 hover:border-orange-500 transition-all duration-300">
+                    <social.icon size={18} />
+                </Link>
+              ))}
             </div>
           </div>
           
           {Object.entries(footerLinks).map(([category, links]) => (
-            <div key={category}>
-              <h3 className="font-semibold text-stone-900 mb-4">{category}</h3>
-              <ul className="space-y-3">
+            <div key={category} className="lg:col-span-1">
+              <h3 className="text-[10px] font-extrabold text-stone-300 uppercase tracking-[0.4em] mb-10">{category}</h3>
+              <ul className="space-y-6">
                 {links.map((link) => (
                   <li key={link.name}>
                     <Link 
                       href={link.href} 
-                      className="text-sm text-stone-500 hover:text-orange-600 transition-colors"
+                      className="text-sm font-bold text-stone-900 hover:text-orange-600 transition-colors uppercase tracking-widest"
                     >
                       {link.name}
                     </Link>
@@ -76,15 +72,24 @@ export default function Footer() {
           ))}
         </div>
         
-        <div className="pt-8 border-t border-stone-100 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-stone-500">
-            &copy; {new Date().getFullYear()} COMSOC. All rights reserved.
-          </p>
-          <div className="flex gap-6">
-             <Link href="#" className="text-sm text-stone-500 hover:text-stone-900">Terms</Link>
-             <Link href="#" className="text-sm text-stone-500 hover:text-stone-900">Privacy</Link>
-             <Link href="#" className="text-sm text-stone-500 hover:text-stone-900">Cookies</Link>
-          </div>
+        <div className="pt-20 border-t border-stone-100/60 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="flex flex-col md:flex-row items-center gap-3 md:gap-8">
+                <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-widest">
+                    &copy; {new Date().getFullYear()} COMSOC Core Systems.
+                </p>
+                <div className="h-1 w-1 bg-stone-200 rounded-full hidden md:block" />
+                <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-widest">
+                    Authorized and Verified Unit
+                </p>
+            </div>
+            
+            <div className="flex gap-8">
+                {["Legal Protocols", "Security Policy", "Privacy Shield"].map((item, i) => (
+                    <Link key={i} href="#" className="text-[11px] font-semibold text-stone-400 hover:text-stone-900 transition-colors uppercase tracking-widest leading-none border-b border-transparent hover:border-stone-900 py-1">
+                        {item}
+                    </Link>
+                ))}
+            </div>
         </div>
       </div>
     </footer>

@@ -13,67 +13,72 @@ import {
 const features = [
   {
     icon: Search,
-    title: "Discover Communities",
-    description: "Browse all active societies at COMSATS Lahore. Filter by category, interest, or department to find your tribe."
+    name: "Discovery",
+    title: "Find Your Tribe",
+    description: "Browse curated societies at COMSATS. Filter by category, interest, or department."
   },
   {
     icon: UserPlus,
-    title: "One-Click Registration",
-    description: "Join societies instantly. Fill your profile once and apply to multiple societies without repetitive forms."
+    name: "Onboarding",
+    title: "Instant Access",
+    description: "One-click registration. Universal profile sync across multiple campus societies."
   },
   {
     icon: Calendar,
-    title: "Campus Event Calendar",
-    description: "Never miss out. See all upcoming seminars, workshops, and competitions happening on campus in one view."
+    name: "Activity",
+    title: "Live Events",
+    description: "Stay synchronized with the campus pulse. Seminars, workshops, and competitions."
   },
   {
     icon: Zap,
-    title: "Digital Management",
-    description: "For executives: streamline member data, attendance tracking, and recruitment in a unified dashboard."
+    name: "Control",
+    title: "Digital Command",
+    description: "Centralized executive management. Streamline data, attendance, and recruitment."
   },
   {
     icon: ShieldCheck,
-    title: "Verified Profiles",
-    description: "Official society badges and verified student profiles ensure a trusted and secure community environment."
+    name: "Security",
+    title: "Verified Identity",
+    description: "Trusted campus environment with official badges and verified student profiles."
   },
   {
     icon: Globe,
-    title: "Society Portfolio",
-    description: "Showcase your society's achievements, photo galleries, and past events to attract new members."
+    name: "Portfolio",
+    title: "Public Presence",
+    description: "Showcase your group's achievements, galleries, and history to the entire campus."
   }
 ];
 
 export default function Features() {
   return (
-    <section id="features" className="py-24 bg-stone-50">
+    <section id="features" className="py-32 bg-white">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-3xl font-bold tracking-tight text-stone-900 sm:text-4xl mb-4">
-            Bridging the gap between
-            <span className="text-orange-600"> students and societies</span>
-          </h2>
-          <p className="text-lg text-stone-600">
-            A complete ecosystem for campus life. Whether you&apos;re looking to lead or looking to join, COMSOC has you covered.
-          </p>
+        <div className="mb-24">
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-orange-600 mb-4 block">Core Ecosystem</span>
+            <h2 className="text-4xl md:text-6xl font-bold tracking-tighter text-stone-900 leading-[1.1]">
+                Everything you need to <br className="hidden md:block" />
+                <span className="text-stone-300 underline decoration-orange-500/30 decoration-8 underline-offset-8">dominate</span> campus life.
+            </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-stone-100">
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white p-8 rounded-2xl border border-stone-100 shadow-sm hover:shadow-md transition-shadow group"
+              transition={{ duration: 0.8, delay: index * 0.1 }}
+              className="p-12 border-r border-b border-stone-100 group hover:bg-[#fffdfa] transition-all duration-500 cursor-default"
             >
-              <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600 mb-6 group-hover:scale-110 transition-transform duration-300">
-                <feature.icon className="w-6 h-6" />
+              <div className="w-10 h-10 mb-8 flex items-center justify-center rounded-xl bg-stone-50 text-stone-400 group-hover:bg-orange-600 group-hover:text-white transition-all duration-500 shadow-sm shadow-stone-100">
+                <feature.icon className="w-5 h-5" />
               </div>
-              <h3 className="text-xl font-semibold text-stone-900 mb-3">
+              <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-stone-300 mb-2 block group-hover:text-orange-500 transition-colors">{feature.name}</span>
+              <h3 className="text-xl font-bold text-stone-900 mb-4 tracking-tight">
                 {feature.title}
               </h3>
-              <p className="text-stone-600 leading-relaxed">
+              <p className="text-stone-500 font-normal leading-relaxed text-sm">
                 {feature.description}
               </p>
             </motion.div>

@@ -13,32 +13,38 @@ const integrations = [
 
 export default function Integrations() {
   return (
-    <section className="py-24 bg-[#fffdfa] border-y border-stone-100">
-      <div className="max-w-7xl mx-auto px-6 text-center">
-        <p className="text-sm font-semibold text-stone-500 uppercase tracking-widest mb-12">
-          Seamlessly integrates with your favorite tools
-        </p>
-        
-        <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-70">
-          {integrations.map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="flex items-center gap-2 group cursor-default"
-            >
-              <div className="relative w-16 h-16 md:w-20 md:h-20 grayscale hover:grayscale-0 transition-all duration-300">
-                <Image
-                  src={item.logo}
-                  alt={item.name}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-            </motion.div>
-          ))}
+    <section className="py-20 bg-[#fffdfa] border-y border-stone-100/60 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex flex-col md:flex-row items-center gap-12 md:gap-16">
+            <div className="shrink-0 text-center md:text-left">
+                <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-orange-600 mb-3 block">Partnership Ecosystem</span>
+                <h2 className="text-2xl font-bold text-stone-900 tracking-tight">Our Trusted <br className="hidden md:block" /> Network</h2>
+            </div>
+            
+            <div className="flex flex-1 items-center justify-around gap-8 py-4 overflow-hidden relative">
+                <div className="flex flex-wrap justify-center gap-8 md:gap-16 items-center">
+                    {integrations.map((item, index) => (
+                        <motion.div
+                            key={index}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: index * 0.1 }}
+                            className="group relative"
+                        >
+                            <div className="w-16 h-16 md:w-20 md:h-20 p-4 rounded-2xl bg-white border border-stone-100 shadow-sm transition-all duration-500 hover:shadow-xl hover:shadow-orange-500/10 hover:-translate-y-1">
+                                <Image
+                                    src={item.logo}
+                                    alt={item.name}
+                                    width={80}
+                                    height={80}
+                                    className="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-500"
+                                />
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
         </div>
       </div>
     </section>

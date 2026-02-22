@@ -11,16 +11,18 @@ import Header from "@/components/Header";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-[#fffdfa] font-(--font-family-poppins) selection:bg-orange-600 selection:text-white">
       <Header />
       <Hero />
-      <Integrations />
-      <Features />
-      <SocietyShowcase />
-      <AdvancedFeatures />
-      <EventShowcase />
-      <Testimonials />
-      <CTA />
+      <div className="relative">
+          <Integrations />
+          <Features />
+          <SocietyShowcase />
+          <AdvancedFeatures />
+          <EventShowcase />
+          <Testimonials />
+          <CTA />
+      </div>
       <Footer />
     </main>
   );
