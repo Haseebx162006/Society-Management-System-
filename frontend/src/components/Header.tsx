@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 
 import { useAppSelector, useAppDispatch } from "../lib/hooks";
@@ -94,21 +95,21 @@ export default function Header() {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "header-glass py-3"
-            : "bg-white py-5"
+            ? "header-glass "
+            : "bg-white "
         }`}
       >
         <div className="max-w-[1400px] mx-auto flex items-center justify-between px-6 lg:px-10">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br bg-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/25 group-hover:shadow-orange-500/40 transition-shadow duration-300">
-              <span className="text-white font-bold text-lg tracking-tighter font-[var(--font-family-poppins)]">
-                C
-              </span>
-              <div className="absolute inset-0 rounded-xl bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative h-20 w-48 transition-transform duration-500 group-hover:scale-105">
+              <Image
+                src="/logo.png"
+                alt="COMSOC Logo"
+                fill
+                className="object-contain object-left filter drop-shadow-sm"
+                priority
+              />
             </div>
-            <span className="text-xl font-bold tracking-tight bg-gradient-to-r bg-orange-500 bg-clip-text text-transparent font-[var(--font-family-poppins)]">
-              COMSOC
-            </span>
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">

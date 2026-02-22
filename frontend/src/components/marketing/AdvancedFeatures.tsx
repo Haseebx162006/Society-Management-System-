@@ -18,20 +18,6 @@ const advancedFeatures = [
     benefits: ["Custom RSVP protocols", "Seamless QR validation", "Automated broadcast system"],
     accent: "text-stone-600",
     bg: "bg-stone-50"
-  },
-  {
-    title: "Crystal Clarity.",
-    description: "Radical financial transparency for your members. Manage budgets and track expenditure with institutional-grade tools.",
-    benefits: ["Real-time ledger access", "Multi-stage approvals", "Instant audit export"],
-    accent: "text-amber-600",
-    bg: "bg-orange-50/30"
-  },
-  {
-    title: "Unity of Command.",
-    description: "Empower your executive committee with enterprise-level role-based access. Synchronize tasks and files across the entire team.",
-    benefits: ["Granular security matrix", "Tactical task boards", "Encrypted document vault"],
-    accent: "text-stone-900",
-    bg: "bg-stone-100/50"
   }
 ];
 

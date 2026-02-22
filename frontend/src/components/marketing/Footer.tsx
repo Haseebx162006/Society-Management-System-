@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Twitter, Github, Linkedin, Instagram, Sparkles } from "lucide-react";
+import Image from "next/image";
+import { Twitter, Github, Linkedin, Instagram } from "lucide-react";
 
 const footerLinks = {
   Platform: [
@@ -27,13 +28,14 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-20 lg:gap-12 mb-24">
           <div className="lg:col-span-3">
-            <Link href="/" className="inline-flex items-center gap-3 mb-10 group">
-                <div className="w-12 h-12 rounded-2xl bg-stone-900 flex items-center justify-center text-white transition-all duration-500 group-hover:bg-orange-600 shadow-xl shadow-stone-900/10">
-                    <Sparkles size={20} />
-                </div>
-                <div className="flex flex-col">
-                    <span className="font-bold text-2xl tracking-tighter text-stone-900 uppercase">COMSOC</span>
-                    <span className="text-[10px] font-extrabold text-orange-600 uppercase tracking-[0.3em]">Next Gen Platform</span>
+            <Link href="/" className="inline-flex items-center mb-10 group">
+                <div className="relative h-20 w-48 transition-all duration-500 group-hover:scale-105">
+                    <Image
+                        src="/logo.png"
+                        alt="COMSOC Logo"
+                        fill
+                        className="object-contain object-left filter drop-shadow-xl"
+                    />
                 </div>
             </Link>
             <p className="text-stone-500 font-normal text-lg leading-relaxed max-w-sm mb-12">

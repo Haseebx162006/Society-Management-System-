@@ -74,11 +74,16 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent" />
         
         <div className="relative z-10 w-full p-16 flex flex-col justify-between">
-            <Link href="/" className="flex items-center gap-2.5 group w-fit">
-                <div className="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
-                    <span className="text-white font-bold text-lg">C</span>
+            <Link href="/" className="flex items-center gap-3 group w-fit">
+                <div className="relative h-20 w-64 transition-transform duration-500 group-hover:scale-105">
+                    <Image
+                        src="/logo.png"
+                        alt="COMSOC Logo"
+                        fill
+                        className="object-contain object-left filter drop-shadow-xl"
+                        priority
+                    />
                 </div>
-                <span className="text-xl font-bold tracking-tight text-white">COMSOC</span>
             </Link>
 
             <div className="max-w-md">
