@@ -76,6 +76,22 @@ export default function EventShowcase() {
     <section className="relative h-[800px] w-full overflow-hidden bg-gray-900 flex items-center">
       
       <AnimatePresence mode="popLayout">
+
+         <div className="max-w-7xl mx-auto px-6 text-center mb-20">
+                            <motion.h2 
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                className="text-4xl md:text-5xl font-black text-stone-900 mb-6"
+                            >
+                                The <span className="text-orange-600 italic">Founders</span>
+                            </motion.h2>
+                            <p className="text-stone-500 max-w-2xl mx-auto">
+                                A duo of visionaries dedicated to redefining the student experience at COMSATS.
+                            </p>
+                        </div>
+
+                        
         <motion.div
             key={activeEvent.id}
             initial={{ opacity: 0 }}

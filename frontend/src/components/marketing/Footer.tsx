@@ -4,20 +4,20 @@ import { Twitter, Github, Linkedin, Instagram } from "lucide-react";
 
 const footerLinks = {
   Platform: [
-    { name: "Executive Lab", href: "#" },
+    { name: "Societies Hub", href: "/societies" },
+    { name: "Live Events", href: "/events" },
     { name: "Portal Access", href: "/login" },
-    { name: "Global Analytics", href: "#" },
-    { name: "Network Status", href: "#" },
+    { name: "Member Portal", href: "/signup" },
   ],
   Enterprise: [
-    { name: "Institutional Policy", href: "#" },
-    { name: "Brand Assets", href: "#" },
-    { name: "Security Audit", href: "#" },
-    { name: "Terms of Engagement", href: "#" },
+    { name: "Legal Protocols", href: "/legal" },
+    { name: "Brand Assets", href: "/brand" },
+    { name: "Security Policy", href: "/security" },
+    { name: "Privacy Shield", href: "/privacy" },
   ],
   Support: [
     { name: "Manifesto", href: "/about" },
-    { name: "Developer Docs", href: "#" },
+    { name: "Terms of Service", href: "/terms" },
     { name: "Connect with HQ", href: "/contact" },
   ],
 };
