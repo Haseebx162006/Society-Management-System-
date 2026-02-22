@@ -19,6 +19,22 @@ export const metadata: Metadata = {
   title: "COMSOC — COMSATS Lahore Society Portal",
   description:
     "The unified digital platform for COMSATS Lahore societies. Discover, join, and lead communities that shape your campus experience.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
+  openGraph: {
+    title: "COMSOC — COMSATS Lahore Society Portal",
+    description: "The unified digital platform for COMSATS Lahore societies.",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "COMSOC Logo",
+      },
+    ],
+  },
 };
 
 import StoreProvider from "./StoreProvider";

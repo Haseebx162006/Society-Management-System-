@@ -134,9 +134,11 @@ export default function Hero() {
             className="text-5xl md:text-7xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight text-stone-900 mb-6 max-w-5xl"
           >
             The Heart of Campus Life at <br className="hidden lg:block" />
-            <span className="text-orange-600">
+            <span className="text-orange-600 italic">
               COMSATS
             </span>
+            . <br className="hidden lg:block" />
+
           </motion.h1>
 
           <motion.p

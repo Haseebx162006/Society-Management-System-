@@ -95,8 +95,8 @@ export default function Header() {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "header-glass "
-            : "bg-white "
+            ? "bg-white border-orange-600 border-b-2"
+            : "bg-white border-orange-600 border-b-2"
         }`}
       >
         <div className="max-w-[1400px] mx-auto flex items-center justify-between px-6 lg:px-10">

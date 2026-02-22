@@ -29,7 +29,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-20 lg:gap-12 mb-24">
           <div className="lg:col-span-3">
             <Link href="/" className="inline-flex items-center mb-10 group">
-                <div className="relative h-20 w-48 transition-all duration-500 group-hover:scale-105">
+                <div className="relative h-32 w-64 transition-all duration-500 group-hover:scale-105">
                     <Image
                         src="/logo.png"
                         alt="COMSOC Logo"
@@ -86,9 +86,13 @@ export default function Footer() {
             </div>
             
             <div className="flex gap-8">
-                {["Legal Protocols", "Security Policy", "Privacy Shield"].map((item, i) => (
-                    <Link key={i} href="#" className="text-[11px] font-semibold text-stone-400 hover:text-stone-900 transition-colors uppercase tracking-widest leading-none border-b border-transparent hover:border-stone-900 py-1">
-                        {item}
+                {[
+                    { name: "Legal Protocols", href: "/legal" },
+                    { name: "Security Policy", href: "/security" },
+                    { name: "Privacy Shield", href: "/privacy" }
+                ].map((item, i) => (
+                    <Link key={i} href={item.href} className="text-[11px] font-semibold text-stone-400 hover:text-stone-900 transition-colors uppercase tracking-widest leading-none border-b border-transparent hover:border-stone-900 py-1">
+                        {item.name}
                     </Link>
                 ))}
             </div>
