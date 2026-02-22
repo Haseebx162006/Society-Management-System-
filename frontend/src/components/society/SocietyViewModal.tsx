@@ -31,7 +31,6 @@ export default function SocietyViewModal({
 
     const president = members.find((m) => m.role === "PRESIDENT");
 
-    // Get all my group IDs for this society
     const myGroupIds = myGroupMemberships
         ?.filter(m => {
             const sId = typeof m.society_id === 'object' ? m.society_id._id : m.society_id;
@@ -69,7 +68,7 @@ export default function SocietyViewModal({
                         >
                             <button
                                 onClick={() => setSelectedTeam(null)}
-                                className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1 mb-4"
+                                className="text-sm text-orange-600 hover:text-orange-800 font-medium flex items-center gap-1 mb-4"
                             >
                                 ← Back to Society Overview
                             </button>
@@ -79,28 +78,28 @@ export default function SocietyViewModal({
                                     teamMembers.map((member) => (
                                         <div
                                             key={member._id}
-                                            className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-100"
+                                            className="flex items-center justify-between p-4 rounded-xl bg-stone-50 border border-stone-100"
                                         >
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                                                <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold">
                                                     {member.user_id?.name?.charAt(0) || "U"}
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-gray-900">
+                                                    <p className="font-bold text-stone-900">
                                                         {member.user_id?.name || "Unknown User"}
                                                     </p>
-                                                    <p className="text-xs text-gray-500">
+                                                    <p className="text-xs text-stone-500">
                                                         {member.user_id?.email}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-600 border border-indigo-100">
+                                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-orange-50 text-orange-600 border border-orange-100">
                                                 {member.role}
                                             </span>
                                         </div>
                                     ))
                                 ) : (
-                                    <p className="text-gray-500 text-center py-8">
+                                    <p className="text-stone-500 text-center py-8">
                                         No members found in this team.
                                     </p>
                                 )}
@@ -114,35 +113,33 @@ export default function SocietyViewModal({
                             exit={{ opacity: 0, x: 20 }}
                             className="space-y-8"
                         >
-                            {/* President Section */}
-                            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-6 border border-indigo-100/50">
-                                <h4 className="text-sm font-bold text-indigo-900 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <Crown className="w-4 h-4 text-amber-500" />
+                            <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 border border-orange-100/50">
+                                <h4 className="text-sm font-bold text-stone-900 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <Crown className="w-4 h-4 text-orange-500" />
                                     Society President
                                 </h4>
                                 {president ? (
                                     <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-full bg-white shadow-md flex items-center justify-center text-xl font-bold text-indigo-600 border-2 border-white">
+                                        <div className="w-14 h-14 rounded-full bg-white shadow-md flex items-center justify-center text-xl font-bold text-orange-600 border-2 border-white">
                                             {president.user_id?.name?.charAt(0)}
                                         </div>
                                         <div>
-                                            <p className="text-lg font-bold text-gray-900">
+                                            <p className="text-lg font-bold text-stone-900">
                                                 {president.user_id?.name}
                                             </p>
-                                            <p className="text-indigo-600 text-sm font-medium">
+                                            <p className="text-orange-600 text-sm font-medium">
                                                 Leading {society.name}
                                             </p>
                                         </div>
                                     </div>
                                 ) : (
-                                    <p className="text-gray-500 italic">No President assigned.</p>
+                                    <p className="text-stone-500 italic">No President assigned.</p>
                                 )}
                             </div>
 
-                            {/* Teams Grid */}
                             <div>
-                                <h4 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                    <Users className="w-5 h-5 text-gray-400" />
+                                <h4 className="text-lg font-bold text-stone-900 mb-4 flex items-center gap-2">
+                                    <Users className="w-5 h-5 text-stone-400" />
                                     Teams & Departments
                                 </h4>
                                 <div className="grid sm:grid-cols-2 gap-4">
@@ -155,16 +152,16 @@ export default function SocietyViewModal({
                                                 onClick={() => handleTeamClick(group)}
                                                 className={`flex items-center justify-between p-4 rounded-xl border text-left transition-all duration-200 ${
                                                     isMyTeam
-                                                        ? "bg-white border-indigo-200 shadow-sm hover:shadow-md hover:border-indigo-300 cursor-pointer group"
-                                                        : "bg-gray-50 border-gray-100 opacity-70 cursor-not-allowed"
+                                                        ? "bg-white border-orange-200 shadow-sm hover:shadow-md hover:border-orange-300 cursor-pointer group"
+                                                        : "bg-stone-50 border-stone-100 opacity-70 cursor-not-allowed"
                                                 }`}
                                             >
                                                 <div className="flex items-center gap-3">
                                                     <div
                                                         className={`w-10 h-10 rounded-lg flex items-center justify-center ${
                                                             isMyTeam
-                                                                ? "bg-indigo-100 text-indigo-600"
-                                                                : "bg-gray-200 text-gray-400"
+                                                                ? "bg-orange-100 text-orange-600"
+                                                                : "bg-stone-200 text-stone-400"
                                                         }`}
                                                     >
                                                         {isMyTeam ? (
@@ -176,20 +173,20 @@ export default function SocietyViewModal({
                                                     <div>
                                                         <p
                                                             className={`font-semibold ${
-                                                                isMyTeam ? "text-gray-900" : "text-gray-500"
+                                                                isMyTeam ? "text-stone-900" : "text-stone-500"
                                                             }`}
                                                         >
                                                             {group.name}
                                                         </p>
                                                         {isMyTeam && (
-                                                            <p className="text-xs text-indigo-600 font-medium">
+                                                            <p className="text-xs text-orange-600 font-medium">
                                                                 Your Team
                                                             </p>
                                                         )}
                                                     </div>
                                                 </div>
                                                 {isMyTeam && (
-                                                    <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-indigo-500 transition-colors" />
+                                                    <ChevronRight className="w-5 h-5 text-stone-300 group-hover:text-orange-500 transition-colors" />
                                                 )}
                                             </button>
                                         );

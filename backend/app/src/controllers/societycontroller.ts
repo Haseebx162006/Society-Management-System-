@@ -772,7 +772,7 @@ export const suspendSociety = async (req: AuthRequest, res: Response) => {
         const updated = await Society.findByIdAndUpdate(
             id,
             { $set: { status: "SUSPENDED", updated_at: new Date() } },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         return sendResponse(res, 200, "Society suspended successfully", updated);
@@ -794,7 +794,7 @@ export const reactivateSociety = async (req: AuthRequest, res: Response) => {
         const updated = await Society.findByIdAndUpdate(
             id,
             { $set: { status: "ACTIVE", updated_at: new Date() } },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         return sendResponse(res, 200, "Society reactivated successfully", updated);
