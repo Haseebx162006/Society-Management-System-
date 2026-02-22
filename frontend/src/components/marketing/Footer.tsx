@@ -24,9 +24,9 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="bg-white border-t border-stone-100 py-32">
+    <footer className="bg-white border-t border-stone-100 py-12">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-20 lg:gap-12 mb-24">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-20 lg:gap-12 mb-12">
           <div className="lg:col-span-3">
             <Link href="/" className="inline-flex items-center mb-10 group">
                 <div className="relative h-32 w-64 transition-all duration-500 group-hover:scale-105">
