@@ -3,6 +3,7 @@ import { useGetAllSocietiesQuery } from '@/lib/features/societies/societyApiSlic
 import { FaUserTie, FaUsers, FaDownload } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import Image from 'next/image';
 
 const AdminSocieties: React.FC = () => {
   const { data: societies, isLoading } = useGetAllSocietiesQuery(undefined);
@@ -43,7 +44,7 @@ const AdminSocieties: React.FC = () => {
         <button
           onClick={downloadPDF}
           disabled={isLoading || !societies || societies.length === 0}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white font-medium rounded-xl hover:bg-orange-700 transition-colors disabled:opacity-50 shadow-sm text-sm max-w-fit"
+          className="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg border border-red-200 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
         >
           <FaDownload /> Download PDF
         </button>
@@ -63,7 +64,7 @@ const AdminSocieties: React.FC = () => {
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
                         {society.logo ? (
-                          <img src={society.logo} alt={society.name} className="w-10 h-10 rounded-lg object-cover border border-slate-200" />
+                          <Image src={society.logo} alt={society.name} width={40} height={40} className="w-10 h-10 rounded-lg object-cover border border-slate-200" />
                         ) : (
                           <div className="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-lg border border-orange-200">
                             {society.name.charAt(0)}

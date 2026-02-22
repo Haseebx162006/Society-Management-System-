@@ -24,6 +24,11 @@ export const societyApiSlice = apiSlice.injectEndpoints({
         providesTags: ["Society"],
         transformResponse: (response: { data: any }) => response.data,
     }),
+    getAllPlatformMembers: builder.query({
+        query: () => "/society/members/all",
+        providesTags: ["SocietyMember"],
+        transformResponse: (response: { data: any }) => response.data,
+    }),
     getMyManageableSocieties: builder.query({
         query: () => "/society/manageable",
         providesTags: ["Society"],
@@ -73,6 +78,7 @@ export const {
   useCreateSocietyRequestMutation,
   useCreateSocietyMutation,
   useGetAllSocietiesQuery,
+  useGetAllPlatformMembersQuery,
   useGetMyManageableSocietiesQuery,
   useGetSocietyRequestsQuery,
   useUpdateSocietyRequestStatusMutation,

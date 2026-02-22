@@ -67,7 +67,7 @@ const AdminPresidents: React.FC = () => {
         <button
           onClick={downloadPDF}
           disabled={isLoading || presidents.length === 0}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white font-medium rounded-xl hover:bg-orange-700 transition-colors disabled:opacity-50 shadow-sm text-sm max-w-fit"
+          className="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg border border-red-200 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
         >
           <FaDownload /> Download PDF
         </button>

@@ -371,6 +371,20 @@ export const getSocietyById = async (req: AuthRequest, res: Response) => {
     }
 };
 
+export const getAllPlatformMembers = async (req: AuthRequest, res: Response) => {
+    try {
+        const members = await SocietyUserRole.find()
+            .populate('user_id', 'name email phone')
+            .populate('society_id', 'name')
+            .populate('group_id', 'name')
+            .sort({ assigned_at: -1 });
+
+        return sendResponse(res, 200, 'All platform members fetched successfully', members);
+    } catch (error: any) {
+        return sendError(res, 500, 'Internal server error fetching platform members', error);
+    }
+};
+
 // ─── Member Management Endpoints ─────────────────────────────────────────────
 
 /**

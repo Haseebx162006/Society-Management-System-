@@ -10,6 +10,7 @@ import {
     getAllSocieties,
     getMyManageableSocieties,
     getSocietyById,
+    getAllPlatformMembers,
     getSocietyMembers,
     addMember,
     updateMemberRole,
@@ -32,6 +33,7 @@ router.put('/requests/:id', protect, adminOnly, updateSocietyRequestStatus);
 router.post('/', protect, upload.single("logo"), createSociety);
 router.get('/manageable', protect, getMyManageableSocieties);
 router.get('/', getAllSocieties);
+router.get('/members/all', protect, adminOnly, getAllPlatformMembers);
 router.get('/:id', getSocietyById);
 router.put('/:id', protect, authorize(['PRESIDENT'], 'SOCIETY'), upload.single("logo"), updateSociety);
 router.delete('/:id', protect, adminOnly, deleteSociety);
