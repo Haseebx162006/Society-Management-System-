@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useSpring } from "framer-motion";
 
 import { useAppSelector, useAppDispatch } from "../lib/hooks";
 import {
@@ -42,6 +43,13 @@ export default function Header() {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
   useEffect(() => {
     setMobileOpen(false);
@@ -95,10 +103,14 @@ export default function Header() {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-white border-orange-600 border-b-2"
-            : "bg-white border-orange-600 border-b-2"
+            ? "bg-white border-b border-stone-100"
+            : "bg-white border-b border-stone-100"
         }`}
       >
+        <motion.div
+           className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-orange-600 origin-left z-[51]"
+           style={{ scaleX }}
+        />
         <div className="max-w-[1400px] mx-auto flex items-center justify-between px-6 lg:px-10">
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative h-20 w-48 transition-transform duration-500 group-hover:scale-105">

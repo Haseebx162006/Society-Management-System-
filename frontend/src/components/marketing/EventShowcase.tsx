@@ -25,7 +25,8 @@ const GRADIENTS = [
   "from-indigo-600 to-blue-700",
 ];
 
-const DEFAULT_IMAGE = "/logos/building.png";
+const DEFAULT_IMAGE = "/logo.png";
+
 export default function EventShowcase() {
   const { data: eventsResponse, isLoading } = useGetAllPublicEventsQuery({});
   

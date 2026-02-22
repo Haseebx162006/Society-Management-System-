@@ -17,8 +17,12 @@
   --breakpoint-1500px: 1500px;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
-  --background: #ffffff;
+  --background: #fffdfa;
 }
 
 .header-glass {
