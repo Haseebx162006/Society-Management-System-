@@ -17,7 +17,7 @@ const founders = [
     {
         name: "Hussain Jamal",
         role: "Lead Architect",
-        image: "/logos/acm.jpg",
+        image: "/logos/my-1.jpeg",
         bio: "Driving the technological evolution of campus communities through innovation and strategy."
     },
     {
