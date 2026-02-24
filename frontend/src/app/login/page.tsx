@@ -54,7 +54,7 @@ export default function LoginPage() {
 
       router.push("/profile");
     } catch (err) {
-      console.error("Login failed:", err);
+      toast.error("Login failed!");
       const errorMessage =
         (err as { data?: { message?: string } })?.data?.message || "Authentication failed. Access denied.";
       toast.error(errorMessage);

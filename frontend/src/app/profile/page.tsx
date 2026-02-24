@@ -243,7 +243,7 @@ export default function ProfilePage() {
               <div className="sticky top-28 bg-stone-50 rounded-2xl border border-stone-100 shadow-sm overflow-hidden">
                 <div className="p-5 border-b border-stone-100/80">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#0f172b] flex items-center justify-center text-white font-bold text-sm shadow-md shadow-orange-500/20">
+                    <div className="w-10 h-10 rounded-xl bg-orange-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-orange-500/20">
                       {user.name?.charAt(0).toUpperCase() || "U"}
                     </div>
                     <div className="min-w-0">

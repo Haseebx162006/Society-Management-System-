@@ -4,6 +4,7 @@ import SocietyUserRole from '../models/SocietyUserRole';
 import SocietyRequest from '../models/SocietyRequest';
 import User from '../models/User';
 import { sendResponse, sendError } from '../util/response';
+import bcrypt from 'bcrypt';
 
 export const getMySocieties = async (req: AuthRequest, res: Response) => {
     try {
@@ -74,5 +75,29 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
         });
     } catch (error: any) {
         return sendError(res, 500, "Internal server error fetching profile", error);
+    }
+};
+
+export const changePassword = async (req: AuthRequest, res: Response) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const user = await User.findById(req.user!._id);
+
+        if (!user) {
+            return sendError(res, 404, "User not found");
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return sendError(res, 400, "Incorrect current password");
+        }
+
+        user.password = newPassword;
+
+        await user.save();
+
+        return sendResponse(res, 200, "Password changed successfully");
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error changing password", error);
     }
 };

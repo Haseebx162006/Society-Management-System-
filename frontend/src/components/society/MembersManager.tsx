@@ -185,7 +185,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                 userId: targetUserId,
                 role: role,
             }).unwrap();
-            toast.success(`Role updated to ${role}`);
+            toast.success(`Role updated `);
             setIsRoleModalOpen(false);
             setConfirmTransfer(false);
             setSelectedRole(null);

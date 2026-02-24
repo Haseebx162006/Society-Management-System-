@@ -219,7 +219,7 @@ const TeamMemberList: React.FC<{
                                                     userId: user._id,
                                                     role: e.target.value
                                                 }).unwrap();
-                                                toast.success(`Role updated to ${e.target.value}`);
+                                                toast.success(`Role updated `);
                                             } catch (err: any) {
                                                 toast.error(err?.data?.message || "Failed to update role");
                                             }
@@ -594,7 +594,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                                                         userId: user._id,
                                                                         role: e.target.value
                                                                     }).unwrap();
-                                                                    toast.success(`Role updated to ${e.target.value}`);
+                                                                    toast.success(`Role updated`);
                                                                 } catch (err: any) {
                                                                     toast.error(err?.data?.message || "Failed to update role");
                                                                 }

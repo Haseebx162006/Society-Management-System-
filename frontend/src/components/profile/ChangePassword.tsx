@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { useChangePasswordMutation } from "../../lib/features/user/userApiSlice";
 
 export default function ChangePassword() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -11,6 +12,7 @@ export default function ChangePassword() {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [changePassword, { isLoading }] = useChangePasswordMutation();
 
   useEffect(() => {
     if (toast) {
@@ -28,7 +30,7 @@ export default function ChangePassword() {
 
   const strength = passwordStrength();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -46,10 +48,15 @@ export default function ChangePassword() {
       return;
     }
 
-    setToast({ type: "success", message: "Password changed successfully" });
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
+    try {
+      await changePassword({ currentPassword, newPassword }).unwrap();
+      setToast({ type: "success", message: "Password changed successfully" });
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error: any) {
+      setToast({ type: "error", message: error.data?.message || "Failed to change password" });
+    }
   };
 
   return (
@@ -179,9 +186,20 @@ export default function ChangePassword() {
 
         <button
           type="submit"
-          className="px-6 py-3 text-sm font-semibold text-white rounded-xl bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all duration-300"
+          disabled={isLoading}
+          className="px-6 py-3 text-sm font-semibold text-white rounded-xl bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          Update Password
+          {isLoading ? (
+            <>
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Updating...
+            </>
+          ) : (
+            "Update Password"
+          )}
         </button>
       </form>
     </div>

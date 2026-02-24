@@ -28,6 +28,7 @@ export interface SocietyRequest {
 }
 
 export const userApiSlice = apiSlice.injectEndpoints({
+    
     endpoints: (builder) => ({
         getMySocieties: builder.query<SocietyRole[], void>({
             query: () => '/user/societies',
@@ -53,7 +54,14 @@ export const userApiSlice = apiSlice.injectEndpoints({
             transformResponse: (response: { success: boolean; message: string; data: User }) => response.data,
             providesTags: ['User'],
         }),
+        changePassword: builder.mutation<void, { currentPassword?: string; newPassword?: string }>({
+            query: (data) => ({
+                url: '/user/password',
+                method: 'PUT',
+                body: data,
+            }),
+        }),
     }),
 });
 
-export const { useGetMySocietiesQuery, useGetMyRequestsQuery, useUpdateProfileMutation, useGetProfileQuery } = userApiSlice;
+export const { useGetMySocietiesQuery, useGetMyRequestsQuery, useUpdateProfileMutation, useGetProfileQuery, useChangePasswordMutation } = userApiSlice;
