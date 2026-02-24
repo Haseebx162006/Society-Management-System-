@@ -40,7 +40,7 @@ export default function SecurityPage() {
 
             <section className="relative pt-32 pb-24 overflow-hidden">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
-                    <div className="absolute top-[-5%] left-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[120px]" />
+                    <div className="absolute top-[-5%] left-[-10%] w-[40%] h-[40%] bg-stone-200/20 rounded-full blur-[120px]" />
                     <div className="absolute bottom-[-10%] right-[-5%] w-[35%] h-[35%] bg-orange-500/10 rounded-full blur-[100px]" />
                 </div>
 

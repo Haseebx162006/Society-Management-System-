@@ -63,7 +63,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
               type="text"
               name="name"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
               value={formData.name}
               onChange={handleChange}
             />
@@ -74,7 +74,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
               type="email"
               name="email"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
               value={formData.email}
               onChange={handleChange}
             />
@@ -84,7 +84,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
             <input
               type="tel"
               name="phone"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
               value={formData.phone}
               onChange={handleChange}
             />
@@ -95,7 +95,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
               type="password"
               name="password"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
               value={formData.password}
               onChange={handleChange}
             />
@@ -104,7 +104,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md transition duration-200 disabled:opacity-50"
+            className="w-full py-2 px-4 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-md transition duration-200 disabled:opacity-50"
           >
             {isLoading ? "Creating Account..." : "Sign Up"}
           </button>

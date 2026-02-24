@@ -38,19 +38,19 @@ const AdminDashboard: React.FC = () => {
           data,
           backgroundColor: [
             'rgba(255, 99, 132, 0.6)',
-            'rgba(54, 162, 235, 0.6)',
+            'rgba(249, 115, 22, 0.6)',
             'rgba(255, 206, 86, 0.6)',
             'rgba(75, 192, 192, 0.6)',
-            'rgba(153, 102, 255, 0.6)',
+            'rgba(249, 115, 22, 0.4)',
             'rgba(255, 159, 64, 0.6)',
             'rgba(201, 203, 207, 0.6)'
           ],
           borderColor: [
             'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
+            'rgba(249, 115, 22, 1)',
             'rgba(255, 206, 86, 1)',
             'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
+            'rgba(249, 115, 22, 0.8)',
             'rgba(255, 159, 64, 1)',
             'rgba(201, 203, 207, 1)'
           ],
@@ -87,8 +87,8 @@ const AdminDashboard: React.FC = () => {
               fill: true,
               label: 'Societies Growth',
               data: [0],
-              borderColor: 'rgb(59, 130, 246)',
-              backgroundColor: 'rgba(59, 130, 246, 0.1)',
+              borderColor: 'rgb(249, 115, 22)',
+              backgroundColor: 'rgba(249, 115, 22, 0.1)',
               tension: 0.4,
           }]
          }
@@ -101,8 +101,8 @@ const AdminDashboard: React.FC = () => {
           fill: true,
           label: 'Societies Growth',
           data: dataPoints,
-          borderColor: 'rgb(59, 130, 246)',
-          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderColor: 'rgb(249, 115, 22)',
+          backgroundColor: 'rgba(249, 115, 22, 0.1)',
           tension: 0.4,
         },
       ],
@@ -144,7 +144,7 @@ const AdminDashboard: React.FC = () => {
                     <p className="text-slate-500 text-sm font-medium mb-1">Total Platform Members</p>
                     <h4 className="text-3xl font-bold text-slate-800">{isLoading ? '...' : totalMembers}</h4>
                   </div>
-                  <span className="text-2xl p-3 rounded-xl bg-blue-50 text-blue-600">
+                  <span className="text-2xl p-3 rounded-xl bg-orange-50 text-orange-600">
                     <FaUsers />
                   </span>
                 </div>

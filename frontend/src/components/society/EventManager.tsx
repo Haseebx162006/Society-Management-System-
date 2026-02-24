@@ -33,8 +33,8 @@ const EVENT_TYPES = [
 const STATUS_OPTIONS = [
     { value: 'DRAFT', label: 'Draft', color: 'bg-slate-100 text-slate-600' },
     { value: 'PUBLISHED', label: 'Published', color: 'bg-green-100 text-green-700' },
-    { value: 'ONGOING', label: 'Ongoing', color: 'bg-blue-100 text-blue-700' },
-    { value: 'COMPLETED', label: 'Completed', color: 'bg-purple-100 text-purple-700' },
+    { value: 'ONGOING', label: 'Ongoing', color: 'bg-orange-100 text-orange-700' },
+    { value: 'COMPLETED', label: 'Completed', color: 'bg-amber-100 text-amber-700' },
     { value: 'CANCELLED', label: 'Cancelled', color: 'bg-red-100 text-red-700' },
 ];
 
@@ -289,7 +289,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="text-blue-500 animate-pulse text-lg">Loading events...</div>
+                <div className="text-orange-500 animate-pulse text-lg">Loading events...</div>
             </div>
         );
     }
@@ -300,7 +300,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
             <div>
                 <button
                     onClick={() => { setView('list'); setSelectedEvent(null); }}
-                    className="flex items-center gap-2 text-slate-500 hover:text-blue-600 mb-4 font-medium"
+                    className="flex items-center gap-2 text-slate-500 hover:text-orange-600 mb-4 font-medium"
                 >
                     ← Back to Events
                 </button>
@@ -346,7 +346,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     type="text"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
                                     placeholder="e.g., Annual Tech Hackathon 2026"
                                 />
                             </div>
@@ -356,7 +356,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     rows={4}
-                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800 resize-none"
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 resize-none"
                                     placeholder="Describe your event in detail..."
                                 />
                             </div>
@@ -365,7 +365,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                 <select
                                     value={eventType}
                                     onChange={(e) => setEventType(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800 bg-white"
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 bg-white"
                                 >
                                     {EVENT_TYPES.map(t => (
                                         <option key={t.value} value={t.value}>{t.label}</option>
@@ -378,7 +378,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     type="text"
                                     value={venue}
                                     onChange={(e) => setVenue(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
                                     placeholder="e.g., Main Auditorium"
                                 />
                             </div>
@@ -395,7 +395,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     type="datetime-local"
                                     value={eventDate}
                                     onChange={(e) => setEventDate(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
                                 />
                             </div>
                             <div>
@@ -404,7 +404,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     type="datetime-local"
                                     value={eventEndDate}
                                     onChange={(e) => setEventEndDate(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
                                 />
                             </div>
                             <div>
@@ -413,7 +413,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     type="datetime-local"
                                     value={registrationDeadline}
                                     onChange={(e) => setRegistrationDeadline(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
                                 />
                             </div>
                         </div>
@@ -429,7 +429,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     type="number"
                                     value={maxParticipants}
                                     onChange={(e) => setMaxParticipants(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
                                     placeholder="Leave empty for unlimited"
                                 />
                             </div>
@@ -438,7 +438,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                 <select
                                     value={registrationForm}
                                     onChange={(e) => setRegistrationForm(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800 bg-white"
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 bg-white"
                                 >
                                     <option value="">No registration form</option>
                                     {eventForms?.filter(f => f.is_active).map(form => (
@@ -451,7 +451,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                 <select
                                     value={status}
                                     onChange={(e) => setStatus(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800 bg-white"
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 bg-white"
                                 >
                                     {STATUS_OPTIONS.map(s => (
                                         <option key={s.value} value={s.value}>{s.label}</option>
@@ -465,7 +465,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     type="checkbox"
                                     checked={isPublic}
                                     onChange={(e) => setIsPublic(e.target.checked)}
-                                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                                    className="w-4 h-4 rounded text-orange-600 focus:ring-orange-500"
                                 />
                                 Public Event
                             </label>
@@ -482,7 +482,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => setBannerFile(e.target.files?.[0] || null)}
-                                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-600 file:font-medium file:cursor-pointer"
+                                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-600 file:font-medium file:cursor-pointer"
                                 />
                                 {selectedEvent?.banner && !bannerFile && (
                                     <p className="text-xs text-slate-400 mt-1">Current banner set. Upload a new one to replace.</p>
@@ -494,7 +494,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     type="text"
                                     value={tags}
                                     onChange={(e) => setTags(e.target.value)}
-                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
                                     placeholder="tech, hackathon, coding (comma-separated)"
                                 />
                             </div>
@@ -507,7 +507,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                             <h3 className="text-lg font-semibold text-slate-800">Content Sections</h3>
                             <button
                                 onClick={addContentSection}
-                                className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-medium"
+                                className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors font-medium"
                             >
                                 <FaPlus className="text-xs" /> Add Section
                             </button>
@@ -552,7 +552,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                         <button
                             onClick={handleSave}
                             disabled={isCreating || isUpdating}
-                            className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
+                            className="flex items-center gap-2 px-6 py-2.5 bg-orange-600 text-white rounded-xl hover:bg-orange-700 disabled:opacity-50 transition-colors font-medium"
                         >
                             {isCreating || isUpdating ? 'Saving...' : view === 'edit' ? 'Update Event' : 'Create Event'}
                         </button>
@@ -578,7 +578,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                 </div>
                 <button
                     onClick={startCreate}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-colors font-medium"
                 >
                     <FaPlus /> Create Event
                 </button>
@@ -617,7 +617,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
 
                                             <div className="flex flex-wrap gap-4 mt-3 text-sm text-slate-500">
                                                 <span className="flex items-center gap-1.5">
-                                                    <FaCalendarAlt className="text-blue-400" />
+                                                    <FaCalendarAlt className="text-orange-400" />
                                                     {new Date(event.event_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
                                                 </span>
                                                 <span className="flex items-center gap-1.5">
@@ -625,7 +625,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                                     {event.venue}
                                                 </span>
                                                 <span className="flex items-center gap-1.5">
-                                                    <MdEvent className="text-purple-400" />
+                                                    <MdEvent className="text-amber-400" />
                                                     {EVENT_TYPES.find(t => t.value === event.event_type)?.label}
                                                 </span>
                                                 {event.max_participants && (
@@ -650,7 +650,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                         <div className="flex items-center gap-1 ml-4">
                                             <button
                                                 onClick={() => viewRegistrations(event)}
-                                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                                                 title="View Registrations"
                                             >
                                                 <FaClipboardList />
@@ -682,7 +682,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                             </button>
                                             <button
                                                 onClick={() => startEdit(event)}
-                                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                                                 title="Edit Event"
                                             >
                                                 <FaEdit />
@@ -710,7 +710,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                     <p className="text-slate-400 mb-4">Create your first event to get started</p>
                     <button
                         onClick={startCreate}
-                        className="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
+                        className="px-5 py-2.5 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-colors font-medium"
                     >
                         Create Your First Event
                     </button>
@@ -764,9 +764,9 @@ const SendMailModal = ({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-                <div className="bg-linear-to-r from-purple-600 to-indigo-600 px-6 py-5">
+                <div className="bg-linear-to-r from-orange-600 to-amber-600 px-6 py-5">
                     <h3 className="text-lg font-bold text-white">Send Mail to Participants</h3>
-                    <p className="text-purple-200 text-sm mt-0.5 truncate">{eventTitle}</p>
+                    <p className="text-orange-100 text-sm mt-0.5 truncate">{eventTitle}</p>
                 </div>
                 <div className="p-6 space-y-4">
                     {(error || success) && (
@@ -780,7 +780,7 @@ const SendMailModal = ({
                             type="text"
                             value={subject}
                             onChange={(e) => setSubject(e.target.value)}
-                            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-slate-800"
+                            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
                             placeholder="Email subject line"
                         />
                     </div>
@@ -790,7 +790,7 @@ const SendMailModal = ({
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             rows={6}
-                            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none text-slate-800 resize-none"
+                            className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 resize-none"
                             placeholder="Write your message to all approved participants..."
                         />
                     </div>

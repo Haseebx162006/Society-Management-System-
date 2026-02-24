@@ -131,20 +131,20 @@ const PreviousMembersManager: React.FC<PreviousMembersManagerProps> = ({ society
                             </span>
                         </>
                     )}
-                    <span className="bg-blue-100 text-blue-700 text-sm font-semibold px-3 py-1 rounded-full">
+                    <span className="bg-stone-100 text-stone-700 text-sm font-semibold px-3 py-1 rounded-full">
                         {members.length} total
                     </span>
                 </div>
             </div>
 
             {/* Upload Section */}
-            <div className="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:border-blue-300 transition-colors">
+            <div className="bg-white border-2 border-dashed border-stone-200 rounded-2xl p-8 text-center hover:border-orange-300 transition-colors">
                 <FaFileExcel className="mx-auto text-4xl text-green-500 mb-3" />
                 <p className="text-slate-600 font-medium mb-1">Upload Excel File</p>
                 <p className="text-slate-400 text-sm mb-4">
                     All email addresses found anywhere in the spreadsheet will be extracted automatically.
                 </p>
-                <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-700 transition-colors font-medium">
+                <label className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 text-white rounded-xl cursor-pointer hover:bg-orange-700 transition-colors font-medium">
                     <FaUpload />
                     {isUploading ? 'Uploading...' : 'Choose File'}
                     <input

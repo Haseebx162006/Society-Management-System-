@@ -145,7 +145,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="text-blue-500 animate-pulse text-lg">Loading event forms...</div>
+                <div className="text-orange-500 animate-pulse text-lg">Loading event forms...</div>
             </div>
         );
     }
@@ -160,7 +160,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                 {!isEditing && (
                     <button
                         onClick={startCreating}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
+                        className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white font-medium rounded-lg shadow-lg shadow-orange-600/20 transition-all"
                     >
                         <FaPlus /> New Form
                     </button>
@@ -192,7 +192,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                                 type="text"
                                 value={formTitle}
                                 onChange={(e) => setFormTitle(e.target.value)}
-                                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none text-slate-800"
                                 placeholder="e.g., Hackathon Registration"
                             />
                         </div>
@@ -202,7 +202,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                                 type="text"
                                 value={formDescription}
                                 onChange={(e) => setFormDescription(e.target.value)}
-                                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none text-slate-800"
                                 placeholder="Brief description of this form"
                             />
                         </div>
@@ -214,7 +214,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                             <h4 className="text-md font-semibold text-slate-700">Form Fields</h4>
                             <button
                                 onClick={addField}
-                                className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-medium"
+                                className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors font-medium"
                             >
                                 <FaPlus className="text-xs" /> Add Field
                             </button>
@@ -246,14 +246,14 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                                             <button
                                                 onClick={() => moveField(index, 'up')}
                                                 disabled={index === 0}
-                                                className="p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-30"
+                                                className="p-1.5 text-slate-400 hover:text-orange-600 disabled:opacity-30"
                                             >
                                                 <FaArrowUp className="text-xs" />
                                             </button>
                                             <button
                                                 onClick={() => moveField(index, 'down')}
                                                 disabled={index === fields.length - 1}
-                                                className="p-1.5 text-slate-400 hover:text-blue-600 disabled:opacity-30"
+                                                className="p-1.5 text-slate-400 hover:text-orange-600 disabled:opacity-30"
                                             >
                                                 <FaArrowDown className="text-xs" />
                                             </button>
@@ -272,7 +272,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                                                     type="text"
                                                     value={field.label}
                                                     onChange={(e) => updateField(index, { label: e.target.value })}
-                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none text-slate-800"
                                                     placeholder="Field label"
                                                 />
                                             </div>
@@ -281,7 +281,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                                                 <select
                                                     value={field.field_type}
                                                     onChange={(e) => updateField(index, { field_type: e.target.value as EventFormField['field_type'] })}
-                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800 bg-white"
+                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none text-slate-800 bg-white"
                                                 >
                                                     {FIELD_TYPES.map((t) => (
                                                         <option key={t.value} value={t.value}>{t.label}</option>
@@ -294,7 +294,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                                                     type="text"
                                                     value={field.placeholder || ''}
                                                     onChange={(e) => updateField(index, { placeholder: e.target.value })}
-                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none text-slate-800"
                                                     placeholder="Placeholder text"
                                                 />
                                             </div>
@@ -306,7 +306,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                                                     type="checkbox"
                                                     checked={field.is_required}
                                                     onChange={(e) => updateField(index, { is_required: e.target.checked })}
-                                                    className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                                                    className="w-4 h-4 rounded text-orange-600 focus:ring-orange-500"
                                                 />
                                                 Required
                                             </label>
@@ -321,7 +321,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                                                     type="text"
                                                     value={(field.options || []).join(', ')}
                                                     onChange={(e) => updateField(index, { options: e.target.value.split(',').map(o => o.trim()).filter(Boolean) })}
-                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none text-slate-800"
                                                     placeholder="Option 1, Option 2, Option 3"
                                                 />
                                             </div>
@@ -337,7 +337,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                         <button
                             onClick={handleSave}
                             disabled={isCreating || isUpdating}
-                            className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
+                            className="flex items-center gap-2 px-6 py-2.5 bg-orange-600 text-white rounded-xl hover:bg-orange-500 disabled:opacity-50 transition-colors font-medium shadow-lg shadow-orange-600/20"
                         >
                             <FaSave /> {isCreating || isUpdating ? 'Saving...' : 'Save Form'}
                         </button>
@@ -364,7 +364,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                                             <p className="text-slate-500 text-sm mt-1">{form.description}</p>
                                         )}
                                         <div className="flex items-center gap-3 mt-2">
-                                            <span className="text-xs bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full font-medium">
+                                            <span className="text-xs bg-orange-50 text-orange-600 px-2.5 py-1 rounded-full font-medium">
                                                 {form.fields.length} field{form.fields.length !== 1 ? 's' : ''}
                                             </span>
                                             <span className="text-xs text-slate-400">
@@ -375,7 +375,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                                     <div className="flex items-center gap-2">
                                         <button
                                             onClick={() => startEditing(form)}
-                                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                            className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                                             title="Edit form"
                                         >
                                             <FaEdit />
@@ -411,7 +411,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                             <p className="text-slate-400 mb-4">Create your first dynamic registration form</p>
                             <button
                                 onClick={startCreating}
-                                className="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors font-medium"
+                                className="px-5 py-2.5 bg-orange-600 text-white rounded-xl hover:bg-orange-500 transition-colors font-medium shadow-lg shadow-orange-600/20"
                             >
                                 Create Form
                             </button>

@@ -53,7 +53,7 @@ const TeamForm: React.FC<{
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Team name"
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/10 transition-all"
                 autoFocus
             />
             <textarea
@@ -61,7 +61,7 @@ const TeamForm: React.FC<{
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Description (optional)"
                 rows={2}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/10 transition-all resize-none"
             />
             <div className="flex justify-end gap-3">
                 <button
@@ -73,7 +73,7 @@ const TeamForm: React.FC<{
                 <button
                     onClick={() => name.trim() && onSubmit(name.trim(), description.trim())}
                     disabled={!name.trim() || loading}
-                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium shadow-md shadow-blue-600/20 disabled:opacity-50 transition-all"
+                    className="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-sm font-medium shadow-md shadow-orange-600/20 disabled:opacity-50 transition-all"
                 >
                     {loading ? "Saving..." : submitLabel}
                 </button>
@@ -148,7 +148,7 @@ const TeamMemberList: React.FC<{
                 </span>
                 <button
                     onClick={() => setShowAddModal(!showAddModal)}
-                    className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 transition-colors font-medium"
+                    className="flex items-center gap-1 text-xs text-orange-600 hover:text-orange-700 transition-colors font-medium"
                 >
                     <MdPersonAdd className="text-base" /> Add Member
                 </button>
@@ -176,7 +176,7 @@ const TeamMemberList: React.FC<{
                                         onClick={() => handleAdd(user._id)}
                                         className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors text-left group"
                                     >
-                                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-xs font-bold shrink-0 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-xs font-bold shrink-0 group-hover:bg-orange-100 group-hover:text-orange-600 transition-colors">
                                             {user.name?.charAt(0).toUpperCase()}
                                         </div>
                                         <div className="min-w-0">
@@ -201,7 +201,7 @@ const TeamMemberList: React.FC<{
                     return (
                         <div key={m._id} className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-slate-50 transition-colors group">
                             <div className="flex items-center gap-3 min-w-0">
-                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-xs font-bold shrink-0 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-xs font-bold shrink-0 group-hover:bg-orange-100 group-hover:text-orange-600 transition-colors">
                                     {user.name?.charAt(0).toUpperCase()}
                                 </div>
                                 <div className="min-w-0">
@@ -224,7 +224,7 @@ const TeamMemberList: React.FC<{
                                                 toast.error(err?.data?.message || "Failed to update role");
                                             }
                                         }}
-                                        className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none focus:border-blue-500 text-slate-600 font-medium"
+                                        className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none focus:border-orange-500 text-slate-600 font-medium"
                                     >
                                         <option value="MEMBER">Member</option>
                                         <option value="LEAD">Lead</option>
@@ -244,7 +244,7 @@ const TeamMemberList: React.FC<{
                                 )}
                                 <a
                                     href={`mailto:${user.email}`}
-                                    className="w-7 h-7 rounded-md bg-blue-50 hover:bg-blue-100 flex items-center justify-center text-blue-600 text-xs transition-all"
+                                    className="w-7 h-7 rounded-md bg-orange-50 hover:bg-orange-100 flex items-center justify-center text-orange-600 text-xs transition-all"
                                     title="Email"
                                 >
                                     <FaEnvelope />
@@ -431,7 +431,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center h-64 text-blue-400 animate-pulse">
+            <div className="flex items-center justify-center h-64 text-orange-400 animate-pulse">
                 Loading teams...
             </div>
         );
@@ -476,7 +476,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                     {!selectedTeamId && (
                          <button
                             onClick={() => setShowCreateForm(!showCreateForm)}
-                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-lg shadow-lg shadow-blue-500/20 transition-all text-sm font-medium"
+                            className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2.5 rounded-lg shadow-lg shadow-orange-500/20 transition-all text-sm font-medium"
                         >
                             <MdAdd className="text-lg" /> New Team
                         </button>
@@ -528,7 +528,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                 // ─── Filtered Team View (Member List) ───────────────────────
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
                      <h3 className="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                        <MdGroups className="text-blue-500" />
+                        <MdGroups className="text-orange-500" />
                         {getSelectedTeamName()}
                         <span className="text-sm font-normal text-slate-400 ml-2">
                             ({teamMembers?.length || 0} members)
@@ -599,7 +599,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                                                     toast.error(err?.data?.message || "Failed to update role");
                                                                 }
                                                             }}
-                                                            className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none focus:border-blue-500 text-slate-600 font-medium mr-2"
+                                                            className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none focus:border-orange-500 text-slate-600 font-medium mr-2"
                                                         >
                                                             <option value="MEMBER">Member</option>
                                                             <option value="LEAD">Lead</option>
@@ -607,7 +607,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                                             <option value="GENERAL SECRETARY">Gen. Secretary</option>
                                                         </select>
 
-                                                        <a href={`mailto:${user.email}`} className="text-slate-400 hover:text-blue-600 p-2 rounded-lg hover:bg-blue-50 transition-all">
+                                                        <a href={`mailto:${user.email}`} className="text-slate-400 hover:text-orange-600 p-2 rounded-lg hover:bg-orange-50 transition-all">
                                                             <FaEnvelope />
                                                         </a>
                                                         <button
@@ -671,7 +671,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                                             setExpandedGroup(expandedGroup === group._id ? null : group._id)
                                                         }
                                                     >
-                                                        <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0 border border-blue-100">
+                                                        <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 shrink-0 border border-orange-100">
                                                             <MdGroups className="text-xl" />
                                                         </div>
                                                         <span className="font-semibold text-slate-800">{group.name}</span>
@@ -684,7 +684,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                                 </td>
 
                                                 <td className="p-4">
-                                                    <span className="text-sm text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100 font-medium">
+                                                    <span className="text-sm text-orange-700 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-100 font-medium">
                                                         {group.memberCount || 0} Members
                                                     </span>
                                                 </td>
@@ -692,7 +692,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                                     <div className="flex items-center justify-end gap-2">
                                                         <button
                                                             onClick={() => setEditingGroup(group._id)}
-                                                            className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 hover:text-blue-600 transition-all border border-slate-100"
+                                                            className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-500 hover:text-orange-600 transition-all border border-slate-100"
                                                             title="Edit team"
                                                         >
                                                             <MdEdit className="text-base" />

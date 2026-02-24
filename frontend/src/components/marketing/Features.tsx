@@ -57,7 +57,7 @@ export default function Features() {
             <span className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-orange-600 mb-4 block">Core Ecosystem</span>
             <h2 className="text-4xl md:text-6xl font-bold tracking-tighter text-stone-900 leading-[1.1]">
                 Everything you need to <br className="hidden md:block" />
-                <span className="text-stone-300 underline decoration-orange-500/30 decoration-8 underline-offset-8">dominate</span> campus life.
+                <span className="text-orange-600 italic underline decoration-orange-500/30 decoration-8 underline-offset-8">dominate</span> campus life.
             </h2>
         </div>
 

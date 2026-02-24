@@ -132,7 +132,7 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-                        className="h-9 px-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-sm"
+                        className="h-9 px-3 bg-white border border-slate-200 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 shadow-sm"
                     >
                         <option value="">All</option>
                         <option value="PENDING">Pending</option>
@@ -190,7 +190,7 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                                         setExpandedRequest(isExpanded ? null : req._id)
                                     }
                                 >
-                                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 shrink-0">
                                         <User className="w-5 h-5" />
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -274,7 +274,7 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                                                                                 alt={response.field_label}
                                                                                 className="max-w-xs max-h-48 rounded-lg border border-slate-200 object-contain hover:opacity-80 transition-opacity"
                                                                             />
-                                                                            <span className="text-xs text-blue-600 mt-1 inline-block">
+                                                                            <span className="text-xs text-orange-600 mt-1 inline-block">
                                                                                 Click to view full size
                                                                             </span>
                                                                         </a>
@@ -283,7 +283,7 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                                                                             href={response.value as string}
                                                                             target="_blank"
                                                                             rel="noopener noreferrer"
-                                                                            className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 transition-colors"
+                                                                            className="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 transition-colors"
                                                                         >
                                                                             <svg
                                                                                 className="w-4 h-4"
@@ -370,7 +370,7 @@ const JoinRequestManager: React.FC<JoinRequestManagerProps> = ({
                             onChange={(e) => setRejectionReason(e.target.value)}
                             placeholder="Optional: Provide a reason for rejection..."
                             rows={3}
-                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none transition-all"
+                            className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 resize-none transition-all"
                         />
                         <div className="flex gap-3 mt-4">
                             <button

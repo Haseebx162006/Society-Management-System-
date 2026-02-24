@@ -168,7 +168,7 @@ const AdminMembers: React.FC = () => {
                         <div className="flex flex-col gap-1.5">
                            <div className="text-sm text-slate-900 flex items-center gap-2">
                              <FaEnvelope className="text-slate-400" /> 
-                             <a href={`mailto:${member.user_id?.email}`} className="hover:text-blue-600 transition-colors">
+                             <a href={`mailto:${member.user_id?.email}`} className="hover:text-orange-600 transition-colors">
                                {member.user_id?.email || "N/A"}
                              </a>
                            </div>

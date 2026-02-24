@@ -87,7 +87,7 @@ export default function ChangePassword() {
           </svg>
         </div>
         <div>
-          <p className="text-sm font-semibold text-blue-900">Security Tip</p>
+          <p className="text-sm font-semibold text-orange-900">Security Tip</p>
           <p className="text-xs text-orange-600 mt-0.5">
             Use a strong password with at least 8 characters, including uppercase, lowercase, numbers, and symbols.
           </p>
@@ -105,7 +105,7 @@ export default function ChangePassword() {
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               placeholder="Enter current password"
-              className="w-full px-4 py-3 pr-12 rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-blue-400 transition-all duration-300 placeholder:text-stone-300"
+              className="w-full px-4 py-3 pr-12 rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all duration-300 placeholder:text-stone-300"
             />
             <button
               type="button"
@@ -127,7 +127,7 @@ export default function ChangePassword() {
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Enter new password"
-              className="w-full px-4 py-3 pr-12 rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-blue-400 transition-all duration-300 placeholder:text-stone-300"
+              className="w-full px-4 py-3 pr-12 rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all duration-300 placeholder:text-stone-300"
             />
             <button
               type="button"
@@ -162,7 +162,7 @@ export default function ChangePassword() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Confirm new password"
-              className="w-full px-4 py-3 pr-12 rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-blue-400 transition-all duration-300 placeholder:text-stone-300"
+              className="w-full px-4 py-3 pr-12 rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all duration-300 placeholder:text-stone-300"
             />
             <button
               type="button"
@@ -179,7 +179,7 @@ export default function ChangePassword() {
 
         <button
           type="submit"
-          className="px-6 py-3 text-sm font-semibold text-white rounded-xl bg-orange-600 hover:bg-blue-700 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-300"
+          className="px-6 py-3 text-sm font-semibold text-white rounded-xl bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all duration-300"
         >
           Update Password
         </button>

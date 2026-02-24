@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { FaCheck, FaTimes, FaFileExcel, FaFilePdf, FaEye, FaSearch, FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaFileExcel, FaFilePdf, FaSearch, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import {
     useGetEventRegistrationsQuery,
     useUpdateRegistrationStatusMutation,
@@ -49,8 +49,9 @@ const EventRegistrationManager: React.FC<EventRegistrationManagerProps> = ({
                 body: { status: 'APPROVED' },
             }).unwrap();
             showToast('success', 'Registration approved!');
-        } catch (err: any) {
-            showToast('error', err?.data?.message || 'Failed to approve');
+        } catch (err: unknown) {
+            const error = err as { data?: { message?: string } };
+            showToast('error', error?.data?.message || 'Failed to approve');
         }
     };
 
@@ -64,8 +65,9 @@ const EventRegistrationManager: React.FC<EventRegistrationManagerProps> = ({
             setRejectingId(null);
             setRejectionReason('');
             showToast('success', 'Registration rejected.');
-        } catch (err: any) {
-            showToast('error', err?.data?.message || 'Failed to reject');
+        } catch (err: unknown) {
+            const error = err as { data?: { message?: string } };
+            showToast('error', error?.data?.message || 'Failed to reject');
         }
     };
 
@@ -142,7 +144,7 @@ const EventRegistrationManager: React.FC<EventRegistrationManagerProps> = ({
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="text-blue-500 animate-pulse text-lg">Loading registrations...</div>
+                <div className="text-orange-500 animate-pulse text-lg">Loading registrations...</div>
             </div>
         );
     }
@@ -208,14 +210,14 @@ const EventRegistrationManager: React.FC<EventRegistrationManagerProps> = ({
                         type="text"
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                        className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
                         placeholder="Search by name, email..."
                     />
                 </div>
                 <select
                     value={filterStatus}
                     onChange={e => setFilterStatus(e.target.value)}
-                    className="px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800 bg-white"
+                    className="px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 bg-white"
                 >
                     <option value="">All Status</option>
                     <option value="PENDING">Pending</option>
@@ -290,7 +292,7 @@ const RegistrationCard: React.FC<RegistrationCardProps> = ({
             {/* ── Row ── */}
             <div className="p-4 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-sm shrink-0">
                         {user?.name?.charAt(0).toUpperCase() || '?'}
                     </div>
                     <div className="min-w-0">
@@ -299,13 +301,13 @@ const RegistrationCard: React.FC<RegistrationCardProps> = ({
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
                     <span className={`px-2.5 py-1 text-xs font-semibold rounded-full ${statusStyle}`}>
                         {reg.status}
                     </span>
 
                     {/* Expand / collapse */}
-                    <button onClick={onToggleExpand} className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                    <button onClick={onToggleExpand} className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors">
                         {isExpanded ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
                     </button>
 
@@ -345,7 +347,7 @@ const RegistrationCard: React.FC<RegistrationCardProps> = ({
                                         <p className="text-slate-500 font-medium">{resp.field_label}</p>
                                         {resp.field_type === 'FILE' ? (
                                             <a href={String(resp.value)} target="_blank" rel="noopener noreferrer"
-                                               className="text-blue-600 hover:underline">
+                                               className="text-orange-600 hover:underline">
                                                 View File
                                             </a>
                                         ) : (

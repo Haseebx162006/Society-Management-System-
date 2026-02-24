@@ -100,8 +100,8 @@ const AdminPresidents: React.FC = () => {
                     <tr key={president._id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
+                          <div className="shrink-0 h-10 w-10">
+                            <div className="h-10 w-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-lg border border-orange-200">
                               {(president.name || '?').charAt(0).toUpperCase()}
                             </div>
                           </div>
@@ -117,7 +117,7 @@ const AdminPresidents: React.FC = () => {
                         <div className="flex flex-col gap-1.5">
                            <div className="text-sm text-slate-900 flex items-center gap-2">
                              <FaEnvelope className="text-slate-400" /> 
-                             <a href={`mailto:${president.email}`} className="hover:text-blue-600 transition-colors">
+                             <a href={`mailto:${president.email}`} className="hover:text-orange-600 transition-colors">
                                {president.email}
                              </a>
                            </div>

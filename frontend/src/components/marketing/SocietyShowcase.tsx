@@ -27,11 +27,11 @@ interface DisplaySociety {
 }
 
 const GRADIENTS = [
-  "from-blue-600 to-cyan-500",
-  "from-purple-600 to-pink-500",
-  "from-amber-500 to-orange-600",
-  "from-emerald-500 to-green-600",
-  "from-indigo-600 to-blue-700",
+  "from-orange-600 to-amber-500",
+  "from-stone-600 to-stone-400",
+  "from-orange-500 to-orange-700",
+  "from-amber-600 to-orange-400",
+  "from-stone-500 to-orange-600",
 ];
 
 // const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=2070";

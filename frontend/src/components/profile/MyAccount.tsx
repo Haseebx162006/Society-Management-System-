@@ -64,7 +64,7 @@ export default function MyAccount() {
               setPhone(currentUser?.phone || "");
               setIsEditing(true);
             }}
-            className="px-5 py-2.5 text-sm font-semibold text-[#021e66] bg-[#021e66]/5 rounded-xl hover:bg-[#021e66]/10 transition-all duration-300"
+            className="px-5 py-2.5 text-sm font-semibold text-orange-600 bg-orange-50 rounded-xl hover:bg-orange-100 transition-all duration-300"
           >
             Edit Profile
           </button>
@@ -112,7 +112,7 @@ export default function MyAccount() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#021e66]/20 focus:border-[#021e66]/40 transition-all duration-300"
+                className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50/50 text-stone-900 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-orange-500/10 focus:border-orange-500/30 transition-all duration-300"
               />
             ) : (
               <p className="px-4 py-3 rounded-xl bg-stone-50/80 text-stone-900 text-sm font-medium border border-stone-100">
@@ -168,7 +168,7 @@ export default function MyAccount() {
           <button
             onClick={handleSave}
             disabled={isLoading}
-            className="px-6 py-3 text-sm font-semibold text-white rounded-xl bg-[#021e66] hover:bg-[#021e66]/90 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-3 text-sm font-semibold text-white rounded-xl bg-orange-600 hover:bg-orange-700 shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">

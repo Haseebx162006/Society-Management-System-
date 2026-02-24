@@ -91,6 +91,12 @@ const ROLE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bgColo
 
 const ROLE_ORDER = ["GENERAL SECRETARY", "FINANCE MANAGER", "EVENT MANAGER", "MEMBER"];
 
+const getRoleBadgeColor = (role: string) => {
+    const config = ROLE_CONFIG[role];
+    if (config) return `${config.bgColor} ${config.color} ${config.borderColor}`;
+    return "bg-orange-100 text-orange-700 border-orange-200";
+};
+
 const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
@@ -148,11 +154,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
         return cleaned;
     };
 
-    const getRoleBadgeColor = (role: string) => {
-        const config = ROLE_CONFIG[role];
-        if (config) return `${config.bgColor} ${config.color} ${config.borderColor}`;
-        return "bg-blue-100 text-blue-700 border-blue-200";
-    };
+
 
     const handleRoleUpdate = async (role: string) => {
         if (!roleModalUser) return;
@@ -289,7 +291,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                 value={searchInput}
                                 onChange={(e) => setSearchInput(e.target.value)}
                                 placeholder="Search by name or email..."
-                                className="w-full sm:w-64 bg-white border border-slate-200 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all shadow-sm"
+                                className="w-full sm:w-64 bg-white border border-slate-200 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all shadow-sm"
                             />
                         </div>
                         <button
@@ -360,7 +362,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                     <tr key={member._id} className="hover:bg-slate-50/80 transition-colors group">
                                         <td className="p-4">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">
+                                                <div className="w-10 h-10 rounded-full bg-linear-to-br from-orange-500 to-amber-400 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm">
                                                     {user.name?.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div>
@@ -391,7 +393,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                                         className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all shadow-sm ${
                                                             member.role === 'PRESIDENT' && (currentUser?._id === (typeof member.user_id === 'object' ? member.user_id._id : member.user_id))
                                                             ? 'bg-slate-50 text-slate-400 cursor-not-allowed border border-slate-100'
-                                                            : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 hover:shadow-md'
+                                                            : 'bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-200 hover:shadow-md'
                                                         }`}
                                                     >
                                                         <MdEdit className="text-sm" />
@@ -416,7 +418,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
 
                                                 <a
                                                     href={`mailto:${user.email}`}
-                                                    className="w-8 h-8 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 flex items-center justify-center text-blue-600 hover:text-blue-700 transition-all shadow-sm"
+                                                    className="w-8 h-8 rounded-lg bg-orange-50 hover:bg-orange-100 border border-orange-200 flex items-center justify-center text-orange-600 hover:text-orange-700 transition-all shadow-sm"
                                                     title="Email"
                                                 >
                                                     <FaEnvelope className="text-sm" />
@@ -445,7 +447,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                                                     <button
                                                                         key={group._id}
                                                                         onClick={() => handleAddToTeam(user._id, group._id)}
-                                                                        className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition-colors truncate"
+                                                                        className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-orange-600 transition-colors truncate"
                                                                     >
                                                                         {group.name}
                                                                     </button>
@@ -489,7 +491,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                 <button
                                     onClick={() => setPage(p)}
                                     className={`w-9 h-9 rounded-lg text-sm font-medium transition-all shadow-sm ${p === page
-                                            ? "bg-blue-600 text-white shadow-blue-200"
+                                            ? "bg-orange-600 text-white shadow-orange-200"
                                             : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
                                         }`}
                                 >
@@ -512,7 +514,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-300">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-4 duration-300">
                         <div className="relative overflow-hidden">
-                            <div className="absolute inset-0 bg-linear-to-br from-blue-600 via-indigo-600 to-purple-700" />
+                            <div className="absolute inset-0 bg-linear-to-br from-orange-600 via-amber-600 to-orange-700" />
                             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='white' fill-opacity='1' fill-rule='evenodd'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/svg%3E\")" }} />
                             <div className="relative px-6 py-5 flex items-center justify-between">
                                 <div className="flex items-center gap-4">
@@ -521,7 +523,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                     </div>
                                     <div>
                                         <h3 className="text-lg font-bold text-white tracking-tight">Change Role</h3>
-                                        <p className="text-blue-100 text-sm mt-0.5 truncate max-w-[200px]">{roleModalUserName}</p>
+                                        <p className="text-orange-100 text-sm mt-0.5 truncate max-w-[200px]">{roleModalUserName}</p>
                                     </div>
                                 </div>
                                 <button
@@ -629,7 +631,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
                                                             <p className="text-xs text-slate-400 mt-0.5 truncate">{config.description}</p>
                                                         </div>
                                                         {!isCurrent && (
-                                                            <div className="w-5 h-5 rounded-full border-2 border-slate-200 group-hover:border-blue-400 transition-colors shrink-0" />
+                                                            <div className="w-5 h-5 rounded-full border-2 border-slate-200 group-hover:border-orange-400 transition-colors shrink-0" />
                                                         )}
                                                         {isCurrent && (
                                                             <div className={`w-5 h-5 rounded-full ${config.borderColor} border-2 flex items-center justify-center shrink-0`}>

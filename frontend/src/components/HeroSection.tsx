@@ -14,7 +14,7 @@ export default function HeroSection() {
       <div className="flex flex-col sm:flex-row gap-4">
         <Link
           href="/signup"
-          className="px-8 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-8 py-3 text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors"
         >
           Get Started
         </Link>

@@ -192,7 +192,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+                <Loader2 className="w-8 h-8 text-orange-400 animate-spin" />
             </div>
         );
     }
@@ -202,7 +202,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
         return (
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-blue-200">
+                    <h2 className="text-2xl font-bold text-orange-600">
                         {editingForm ? "Edit Form" : "Create Join Form"}
                     </h2>
                     <button
@@ -224,7 +224,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="e.g. Membership Registration 2026"
-                            className="w-full h-11 px-4 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                            className="w-full h-11 px-4 bg-white border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all"
                         />
                     </div>
                     <div>
@@ -265,12 +265,12 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                 {/* Fields */}
                 <div>
                     <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-lg font-semibold text-blue-200">
+                        <h3 className="text-lg font-semibold text-stone-800">
                             Form Fields ({fields.length})
                         </h3>
                         <button
                             onClick={addField}
-                            className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 rounded-lg border border-blue-500/30 transition-all"
+                            className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-orange-600/10 hover:bg-orange-600/20 text-orange-700 rounded-lg border border-orange-200 transition-all"
                         >
                             <Plus className="w-4 h-4" />
                             Add Field
@@ -278,8 +278,8 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                     </div>
 
                     {fields.length === 0 && (
-                        <div className="text-center py-12 border border-dashed border-blue-500/20 rounded-xl">
-                            <p className="text-slate-500">No fields yet. Click `"`Add Field`"` above.</p>
+                        <div className="text-center py-12 border border-dashed border-stone-200 rounded-xl">
+                            <p className="text-slate-500">No fields yet. Click "Add Field" above.</p>
                         </div>
                     )}
 
@@ -313,7 +313,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                                 moveField(index, "up");
                                             }}
                                             disabled={index === 0}
-                                            className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-30"
+                                            className="p-1 text-slate-400 hover:text-orange-600 disabled:opacity-30"
                                         >
                                             <ChevronUp className="w-4 h-4" />
                                         </button>
@@ -323,7 +323,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                                 moveField(index, "down");
                                             }}
                                             disabled={index === fields.length - 1}
-                                            className="p-1 text-slate-400 hover:text-blue-600 disabled:opacity-30"
+                                            className="p-1 text-slate-400 hover:text-orange-600 disabled:opacity-30"
                                         >
                                             <ChevronDown className="w-4 h-4" />
                                         </button>
@@ -429,7 +429,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                     <button
                         onClick={handleSave}
                         disabled={isCreating || isUpdating}
-                        className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 disabled:bg-blue-400 text-white font-semibold rounded-xl shadow-lg shadow-blue-600/20 transition-all"
+                        className="flex-1 py-3 bg-orange-600 hover:bg-orange-500 disabled:bg-orange-400 text-white font-semibold rounded-xl shadow-lg shadow-orange-600/20 transition-all"
                     >
                         {isCreating || isUpdating ? "Saving..." : editingForm ? "Update Form" : "Create Form"}
                     </button>
@@ -448,10 +448,10 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-blue-200">Join Forms</h2>
+                <h2 className="text-2xl font-bold text-orange-600">Join Forms</h2>
                 <button
                     onClick={openNewForm}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg shadow-lg shadow-blue-600/20 transition-all"
+                    className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-500 text-white font-medium rounded-lg shadow-lg shadow-orange-600/20 transition-all"
                 >
                     <Plus className="w-4 h-4" />
                     New Form
@@ -469,7 +469,7 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                     </p>
                     <button
                         onClick={openNewForm}
-                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-all"
+                        className="px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white text-sm font-medium rounded-lg transition-all"
                     >
                         Create First Form
                     </button>
@@ -512,14 +512,14 @@ const JoinFormManager: React.FC<JoinFormManagerProps> = ({ societyId }) => {
                                     <button
                                         onClick={() => copyShareLink(form._id)}
                                         title="Copy shareable link"
-                                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                        className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                                     >
                                         <LinkIcon className="w-4 h-4" />
                                     </button>
                                     <button
                                         onClick={() => openEditForm(form)}
                                         title="Edit form"
-                                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                        className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
                                     >
                                         <Edit3 className="w-4 h-4" />
                                     </button>

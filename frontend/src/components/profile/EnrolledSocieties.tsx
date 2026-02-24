@@ -10,7 +10,7 @@ export default function EnrolledSocieties() {
   const getRoleBadge = (role: string) => {
     const styles: Record<string, string> = {
       ADMIN: "bg-purple-50 text-purple-700 border border-purple-100",
-      MODERATOR: "bg-orange-50 text-blue-700 border border-orange-100",
+      MODERATOR: "bg-orange-50 text-orange-700 border border-orange-100",
       MEMBER: "bg-stone-50 text-stone-600 border border-stone-100",
     };
     return styles[role] || styles.MEMBER;

@@ -258,7 +258,7 @@ export default function ContactPage() {
                             <p className="text-stone-500">Available Mon-Fri, 9am-5pm for immediate assistance.</p>
                         </div>
                         <div className="flex flex-col items-center text-center">
-                            <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 mb-6">
+                            <div className="w-16 h-16 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 mb-6">
                                 <Users className="w-8 h-8" />
                             </div>
                             <h4 className="text-xl font-bold mb-3">Community Support</h4>

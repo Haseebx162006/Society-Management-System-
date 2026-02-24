@@ -97,19 +97,19 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
           data,
           backgroundColor: [
             'rgba(255, 99, 132, 0.6)',
-            'rgba(54, 162, 235, 0.6)',
+            'rgba(249, 115, 22, 0.6)',
             'rgba(255, 206, 86, 0.6)',
             'rgba(75, 192, 192, 0.6)',
-            'rgba(153, 102, 255, 0.6)',
+            'rgba(249, 115, 22, 0.4)',
             'rgba(255, 159, 64, 0.6)',
             'rgba(201, 203, 207, 0.6)' 
           ],
           borderColor: [
             'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
+            'rgba(249, 115, 22, 1)',
             'rgba(255, 206, 86, 1)',
             'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
+            'rgba(249, 115, 22, 0.8)',
             'rgba(255, 159, 64, 1)',
             'rgba(201, 203, 207, 1)'
           ],
@@ -149,8 +149,8 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                 fill: true,
                 label: 'Growth',
                 data: [0],
-                borderColor: 'rgb(59, 130, 246)',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderColor: 'rgb(249, 115, 22)',
+                backgroundColor: 'rgba(249, 115, 22, 0.1)',
                 tension: 0.4,
             }]
            }
@@ -163,8 +163,8 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
             fill: true,
             label: 'Growth',
             data: dataPoints,
-            borderColor: 'rgb(59, 130, 246)',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderColor: 'rgb(249, 115, 22)',
+            backgroundColor: 'rgba(249, 115, 22, 0.1)',
             tension: 0.4,
           },
         ],
@@ -196,7 +196,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-              {society.name} <span className="text-blue-600">Dashboard</span>
+              {society.name} <span className="text-orange-600">Dashboard</span>
             </h1>
             <p className="text-slate-500 mt-1 font-medium">Welcome back, {currentUserRole === 'PRESIDENT' ? 'President' : currentUserRole === 'EVENT MANAGER' ? 'Event Manager' : currentUserRole === 'FINANCE MANAGER' ? 'Finance Manager' : ''} {user?.name}</p>
           </div>
@@ -223,9 +223,9 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
               <>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                  <StatCard title="Total Members" value={society.members?.length || 0} icon={<FaUsers />} color="blue" />
-                  <StatCard title="Total Teams" value={society.groups?.length || 0} icon={<MdGroups />} color="indigo" />
-                  <StatCard title="Events Held" value={events?.length || 0} icon={<MdEvent />} color="purple" />
+                  <StatCard title="Total Members" value={society.members?.length || 0} icon={<FaUsers />} color="orange" />
+                  <StatCard title="Total Teams" value={society.groups?.length || 0} icon={<MdGroups />} color="stone" />
+                  <StatCard title="Events Held" value={events?.length || 0} icon={<MdEvent />} color="orange" />
                 </div>
 
 
@@ -250,8 +250,8 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                     <div className="space-y-4">
                       {recentActivity.length > 0 ? (
                         recentActivity.map((member: any) => (
-                            <div key={member._id} className="flex items-center gap-4 p-4 bg-slate-50/80 rounded-xl border border-slate-100 hover:bg-blue-50/50 transition-colors cursor-default">
-                            <div className="w-10 h-10 rounded-full bg-blue-100/50 flex items-center justify-center text-blue-600 text-lg shadow-sm">
+                            <div key={member._id} className="flex items-center gap-4 p-4 bg-slate-50/80 rounded-xl border border-slate-100 hover:bg-orange-50/50 transition-colors cursor-default">
+                            <div className="w-10 h-10 rounded-full bg-orange-100/50 flex items-center justify-center text-orange-600 text-lg shadow-sm">
                                 <FaBell />
                             </div>
                             <div>
@@ -316,8 +316,8 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
 
 const StatCard = ({ title, value, icon, color }: { title: string; value: string | number; icon: React.ReactNode; color: string }) => {
   const colorMap: Record<string, string> = {
-    blue: "bg-blue-50 text-blue-600",
-    indigo: "bg-indigo-50 text-indigo-600",
+    orange: "bg-orange-50 text-orange-600",
+    stone: "bg-stone-50 text-stone-600",
     purple: "bg-purple-50 text-purple-600",
     emerald: "bg-emerald-50 text-emerald-600",
     green: "bg-green-50 text-green-600",
@@ -342,9 +342,9 @@ const StatCard = ({ title, value, icon, color }: { title: string; value: string 
 }
 
 const ActionButton = ({ label, onClick }: { label: string, onClick?: () => void }) => (
-  <button onClick={onClick} className="w-full text-left px-5 py-4 bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-xl text-slate-700 hover:text-blue-700 transition-all flex justify-between items-center group font-medium">
+  <button onClick={onClick} className="w-full text-left px-5 py-4 bg-slate-50 hover:bg-orange-50 border border-slate-200 hover:border-orange-200 rounded-xl text-slate-700 hover:text-orange-700 transition-all flex justify-between items-center group font-medium">
     {label}
-    <span className="text-slate-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-transform">
+    <span className="text-slate-400 group-hover:text-orange-500 group-hover:translate-x-1 transition-transform">
       <FaArrowRight />
     </span>
   </button>
