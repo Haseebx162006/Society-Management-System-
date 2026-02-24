@@ -90,6 +90,22 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Society"],
     }),
+    getSocietyMembers: builder.query({
+      query: ({ societyId, page = 1, limit = 50, search = '' }) => ({
+        url: `/society/${societyId}/members`,
+        params: { page, limit, search },
+      }),
+      providesTags: ["SocietyMember"],
+      transformResponse: (response: { data: any }) => response.data,
+    }),
+    changePresident: builder.mutation({
+      query: ({ societyId, new_president_id }) => ({
+        url: `/society/${societyId}/change-president`,
+        method: "POST",
+        body: { new_president_id },
+      }),
+      invalidatesTags: ["Society", "SocietyMember"],
+    }),
   }),
 });
 
@@ -107,4 +123,6 @@ export const {
   useGetAllSocietiesAdminQuery,
   useSuspendSocietyMutation,
   useReactivateSocietyMutation,
+  useGetSocietyMembersQuery,
+  useChangePresidentMutation,
 } = societyApiSlice;

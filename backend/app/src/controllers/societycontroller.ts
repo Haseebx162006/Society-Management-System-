@@ -278,10 +278,18 @@ export const getAllSocietiesAdmin = async (req: AuthRequest, res: Response) => {
             { $group: { _id: "$society_id", count: { $sum: 1 } } }
         ]);
 
+        const presidentRoles = await SocietyUserRole.find({
+            society_id: { $in: societyIds },
+            role: "PRESIDENT"
+        }).populate("user_id", "name email");
+
         const societiesWithCounts = societies.map(society => {
             const societyObj = society.toObject();
             const countObj = memberCounts.find(mc => mc._id.toString() === society._id.toString());
+            const presidentRole = presidentRoles.find(pr => pr.society_id.toString() === society._id.toString());
+            
             (societyObj as any).membersCount = countObj ? countObj.count : 0;
+            (societyObj as any).president = presidentRole ? presidentRole.user_id : null;
             return societyObj;
         });
 
