@@ -22,8 +22,8 @@ const founders = [
     },
     {
         name: "Haseeb Ahmed",
-        role: "Operational Excellence",
-        image: "/logos/mlsa.jpg",
+        role: "Lead Developer",
+        image: "/logos/my-2.jpeg",
         bio: "Crafting seamless operational workflows for modern society management."
     }
 ];

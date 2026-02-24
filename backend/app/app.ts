@@ -8,6 +8,7 @@ import society_routes from './src/routes/societyRoutes';
 import group_routes from './src/routes/groupRoutes';
 import join_routes from './src/routes/joinRoutes';
 import event_routes from './src/routes/eventRoutes';
+import email_routes from './src/routes/emailRoutes';
 import { errorHandler } from './src/middleware/errorHandler';
 import { AppError } from './src/util/AppError';
 
@@ -41,6 +42,7 @@ app.use('/api/society', society_routes);
 app.use('/api/groups', group_routes);
 app.use('/api', join_routes);
 app.use('/api', event_routes);
+app.use('/api/email', email_routes);
 
 // Handle unhandled routes
 app.all(/(.*)/, (req: Request, res: Response, next: NextFunction) => {

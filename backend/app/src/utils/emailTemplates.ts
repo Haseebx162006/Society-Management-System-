@@ -31,6 +31,36 @@ export const emailTemplates = {
     <p>${reason}</p>
     <p>Please upload a valid screenshot.</p>
   `,
+  bulkEmail: (
+    societyName: string,
+    subject: string,
+    message: string,
+    senderName: string,
+    senderRole: string,
+    targetLabel: string
+  ) => `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
+      <div style="background: linear-gradient(135deg, #ea580c, #f97316); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">${societyName}</h1>
+        <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Official Communication</p>
+      </div>
+      <div style="padding: 32px 24px;">
+        <h2 style="color: #1e293b; font-size: 20px; margin: 0 0 16px; font-weight: 700;">${subject}</h2>
+        <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+          <p style="color: #475569; font-size: 15px; line-height: 1.8; margin: 0; white-space: pre-line;">${message}</p>
+        </div>
+        <div style="background: #fff7ed; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; border-left: 4px solid #ea580c;">
+          <p style="color: #9a3412; margin: 0; font-size: 13px;">
+            <strong>Sent by:</strong> ${senderName} (${senderRole})<br/>
+            <strong>To:</strong> ${targetLabel}
+          </p>
+        </div>
+        <p style="color: #94a3b8; font-size: 12px; text-align: center; margin: 24px 0 0;">
+          This email was sent via ${societyName} &mdash; Society Management System
+        </p>
+      </div>
+    </div>
+  `,
   eventNotification: (
     participantName: string,
     eventTitle: string,
@@ -61,3 +91,6 @@ export const emailTemplates = {
     </div>
   `
 };
+
+// Named export for the bulk email template
+export const bulkEmailTemplate = emailTemplates.bulkEmail;
