@@ -1,17 +1,31 @@
-import nodemailer from 'nodemailer';
-import { emailConfig } from '../config/email';
-
-const transporter = nodemailer.createTransport(emailConfig);
+import { brevoConfig } from '../config/ses';
 
 export const sendEmail = async (to: string, subject: string, html: string) => {
   try {
-    const info = await transporter.sendMail({
-      from: emailConfig.from,
-      to,
+    const payload = {
+      sender: { name: brevoConfig.fromName, email: brevoConfig.fromEmail },
+      to: [{ email: to }],
       subject,
-      html,
+      htmlContent: html,
+    };
+
+    const response = await fetch(brevoConfig.apiUrl, {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'content-type': 'application/json',
+        'api-key': brevoConfig.apiKey,
+      },
+      body: JSON.stringify(payload),
     });
-    console.log('Message sent: %s', info.messageId);
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Brevo API error: ${JSON.stringify(error)}`);
+    }
+
+    const info = await response.json();
+    console.log('Message sent via Brevo:', info.messageId || JSON.stringify(info));
     return info;
   } catch (error) {
     console.error('Error sending email:', error);
