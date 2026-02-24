@@ -7,7 +7,7 @@ import User from '../models/User';
 import Society from '../models/Society';
 import mongoose from 'mongoose';
 import { sendResponse, sendError } from '../util/response';
-import { sendBulkSESEmail } from '../services/sesEmailService';
+import { sendBulkBrevoEmail } from '../services/sesEmailService';
 import { bulkEmailTemplate } from '../utils/emailTemplates';
 
 /**
@@ -99,8 +99,8 @@ export const sendBulkEmail = async (req: AuthRequest, res: Response) => {
             targetLabel
         );
 
-        // Send emails via SES
-        await sendBulkSESEmail(recipientEmails, subject, htmlBody);
+        // Send emails via Brevo (Sendinblue)
+        await sendBulkBrevoEmail(recipientEmails, subject, htmlBody);
 
         return sendResponse(res, 200, `Email sent successfully to ${recipientEmails.length} member(s)`, {
             recipientCount: recipientEmails.length,

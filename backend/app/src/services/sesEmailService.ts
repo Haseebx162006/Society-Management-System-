@@ -1,73 +1,87 @@
-import { SendEmailCommand, SendEmailCommandOutput } from '@aws-sdk/client-ses';
-import { sesClient, SES_FROM_EMAIL } from '../config/ses';
+import { brevoConfig } from '../config/ses';
+
+interface BrevoEmailPayload {
+  sender: { name: string; email: string };
+  to?: { email: string }[];
+  bcc?: { email: string }[];
+  subject: string;
+  htmlContent: string;
+}
 
 /**
- * Send a single email via Amazon SES
+ * Send a single email via Brevo 
  */
-export const sendSESEmail = async (
+export const sendBrevoEmail = async (
   to: string | string[],
   subject: string,
   htmlBody: string
 ) => {
   const toAddresses = Array.isArray(to) ? to : [to];
 
-  const command = new SendEmailCommand({
-    Source: SES_FROM_EMAIL,
-    Destination: {
-      ToAddresses: toAddresses,
+  const payload: BrevoEmailPayload = {
+    sender: { name: brevoConfig.fromName, email: brevoConfig.fromEmail },
+    to: toAddresses.map(email => ({ email })),
+    subject,
+    htmlContent: htmlBody,
+  };
+
+  const response = await fetch(brevoConfig.apiUrl, {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'content-type': 'application/json',
+      'api-key': brevoConfig.apiKey,
     },
-    Message: {
-      Subject: {
-        Data: subject,
-        Charset: 'UTF-8',
-      },
-      Body: {
-        Html: {
-          Data: htmlBody,
-          Charset: 'UTF-8',
-        },
-      },
-    },
+    body: JSON.stringify(payload),
   });
 
-  return sesClient.send(command);
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`Brevo API error: ${JSON.stringify(error)}`);
+  }
+
+  return response.json();
 };
 
 /**
- * Send bulk emails via Amazon SES (batched in groups of 50 to respect SES limits)
+ * Send bulk emails via Brevo (Sendinblue) — batched in groups of 50 using BCC
  */
-export const sendBulkSESEmail = async (
+export const sendBulkBrevoEmail = async (
   recipients: string[],
   subject: string,
   htmlBody: string
 ) => {
-  const BATCH_SIZE = 50; // SES limit per API call
-  const results: SendEmailCommandOutput[] = [];
+  const BATCH_SIZE = 50;
+  const results: any[] = [];
 
   for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
     const batch = recipients.slice(i, i + BATCH_SIZE);
-    
-    // Use BCC for bulk sending to protect recipient privacy
-    const command = new SendEmailCommand({
-      Source: SES_FROM_EMAIL,
-      Destination: {
-        BccAddresses: batch,
+
+    const payload: BrevoEmailPayload = {
+      sender: { name: brevoConfig.fromName, email: brevoConfig.fromEmail },
+      // Send to sender itself, use BCC for recipients to protect privacy
+      to: [{ email: brevoConfig.fromEmail }],
+      bcc: batch.map(email => ({ email })),
+      subject,
+      htmlContent: htmlBody,
+    };
+
+    const response = await fetch(brevoConfig.apiUrl, {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'content-type': 'application/json',
+        'api-key': brevoConfig.apiKey,
       },
-      Message: {
-        Subject: {
-          Data: subject,
-          Charset: 'UTF-8',
-        },
-        Body: {
-          Html: {
-            Data: htmlBody,
-            Charset: 'UTF-8',
-          },
-        },
-      },
+      body: JSON.stringify(payload),
     });
 
-    const result = await sesClient.send(command);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Brevo API error (batch ${Math.floor(i / BATCH_SIZE) + 1}): ${JSON.stringify(error)}`);
+    }
+
+    const result: Record<string, unknown> = await response.json();
     results.push(result);
   }
 
