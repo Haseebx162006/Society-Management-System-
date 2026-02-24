@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useGetMySocietiesQuery } from "../../lib/features/user/userApiSlice";
 import { useGetMyGroupMembershipsQuery, GroupMember } from "../../lib/features/groups/groupApiSlice";
 
@@ -99,9 +100,10 @@ export default function EnrolledSocieties() {
             }) || [];
 
             return (
-              <div
+              <Link
+                href={`/societies/${societyIdStr}`}
                 key={society._id}
-                className="group rounded-2xl border border-stone-100 p-5 hover:border-orange-100 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300"
+                className="block group rounded-2xl border border-stone-100 p-5 hover:border-orange-100 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300"
               >
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-orange-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-orange-500/20 shrink-0">
@@ -140,7 +142,7 @@ export default function EnrolledSocieties() {
                   </div>
 
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
