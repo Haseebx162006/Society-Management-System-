@@ -1,36 +1,136 @@
 export const emailTemplates = {
-  welcome: (name: string, verificationLink: string) => `
-    <h1>Welcome to Society Management System, ${name}!</h1>
-    <p>Please verify your email by clicking the link below:</p>
-    <a href="${verificationLink}">Verify Email</a>
+  // ─── OTP Verification Email ──────────────────────────────────────────────────
+  otpVerification: (name: string, otp: string) => `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
+      <div style="background: linear-gradient(135deg, #059669, #10b981); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">Email Verification</h1>
+        <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Society Management System</p>
+      </div>
+      <div style="padding: 32px 24px;">
+        <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${name}</strong>,</p>
+        <p style="color: #475569; font-size: 15px; margin: 0 0 24px;">Use the OTP code below to verify your email address:</p>
+        <div style="background: white; border-radius: 12px; padding: 24px; border: 2px solid #059669; text-align: center; margin-bottom: 24px;">
+          <p style="font-size: 36px; font-weight: 700; color: #059669; letter-spacing: 8px; margin: 0;">${otp}</p>
+        </div>
+        <p style="color: #94a3b8; font-size: 13px; text-align: center;">This code expires in <strong>10 minutes</strong>. Do not share it with anyone.</p>
+      </div>
+    </div>
   `,
-  passwordReset: (name: string, resetLink: string) => `
-    <h1>Password Reset Request</h1>
-    <p>Hi ${name},</p>
-    <p>You requested a password reset. Click the link below to reset your password:</p>
-    <a href="${resetLink}">Reset Password</a>
-    <p>This link expires in 1 hour.</p>
+
+  // ─── Password Reset OTP Email ────────────────────────────────────────────────
+  passwordResetOTP: (name: string, otp: string) => `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
+      <div style="background: linear-gradient(135deg, #dc2626, #ef4444); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">Password Reset</h1>
+        <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Society Management System</p>
+      </div>
+      <div style="padding: 32px 24px;">
+        <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${name}</strong>,</p>
+        <p style="color: #475569; font-size: 15px; margin: 0 0 24px;">You requested a password reset. Use the OTP code below:</p>
+        <div style="background: white; border-radius: 12px; padding: 24px; border: 2px solid #dc2626; text-align: center; margin-bottom: 24px;">
+          <p style="font-size: 36px; font-weight: 700; color: #dc2626; letter-spacing: 8px; margin: 0;">${otp}</p>
+        </div>
+        <p style="color: #94a3b8; font-size: 13px; text-align: center;">This code expires in <strong>10 minutes</strong>. If you did not request this, ignore this email.</p>
+      </div>
+    </div>
   `,
-  temporaryPassword: (name: string, tempPass: string, loginLink: string) => `
-    <h1>Membership Approved</h1>
-    <p>Hi ${name},</p>
-    <p>Your membership has been approved. Your temporary password is:</p>
-    <h3>${tempPass}</h3>
-    <p>Please login and change your password immediately:</p>
-    <a href="${loginLink}">Login</a>
+
+  // ─── Admin Notification: New Society Request ─────────────────────────────────
+  societyRequestNotification: (adminName: string, userName: string, societyName: string) => `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
+      <div style="background: linear-gradient(135deg, #7c3aed, #8b5cf6); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">New Society Request</h1>
+        <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Admin Notification</p>
+      </div>
+      <div style="padding: 32px 24px;">
+        <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${adminName}</strong>,</p>
+        <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+          <p style="color: #475569; font-size: 15px; line-height: 1.8; margin: 0;">
+            <strong>${userName}</strong> has submitted a request to create a new society: <strong>${societyName}</strong>.
+          </p>
+          <p style="color: #475569; font-size: 15px; margin: 12px 0 0;">Please log in to the admin dashboard to review and approve/reject this request.</p>
+        </div>
+      </div>
+    </div>
   `,
-  paymentVerified: (name: string, amount: number, transactionId: string) => `
-    <h1>Payment Verified</h1>
-    <p>Hi ${name},</p>
-    <p>Your payment of ${amount} (Transaction ID: ${transactionId}) has been verified.</p>
+
+  // ─── Society Request Approved ────────────────────────────────────────────────
+  societyRequestApproved: (userName: string, societyName: string) => `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
+      <div style="background: linear-gradient(135deg, #059669, #10b981); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">🎉 Congratulations!</h1>
+        <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Society Management System</p>
+      </div>
+      <div style="padding: 32px 24px;">
+        <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${userName}</strong>,</p>
+        <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+          <p style="color: #475569; font-size: 15px; line-height: 1.8; margin: 0;">
+            Your request to create <strong>${societyName}</strong> has been <strong style="color: #059669;">approved</strong>! 🎉
+          </p>
+          <p style="color: #475569; font-size: 15px; margin: 12px 0 0;">You have been assigned as the <strong>President</strong> of the society. Log in to start setting it up!</p>
+        </div>
+      </div>
+    </div>
   `,
-  paymentRejected: (name: string, reason: string) => `
-    <h1>Payment Rejected</h1>
-    <p>Hi ${name},</p>
-    <p>Your payment was rejected for the following reason:</p>
-    <p>${reason}</p>
-    <p>Please upload a valid screenshot.</p>
+
+  // ─── Society Request Rejected ────────────────────────────────────────────────
+  societyRequestRejected: (userName: string, societyName: string, reason: string) => `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
+      <div style="background: linear-gradient(135deg, #dc2626, #ef4444); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">Society Request Update</h1>
+        <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Society Management System</p>
+      </div>
+      <div style="padding: 32px 24px;">
+        <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${userName}</strong>,</p>
+        <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+          <p style="color: #475569; font-size: 15px; line-height: 1.8; margin: 0;">
+            Your request to create <strong>${societyName}</strong> has been <strong style="color: #dc2626;">rejected</strong>.
+          </p>
+          <p style="color: #475569; font-size: 15px; margin: 12px 0 0;"><strong>Reason:</strong> ${reason}</p>
+        </div>
+      </div>
+    </div>
   `,
+
+  // ─── Congratulations: Membership Approved ────────────────────────────────────
+  membershipApproved: (userName: string, societyName: string) => `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
+      <div style="background: linear-gradient(135deg, #059669, #10b981); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">🎉 Welcome Aboard!</h1>
+        <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Society Management System</p>
+      </div>
+      <div style="padding: 32px 24px;">
+        <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${userName}</strong>,</p>
+        <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+          <p style="color: #475569; font-size: 15px; line-height: 1.8; margin: 0;">
+            Congratulations! Your request to join <strong>${societyName}</strong> has been <strong style="color: #059669;">approved</strong>! 🎉
+          </p>
+          <p style="color: #475569; font-size: 15px; margin: 12px 0 0;">You are now an official member. Log in to explore your society!</p>
+        </div>
+      </div>
+    </div>
+  `,
+
+  // ─── Membership Rejected ─────────────────────────────────────────────────────
+  membershipRejected: (userName: string, societyName: string, reason?: string) => `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
+      <div style="background: linear-gradient(135deg, #dc2626, #ef4444); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+        <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">Membership Update</h1>
+        <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Society Management System</p>
+      </div>
+      <div style="padding: 32px 24px;">
+        <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${userName}</strong>,</p>
+        <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+          <p style="color: #475569; font-size: 15px; line-height: 1.8; margin: 0;">
+            Your request to join <strong>${societyName}</strong> has been <strong style="color: #dc2626;">rejected</strong>.
+          </p>
+          ${reason ? `<p style="color: #475569; font-size: 15px; margin: 12px 0 0;"><strong>Reason:</strong> ${reason}</p>` : ''}
+        </div>
+      </div>
+    </div>
+  `,
+
+  // ─── Bulk Email Template ─────────────────────────────────────────────────────
   bulkEmail: (
     societyName: string,
     subject: string,
@@ -61,6 +161,8 @@ export const emailTemplates = {
       </div>
     </div>
   `,
+
+  // ─── Event Notification Template ──────────────────────────────────────────────
   eventNotification: (
     participantName: string,
     eventTitle: string,

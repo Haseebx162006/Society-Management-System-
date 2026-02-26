@@ -2,6 +2,7 @@ import { sendEmail } from './emailService';
 import User from '../models/User';
 import Society from '../models/Society';
 import SocietyUserRole from '../models/SocietyUserRole';
+import { emailTemplates } from '../utils/emailTemplates';
 
 /**
  * Notify the President that a new join request was submitted.
@@ -34,7 +35,8 @@ export const notifyNewJoinRequest = async (
 };
 
 /**
- * Notify the user about their request status change.
+ * Notify the user about their membership request status change.
+ * Uses styled email templates.
  */
 export const notifyRequestStatusChange = async (
     userId: string,
@@ -47,16 +49,67 @@ export const notifyRequestStatusChange = async (
         if (!user) return;
 
         const subject = status === 'APPROVED'
-            ? `Welcome to ${societyName}!`
+            ? `🎉 Welcome to ${societyName}!`
             : `Join Request Update — ${societyName}`;
 
         const body = status === 'APPROVED'
-            ? `<p>Your request to join <strong>${societyName}</strong> has been <strong>approved</strong>. Welcome aboard!</p>`
-            : `<p>Your request to join <strong>${societyName}</strong> has been <strong>rejected</strong>.</p>
-               ${reason ? `<p><strong>Reason:</strong> ${reason}</p>` : ''}`;
+            ? emailTemplates.membershipApproved(user.name, societyName)
+            : emailTemplates.membershipRejected(user.name, societyName, reason);
 
         await sendEmail(user.email, subject, body);
     } catch (error) {
         console.error('Notification error (status change):', error);
+    }
+};
+
+/**
+ * Notify all super admins about a new society creation request.
+ * Fails silently.
+ */
+export const notifySocietyRequest = async (
+    userName: string,
+    societyName: string
+) => {
+    try {
+        const admins = await User.find({ is_super_admin: true });
+        if (!admins || admins.length === 0) return;
+
+        for (const admin of admins) {
+            await sendEmail(
+                admin.email,
+                `New Society Request — ${societyName}`,
+                emailTemplates.societyRequestNotification(admin.name, userName, societyName)
+            );
+        }
+    } catch (error) {
+        console.error('Notification error (society request):', error);
+    }
+};
+
+/**
+ * Notify the user about their society request being approved or rejected.
+ * Fails silently.
+ */
+export const notifySocietyRequestStatus = async (
+    userId: string,
+    societyName: string,
+    status: 'APPROVED' | 'REJECTED',
+    reason?: string
+) => {
+    try {
+        const user = await User.findById(userId);
+        if (!user) return;
+
+        const subject = status === 'APPROVED'
+            ? `🎉 Society "${societyName}" Approved!`
+            : `Society Request Update — ${societyName}`;
+
+        const body = status === 'APPROVED'
+            ? emailTemplates.societyRequestApproved(user.name, societyName)
+            : emailTemplates.societyRequestRejected(user.name, societyName, reason || 'No reason provided');
+
+        await sendEmail(user.email, subject, body);
+    } catch (error) {
+        console.error('Notification error (society request status):', error);
     }
 };
