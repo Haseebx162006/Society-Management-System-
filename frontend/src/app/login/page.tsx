@@ -171,12 +171,9 @@ export default function LoginPage() {
                 />
 
                 <div className="flex justify-between items-center pb-8">
-                    <div className="flex items-center gap-2 cursor-pointer group">
-                        <div className="w-4 h-4 rounded-md border-2 border-stone-200 group-hover:border-orange-500 transition-colors" />
-                        <span className="text-[11px] font-bold text-stone-400 group-hover:text-stone-600 uppercase tracking-wider">Keep me in</span>
-                    </div>
+                   
                     <a href="#" className="text-[11px] font-bold text-stone-400 hover:text-orange-600 transition-colors uppercase tracking-widest">
-                        Recovery?
+                        Forget Password?
                     </a>
                 </div>
 
@@ -197,7 +194,7 @@ export default function LoginPage() {
                     href="/signup"
                     className="inline-flex items-center gap-2 py-3 px-8 rounded-full border-2 border-stone-100 text-stone-900 font-black text-xs uppercase tracking-widest hover:border-orange-600 hover:text-orange-600 transition-all duration-300"
                 >
-                    Create Identity
+                    Create One
                 </Link>
             </div>
         </motion.div>

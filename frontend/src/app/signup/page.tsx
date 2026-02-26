@@ -164,7 +164,7 @@ export default function SignupPage() {
                 />
 
                 <FuturisticInput
-                    label="Access Key"
+                    label="Password"
                     name="password"
                     type={showPassword ? "text" : "password"}
                     icon={Lock}
