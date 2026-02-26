@@ -25,7 +25,7 @@ const GRADIENTS = [
   "from-stone-500 to-orange-600",
 ];
 
-const DEFAULT_IMAGE = "/logo.png";
+const DEFAULT_IMAGE = "/logo.png?v=1?v=1";
 
 export default function EventShowcase() {
   const { data: eventsResponse, isLoading } = useGetAllPublicEventsQuery({});

@@ -52,7 +52,7 @@ export default function BrandPage() {
                                 <div className="lg:col-span-7">
                                     <div className="relative h-48 w-full max-w-lg mb-12">
                                         <Image
-                                            src="/logo.png"
+                                            src="/logo.png?v=1"
                                             alt="COMSOC Master Logo"
                                             fill
                                             className="object-contain object-left"
