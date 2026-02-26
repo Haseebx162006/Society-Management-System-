@@ -3,11 +3,6 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import User from '../models/User';
 import { AuthRequest } from './authmiddleware';
 
-/**
- * Like `protect`, but does NOT reject unauthenticated requests.
- * If a valid token exists → attaches req.user
- * If no token or invalid  → req.user = null, continues
- */
 export const optionalProtect = async (
     req: AuthRequest,
     res: Response,
@@ -27,7 +22,8 @@ export const optionalProtect = async (
     try {
         const decoded = jwt.verify(
             token,
-            process.env.PRIVATE_KEY as string
+            process.env.PRIVATE_KEY as string,
+            { algorithms: ['HS256'] }
         ) as JwtPayload;
 
         req.user = await User.findById(decoded.id).select('-password');

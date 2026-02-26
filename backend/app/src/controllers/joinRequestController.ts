@@ -13,7 +13,6 @@ import { validateResponses } from '../util/formValidator';
 import { notifyNewJoinRequest, notifyRequestStatusChange } from '../services/notificationService';
 import { uploadOnCloudinary } from '../utils/cloudinary';
 
-// ─── Submit Join Request ─────────────────────────────────────────────────────
 
 export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
     try {
@@ -68,9 +67,7 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
             return sendError(res, 400, 'You already have a pending request for this society');
         }
 
-        // ── AUTO-APPROVE: Check if user is a previous member ────────────────
-        console.log('[JoinRequest] Checking PreviousMember for email:', req.user!.email);
-        console.log('[JoinRequest] Target Society ID:', form.society_id);
+
 
         const normalizedEmail = req.user!.email.trim().toLowerCase();
         
@@ -79,11 +76,9 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
             email: normalizedEmail
         });
 
-        console.log('[JoinRequest] PreviousMember match found?', !!isPreviousMember);
 
         if (isPreviousMember) {
-            // Create an auto-approved join request (no validation needed)
-            console.log('[JoinRequest] Auto-approving. Selected teams:', selected_teams);
+
 
             const joinRequest = await JoinRequest.create({
                 user_id: req.user!._id,
@@ -106,28 +101,23 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
 
             // Assign teams if selected
             if (selected_teams && selected_teams.length > 0) {
-                console.log(`[JoinRequest] Assigning ${selected_teams.length} teams...`);
                 for (const teamId of selected_teams) {
-                    console.log(`[JoinRequest] Processing teamId: ${teamId}`);
                     try {
                         const team = await Group.findOne({ _id: teamId, society_id: form.society_id });
                         if (team) {
-                            console.log(`[JoinRequest] Found team ${team.name}, creating membership...`);
+
                             await GroupMember.create([{
                                 group_id: teamId,
                                 user_id: req.user!._id,
                                 society_id: form.society_id
                             }]);
-                            console.log(`[JoinRequest] Membership created for team ${teamId}`);
                         } else {
-                            console.warn(`[JoinRequest] Team ${teamId} not found in society ${form.society_id}`);
                         }
-                    } catch (err) {
-                        console.error(`[JoinRequest] Error assigning team ${teamId}:`, err);
+                    } catch {
                     }
                 }
             } else {
-                console.log('[JoinRequest] No teams selected to assign.');
+
             }
 
             // Remove from previous members list (one-time use)
@@ -142,16 +132,16 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
 
         // 4. Upload files to Cloudinary for FILE-type fields
         const uploadedFiles = req.files as Express.Multer.File[] | undefined;
-        console.log('[JoinRequest] Files received by multer:', uploadedFiles?.length || 0);
+
         if (uploadedFiles && uploadedFiles.length > 0) {
             for (const file of uploadedFiles) {
                 const fieldLabel = file.fieldname;
-                console.log(`[JoinRequest] Uploading file "${file.originalname}" for field "${fieldLabel}" from path: ${file.path}`);
+
 
                 const uploadResult = await uploadOnCloudinary(file.path);
 
                 if (uploadResult) {
-                    console.log(`[JoinRequest] Cloudinary upload success: ${uploadResult.secure_url}`);
+
                     // Find the matching response and set the Cloudinary URL
                     const matchingResponse = responses.find(
                         (r: any) => r.field_label === fieldLabel
@@ -166,7 +156,7 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
                         });
                     }
                 } else {
-                    console.error(`[JoinRequest] Cloudinary upload FAILED for file "${file.originalname}". Check CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET env vars.`);
+
                     return sendError(res, 500, `File upload failed for "${fieldLabel}". Please try again.`);
                 }
             }
@@ -175,7 +165,7 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
             const fileFields = form.fields.filter(f => f.field_type === 'FILE');
             const requiredFileFields = fileFields.filter(f => f.is_required);
             if (requiredFileFields.length > 0) {
-                console.warn('[JoinRequest] Expected file uploads but none received. FILE fields:', requiredFileFields.map(f => f.label));
+
             }
         }
 
@@ -391,7 +381,7 @@ export const updateJoinRequestStatus = async (req: AuthRequest, res: Response) =
         return sendResponse(res, 200, 'Join request approved', joinRequest);
 
     } catch (error: any) {
-        console.error('[JoinRequest] updateStatus error:', error);
+
         return sendError(res, 500, 'Internal server error', error);
     }
 };
