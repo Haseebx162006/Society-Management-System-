@@ -6,6 +6,7 @@
     "create-admin": "ts-node scripts/createSuperAdmin.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-ses": "^3.998.0",
     "@types/cors": "^2.8.19",
     "@types/pdfkit": "^0.17.5",
     "bcrypt": "^6.0.0",

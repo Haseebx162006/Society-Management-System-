@@ -1,34 +1,29 @@
-import { brevoConfig } from '../config/ses';
+import { SendEmailCommand } from '@aws-sdk/client-ses';
+import { sesClient, sesConfig } from '../config/ses';
 
+/**
+ * Send a single email via AWS SES
+ */
 export const sendEmail = async (to: string, subject: string, html: string) => {
   try {
-    const payload = {
-      sender: { name: brevoConfig.fromName, email: brevoConfig.fromEmail },
-      to: [{ email: to }],
-      subject,
-      htmlContent: html,
-    };
-
-    const response = await fetch(brevoConfig.apiUrl, {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'content-type': 'application/json',
-        'api-key': brevoConfig.apiKey,
+    const command = new SendEmailCommand({
+      Source: `${sesConfig.fromName} <${sesConfig.fromEmail}>`,
+      Destination: {
+        ToAddresses: [to],
       },
-      body: JSON.stringify(payload),
+      Message: {
+        Subject: { Data: subject, Charset: 'UTF-8' },
+        Body: {
+          Html: { Data: html, Charset: 'UTF-8' },
+        },
+      },
     });
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`Brevo API error: ${JSON.stringify(error)}`);
-    }
-
-    const info = await response.json();
-    console.log('Message sent via Brevo:', info.messageId || JSON.stringify(info));
-    return info;
+    const result = await sesClient.send(command);
+    console.log('Email sent via SES:', result.MessageId);
+    return result;
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error sending email via SES:', error);
     throw error;
   }
 };

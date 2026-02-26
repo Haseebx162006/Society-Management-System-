@@ -10,6 +10,7 @@ import { isPresident } from '../util/roleUtils';
 import mongoose from 'mongoose';
 import { sendResponse, sendError } from '../util/response';
 import { uploadOnCloudinary } from '../utils/cloudinary';
+import { notifySocietyRequest, notifySocietyRequestStatus } from '../services/notificationService';
 
 
 export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
@@ -40,6 +41,9 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
             society_name,
             description
         });
+
+        // Notify all admins about the new society request (fire-and-forget)
+        notifySocietyRequest(req.user!.name, society_name);
 
         return sendResponse(res, 201, "Society request submitted successfully", societyRequest);
 
@@ -220,6 +224,14 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
             societyRequest.rejection_reason = rejection_reason;
             await societyRequest.save();
 
+            // Notify user about rejection (fire-and-forget)
+            notifySocietyRequestStatus(
+                societyRequest.user_id.toString(),
+                societyRequest.society_name,
+                'REJECTED',
+                rejection_reason
+            );
+
             return sendResponse(res, 200, "Society request rejected", societyRequest);
         }
 
@@ -252,6 +264,13 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
 
         societyRequest.status = "APPROVED";
         await societyRequest.save();
+
+        // Notify user about approval (fire-and-forget)
+        notifySocietyRequestStatus(
+            societyRequest.user_id.toString(),
+            societyRequest.society_name,
+            'APPROVED'
+        );
 
         return sendResponse(res, 200, "Society request approved and society created", {
             request: societyRequest,
