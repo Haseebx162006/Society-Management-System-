@@ -19,7 +19,6 @@ export default function SocietyRegisterPage() {
         useGetSocietyByIdQuery(id as string);
     const society = societyData?.society;
 
-    // Use the PUBLIC endpoint — no auth required
     const {
         data: forms,
         isLoading: formsLoading,
@@ -30,10 +29,8 @@ export default function SocietyRegisterPage() {
 
     const isLoading = societyLoading || formsLoading;
 
-    // All forms returned are already active + public
     const activeForms = useMemo(() => forms || [], [forms]);
 
-    // Redirect if not authenticated
     useEffect(() => {
         if (!user) {
             const returnUrl = encodeURIComponent(window.location.pathname);
@@ -41,14 +38,12 @@ export default function SocietyRegisterPage() {
         }
     }, [user, router]);
 
-    // If only one active form and user is authenticated, redirect directly
     useEffect(() => {
         if (user && !isLoading && society && !formsError && activeForms.length === 1) {
             router.push(`/join/${activeForms[0]._id}`);
         }
     }, [isLoading, society, formsError, activeForms, router, user]);
 
-    // Show loader while checking auth or fetching data
     if (!user || isLoading) {
         return (
             <main className="min-h-screen bg-gray-50 flex flex-col">
@@ -86,7 +81,6 @@ export default function SocietyRegisterPage() {
         );
     }
 
-    // If the forms endpoint failed or no active forms
     if (formsError || activeForms.length === 0) {
         return (
             <main className="min-h-screen bg-gray-50 flex flex-col">
@@ -115,7 +109,6 @@ export default function SocietyRegisterPage() {
         );
     }
 
-    // Single form: show spinner while useEffect redirects
     if (activeForms.length === 1) {
         return (
             <main className="min-h-screen bg-gray-50 flex flex-col">
@@ -127,7 +120,6 @@ export default function SocietyRegisterPage() {
         );
     }
 
-    // Multiple forms: let user choose
     return (
         <main className="min-h-screen bg-gray-50 flex flex-col">
             <Header />
