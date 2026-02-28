@@ -246,10 +246,10 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
 
       if (isEditing && initialData?._id) {
           result = await updateSociety({ id: initialData._id, data: formPayload }).unwrap();
-          toast.success('Society updated successfully!', { icon: '✅' });
+          toast.success('Society updated successfully!');
       } else {
           result = await createSociety(formPayload).unwrap();
-          toast.success('Society launched successfully!', { icon: '🚀' });
+          toast.success('Society launched successfully!');
       }
       
       if (result) {
