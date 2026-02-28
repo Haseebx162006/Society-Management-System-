@@ -20,6 +20,7 @@ export default function SignupPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
 
+  const [agreed, setAgreed] = useState(false);
   const [signup, { isLoading }] = useSignupMutation();
   const router = useRouter();
 
@@ -40,6 +41,10 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!agreed) {
+      toast.error("Please agree to the Terms and Conditions to proceed.");
+      return;
+    }
     if (!isPasswordValid) return;
     try {
       const result = await signup(formData).unwrap();
@@ -183,7 +188,24 @@ export default function SignupPage() {
                     }
                 />
 
-                <div className="grid grid-cols-2 gap-3 pb-6">
+                <div className="flex items-center gap-3 pb-8 px-1">
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                        <div className="relative flex items-center justify-center">
+                            <input
+                                type="checkbox"
+                                checked={agreed}
+                                onChange={(e) => setAgreed(e.target.checked)}
+                                className="peer appearance-none w-5 h-5 rounded-lg border-2 border-stone-200 checked:bg-orange-600 checked:border-orange-600 transition-all duration-300 cursor-pointer"
+                            />
+                            <Check className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" strokeWidth={4} />
+                        </div>
+                        <span className="text-[11px] font-bold text-stone-400 group-hover:text-stone-600 transition-colors uppercase tracking-widest lg:whitespace-nowrap">
+                            I accept the <Link href="/terms" className="text-orange-600 hover:underline">Terms of Service</Link> & <Link href="/privacy" className="text-orange-600 hover:underline">Privacy Policy</Link>
+                        </span>
+                    </label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pb-8">
                     {passwordConditions.map((condition, i) => {
                         const met = condition.regex.test(formData.password);
                         return (

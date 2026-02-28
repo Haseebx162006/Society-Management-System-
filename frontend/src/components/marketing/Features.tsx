@@ -29,24 +29,24 @@ const features = [
     title: "Live Events",
     description: "Stay synchronized with the campus pulse. Seminars, workshops, and competitions."
   },
-  {
-    icon: Zap,
-    name: "Control",
-    title: "Digital Command",
-    description: "Centralized executive management. Streamline data, attendance, and recruitment."
-  },
-  {
-    icon: ShieldCheck,
-    name: "Security",
-    title: "Verified Identity",
-    description: "Trusted campus environment with official badges and verified student profiles."
-  },
-  {
-    icon: Globe,
-    name: "Portfolio",
-    title: "Public Presence",
-    description: "Showcase your group's achievements, galleries, and history to the entire campus."
-  }
+  // {
+  //   icon: Zap,
+  //   name: "Control",
+  //   title: "Digital Command",
+  //   description: "Centralized executive management. Streamline data, attendance, and recruitment."
+  // },
+  // {
+  //   icon: ShieldCheck,
+  //   name: "Security",
+  //   title: "Verified Identity",
+  //   description: "Trusted campus environment with official badges and verified student profiles."
+  // },
+  // {
+  //   icon: Globe,
+  //   name: "Portfolio",
+  //   title: "Public Presence",
+  //   description: "Showcase your group's achievements, galleries, and history to the entire campus."
+  // }
 ];
 
 export default function Features() {
