@@ -35,13 +35,8 @@ app.use(helmet({
     },
 }));
 
-const allowedOrigins = process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',')
-    : ['http://localhost:3000'];
-
-<<<<<<< HEAD
-// CORS configuration
 const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000').split(',').map(o => o.trim());
+
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (server-to-server, curl)
@@ -54,13 +49,6 @@ app.use(cors({
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-=======
-app.use(cors({
-    origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
->>>>>>> aa08084a12598959982560788c2b57477530af4c
 }));
 
 const globalLimiter = rateLimit({

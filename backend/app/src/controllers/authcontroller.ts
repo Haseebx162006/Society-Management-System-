@@ -369,12 +369,8 @@ export const login = async (req: Request, res: Response) => {
              return sendError(res, 401, "Invalid email or password");
         }
 
-<<<<<<< HEAD
         // Check if email is verified (skip for super admins)
         if (!finduser.email_verified && !finduser.is_super_admin) {
-=======
-        if (!finduser.email_verified) {
->>>>>>> aa08084a12598959982560788c2b57477530af4c
              return sendError(res, 403, "Email not verified. Please verify your email first.");
         }
 
