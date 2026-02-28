@@ -22,6 +22,11 @@ export interface IEvent extends Document {
     status: 'DRAFT' | 'PUBLISHED' | 'ONGOING' | 'COMPLETED' | 'CANCELLED';
     created_by: mongoose.Types.ObjectId;
     price: number;
+    payment_info?: {
+        acc_num: string;
+        acc_holder_name: string;
+        acc_destination: string;
+    };
     created_at: Date;
     updated_at: Date;
 }
@@ -94,6 +99,11 @@ const eventSchema = new Schema<IEvent>({
     price: {
         type: Number,
         default: 0
+    },
+    payment_info: {
+        acc_num: String,
+        acc_holder_name: String,
+        acc_destination: String
     },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }

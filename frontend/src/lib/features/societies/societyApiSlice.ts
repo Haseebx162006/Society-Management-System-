@@ -1,5 +1,11 @@
 import { apiSlice } from "../api/apiSlice";
 
+export interface PaymentInfo {
+    acc_num: string;
+    acc_holder_name: string;
+    acc_destination: string;
+}
+
 export const societyApiSlice = apiSlice.injectEndpoints({
   overrideExisting: false,
   endpoints: (builder) => ({

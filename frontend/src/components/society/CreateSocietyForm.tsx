@@ -28,6 +28,7 @@ interface SocietyData {
   contact_info?: ContactInfo;
   groups?: SocietyGroup[];
   content_sections: ContentSection[];
+  payment_info?: PaymentInfo;
 }
 
 interface CreateSocietyFormProps {
@@ -49,6 +50,13 @@ interface FormData {
   why_join_us: string[];
   faqs: FAQ[];
   contact_info: ContactInfo;
+  payment_info: PaymentInfo;
+}
+
+export interface PaymentInfo {
+    acc_num: string;
+    acc_holder_name: string;
+    acc_destination: string;
 }
 
 export interface FAQ {
@@ -82,17 +90,22 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
     why_join_us: initialData?.why_join_us || [],
     faqs: initialData?.faqs || [],
     contact_info: initialData?.contact_info || {
-        email: '',
-        phone: '',
-        website: '',
-        social_links: {
-            facebook: '',
-            instagram: '',
-            twitter: '',
-            linkedin: ''
+            email: '',
+            phone: '',
+            website: '',
+            social_links: {
+                facebook: '',
+                instagram: '',
+                twitter: '',
+                linkedin: ''
+            }
+        },
+        payment_info: initialData?.payment_info || {
+            acc_num: '',
+            acc_holder_name: '',
+            acc_destination: ''
         }
-    }
-  });
+    });
   
   // Set initial preview if logo exists (assuming it's a URL in initialData, though not in interface yet)
   // For now, only local preview.
@@ -225,6 +238,7 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
       formPayload.append('why_join_us', JSON.stringify(formData.why_join_us));
       formPayload.append('faqs', JSON.stringify(formData.faqs));
       formPayload.append('contact_info', JSON.stringify(formData.contact_info));
+      formPayload.append('payment_info', JSON.stringify(formData.payment_info));
       
       if (logo) {
         formPayload.append('logo', logo);
@@ -269,7 +283,7 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
 
         {/* Steps */}
         <div className="flex gap-2 px-8 pt-6">
-            {[1, 2, 3, 4, 5, 6].map((s) => (
+            {[1, 2, 3, 4, 5, 6, 7].map((s) => (
                 <div key={s} className={`h-1 flex-1 rounded-full transitions-all duration-300 ${step >= s ? 'bg-orange-600' : 'bg-stone-200'}`} />
             ))}
         </div>
@@ -635,7 +649,59 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
                 </div>
             )}
 
-            {/* Footer Buttons */}
+            {/* Step 7: Payment Info */}
+            {step === 7 && (
+                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
+                    <h3 className="text-xl font-semibold text-stone-800 flex items-center gap-2">
+                         Payment Information
+                        <span className="text-xs font-normal text-stone-400">(Details shown to users for registration fees)</span>
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-orange-50/50 rounded-2xl border border-orange-100">
+                        <div>
+                            <label className="block text-sm font-medium text-stone-700 mb-1.5">Account Number / IBAN</label>
+                            <input
+                                type="text"
+                                name="acc_num"
+                                value={formData.payment_info.acc_num}
+                                onChange={(e) => setFormData({
+                                    ...formData,
+                                    payment_info: { ...formData.payment_info, acc_num: e.target.value }
+                                })}
+                                className="w-full bg-white border border-stone-200 rounded-lg px-4 py-3 text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                                placeholder="e.g. 03001234567 or IBAN"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-stone-700 mb-1.5">Account Holder Name</label>
+                            <input
+                                type="text"
+                                name="acc_holder_name"
+                                value={formData.payment_info.acc_holder_name}
+                                onChange={(e) => setFormData({
+                                    ...formData,
+                                    payment_info: { ...formData.payment_info, acc_holder_name: e.target.value }
+                                })}
+                                className="w-full bg-white border border-stone-200 rounded-lg px-4 py-3 text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                                placeholder="e.g. John Doe"
+                            />
+                        </div>
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-stone-700 mb-1.5">Payment Destination (Bank/App Name)</label>
+                            <input
+                                type="text"
+                                name="acc_destination"
+                                value={formData.payment_info.acc_destination}
+                                onChange={(e) => setFormData({
+                                    ...formData,
+                                    payment_info: { ...formData.payment_info, acc_destination: e.target.value }
+                                })}
+                                className="w-full bg-white border border-stone-200 rounded-lg px-4 py-3 text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                                placeholder="e.g. JazzCash, EasyPaisa, Bank Alfalah"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
             <div className="flex justify-between mt-8 pt-6 border-t border-stone-100">
                 {step > 1 ? (
                     <button
@@ -659,7 +725,7 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
                     </div>
                 )}
                 
-                {step < 6 ? (
+                {step < 7 ? (
                     <button
                         type="button"
                         onClick={() => setStep(step + 1)}

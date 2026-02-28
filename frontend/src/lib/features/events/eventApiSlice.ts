@@ -48,6 +48,11 @@ export interface EventData {
     tags: string[];
     is_public: boolean;
     status: "DRAFT" | "PUBLISHED" | "ONGOING" | "COMPLETED" | "CANCELLED";
+    payment_info?: {
+        acc_num: string;
+        acc_holder_name: string;
+        acc_destination: string;
+    };
     created_by: string;
     created_at: string;
     updated_at: string;

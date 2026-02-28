@@ -13,7 +13,16 @@ import SocietyUserRole from '../models/SocietyUserRole';
 import * as XLSX from 'xlsx';
 import PDFDocument from 'pdfkit';
 
-// ─── Create Event ───────────────────────────────────────────────────────────
+const safeParse = (data: any, fallback: any = []) => {
+    if (typeof data === 'string') {
+        try {
+            return JSON.parse(data);
+        } catch {
+            return fallback;
+        }
+    }
+    return data;
+};
 
 export const createEvent = async (req: AuthRequest, res: Response) => {
     try {
@@ -22,7 +31,8 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
             title, description, event_date, event_end_date,
             venue, event_type, max_participants,
             registration_start_date, registration_deadline,
-            registration_form, content_sections, tags, is_public, status, price
+            registration_form, content_sections, tags, is_public, status, price,
+            payment_info
         } = req.body;
 
         if (!title || !description || !event_date || !venue) {
@@ -48,35 +58,30 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
             if (result) bannerUrl = result.secure_url;
         }
 
-        // Parse content_sections and tags if they come as strings (from FormData)
-        let parsedContentSections = content_sections;
-        if (typeof content_sections === 'string') {
-            try { parsedContentSections = JSON.parse(content_sections); } catch { parsedContentSections = []; }
-        }
-        let parsedTags = tags;
-        if (typeof tags === 'string') {
-            try { parsedTags = JSON.parse(tags); } catch { parsedTags = []; }
-        }
+        const parsedContentSections = safeParse(content_sections, []);
+        const parsedTags = safeParse(tags, []);
+        const parsedPaymentInfo = safeParse(payment_info, undefined);
 
         const event = await Event.create({
             society_id,
             title,
             description,
             event_date,
-            event_end_date,
+            event_end_date: event_end_date || undefined,
             venue,
             event_type: event_type || 'OTHER',
             banner: bannerUrl,
             max_participants: max_participants ? Number(max_participants) : undefined,
-            registration_start_date,
-            registration_deadline,
+            registration_start_date: registration_start_date || undefined,
+            registration_deadline: registration_deadline || undefined,
             registration_form: registration_form || undefined,
-            content_sections: parsedContentSections || [],
-            tags: parsedTags || [],
-            is_public: is_public !== undefined ? is_public : true,
-            status: status || 'DRAFT',
+            content_sections: parsedContentSections,
+            tags: parsedTags,
+            is_public: is_public === 'true' || is_public === true,
+            status: status ? String(status).toUpperCase() : 'DRAFT',
             created_by: req.user!._id,
-            price: Number(price) || 0
+            price: Number(price) || 0,
+            payment_info: parsedPaymentInfo
         });
 
         return sendResponse(res, 201, 'Event created successfully', event);
@@ -204,7 +209,8 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
             title, description, event_date, event_end_date,
             venue, event_type, max_participants,
             registration_start_date, registration_deadline,
-            registration_form, content_sections, tags, is_public, status, price
+            registration_form, content_sections, tags, is_public, status, price,
+            payment_info
         } = req.body;
 
         const event = await Event.findById(eventId);
@@ -220,25 +226,18 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
         if (registration_start_date !== undefined) event.registration_start_date = registration_start_date;
         if (registration_deadline !== undefined) event.registration_deadline = registration_deadline;
         if (registration_form !== undefined) event.registration_form = registration_form || undefined;
-        if (is_public !== undefined) event.is_public = is_public;
-        if (status) event.status = status;
+        if (is_public !== undefined) event.is_public = is_public === 'true' || is_public === true;
+        if (status) event.status = String(status).toUpperCase() as any;
         if (price !== undefined) event.price = Number(price);
-
-        // Handle content_sections
-        if (content_sections !== undefined) {
-            let parsed = content_sections;
-            if (typeof content_sections === 'string') {
-                try { parsed = JSON.parse(content_sections); } catch { parsed = []; }
-            }
-            event.content_sections = parsed;
+        if (payment_info !== undefined) {
+            event.payment_info = safeParse(payment_info, undefined);
         }
-        // Handle tags
+
+        if (content_sections !== undefined) {
+            event.content_sections = safeParse(content_sections, []);
+        }
         if (tags !== undefined) {
-            let parsed = tags;
-            if (typeof tags === 'string') {
-                try { parsed = JSON.parse(tags); } catch { parsed = []; }
-            }
-            event.tags = parsed;
+            event.tags = safeParse(tags, []);
         }
 
         // Handle banner upload

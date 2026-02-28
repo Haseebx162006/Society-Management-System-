@@ -75,6 +75,9 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
     const [tags, setTags] = useState('');
     const [bannerFile, setBannerFile] = useState<File | null>(null);
     const [price, setPrice] = useState('0');
+    const [accNum, setAccNum] = useState('');
+    const [accHolderName, setAccHolderName] = useState('');
+    const [accDestination, setAccDestination] = useState('');
     const [contentSections, setContentSections] = useState<EventContentSection[]>([]);
 
     const resetForm = () => {
@@ -92,6 +95,9 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         setTags('');
         setBannerFile(null);
         setPrice('0');
+        setAccNum('');
+        setAccHolderName('');
+        setAccDestination('');
         setContentSections([]);
         setSelectedEvent(null);
         setError('');
@@ -120,6 +126,9 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         setContentSections(event.content_sections || []);
         setBannerFile(null);
         setPrice(event.price ? String(event.price) : '0');
+        setAccNum(event.payment_info?.acc_num || '');
+        setAccHolderName(event.payment_info?.acc_holder_name || '');
+        setAccDestination(event.payment_info?.acc_destination || '');
         setError('');
         setSuccess('');
         setView('edit');
@@ -167,7 +176,19 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
             formData.append('tags', JSON.stringify(tags.split(',').map(t => t.trim()).filter(Boolean)));
             formData.append('content_sections', JSON.stringify(contentSections.filter(s => s.title && s.content)));
             formData.append('price', price || '0');
-            if (bannerFile) formData.append('banner', bannerFile);
+        
+        const paymentInfo = {
+            acc_num: accNum,
+            acc_holder_name: accHolderName,
+            acc_destination: accDestination
+        };
+        if (accNum || accHolderName || accDestination) {
+            formData.append('payment_info', JSON.stringify(paymentInfo));
+        }
+
+        if (bannerFile) {
+            formData.append('banner', bannerFile);
+        }
 
             if (selectedEvent && view === 'edit') {
                 await updateEvent({ societyId, eventId: selectedEvent._id, body: formData }).unwrap();
@@ -458,7 +479,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 bg-white"
                                 >
                                     {STATUS_OPTIONS.map(s => (
-                                        <option key={s.value} value={s.label}>{s.label}</option>
+                                        <option key={s.value} value={s.value}>{s.label}</option>
                                     ))}
                                 </select>
                             </div>
@@ -560,6 +581,46 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                 ))}
                             </div>
                         )}
+                    </div>
+
+                    {/* Payment Info */}
+                    <div className="bg-orange-50/50 p-6 rounded-2xl border border-orange-100 shadow-sm">
+                        <h3 className="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2">
+                             Payment Details
+                            <span className="text-xs font-normal text-orange-600/70">(Optional - for registration fees)</span>
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Account Number / IBAN</label>
+                                <input
+                                    type="text"
+                                    value={accNum}
+                                    onChange={(e) => setAccNum(e.target.value)}
+                                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
+                                    placeholder="e.g. 03001234567"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Account Holder Name</label>
+                                <input
+                                    type="text"
+                                    value={accHolderName}
+                                    onChange={(e) => setAccHolderName(e.target.value)}
+                                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
+                                    placeholder="e.g. John Doe"
+                                />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Payment Destination (Bank/App)</label>
+                                <input
+                                    type="text"
+                                    value={accDestination}
+                                    onChange={(e) => setAccDestination(e.target.value)}
+                                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
+                                    placeholder="e.g. JazzCash, EasyPaisa, Bank Alfalah"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Save Button */}
@@ -688,13 +749,13 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                             >
                                                 {event.is_public ? <FaEye /> : <FaEyeSlash />}
                                             </button>
-                                            <button
+                                            {/* <button
                                                 onClick={() => openMailModal(event)}
                                                 className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
                                                 title="Send Mail to Participants"
                                             >
                                                 <FaEnvelope />
-                                            </button>
+                                            </button> */}
                                             <button
                                                 onClick={() => startEdit(event)}
                                                 className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"

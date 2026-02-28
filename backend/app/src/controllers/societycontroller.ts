@@ -64,6 +64,7 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
         let why_join_us = req.body.why_join_us;
         let faqs = req.body.faqs;
         let contact_info = req.body.contact_info;
+        let payment_info = req.body.payment_info;
 
         // Parse JSON strings if coming from FormData
         const safeParse = (data: any, label: string) => {
@@ -94,6 +95,7 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
         why_join_us = safeParse(why_join_us, 'why_join_us');
         faqs = safeParse(faqs, 'faqs');
         contact_info = safeParseObj(contact_info, 'contact_info');
+        payment_info = safeParseObj(payment_info, 'payment_info');
 
         if (!name) return sendError(res, 400, "Society name is required");
 
@@ -135,6 +137,7 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
             why_join_us: why_join_us || [],
             faqs: faqs || [],
             contact_info: contact_info || {},
+            payment_info: payment_info || undefined,
             logo: logoUrl || undefined,
             created_by: req.user!._id,
             status: "ACTIVE",
@@ -608,6 +611,7 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
         let why_join_us = req.body.why_join_us;
         let faqs = req.body.faqs;
         let contact_info = req.body.contact_info;
+        let payment_info = req.body.payment_info;
 
         // Helper for parsing JSON from FormData
         const safeParse = (data: any, label: string) => {
@@ -640,6 +644,7 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
         why_join_us = safeParse(why_join_us, 'why_join_us');
         faqs = safeParse(faqs, 'faqs');
         contact_info = safeParseObj(contact_info, 'contact_info');
+        payment_info = safeParseObj(payment_info, 'payment_info');
 
         const society = await Society.findById(id);
         if (!society) {
@@ -669,6 +674,7 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
         if (why_join_us) society.why_join_us = why_join_us;
         if (faqs) society.faqs = faqs;
         if (contact_info) society.contact_info = contact_info;
+        if (payment_info) society.payment_info = payment_info;
         if (req.body.is_setup !== undefined) society.is_setup = req.body.is_setup === 'true' || req.body.is_setup === true;
         
         if (req.body.registration_start_date !== undefined) society.registration_start_date = req.body.registration_start_date;

@@ -157,7 +157,6 @@ export default function JoinFormPage() {
       <Header />
       <div className="flex-1 pt-28 pb-20 px-4">
         <div className="max-w-2xl mx-auto">
-          {/* Form Header Card */}
           <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-8 mb-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-orange-50 rounded-full -mr-16 -mt-16 opacity-50" />
             <span className="inline-block px-4 py-1.5 text-[10px] font-bold text-orange-700 bg-orange-100 rounded-full uppercase tracking-widest mb-6">
@@ -168,6 +167,38 @@ export default function JoinFormPage() {
               <CheckCircle2 size={18} /> {societyName}
             </p>
             {form.description && <p className="text-slate-500 leading-relaxed text-sm">{form.description}</p>}
+            
+            {(form.society_id as any).registration_fee > 0 && (form.society_id as any).payment_info && (
+              <div className="mt-8 p-6 bg-orange-50 rounded-2xl border border-orange-100 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="flex items-center gap-2 mb-4 text-orange-800">
+                  <Hash className="w-4 h-4" />
+                  <h4 className="font-bold text-sm tracking-tight uppercase">Payment Instructions</h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-orange-600/60 uppercase tracking-widest">Fee Amount</p>
+                    <p className="font-bold text-xl text-orange-900">PKR {(form.society_id as any).registration_fee}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-orange-600/60 uppercase tracking-widest">Account Number</p>
+                    <p className="font-mono font-bold text-orange-900">{(form.society_id as any).payment_info.acc_num}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-orange-600/60 uppercase tracking-widest">Holder Name</p>
+                    <p className="font-bold text-orange-900">{(form.society_id as any).payment_info.acc_holder_name}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold text-orange-600/60 uppercase tracking-widest">Destination</p>
+                    <p className="font-bold text-orange-900">{(form.society_id as any).payment_info.acc_destination}</p>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-orange-200">
+                  <p className="text-[11px] text-orange-700 leading-relaxed font-medium bg-orange-100/50 p-2 rounded-lg">
+                    Notice: Membership is subject to fee verification. After submitting this form, please transfer the fee and keep the receipt ready if requested.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">

@@ -539,21 +539,50 @@ export default function EventDetailsPage() {
                                             </AnimatePresence>
                                             
                                             {showForm ? (
-                                                <div className="flex gap-3">
-                                                    <button
-                                                        onClick={handleRegister}
-                                                        disabled={isSubmitting}
-                                                        className="flex-1 py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 disabled:opacity-50 transition-colors font-bold shadow-md"
-                                                    >
-                                                        {isSubmitting ? 'Submitting...' : 'Submit Form'}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setShowForm(false)}
-                                                        className="px-4 py-3 bg-stone-800 text-white rounded-xl hover:bg-stone-700 transition-colors font-medium border border-stone-700"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                </div>
+                                                <>
+                                                    {/* Payment Information Section */}
+                                                    {event.price > 0 && event.payment_info && (
+                                                        <div className="mb-6 p-4 bg-orange-50 rounded-xl border border-orange-100 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                            <div className="flex items-center gap-2 mb-3 text-orange-800">
+                                                                <FaUsers className="w-4 h-4" />
+                                                                <h4 className="font-bold text-sm">Payment Instructions</h4>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <div className="flex justify-between text-sm">
+                                                                    <span className="text-orange-600/70">Account Number:</span>
+                                                                    <span className="font-mono font-bold text-orange-900">{event.payment_info.acc_num}</span>
+                                                                </div>
+                                                                <div className="flex justify-between text-sm">
+                                                                    <span className="text-orange-600/70">Holder Name:</span>
+                                                                    <span className="font-bold text-orange-900">{event.payment_info.acc_holder_name}</span>
+                                                                </div>
+                                                                <div className="flex justify-between text-sm">
+                                                                    <span className="text-orange-600/70">Destination:</span>
+                                                                    <span className="font-bold text-orange-900">{event.payment_info.acc_destination}</span>
+                                                                </div>
+                                                            </div>
+                                                            <p className="mt-3 text-[10px] text-orange-600 leading-relaxed italic">
+                                                                Please send the registration fee of PKR {event.price} to the above account and keep the screenshot/receipt for verification.
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                    
+                                                    <div className="flex gap-3">
+                                                        <button
+                                                            onClick={handleRegister}
+                                                            disabled={isRegLoading}
+                                                            className="flex-1 py-3 bg-orange-600 text-white rounded-xl hover:bg-orange-700 transition-colors font-bold shadow-lg shadow-orange-600/20 disabled:opacity-50"
+                                                        >
+                                                            {isRegLoading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Confirm Registration'}
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setShowForm(false)}
+                                                            className="px-4 py-3 bg-stone-800 text-white rounded-xl hover:bg-stone-700 transition-colors font-medium border border-stone-700"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </>
                                             ) : (
                                                     <button
                                                         onClick={() => {
@@ -748,6 +777,38 @@ export default function EventDetailsPage() {
                             <h3 className="font-display text-2xl font-bold text-stone-900">Your Registration</h3>
                             <p className="text-stone-500 text-sm mt-1">Here is what you submitted for this event.</p>
                         </div>
+
+                        {event.payment_info && event.price > 0 && (
+                             <div className="mb-8 p-6 bg-orange-50 rounded-2xl border border-orange-100">
+                                <h4 className="font-bold text-orange-900 mb-4 flex items-center gap-2">
+                                    <FaUsers className="w-4 h-4" />
+                                    Payment Instructions
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div className="space-y-1">
+                                        <p className="text-orange-600/70 text-xs">Amount Due</p>
+                                        <p className="font-bold text-lg text-orange-900">PKR {event.price}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-orange-600/70 text-xs">Destination</p>
+                                        <p className="font-bold text-orange-900">{event.payment_info.acc_destination}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-orange-600/70 text-xs">Account Number</p>
+                                        <p className="font-mono font-bold text-orange-900 tracking-wider">{event.payment_info.acc_num}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-orange-600/70 text-xs">Account Holder</p>
+                                        <p className="font-bold text-orange-900">{event.payment_info.acc_holder_name}</p>
+                                    </div>
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-orange-200">
+                                    <p className="text-xs text-orange-700 leading-relaxed font-medium">
+                                        Your registration is received. Please transfer the amount and keep the receipt. Our team will verify it shortly.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                              <div className="bg-stone-50 p-4 rounded-2xl border border-stone-100">

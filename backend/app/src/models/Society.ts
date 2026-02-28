@@ -41,6 +41,11 @@ export interface ISociety extends Document {
     updated_at: Date;
     registration_start_date?: Date;
     registration_end_date?: Date;
+    payment_info?: {
+        acc_num: string;
+        acc_holder_name: string;
+        acc_destination: string;
+    };
 }
 
 const societySchema: Schema = new Schema({
@@ -124,6 +129,11 @@ const societySchema: Schema = new Schema({
     },
     registration_end_date: {
         type: Date
+    },
+    payment_info: {
+        acc_num: String,
+        acc_holder_name: String,
+        acc_destination: String
     }
 }, {
     toJSON: { virtuals: true },
