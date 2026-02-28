@@ -369,6 +369,24 @@ export const submitEventRegistration = async (req: AuthRequest, res: Response) =
     }
 };
 
+export const getMyRegistration = async (req: AuthRequest, res: Response) => {
+    try {
+        const { eventId } = req.params;
+        const registration = await EventRegistration.findOne({
+            event_id: eventId,
+            user_id: req.user!._id
+        }).populate('form_id', 'title fields');
+
+        if (!registration) {
+            return sendResponse(res, 200, 'Not registered', null);
+        }
+
+        return sendResponse(res, 200, 'My registration fetched successfully', registration);
+    } catch (error: any) {
+        return sendError(res, 500, 'Internal server error', error);
+    }
+};
+
 // ─── Get Registrations for an Event (President) ─────────────────────────────
 
 export const getEventRegistrations = async (req: AuthRequest, res: Response) => {

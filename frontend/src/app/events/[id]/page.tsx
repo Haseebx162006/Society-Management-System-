@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import { 
     useGetEventByIdQuery, 
     useSubmitEventRegistrationMutation, 
+    useGetMyRegistrationQuery,
     EventFormField 
 } from "@/lib/features/events/eventApiSlice";
 import { useGetSocietyByIdQuery } from "@/lib/features/societies/societyApiSlice";
@@ -19,9 +20,10 @@ import {
     FaArrowRight,
     FaTag,
     FaShareAlt
+
 } from 'react-icons/fa';
 import Image from 'next/image';
-import { Loader2, DoorOpen, DoorClosed, Link as LinkIcon, QrCode, X, Download, Maximize2 } from 'lucide-react';
+import { Loader2, DoorOpen, DoorClosed, Link as LinkIcon, QrCode, X, Download, Maximize2, ShieldCheck } from 'lucide-react';
 import { useAppSelector } from "@/lib/hooks";
 import { selectCurrentUser } from "@/lib/features/auth/authSlice";
 import { toast } from 'react-hot-toast';
@@ -44,10 +46,13 @@ export default function EventDetailsPage() {
     const [submitRegistration, { isLoading: isSubmitting }] = useSubmitEventRegistrationMutation();
 
     const [showForm, setShowForm] = useState(false);
+    const [showRegistrationDetails, setShowRegistrationDetails] = useState(false);
     const [isQrModalOpen, setIsQrModalOpen] = useState(false);
     const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
     const [formValues, setFormValues] = useState<Record<string, string | number | boolean>>({});
     const [fileValues, setFileValues] = useState<Record<string, File>>({});
+
+    const { data: myRegistration, isLoading: isRegLoading } = useGetMyRegistrationQuery(id as string, { skip: !user });
 
     const registrationForm = event?.registration_form && typeof event.registration_form === 'object'
         ? event.registration_form
@@ -547,6 +552,10 @@ export default function EventDetailsPage() {
                                                                 router.push(`/login?returnUrl=${encodeURIComponent(`/events/${id}`)}`);
                                                                 return;
                                                             }
+                                                            if (myRegistration) {
+                                                                setShowRegistrationDetails(true);
+                                                                return;
+                                                            }
                                                             if (isPrivateAndNotMember) {
                                                                 toast.error("This event is for society members only.");
                                                                 return;
@@ -557,16 +566,25 @@ export default function EventDetailsPage() {
                                                                 handleRegister();
                                                             }
                                                         }}
-                                                        disabled={isPrivateAndNotMember && !!user}
+                                                        disabled={(isPrivateAndNotMember && !!user) || isRegLoading}
                                                         className={`w-full py-4 text-white font-bold rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-2 group ${
-                                                            isPrivateAndNotMember && user
+                                                            (isPrivateAndNotMember && user)
                                                                 ? 'bg-stone-800 cursor-not-allowed text-stone-500 border border-stone-700' 
-                                                                : 'bg-orange-600 hover:bg-orange-700 shadow-orange-600/20 shadow-xl'
+                                                                : myRegistration 
+                                                                    ? 'bg-green-600 hover:bg-green-700 shadow-green-600/20 shadow-xl'
+                                                                    : 'bg-orange-600 hover:bg-orange-700 shadow-orange-600/20 shadow-xl'
                                                         }`}
                                                     >
-                                                        {isPrivateAndNotMember && user ? (
+                                                        {isRegLoading ? (
+                                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                                        ) : (isPrivateAndNotMember && user) ? (
                                                             <>
                                                                 <FaUsers /> Members Only
+                                                            </>
+                                                        ) : myRegistration ? (
+                                                            <>
+                                                                <ShieldCheck className="w-5 h-5" />
+                                                                You are Registered
                                                             </>
                                                         ) : (
                                                             <>
@@ -581,6 +599,20 @@ export default function EventDetailsPage() {
                                         <button disabled className="w-full py-4 bg-stone-800 text-stone-500 font-bold rounded-xl cursor-not-allowed border border-stone-700 text-sm">
                                             Registration is Currently Closed
                                         </button>
+                                    )}
+
+                                    {/* Registered Status Button */}
+                                    {user && myRegistration && (
+                                        <div className="mt-4 pt-4 border-t border-stone-800">
+                                            <button
+                                                onClick={() => setShowRegistrationDetails(true)}
+                                                className="w-full py-3 bg-orange-600/10 hover:bg-orange-600/20 text-orange-500 border border-orange-500/30 font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group"
+                                            >
+                                                <FaUsers />
+                                                View Your Registration
+                                                <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                                            </button>
+                                        </div>
                                     )}
 
                                     {event.max_participants && (
@@ -684,6 +716,91 @@ export default function EventDetailsPage() {
                             className="object-contain"
                             priority
                         />
+                    </motion.div>
+                </div>
+            )}
+
+            {/* Registration Details Modal */}
+            {showRegistrationDetails && myRegistration && (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-stone-900/80 backdrop-blur-sm">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-white rounded-3xl p-8 shadow-2xl max-w-2xl w-full relative max-h-[90vh] overflow-y-auto"
+                    >
+                        <button 
+                            onClick={() => setShowRegistrationDetails(false)}
+                            className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-900 hover:bg-stone-100 rounded-full transition-colors"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                        
+                        <div className="mb-8">
+                            <h3 className="font-display text-2xl font-bold text-stone-900">Your Registration</h3>
+                            <p className="text-stone-500 text-sm mt-1">Here is what you submitted for this event.</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                             <div className="bg-stone-50 p-4 rounded-2xl border border-stone-100">
+                                <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-1">Status</p>
+                                <div className="flex items-center gap-2">
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                                        myRegistration.status === 'APPROVED' ? 'bg-green-100 text-green-700 border border-green-200' :
+                                        myRegistration.status === 'REJECTED' ? 'bg-rose-100 text-rose-700 border border-rose-200' :
+                                        'bg-amber-100 text-amber-700 border border-amber-200'
+                                    }`}>
+                                        {myRegistration.status}
+                                    </span>
+                                </div>
+                                {myRegistration.rejection_reason && (
+                                    <p className="text-sm text-rose-600 mt-2 font-medium">Reason: {myRegistration.rejection_reason}</p>
+                                )}
+                            </div>
+                            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-100">
+                                <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-1">Date Submitted</p>
+                                <p className="text-stone-800 font-bold">
+                                    {new Date(myRegistration.created_at).toLocaleDateString(undefined, {
+                                        year: 'numeric', month: 'long', day: 'numeric'
+                                    })}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <h4 className="font-bold text-stone-900 border-b border-stone-100 pb-2">Form Data</h4>
+                            {myRegistration.responses.length > 0 ? (
+                                <div className="grid grid-cols-1 gap-4">
+                                    {myRegistration.responses.map((resp, i) => (
+                                        <div key={i} className="flex flex-col gap-1 border-b border-stone-50 pb-3 last:border-0">
+                                            <span className="text-xs font-bold text-stone-400 uppercase tracking-wide">{resp.field_label}</span>
+                                            {resp.field_type === 'FILE' ? (
+                                                <a 
+                                                    href={resp.value as string} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer"
+                                                    className="text-orange-600 font-medium flex items-center gap-2 hover:underline"
+                                                >
+                                                    <Download className="w-4 h-4" /> View Submitted File
+                                                </a>
+                                            ) : (
+                                                <span className="text-stone-800 font-medium">{String(resp.value)}</span>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-stone-500 italic">No additional form data provided.</p>
+                            )}
+                        </div>
+
+                        <div className="mt-10">
+                            <button
+                                onClick={() => setShowRegistrationDetails(false)}
+                                className="w-full py-3 bg-stone-900 text-white font-bold rounded-xl hover:bg-stone-800 transition-colors shadow-lg"
+                            >
+                                Close
+                            </button>
+                        </div>
                     </motion.div>
                 </div>
             )}

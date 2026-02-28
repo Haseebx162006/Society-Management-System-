@@ -250,6 +250,12 @@ export const eventApiSlice = apiSlice.injectEndpoints({
                     : [{ type: "EventRegistration" as const, id: `EVENT_${eventId}` }],
         }),
 
+        getMyRegistration: builder.query<EventRegistration | null, string>({
+            query: (eventId) => `/events/${eventId}/my-registration`,
+            transformResponse: (response: { data: EventRegistration | null }) => response.data,
+            providesTags: (_result, _error, eventId) => [{ type: "EventRegistration" as const, id: `MY_REG_${eventId}` }],
+        }),
+
         updateRegistrationStatus: builder.mutation<
             EventRegistration,
             { societyId: string; eventId: string; registrationId: string; body: { status: string; rejection_reason?: string } }
@@ -297,6 +303,7 @@ export const {
     // Registrations
     useSubmitEventRegistrationMutation,
     useGetEventRegistrationsQuery,
+    useGetMyRegistrationQuery,
     useUpdateRegistrationStatusMutation,
     // Mail
     useSendMailToParticipantsMutation,

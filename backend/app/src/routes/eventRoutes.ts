@@ -23,7 +23,8 @@ import {
     updateRegistrationStatus,
     exportRegistrationsToExcel,
     exportRegistrationsToPdf,
-    sendMailToParticipants
+    sendMailToParticipants,
+    getMyRegistration
 } from '../controllers/eventController';
 
 const router = express.Router();
@@ -111,6 +112,12 @@ router.post(
     protect,
     upload.any(),
     submitEventRegistration
+);
+
+router.get(
+    '/events/:eventId/my-registration',
+    protect,
+    getMyRegistration
 );
 
 router.get(
