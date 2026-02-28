@@ -9,11 +9,46 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: { ...credentials },
       }),
     }),
+    verifyOtp: builder.mutation({
+      query: (data) => ({
+        url: "/auth/verify-otp",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    resendOtp: builder.mutation({
+      query: (data) => ({
+        url: "/auth/resend-otp",
+        method: "POST",
+        body: data,
+      }),
+    }),
     login: builder.mutation({
       query: (credentials) => ({
         url: "/auth/login",
         method: "POST",
         body: { ...credentials },
+      }),
+    }),
+    forgotPassword: builder.mutation({
+      query: (data) => ({
+        url: "/auth/forgot-password",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    verifyResetOtp: builder.mutation({
+      query: (data) => ({
+        url: "/auth/verify-reset-otp",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    resetPassword: builder.mutation({
+      query: (data) => ({
+        url: "/auth/reset-password",
+        method: "POST",
+        body: data,
       }),
     }),
     logout: builder.mutation({
@@ -26,4 +61,13 @@ export const authApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useSignupMutation, useLoginMutation, useLogoutMutation } = authApiSlice;
+export const {
+  useSignupMutation,
+  useVerifyOtpMutation,
+  useResendOtpMutation,
+  useLoginMutation,
+  useForgotPasswordMutation,
+  useVerifyResetOtpMutation,
+  useResetPasswordMutation,
+  useLogoutMutation,
+} = authApiSlice;

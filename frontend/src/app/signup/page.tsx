@@ -42,9 +42,10 @@ export default function SignupPage() {
     e.preventDefault();
     if (!isPasswordValid) return;
     try {
-      await signup(formData).unwrap();
-      toast.success("Welcome to the community!");
-      router.push("/login");
+      const result = await signup(formData).unwrap();
+      toast.success("OTP sent to your email!");
+      // Redirect to OTP verification page with email
+      router.push(`/signup/verify-otp?email=${encodeURIComponent(formData.email)}`);
     } catch (err) {
       console.error("Signup failed:", err);
       const errorMessage =

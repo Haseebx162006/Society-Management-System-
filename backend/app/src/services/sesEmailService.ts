@@ -1,37 +1,28 @@
-import { SendEmailCommand } from '@aws-sdk/client-ses';
-import { sesClient, sesConfig } from '../config/ses';
+import { transporter, gmailConfig } from '../config/ses';
 
 /**
- * Send a single email via AWS SES
+ * Send a single email via Gmail SMTP (nodemailer)
  */
 export const sendSESEmail = async (
   to: string | string[],
   subject: string,
   htmlBody: string
 ) => {
-  const toAddresses = Array.isArray(to) ? to : [to];
+  const toAddresses = Array.isArray(to) ? to.join(', ') : to;
 
-  const command = new SendEmailCommand({
-    Source: `${sesConfig.fromName} <${sesConfig.fromEmail}>`,
-    Destination: {
-      ToAddresses: toAddresses,
-    },
-    Message: {
-      Subject: { Data: subject, Charset: 'UTF-8' },
-      Body: {
-        Html: { Data: htmlBody, Charset: 'UTF-8' },
-      },
-    },
+  const info = await transporter.sendMail({
+    from: `${gmailConfig.fromName} <${gmailConfig.fromEmail}>`,
+    to: toAddresses,
+    subject,
+    html: htmlBody,
   });
 
-  const result = await sesClient.send(command);
-  console.log('Email sent via SES:', result.MessageId);
-  return result;
+  console.log('Email sent via Gmail:', info.messageId);
+  return info;
 };
 
 /**
- * Send bulk emails via AWS SES — batched in groups of 50
- * SES has a limit of 50 recipients per call
+ * Send bulk emails via Gmail SMTP — batched in groups of 50 using BCC
  */
 export const sendBulkSESEmail = async (
   recipients: string[],
@@ -44,22 +35,15 @@ export const sendBulkSESEmail = async (
   for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
     const batch = recipients.slice(i, i + BATCH_SIZE);
 
-    const command = new SendEmailCommand({
-      Source: `${sesConfig.fromName} <${sesConfig.fromEmail}>`,
-      Destination: {
-        BccAddresses: batch,
-        ToAddresses: [sesConfig.fromEmail],
-      },
-      Message: {
-        Subject: { Data: subject, Charset: 'UTF-8' },
-        Body: {
-          Html: { Data: htmlBody, Charset: 'UTF-8' },
-        },
-      },
+    const info = await transporter.sendMail({
+      from: `${gmailConfig.fromName} <${gmailConfig.fromEmail}>`,
+      to: gmailConfig.fromEmail, // send to self
+      bcc: batch.join(', '),     // actual recipients as BCC
+      subject,
+      html: htmlBody,
     });
 
-    const result = await sesClient.send(command);
-    results.push(result);
+    results.push(info);
   }
 
   return results;

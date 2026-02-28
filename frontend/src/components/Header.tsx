@@ -29,6 +29,7 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const user = useAppSelector(selectCurrentUser);
@@ -37,6 +38,10 @@ export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const [logout] = useLogoutMutation();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -144,7 +149,7 @@ export default function Header() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
-            {user ? (
+            {mounted && user ? (
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -283,7 +288,7 @@ export default function Header() {
           </nav>
 
           <div className="mt-auto border-t border-stone-100 pt-6 flex flex-col gap-3">
-            {user ? (
+            {mounted && user ? (
               <>
                 <Link
                   href="/profile"

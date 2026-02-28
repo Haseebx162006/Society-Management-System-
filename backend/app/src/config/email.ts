@@ -1,3 +1,3 @@
-// Email configuration - uses AWS SES
-// See ses.ts for the actual SES client configuration
-export { sesConfig as emailConfig } from './ses';
+// Email configuration - uses Gmail SMTP
+// See ses.ts for the actual transporter configuration
+export { gmailConfig as emailConfig } from './ses';

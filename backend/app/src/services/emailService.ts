@@ -1,29 +1,20 @@
-import { SendEmailCommand } from '@aws-sdk/client-ses';
-import { sesClient, sesConfig } from '../config/ses';
+import { transporter, gmailConfig } from '../config/ses';
 
 /**
- * Send a single email via AWS SES
+ * Send a single email via Gmail SMTP (nodemailer)
  */
 export const sendEmail = async (to: string, subject: string, html: string) => {
   try {
-    const command = new SendEmailCommand({
-      Source: `${sesConfig.fromName} <${sesConfig.fromEmail}>`,
-      Destination: {
-        ToAddresses: [to],
-      },
-      Message: {
-        Subject: { Data: subject, Charset: 'UTF-8' },
-        Body: {
-          Html: { Data: html, Charset: 'UTF-8' },
-        },
-      },
+    const info = await transporter.sendMail({
+      from: `${gmailConfig.fromName} <${gmailConfig.fromEmail}>`,
+      to,
+      subject,
+      html,
     });
-
-    const result = await sesClient.send(command);
-    console.log('Email sent via SES:', result.MessageId);
-    return result;
+    console.log('Email sent via Gmail:', info.messageId);
+    return info;
   } catch (error) {
-    console.error('Error sending email via SES:', error);
+    console.error('Error sending email:', error);
     throw error;
   }
 };

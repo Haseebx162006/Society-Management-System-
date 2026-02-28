@@ -16,6 +16,7 @@ const titilliumWeb = Titillium_Web({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: "COMSOC — COMSATS Lahore Society Portal",
   description:
     "The unified digital platform for COMSATS Lahore societies. Discover, join, and lead communities that shape your campus experience.",

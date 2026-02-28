@@ -358,8 +358,8 @@ export const login = async (req: Request, res: Response) => {
              return sendError(res, 404, "User does not exist. Signup first and then login");
         }
 
-        // Check if email is verified
-        if (!finduser.email_verified) {
+        // Check if email is verified (skip for super admins)
+        if (!finduser.email_verified && !finduser.is_super_admin) {
              return sendError(res, 403, "Email not verified. Please verify your email first.");
         }
 

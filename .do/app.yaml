@@ -1,0 +1,91 @@
+name: society-management-system
+region: nyc   # Change to: ams (Amsterdam), sgp (Singapore), lon (London), etc.
+
+services:
+  # ────────────────────────────────────────────
+  # Backend — Node.js / Express API
+  # ────────────────────────────────────────────
+  - name: backend
+    source_dir: /backend
+    dockerfile_path: backend/Dockerfile
+    github:
+      repo: YOUR_GITHUB_USERNAME/YOUR_REPO_NAME   # ← update this
+      branch: main
+      deploy_on_push: true
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb   # cheapest; upgrade as needed
+    http_port: 5000
+    health_check:
+      http_path: /
+    envs:
+      - key: NODE_ENV
+        value: "production"
+        scope: RUN_TIME
+      - key: PORT
+        value: "5000"
+        scope: RUN_TIME
+      - key: DB_URL
+        value: "YOUR_MONGODB_ATLAS_URL"         # ← update this
+        scope: RUN_TIME
+        type: SECRET
+      - key: PRIVATE_KEY
+        value: "YOUR_JWT_SECRET_MIN_64_CHARS"   # ← update this
+        scope: RUN_TIME
+        type: SECRET
+      - key: REDIS_URL
+        value: "YOUR_UPSTASH_REDIS_URL"         # ← update this
+        scope: RUN_TIME
+        type: SECRET
+      - key: CLOUDINARY_CLOUD_NAME
+        value: "YOUR_CLOUDINARY_CLOUD_NAME"     # ← update this
+        scope: RUN_TIME
+      - key: CLOUDINARY_API_KEY
+        value: "YOUR_CLOUDINARY_API_KEY"        # ← update this
+        scope: RUN_TIME
+      - key: CLOUDINARY_API_SECRET
+        value: "YOUR_CLOUDINARY_API_SECRET"     # ← update this
+        scope: RUN_TIME
+        type: SECRET
+      - key: GMAIL_USER
+        value: "YOUR_GMAIL_ADDRESS"             # ← update this
+        scope: RUN_TIME
+      - key: GMAIL_APP_PASSWORD
+        value: "YOUR_GMAIL_APP_PASSWORD"        # ← update this
+        scope: RUN_TIME
+        type: SECRET
+      - key: GMAIL_FROM_NAME
+        value: "COMSOC"
+        scope: RUN_TIME
+      - key: FRONTEND_URL
+        scope: RUN_TIME
+        value: "${frontend.PUBLIC_URL}"          # auto-filled by App Platform
+
+  # ────────────────────────────────────────────
+  # Frontend — Next.js
+  # ────────────────────────────────────────────
+  - name: frontend
+    source_dir: /frontend
+    dockerfile_path: frontend/Dockerfile
+    github:
+      repo: YOUR_GITHUB_USERNAME/YOUR_REPO_NAME   # ← update this
+      branch: main
+      deploy_on_push: true
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    http_port: 3000
+    health_check:
+      http_path: /
+    build_command: ""   # Dockerfile handles building
+    envs:
+      - key: NODE_ENV
+        value: "production"
+        scope: RUN_AND_BUILD_TIME
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+        scope: BUILD_TIME
+      - key: NEXT_PUBLIC_API_URL
+        scope: BUILD_TIME
+        value: "${backend.PUBLIC_URL}/api"        # auto-filled by App Platform
+      - key: NEXT_PUBLIC_SITE_URL
+        scope: BUILD_TIME
+        value: "${APP_URL}"                        # auto-filled by App Platform
