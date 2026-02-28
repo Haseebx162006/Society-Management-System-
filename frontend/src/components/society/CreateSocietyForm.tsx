@@ -244,11 +244,6 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
         formPayload.append('logo', logo);
       }
 
-      // Debug Logging
-      for (const pair of formPayload.entries()) {
-          console.log(pair[0] + ': ' + pair[1]);
-      }
-
       if (isEditing && initialData?._id) {
           result = await updateSociety({ id: initialData._id, data: formPayload }).unwrap();
           toast.success('Society updated successfully!', { icon: '✅' });
@@ -261,7 +256,6 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
           router.push('/society/dashboard'); 
       }
     } catch (err) {
-      console.error('Failed to save society:', err);
       const error = err as { data?: { message?: string } };
       const errorMessage = error.data?.message || 'Failed to save society';
       toast.error(errorMessage);

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { toast } from 'react-hot-toast';
 import Image from 'next/image';
 import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaEye, FaEyeSlash, FaClipboardList, FaFileExcel, FaEnvelope } from 'react-icons/fa';
 import { MdEvent } from 'react-icons/md';
@@ -48,19 +49,16 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
 
     const [view, setView] = useState<'list' | 'create' | 'edit' | 'registrations'>('list');
     const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
 
-    // Mail modal state
+
+
     const [showMailModal, setShowMailModal] = useState(false);
     const [mailEventId, setMailEventId] = useState('');
     const [mailEventTitle, setMailEventTitle] = useState('');
     const [mailSubject, setMailSubject] = useState('');
     const [mailMessage, setMailMessage] = useState('');
-    const [mailError, setMailError] = useState('');
-    const [mailSuccess, setMailSuccess] = useState('');
 
-    // Form state
+
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [eventDate, setEventDate] = useState('');
@@ -100,8 +98,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         setAccDestination('');
         setContentSections([]);
         setSelectedEvent(null);
-        setError('');
-        setSuccess('');
     };
 
     const startCreate = () => {
@@ -129,8 +125,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         setAccNum(event.payment_info?.acc_num || '');
         setAccHolderName(event.payment_info?.acc_holder_name || '');
         setAccDestination(event.payment_info?.acc_destination || '');
-        setError('');
-        setSuccess('');
         setView('edit');
     };
 
@@ -152,11 +146,8 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
     };
 
     const handleSave = async () => {
-        setError('');
-        setSuccess('');
-
         if (!title.trim() || !description.trim() || !eventDate || !venue.trim()) {
-            setError('Title, description, event date, and venue are required');
+            toast.error('Title, description, event date, and venue are required');
             return;
         }
 
@@ -192,19 +183,17 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
 
             if (selectedEvent && view === 'edit') {
                 await updateEvent({ societyId, eventId: selectedEvent._id, body: formData }).unwrap();
-                setSuccess('Event updated successfully!');
+                toast.success('Event updated successfully!');
             } else {
                 await createEvent({ societyId, body: formData }).unwrap();
-                setSuccess('Event created successfully!');
+                toast.success('Event created successfully!');
             }
 
-            setTimeout(() => {
-                resetForm();
-                setView('list');
-            }, 1500);
+            resetForm();
+            setView('list');
         } catch (err: unknown) {
-            const error = err as { data?: { message?: string } };
-            setError(error?.data?.message || 'Failed to save event');
+            const e = err as { data?: { message?: string } };
+            toast.error(e?.data?.message || 'Failed to save event');
         }
     };
 
@@ -212,10 +201,10 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         if (!window.confirm('Are you sure you want to cancel this event?')) return;
         try {
             await deleteEvent({ societyId, eventId }).unwrap();
-            setSuccess('Event cancelled successfully!');
+            toast.success('Event cancelled successfully!');
         } catch (err: unknown) {
-            const error = err as { data?: { message?: string } };
-            setError(error?.data?.message || 'Failed to cancel event');
+            const e = err as { data?: { message?: string } };
+            toast.error(e?.data?.message || 'Failed to cancel event');
         }
     };
 
@@ -228,21 +217,19 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         ) : null;
     };
 
-    const openMailModal = (event: EventData) => {
-        setMailEventId(event._id);
-        setMailEventTitle(event.title);
-        setMailSubject(`Update: ${event.title}`);
-        setMailMessage('');
-        setMailError('');
-        setMailSuccess('');
-        setShowMailModal(true);
-    };
+    // const openMailModal = (event: EventData) => {
+    //     setMailEventId(event._id);
+    //     setMailEventTitle(event.title);
+    //     setMailSubject(`Update: ${event.title}`);
+    //     setMailMessage('');
+    //     setMailError('');
+    //     setMailSuccess('');
+    //     setShowMailModal(true);
+    // };
 
     const handleSendMail = async () => {
-        setMailError('');
-        setMailSuccess('');
         if (!mailSubject.trim() || !mailMessage.trim()) {
-            setMailError('Subject and message are required');
+            toast.error('Subject and message are required');
             return;
         }
         try {
@@ -251,11 +238,11 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                 eventId: mailEventId,
                 body: { subject: mailSubject, message: mailMessage }
             }).unwrap();
-            setMailSuccess(`Emails sent successfully! ${result.successCount} delivered${result.failCount > 0 ? `, ${result.failCount} failed` : ''}.`);
-            setTimeout(() => setShowMailModal(false), 2500);
+            toast.success(`Emails sent! ${result.successCount} delivered${result.failCount > 0 ? `, ${result.failCount} failed` : ''}.`);
+            setShowMailModal(false);
         } catch (err: unknown) {
-            const error = err as { data?: { message?: string } };
-            setMailError(error?.data?.message || 'Failed to send emails');
+            const e = err as { data?: { message?: string } };
+            toast.error(e?.data?.message || 'Failed to send emails');
         }
     };
     const handleToggleVisibility = async (event: EventData) => {
@@ -269,11 +256,10 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                 body: formData 
             }).unwrap();
             
-            setSuccess(`Event is now ${!event.is_public ? 'Public' : 'Private'}`);
-            setTimeout(() => setSuccess(''), 3000);
+            toast.success(`Event is now ${!event.is_public ? 'Public' : 'Private'}`);
         } catch (err: unknown) {
-            const error = err as { data?: { message?: string } };
-            setError(error?.data?.message || 'Failed to update visibility');
+            const e = err as { data?: { message?: string } };
+            toast.error(e?.data?.message || 'Failed to update visibility');
         }
     };
 
@@ -319,7 +305,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         );
     }
 
-    // ─── Registrations View ─────────────────────────────────────────
+
     if (view === 'registrations' && selectedEvent) {
         return (
             <div>
@@ -338,7 +324,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         );
     }
 
-    // ─── Create / Edit View ─────────────────────────────────────────
+
     if (view === 'create' || view === 'edit') {
         return (
             <div className="space-y-6">
@@ -354,11 +340,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                     </button>
                 </div>
 
-                {(error || success) && (
-                    <div className={`p-4 rounded-xl border ${error ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
-                        {error || success}
-                    </div>
-                )}
+
 
                 <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
                     {/* Basic Info */}
@@ -644,7 +626,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         );
     }
 
-    // ─── Event List View ────────────────────────────────────────────
+
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -660,11 +642,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                 </button>
             </div>
 
-            {(error || success) && (
-                <div className={`p-4 rounded-xl border ${error ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
-                    {error || success}
-                </div>
-            )}
+
 
             {events && events.length > 0 ? (
                 <div className="space-y-4">
@@ -801,8 +779,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                 setSubject={setMailSubject}
                 message={mailMessage}
                 setMessage={setMailMessage}
-                error={mailError}
-                success={mailSuccess}
                 isSending={isSendingMail}
                 onSend={handleSendMail}
             />
@@ -810,7 +786,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
     );
 };
 
-// ─── Send Mail Modal (rendered outside main flow) ───────────────────────────
+
 const SendMailModal = ({
     show,
     onClose,
@@ -819,8 +795,6 @@ const SendMailModal = ({
     setSubject,
     message,
     setMessage,
-    error,
-    success,
     isSending,
     onSend,
 }: {
@@ -831,8 +805,6 @@ const SendMailModal = ({
     setSubject: (v: string) => void;
     message: string;
     setMessage: (v: string) => void;
-    error: string;
-    success: string;
     isSending: boolean;
     onSend: () => void;
 }) => {
@@ -845,11 +817,6 @@ const SendMailModal = ({
                     <p className="text-orange-100 text-sm mt-0.5 truncate">{eventTitle}</p>
                 </div>
                 <div className="p-6 space-y-4">
-                    {(error || success) && (
-                        <div className={`p-3 rounded-xl border text-sm ${error ? 'bg-red-50 border-red-200 text-red-700' : 'bg-green-50 border-green-200 text-green-700'}`}>
-                            {error || success}
-                        </div>
-                    )}
                     <div>
                         <label className="block text-sm font-semibold text-slate-700 mb-1.5">Subject</label>
                         <input
