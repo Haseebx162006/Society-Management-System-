@@ -10,7 +10,11 @@ db();
 
 // Vercel strips the /api prefix when routing to api/ directory functions.
 // Re-add it so Express routes (/api/auth, /api/user, etc.) match correctly.
+// Root "/" stays untouched so the health-check route responds.
 export default function handler(req: Request, res: Response) {
+  if (req.url === '/' || req.url === '') {
+    return app(req, res);
+  }
   if (!req.url!.startsWith('/api')) {
     req.url = '/api' + req.url;
   }
