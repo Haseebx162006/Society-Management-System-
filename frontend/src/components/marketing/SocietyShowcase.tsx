@@ -202,7 +202,7 @@ export default function SocietyShowcase() {
               <span className="text-orange-600 font-bold text-sm tracking-widest uppercase">Explore</span>
               <h2 className="text-4xl font-black text-stone-900 italic">Student Societies</h2>
             </div>
-            {displaySocieties.map((society, index) => (
+            {displaySocieties.slice(0, 4).map((society, index) => (
               <motion.div
                 key={society.id}
                 initial={{ opacity: 0, y: 20 }}

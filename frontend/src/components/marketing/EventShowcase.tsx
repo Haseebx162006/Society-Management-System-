@@ -192,7 +192,7 @@ export default function EventShowcase() {
               <span className="text-orange-600 font-bold text-sm tracking-widest uppercase">Upcoming</span>
               <h2 className="text-4xl font-black text-stone-900 italic">Featured Events</h2>
             </div>
-            {displayEvents.map((event, index) => (
+            {displayEvents.slice(0, 4).map((event, index) => (
               <motion.div
                 key={event.id}
                 initial={{ opacity: 0, y: 20 }}
