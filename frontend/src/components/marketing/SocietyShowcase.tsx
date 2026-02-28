@@ -89,71 +89,68 @@ export default function SocietyShowcase() {
   }
 
   return (
-    <section className="relative h-[800px] w-full overflow-hidden bg-gray-900 flex items-center">
-      
-      <AnimatePresence mode="popLayout">
-        <motion.div
-            key={activeSociety.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.7 }}
-            className="absolute inset-0 z-0"
-        >
-             <div className="absolute inset-0 bg-black/60 z-10" /> 
-             <div 
-                className="absolute inset-0 bg-cover bg-center"
-                style={{ backgroundImage: `url(${activeSociety.image})` }}
-             />
-             <div className={`absolute inset-0 bg-linear-to-r ${activeSociety.color} opacity-20 mix-blend-overlay z-10`} />
-        </motion.div>
-      </AnimatePresence>
+    <>
+      {/* Desktop/Tablet Slider Layout (md+) */}
+      <section className="hidden md:flex relative h-[800px] w-full overflow-hidden bg-gray-900 items-center">
+        <AnimatePresence mode="popLayout">
+          <motion.div
+              key={activeSociety.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.7 }}
+              className="absolute inset-0 z-0"
+          >
+               <div className="absolute inset-0 bg-black/60 z-10" /> 
+               <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${activeSociety.image})` }}
+               />
+               <div className={`absolute inset-0 bg-linear-to-r ${activeSociety.color} opacity-20 mix-blend-overlay z-10`} />
+          </motion.div>
+        </AnimatePresence>
 
-      <div className="relative z-20 container mx-auto px-6 h-full flex flex-col md:flex-row items-center gap-12 py-24">
-        
-        <div className="flex-1 text-white space-y-8 w-full">
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={activeSociety.id}
-                    initial={{ opacity: 0, x: -50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <div className="flex items-center space-x-3 mb-4">
-                         <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest bg-white/10 backdrop-blur-md border border-white/20`}>
-                            {activeSociety.category}
-                         </span>
-                    </div>
+        <div className="relative z-20 container mx-auto px-6 h-full flex flex-col md:flex-row items-center gap-12 py-24">
+          <div className="flex-1 text-white space-y-8 w-full">
+              <AnimatePresence mode="wait">
+                  <motion.div
+                      key={activeSociety.id}
+                      initial={{ opacity: 0, x: -50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ duration: 0.5 }}
+                  >
+                      <div className="flex items-center space-x-3 mb-4">
+                           <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-widest bg-white/10 backdrop-blur-md border border-white/20`}>
+                              {activeSociety.category}
+                           </span>
+                      </div>
 
-                    <h2 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
-                        {activeSociety.name}
-                    </h2>
-                    
-                    <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mb-8">
-                        {truncateWords(activeSociety.description, 20)}
-                    </p>
+                      <h2 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
+                          {activeSociety.name}
+                      </h2>
+                      
+                      <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mb-8">
+                          {truncateWords(activeSociety.description, 20)}
+                      </p>
 
-                    <div className="flex items-center gap-8 mb-10 text-sm font-medium text-gray-300">
-                        <div className="flex items-center gap-2">
-                            <Users className="w-5 h-5 text-current" />
-                            <span>{activeSociety.stats.members} Members</span>
-                        </div>
-                         
-                    </div>
+                      <div className="flex items-center gap-8 mb-10 text-sm font-medium text-gray-300">
+                          <div className="flex items-center gap-2">
+                              <Users className="w-5 h-5 text-current" />
+                              <span>{activeSociety.stats.members} Members</span>
+                          </div>
+                      </div>
 
-                    <Link href={`/societies/${activeSociety.id}`} className="group w-fit flex items-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-gray-100 transition-colors">
-                        <span>Learn More</span>
-                        <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                    </Link>
-                </motion.div>
-            </AnimatePresence>
+                      <Link href={`/societies/${activeSociety.id}`} className="group w-fit flex items-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-gray-100 transition-colors">
+                          <span>Learn More</span>
+                          <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                      </Link>
+                  </motion.div>
+              </AnimatePresence>
+          </div>
         </div>
-
-      </div>
-      
+        
         <div className="absolute bottom-0 right-0 w-full md:w-auto h-auto z-30 flex flex-col items-end pb-8 pl-4 pointer-events-none">
-             
              <div className="flex justify-end mb-4 px-8 pointer-events-auto">
                  <span className="text-xs font-medium text-gray-400 uppercase tracking-widest animate-pulse">Swipe to explore &rarr;</span>
              </div>
@@ -195,6 +192,57 @@ export default function SocietyShowcase() {
                 ))}
             </div>
         </div>
-    </section>
+      </section>
+
+      {/* Mobile Card Grid Layout (< md) */}
+      <section className="md:hidden py-16 w-full bg-[#fafafa]">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col gap-8">
+            <div className="space-y-2 mb-4">
+              <span className="text-orange-600 font-bold text-sm tracking-widest uppercase">Explore</span>
+              <h2 className="text-4xl font-black text-stone-900 italic">Student Societies</h2>
+            </div>
+            {displaySocieties.map((society, index) => (
+              <motion.div
+                key={society.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-white rounded-3xl overflow-hidden shadow-sm border border-stone-100 flex flex-col"
+              >
+                <div className="relative h-56 w-full">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${society.image})` }}
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 to-transparent" />
+                  <div className="absolute top-4 left-4">
+                    <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase bg-white/20 backdrop-blur-md border border-white/30 text-white">
+                      {society.category}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-2xl font-bold text-stone-900 mb-2">{society.name}</h3>
+                  <p className="text-stone-600 text-sm mb-6 line-clamp-3">
+                    {truncateWords(society.description, 20)}
+                  </p>
+                  <div className="flex items-center justify-between pt-4 border-t border-stone-50">
+                    <div className="flex items-center gap-2 text-stone-500 font-medium text-xs">
+                      <Users className="w-4 h-4 text-orange-600" />
+                      <span>{society.stats.members} Members</span>
+                    </div>
+                    <Link href={`/societies/${society.id}`} className="text-orange-600 font-bold text-sm flex items-center gap-1">
+                      Learn More <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
