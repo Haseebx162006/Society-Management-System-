@@ -419,6 +419,7 @@ export const login = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
+        console.error('[Login Error]', error?.message || error);
         return sendError(res, 500, "Error in login");
     }
 }
