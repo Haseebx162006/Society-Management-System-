@@ -1,9 +1,6 @@
-import Queue from 'bull';
 import { sendEmail } from '../services/emailService';
 import dotenv from 'dotenv';
 dotenv.config();
-
-const emailQueue = new Queue('email', process.env.REDIS_URL || 'redis://127.0.0.1:6379');
 
 interface EmailJobData {
   to: string;
@@ -11,19 +8,24 @@ interface EmailJobData {
   html: string;
 }
 
-emailQueue.process(async (job) => {
-  const { to, subject, html } = job.data as EmailJobData;
-  await sendEmail(to, subject, html);
-});
+// On Vercel (serverless) there's no persistent process for Bull.
+// Use direct send everywhere — simple, reliable, no Redis dependency for email.
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 2000; // 2 seconds
 
-export const addEmailToQueue = (data: EmailJobData) => {
-  return emailQueue.add(data, {
-    attempts: 3,
-    backoff: {
-        type: 'exponential',
-        delay: 60000 // 1 min initial delay
+const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+export const addEmailToQueue = async (data: EmailJobData) => {
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      await sendEmail(data.to, data.subject, data.html);
+      return;
+    } catch (err) {
+      console.error(`[Email] Attempt ${attempt}/${MAX_RETRIES} failed for ${data.to}:`, err);
+      if (attempt < MAX_RETRIES) await sleep(RETRY_DELAY * attempt);
     }
-  });
+  }
+  console.error(`[Email] All ${MAX_RETRIES} attempts failed for ${data.to}`);
 };
 
-export default emailQueue;
+export default { addEmailToQueue };

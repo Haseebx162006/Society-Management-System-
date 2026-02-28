@@ -2,8 +2,13 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import os from "os";
 
-const tempDir = path.join(process.cwd(), "public", "temp");
+// Vercel serverless only allows writes to /tmp
+const tempDir = process.env.VERCEL
+    ? path.join(os.tmpdir(), 'uploads')
+    : path.join(process.cwd(), "public", "temp");
+
 if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir, { recursive: true });
 }
