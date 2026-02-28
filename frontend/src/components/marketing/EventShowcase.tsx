@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import { ArrowRight, MapPin, Calendar } from "lucide-react";
 import Link from "next/link";
 import { useGetAllPublicEventsQuery, EventData } from "@/lib/features/events/eventApiSlice";
+import { truncateWords } from "@/lib/utils";
 
 
 interface DisplayEvent {
@@ -118,7 +119,7 @@ export default function EventShowcase() {
                     </h2>
                     
                     <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mb-8">
-                        {activeEvent.description}
+                        {truncateWords(activeEvent.description, 20)}
                     </p>
 
                     <div className="flex items-center gap-8 mb-10 text-sm font-medium text-gray-300">

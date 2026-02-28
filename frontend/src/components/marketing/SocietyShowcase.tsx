@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import { ArrowRight, Users, Calendar } from "lucide-react";
 import Link from "next/link"
 import { useGetAllSocietiesQuery } from "@/lib/features/societies/societyApiSlice";
+import { truncateWords } from "@/lib/utils";
 
 interface SocietyData {
   _id: string;
@@ -13,6 +14,7 @@ interface SocietyData {
   category?: string;
   status: string;
   logo?: string;
+  membersCount?: number;
   [key: string]: unknown;
 }
 
@@ -47,7 +49,6 @@ export default function SocietyShowcase() {
       .filter((s: SocietyData) => s.status === 'ACTIVE')
       .map((s: SocietyData, index: number) => {
         const seed = s._id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        const members = (seed % 450) + 50; 
         const events = (seed % 15) + 5;
 
         return {
@@ -56,7 +57,7 @@ export default function SocietyShowcase() {
             category: s.category || "General",
             description: s.description || "No description available.",
             stats: { 
-                members: `${members}+`, 
+                members: s.membersCount !== undefined ? `${s.membersCount}+` : "0+", 
                 events: `${events}/yr` 
             },
             color: GRADIENTS[index % GRADIENTS.length],
@@ -130,7 +131,7 @@ export default function SocietyShowcase() {
                     </h2>
                     
                     <p className="text-lg md:text-xl text-gray-200 leading-relaxed max-w-2xl mb-8">
-                        {activeSociety.description}
+                        {truncateWords(activeSociety.description, 20)}
                     </p>
 
                     <div className="flex items-center gap-8 mb-10 text-sm font-medium text-gray-300">
@@ -138,10 +139,7 @@ export default function SocietyShowcase() {
                             <Users className="w-5 h-5 text-current" />
                             <span>{activeSociety.stats.members} Members</span>
                         </div>
-                         <div className="flex items-center gap-2">
-                             <Calendar className="w-5 h-5 text-current" />
-                             <span>{activeSociety.stats.events} Events</span>
-                         </div>
+                         
                     </div>
 
                     <Link href={`/societies/${activeSociety.id}`} className="group w-fit flex items-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-gray-100 transition-colors">
