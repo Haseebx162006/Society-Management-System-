@@ -22,7 +22,7 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
             title, description, event_date, event_end_date,
             venue, event_type, max_participants,
             registration_start_date, registration_deadline,
-            registration_form, content_sections, tags, is_public, status
+            registration_form, content_sections, tags, is_public, status, price
         } = req.body;
 
         if (!title || !description || !event_date || !venue) {
@@ -75,7 +75,8 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
             tags: parsedTags || [],
             is_public: is_public !== undefined ? is_public : true,
             status: status || 'DRAFT',
-            created_by: req.user!._id
+            created_by: req.user!._id,
+            price: Number(price) || 0
         });
 
         return sendResponse(res, 201, 'Event created successfully', event);
@@ -203,7 +204,7 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
             title, description, event_date, event_end_date,
             venue, event_type, max_participants,
             registration_start_date, registration_deadline,
-            registration_form, content_sections, tags, is_public, status
+            registration_form, content_sections, tags, is_public, status, price
         } = req.body;
 
         const event = await Event.findById(eventId);
@@ -221,6 +222,7 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
         if (registration_form !== undefined) event.registration_form = registration_form || undefined;
         if (is_public !== undefined) event.is_public = is_public;
         if (status) event.status = status;
+        if (price !== undefined) event.price = Number(price);
 
         // Handle content_sections
         if (content_sections !== undefined) {

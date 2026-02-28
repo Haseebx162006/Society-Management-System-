@@ -21,6 +21,7 @@ export interface IEvent extends Document {
     is_public: boolean;
     status: 'DRAFT' | 'PUBLISHED' | 'ONGOING' | 'COMPLETED' | 'CANCELLED';
     created_by: mongoose.Types.ObjectId;
+    price: number;
     created_at: Date;
     updated_at: Date;
 }
@@ -89,6 +90,10 @@ const eventSchema = new Schema<IEvent>({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    price: {
+        type: Number,
+        default: 0
     },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }

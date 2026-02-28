@@ -40,6 +40,7 @@ export interface EventData {
     event_type: "WORKSHOP" | "SEMINAR" | "COMPETITION" | "MEETUP" | "CULTURAL" | "SPORTS" | "OTHER";
     banner?: string;
     max_participants?: number;
+    price: number;
     registration_start_date?: string;
     registration_deadline?: string;
     registration_form?: EventForm | string;

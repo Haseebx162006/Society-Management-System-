@@ -74,6 +74,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
     const [status, setStatus] = useState('DRAFT');
     const [tags, setTags] = useState('');
     const [bannerFile, setBannerFile] = useState<File | null>(null);
+    const [price, setPrice] = useState('0');
     const [contentSections, setContentSections] = useState<EventContentSection[]>([]);
 
     const resetForm = () => {
@@ -90,6 +91,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         setStatus('DRAFT');
         setTags('');
         setBannerFile(null);
+        setPrice('0');
         setContentSections([]);
         setSelectedEvent(null);
         setError('');
@@ -117,6 +119,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         setTags(event.tags?.join(', ') || '');
         setContentSections(event.content_sections || []);
         setBannerFile(null);
+        setPrice(event.price ? String(event.price) : '0');
         setError('');
         setSuccess('');
         setView('edit');
@@ -163,6 +166,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
             formData.append('status', status);
             formData.append('tags', JSON.stringify(tags.split(',').map(t => t.trim()).filter(Boolean)));
             formData.append('content_sections', JSON.stringify(contentSections.filter(s => s.title && s.content)));
+            formData.append('price', price || '0');
             if (bannerFile) formData.append('banner', bannerFile);
 
             if (selectedEvent && view === 'edit') {
@@ -454,9 +458,20 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 bg-white"
                                 >
                                     {STATUS_OPTIONS.map(s => (
-                                        <option key={s.value} value={s.value}>{s.label}</option>
+                                        <option key={s.value} value={s.label}>{s.label}</option>
                                     ))}
                                 </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Registration Fee (PKR)</label>
+                                <input
+                                    type="number"
+                                    value={price}
+                                    onChange={(e) => setPrice(e.target.value)}
+                                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
+                                    placeholder="0 for free"
+                                    min="0"
+                                />
                             </div>
                         </div>
                         <div className="flex items-center gap-6 mt-4">

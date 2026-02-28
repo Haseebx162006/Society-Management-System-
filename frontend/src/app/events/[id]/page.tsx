@@ -380,6 +380,15 @@ export default function EventDetailsPage() {
                                     <FaMapMarkerAlt className="text-orange-500" />
                                     <span>{event.venue}</span>
                                 </div>
+                                <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm border font-bold ${
+                                    event.price > 0 
+                                        ? 'bg-orange-600 text-white border-orange-600' 
+                                        : 'bg-green-100 text-green-700 border-green-200'
+                                }`}>
+                                    <span className="uppercase tracking-wider">
+                                        {event.price > 0 ? `PKR ${event.price}` : 'Free Entry'}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
@@ -588,7 +597,7 @@ export default function EventDetailsPage() {
                                                             </>
                                                         ) : (
                                                             <>
-                                                                Register Now
+                                                                {event.price > 0 ? `Register Now - PKR ${event.price}` : 'Register Now (Free)'}
                                                                 <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                                                             </>
                                                         )}
