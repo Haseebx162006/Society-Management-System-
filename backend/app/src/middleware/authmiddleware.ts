@@ -23,7 +23,9 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
              throw new Error("PRIVATE_KEY is not defined");
         }
         
-        const decode = jwt.verify(token, process.env.PRIVATE_KEY) as JwtPayload;
+        const decode = jwt.verify(token, process.env.PRIVATE_KEY, {
+            algorithms: ['HS256'],
+        }) as JwtPayload;
         
         req.user = await User.findById(decode.id).select("-password");
         
@@ -37,7 +39,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
         if (error.name === 'TokenExpiredError') {
             return sendError(res, 401, "Token expired");
         }
-        return sendError(res, 401, "Not authorized, token failed", error);
+        return sendError(res, 401, "Not authorized, token failed");
     }
 }
 

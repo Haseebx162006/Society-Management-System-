@@ -6,6 +6,7 @@ export interface IOTP extends Document {
     type: 'SIGNUP' | 'PASSWORD_RESET';
     expires_at: Date;
     verified: boolean;
+    attempts: number;
     created_at: Date;
 }
 
@@ -31,16 +32,18 @@ const otpSchema: Schema<IOTP> = new Schema({
         type: Boolean,
         default: false,
     },
+    attempts: {
+        type: Number,
+        default: 0,
+    },
     created_at: {
         type: Date,
         default: Date.now,
     },
 });
 
-// Auto-delete expired OTPs
 otpSchema.index({ expires_at: 1 }, { expireAfterSeconds: 0 });
 
-// Index for quick lookups
 otpSchema.index({ email: 1, type: 1 });
 
 export default mongoose.model<IOTP>('OTP', otpSchema);

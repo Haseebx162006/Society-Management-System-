@@ -70,7 +70,7 @@ export default function SignupPage() {
             <Link href="/" className="flex items-center gap-3 group w-fit">
                 <div className="relative h-20 w-64 transition-transform duration-500 group-hover:scale-105">
                     <Image
-                        src="/logo.png"
+                        src="/logo.png?v=1"
                         alt="COMSOC Logo"
                         fill
                         className="object-contain object-left filter drop-shadow-xl"
@@ -165,7 +165,7 @@ export default function SignupPage() {
                 />
 
                 <FuturisticInput
-                    label="Access Key"
+                    label="Password"
                     name="password"
                     type={showPassword ? "text" : "password"}
                     icon={Lock}

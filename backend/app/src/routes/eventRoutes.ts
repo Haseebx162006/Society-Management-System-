@@ -75,6 +75,7 @@ router.get(
 router.get(
     '/society/:id/events/:eventId',
     protect,
+    authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY'], 'SOCIETY'),
     getEventById
 );
 router.put(

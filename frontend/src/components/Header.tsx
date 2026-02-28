@@ -118,9 +118,9 @@ export default function Header() {
         />
         <div className="max-w-[1400px] mx-auto flex items-center justify-between px-6 lg:px-10">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative h-20 w-48 transition-transform duration-500 group-hover:scale-105">
+            <div className="relative h-20 w-20 transition-transform duration-500 group-hover:scale-105">
               <Image
-                src="/logo.png"
+                src="/logo.png?v=1?v=1"
                 alt="COMSOC Logo"
                 fill
                 className="object-contain object-left filter drop-shadow-sm"

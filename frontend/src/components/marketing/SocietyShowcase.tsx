@@ -35,7 +35,7 @@ const GRADIENTS = [
 ];
 
 // const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=2070";
-const DEFAULT_IMAGE = "/logo.png";
+const DEFAULT_IMAGE = "/logo.png?v=1";
 
 export default function SocietyShowcase() {
   const { data: societiesData, isLoading } = useGetAllSocietiesQuery({});

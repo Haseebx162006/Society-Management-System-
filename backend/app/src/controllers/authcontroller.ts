@@ -9,12 +9,17 @@ import { sendResponse, sendError } from '../util/response';
 import { sendEmail } from '../services/emailService';
 import { emailTemplates } from '../utils/emailTemplates';
 
-// ─── Helper: Generate 6-digit OTP ─────────────────────────────────────────────
+const MAX_OTP_ATTEMPTS = 5;
+
 const generateOTP = (): string => {
     return crypto.randomInt(100000, 999999).toString();
 };
 
-// ─── Step 1: Signup — send OTP to email ────────────────────────────────────────
+const hashOTP = async (otp: string): Promise<string> => {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(otp, salt);
+};
+
 export const signup = async (req: Request, res: Response) => {
     try {
         const { name, email, password } = req.body;
@@ -31,7 +36,6 @@ export const signup = async (req: Request, res: Response) => {
             return sendError(res, 400, "Invalid password");
         }
 
-        // Strong password validation
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!passwordRegex.test(password)) {
             return sendError(res, 400, "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.");
@@ -42,12 +46,10 @@ export const signup = async (req: Request, res: Response) => {
             return sendError(res, 400, "User already exists with this email");
         }
 
-        // If user exists but not verified, delete the old record so they can re-register
         if (userFind && !userFind.email_verified) {
             await User.deleteOne({ _id: userFind._id });
         }
 
-        // Create user with email_verified = false
         const user = await User.create({
             name,
             email,
@@ -56,17 +58,16 @@ export const signup = async (req: Request, res: Response) => {
             email_verified: false,
         });
 
-        // Generate OTP and save
         const otp = generateOTP();
-        await OTP.deleteMany({ email, type: 'SIGNUP' }); // Remove old OTPs
+        const hashedOtp = await hashOTP(otp);
+        await OTP.deleteMany({ email, type: 'SIGNUP' });
         await OTP.create({
             email,
-            otp,
+            otp: hashedOtp,
             type: 'SIGNUP',
-            expires_at: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+            expires_at: new Date(Date.now() + 10 * 60 * 1000),
         });
 
-        // Send OTP email
         await sendEmail(
             email,
             'Verify Your Email — Society Management System',
@@ -79,11 +80,10 @@ export const signup = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        return sendError(res, 500, "Error in signup", error);
+        return sendError(res, 500, "Error in signup");
     }
 };
 
-// ─── Step 2: Verify OTP and complete signup ────────────────────────────────────
 export const verifySignupOTP = async (req: Request, res: Response) => {
     try {
         const { email, otp } = req.body;
@@ -92,7 +92,10 @@ export const verifySignupOTP = async (req: Request, res: Response) => {
             return sendError(res, 400, "Email and OTP are required");
         }
 
-        // Find the latest OTP for this email
+        if (typeof otp !== 'string' || otp.length !== 6) {
+            return sendError(res, 400, "Invalid OTP format");
+        }
+
         const otpRecord = await OTP.findOne({
             email,
             type: 'SIGNUP',
@@ -103,19 +106,25 @@ export const verifySignupOTP = async (req: Request, res: Response) => {
             return sendError(res, 400, "No OTP found. Please request a new one.");
         }
 
+        if (otpRecord.attempts >= MAX_OTP_ATTEMPTS) {
+            await OTP.deleteMany({ email, type: 'SIGNUP' });
+            return sendError(res, 429, "Too many failed attempts. Please request a new OTP.");
+        }
+
         if (new Date() > otpRecord.expires_at) {
             return sendError(res, 400, "OTP has expired. Please request a new one.");
         }
 
-        if (otpRecord.otp !== otp) {
+        const isMatch = await bcrypt.compare(otp, otpRecord.otp);
+        if (!isMatch) {
+            otpRecord.attempts += 1;
+            await otpRecord.save();
             return sendError(res, 400, "Invalid OTP");
         }
 
-        // Mark OTP as verified
         otpRecord.verified = true;
         await otpRecord.save();
 
-        // Mark user as verified
         const user = await User.findOne({ email });
         if (!user) {
             return sendError(res, 404, "User not found");
@@ -124,7 +133,6 @@ export const verifySignupOTP = async (req: Request, res: Response) => {
         user.email_verified = true;
         await user.save();
 
-        // Generate tokens
         const accessToken = generateAccessToken(user._id.toString());
         const refreshTokenStr = generateRefreshToken();
 
@@ -134,7 +142,6 @@ export const verifySignupOTP = async (req: Request, res: Response) => {
             expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         });
 
-        // Clean up OTPs
         await OTP.deleteMany({ email, type: 'SIGNUP' });
 
         return sendResponse(res, 200, "Email verified successfully. Signup complete!", {
@@ -153,11 +160,10 @@ export const verifySignupOTP = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        return sendError(res, 500, "Error verifying OTP", error);
+        return sendError(res, 500, "Error verifying OTP");
     }
 };
 
-// ─── Resend Signup OTP ─────────────────────────────────────────────────────────
 export const resendSignupOTP = async (req: Request, res: Response) => {
     try {
         const { email } = req.body;
@@ -175,12 +181,12 @@ export const resendSignupOTP = async (req: Request, res: Response) => {
             return sendError(res, 400, "Email is already verified. Please login.");
         }
 
-        // Generate new OTP
         const otp = generateOTP();
+        const hashedOtp = await hashOTP(otp);
         await OTP.deleteMany({ email, type: 'SIGNUP' });
         await OTP.create({
             email,
-            otp,
+            otp: hashedOtp,
             type: 'SIGNUP',
             expires_at: new Date(Date.now() + 10 * 60 * 1000),
         });
@@ -194,11 +200,10 @@ export const resendSignupOTP = async (req: Request, res: Response) => {
         return sendResponse(res, 200, "OTP resent successfully");
 
     } catch (error: any) {
-        return sendError(res, 500, "Error resending OTP", error);
+        return sendError(res, 500, "Error resending OTP");
     }
 };
 
-// ─── Forgot Password — send OTP ───────────────────────────────────────────────
 export const forgotPassword = async (req: Request, res: Response) => {
     try {
         const { email } = req.body;
@@ -209,21 +214,19 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
         const user = await User.findOne({ email });
         if (!user) {
-            // Don't reveal whether user exists
             return sendResponse(res, 200, "If this email is registered, you will receive a password reset OTP.");
         }
 
-        // Generate OTP
         const otp = generateOTP();
+        const hashedOtp = await hashOTP(otp);
         await OTP.deleteMany({ email, type: 'PASSWORD_RESET' });
         await OTP.create({
             email,
-            otp,
+            otp: hashedOtp,
             type: 'PASSWORD_RESET',
             expires_at: new Date(Date.now() + 10 * 60 * 1000),
         });
 
-        // Send OTP email
         await sendEmail(
             email,
             'Password Reset — Society Management System',
@@ -233,17 +236,20 @@ export const forgotPassword = async (req: Request, res: Response) => {
         return sendResponse(res, 200, "If this email is registered, you will receive a password reset OTP.");
 
     } catch (error: any) {
-        return sendError(res, 500, "Error in forgot password", error);
+        return sendError(res, 500, "Error in forgot password");
     }
 };
 
-// ─── Verify Password Reset OTP ────────────────────────────────────────────────
 export const verifyResetOTP = async (req: Request, res: Response) => {
     try {
         const { email, otp } = req.body;
 
         if (!email || !otp) {
             return sendError(res, 400, "Email and OTP are required");
+        }
+
+        if (typeof otp !== 'string' || otp.length !== 6) {
+            return sendError(res, 400, "Invalid OTP format");
         }
 
         const otpRecord = await OTP.findOne({
@@ -256,15 +262,22 @@ export const verifyResetOTP = async (req: Request, res: Response) => {
             return sendError(res, 400, "No OTP found. Please request a new one.");
         }
 
+        if (otpRecord.attempts >= MAX_OTP_ATTEMPTS) {
+            await OTP.deleteMany({ email, type: 'PASSWORD_RESET' });
+            return sendError(res, 429, "Too many failed attempts. Please request a new OTP.");
+        }
+
         if (new Date() > otpRecord.expires_at) {
             return sendError(res, 400, "OTP has expired. Please request a new one.");
         }
 
-        if (otpRecord.otp !== otp) {
+        const isMatch = await bcrypt.compare(otp, otpRecord.otp);
+        if (!isMatch) {
+            otpRecord.attempts += 1;
+            await otpRecord.save();
             return sendError(res, 400, "Invalid OTP");
         }
 
-        // Mark as verified — user can now reset password
         otpRecord.verified = true;
         await otpRecord.save();
 
@@ -274,11 +287,10 @@ export const verifyResetOTP = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        return sendError(res, 500, "Error verifying reset OTP", error);
+        return sendError(res, 500, "Error verifying reset OTP");
     }
 };
 
-// ─── Reset Password (after OTP is verified) ───────────────────────────────────
 export const resetPassword = async (req: Request, res: Response) => {
     try {
         const { email, otp, newPassword } = req.body;
@@ -287,17 +299,14 @@ export const resetPassword = async (req: Request, res: Response) => {
             return sendError(res, 400, "Email, OTP, and new password are required");
         }
 
-        // Strong password validation
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!passwordRegex.test(newPassword)) {
             return sendError(res, 400, "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.");
         }
 
-        // Check that OTP was verified
         const otpRecord = await OTP.findOne({
             email,
             type: 'PASSWORD_RESET',
-            otp,
             verified: true,
         });
 
@@ -305,7 +314,11 @@ export const resetPassword = async (req: Request, res: Response) => {
             return sendError(res, 400, "Invalid or unverified OTP. Please verify your OTP first.");
         }
 
-        // Find user and update password
+        const isMatch = await bcrypt.compare(otp, otpRecord.otp);
+        if (!isMatch) {
+            return sendError(res, 400, "Invalid OTP.");
+        }
+
         const user = await User.findOne({ email });
         if (!user) {
             return sendError(res, 404, "User not found");
@@ -316,10 +329,8 @@ export const resetPassword = async (req: Request, res: Response) => {
         user.password_changed_at = new Date();
         await user.save();
 
-        // Clean up OTPs
         await OTP.deleteMany({ email, type: 'PASSWORD_RESET' });
 
-        // Revoke all existing refresh tokens for security
         await RefreshToken.updateMany(
             { user: user._id, revoked: false },
             { $set: { revoked: true } }
@@ -328,7 +339,7 @@ export const resetPassword = async (req: Request, res: Response) => {
         return sendResponse(res, 200, "Password reset successfully. Please login with your new password.");
 
     } catch (error: any) {
-        return sendError(res, 500, "Error resetting password", error);
+        return sendError(res, 500, "Error resetting password");
     }
 };
 
@@ -355,51 +366,45 @@ export const login = async (req: Request, res: Response) => {
         const finduser = await User.findOne({ email });
 
         if (!finduser) {
-             return sendError(res, 404, "User does not exist. Signup first and then login");
+             return sendError(res, 401, "Invalid email or password");
         }
 
+<<<<<<< HEAD
         // Check if email is verified (skip for super admins)
         if (!finduser.email_verified && !finduser.is_super_admin) {
+=======
+        if (!finduser.email_verified) {
+>>>>>>> aa08084a12598959982560788c2b57477530af4c
              return sendError(res, 403, "Email not verified. Please verify your email first.");
         }
 
-        // Check for account lockout
         if (finduser.locked_until && finduser.locked_until > new Date()) {
-             return sendError(res, 403, `Account is locked. Try again after ${finduser.locked_until.toLocaleTimeString()}`);
+             return sendError(res, 403, "Account is temporarily locked. Please try again later.");
         }
 
         if (!await finduser.matchpassword(password)) {
-             // Increment failed login attempts
              finduser.failed_login_attempts += 1;
              
              if (finduser.failed_login_attempts >= 5) {
-                 finduser.locked_until = new Date(Date.now() + 15 * 60 * 1000); // Lock for 15 minutes
-                 finduser.failed_login_attempts = 0; // Reset attempts after lock
+                 finduser.locked_until = new Date(Date.now() + 15 * 60 * 1000);
+                 finduser.failed_login_attempts = 0;
              }
              await finduser.save();
 
-             return sendError(res, 400, "Invalid password");
+             return sendError(res, 401, "Invalid email or password");
         }
 
-        // Successful login, reset failed attempts and lock
         finduser.failed_login_attempts = 0;
         finduser.locked_until = null;
         await finduser.save();
 
-        if (finduser.password_reset_required) {
-             // For now, we can just send a warning or handle it on frontend to redirect.
-             // But let's proceed with login and user can change password later.
-             // Or we could return a specific code? simpler for now.
-        }
-
         const accessToken = generateAccessToken(finduser._id.toString());
         const refreshTokenStr = generateRefreshToken();
 
-        // Save refresh token to database
-        const refreshTokenDoc = await RefreshToken.create({
+        await RefreshToken.create({
             token: refreshTokenStr,
             user: finduser._id,
-            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
         });
 
         return sendResponse(res, 200, "User logged in successfully", {
@@ -418,7 +423,7 @@ export const login = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        return sendError(res, 500, "Error in login", error);
+        return sendError(res, 500, "Error in login");
     }
 }
 
@@ -446,21 +451,18 @@ export const refresh = async (req: Request, res: Response) => {
 
         const user = tokenDoc.user as any;
 
-        // Generate new access token
         const accessToken = generateAccessToken(user._id.toString());
 
         const newRefreshTokenStr = generateRefreshToken();
 
-        // Revoke old token
         tokenDoc.revoked = true;
         tokenDoc.replaced_by_token = newRefreshTokenStr;
         await tokenDoc.save();
 
-        // Create new token
         await RefreshToken.create({
             token: newRefreshTokenStr,
             user: tokenDoc.user,
-            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
         });
 
         return sendResponse(res, 200, "Token refreshed successfully", {
@@ -479,7 +481,7 @@ export const refresh = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        return sendError(res, 500, "Error in refresh token", error);
+        return sendError(res, 500, "Error in refresh token");
     }
 }
 
@@ -498,6 +500,6 @@ export const logout = async (req: Request, res: Response) => {
         return sendResponse(res, 200, "User logged out successfully");
 
     } catch (error: any) {
-        return sendError(res, 500, "Error in logout", error);
+        return sendError(res, 500, "Error in logout");
     }
 }

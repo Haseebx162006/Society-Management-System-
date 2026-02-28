@@ -85,8 +85,7 @@ export const authorize = (allowedRoles: string[], context: 'SOCIETY' | 'GROUP' =
             return next();
 
         } catch (error: any) {
-            console.error("Authorization Error:", error);
-            return sendError(res, 500, "Authorization failed", error);
+            return sendError(res, 500, "Authorization failed");
         }
     };
 };

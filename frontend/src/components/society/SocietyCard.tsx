@@ -16,7 +16,7 @@ interface SocietyCardProps {
   registration_end_date?: string;
 }
 
-const DEFAULT_IMAGE = "/logo.png";
+const DEFAULT_IMAGE = "/logo.png?v=1";
 
 export default function SocietyCard({
   id,

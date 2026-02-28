@@ -8,10 +8,9 @@ export const sendResponse = (res: Response, statusCode: number, message: string,
     });
 };
 
-export const sendError = (res: Response, statusCode: number, message: string, error?: any) => {
+export const sendError = (res: Response, statusCode: number, message: string, _error?: any) => {
     return res.status(statusCode).json({
         success: false,
-        message,
-        error: process.env.NODE_ENV === 'development' ? error : undefined
+        message
     });
 };

@@ -54,8 +54,7 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
 
 export const createSociety = async (req: AuthRequest, res: Response) => {
     try {
-        console.log("Create Society Request Body:", JSON.stringify(req.body, null, 2));
-        console.log("Create Society File:", req.file);
+
 
         const { name, description, registration_fee, category } = req.body;
 
@@ -71,8 +70,7 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
             if (typeof data === 'string') {
                 try {
                     return JSON.parse(data);
-                } catch (e) {
-                    console.error(`Failed to parse ${label}:`, data);
+                } catch {
                     return [];
                 }
             }
@@ -83,8 +81,7 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
             if (typeof data === 'string') {
                 try {
                     return JSON.parse(data);
-                } catch (e) {
-                    console.error(`Failed to parse ${label}:`, data);
+                } catch {
                     return {};
                 }
             }
@@ -106,12 +103,12 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
             const presidentRole = await SocietyUserRole.findOne({ society_id: existingSociety._id, role: 'PRESIDENT' });
 
             if (existingSociety.status === 'DELETED' || !presidentRole) {
-                console.log(`Cleaning up zombie/orphan society: ${name}`);
+
                 await Society.deleteOne({ _id: existingSociety._id });
                 await Group.deleteMany({ society_id: existingSociety._id });
                 await SocietyUserRole.deleteMany({ society_id: existingSociety._id });
             } else if (presidentRole.user_id.toString() === req.user!._id.toString()) {
-                console.log(`User ${req.user!.name} is already president of ${name}. Returning existing society.`);
+
                 return sendResponse(res, 200, "Society already exists", existingSociety);
             } else {
                 return sendError(res, 400, "Society with this name already exists");
@@ -171,7 +168,7 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
         return sendResponse(res, 201, "Society created successfully", newSociety);
 
     } catch (error: any) {
-        console.error("Error creating society:", error);
+
         return sendError(res, 500, "Internal server error while creating society", error);
     }
 };
@@ -249,7 +246,7 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
         // Fetch user data to get the name
         const requestUser = await User.findById(societyRequest.user_id);
 
-        console.log(`Creating President role for user ${societyRequest.user_id} in society ${newSociety._id}`);
+
 
         // Assign the requester as PRESIDENT of the new society
         const newRole = await SocietyUserRole.create({
@@ -260,7 +257,7 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
             assigned_by: req.user!._id
         });
 
-        console.log("Role created:", newRole);
+
 
         societyRequest.status = "APPROVED";
         await societyRequest.save();
@@ -617,8 +614,8 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
             if (typeof data === 'string') {
                 try {
                     return JSON.parse(data);
-                } catch (e) {
-                    console.error(`Failed to parse ${label}:`, data);
+                } catch {
+                    return [];
                     return [];
                 }
             }
@@ -629,8 +626,8 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
             if (typeof data === 'string') {
                 try {
                     return JSON.parse(data);
-                } catch (e) {
-                    console.error(`Failed to parse ${label}:`, data);
+                } catch {
+                    return {};
                     return {};
                 }
             }

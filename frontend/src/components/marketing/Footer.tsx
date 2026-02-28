@@ -1,6 +1,8 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
 import { Twitter, Github, Linkedin, Instagram } from "lucide-react";
+
 
 const footerLinks = {
   Platform: [
@@ -29,9 +31,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-20 lg:gap-12 mb-12">
           <div className="lg:col-span-3">
             <Link href="/" className="inline-flex items-center mb-10 group">
-                <div className="relative h-32 w-64 transition-all duration-500 group-hover:scale-105">
+                <div className="relative h-20 w-40 transition-all duration-500 group-hover:scale-105">
                     <Image
-                        src="/logo.png"
+                        src="/logo.png?v=1?v=1?v=1"
                         alt="COMSOC Logo"
                         fill
                         className="object-contain object-left filter drop-shadow-xl"
