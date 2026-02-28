@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useAppSelector } from '@/lib/hooks';
 import { selectCurrentUser } from '@/lib/features/auth/authSlice';
 import { useGetAllSocietiesQuery } from '@/lib/features/societies/societyApiSlice';
-import { FaUniversity, FaUsers } from 'react-icons/fa';
+import { FaUniversity, FaUsers, FaBars } from 'react-icons/fa';
 import AdminSidebar from './AdminSidebar';
 import AdminRequests from './AdminRequests';
 import AdminSocieties from './AdminSocieties';
@@ -14,6 +14,7 @@ import MemberBarChart from '@/components/charts/MemberBarChart';
 const AdminDashboard: React.FC = () => {
   const user = useAppSelector(selectCurrentUser);
   const [activeTab, setActiveTab] = React.useState('overview');
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   
   const { data: societies, isLoading } = useGetAllSocietiesQuery(undefined);
 
@@ -111,15 +112,36 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
-      <AdminSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <AdminSidebar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+      />
       
-      <div className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
+      {/* Backdrop */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      <div className="flex-1 lg:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
         <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-              System <span className="text-orange-600">Admin</span>
-            </h1>
-            <p className="text-slate-500 mt-1 font-medium">Welcome back, {user?.name}</p>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden p-2 text-stone-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+            >
+              <FaBars size={24} />
+            </button>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+                System <span className="text-orange-600">Admin</span>
+              </h1>
+              <p className="text-slate-500 mt-1 font-medium text-sm md:text-base">Welcome back, {user?.name}</p>
+            </div>
           </div>
         </div>
 

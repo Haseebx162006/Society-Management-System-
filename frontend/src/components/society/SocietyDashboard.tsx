@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import { MdGroups, MdEvent } from 'react-icons/md';
-import { FaUsers, FaArrowRight, FaBell } from 'react-icons/fa';
+import { FaUsers, FaArrowRight, FaBell, FaBars } from 'react-icons/fa';
 import { useGetEventsBySocietyQuery } from '@/lib/features/events/eventApiSlice';
 
 import MemberBarChart from '@/components/charts/MemberBarChart';
@@ -17,7 +17,6 @@ import EventManager from '@/components/society/EventManager';
 import EventFormBuilder from '@/components/society/EventFormBuilder';
 import PreviousMembersManager from '@/components/society/PreviousMembersManager';
 import SendEmailManager from '@/components/society/SendEmailManager';
-
 
 interface SocietyDashboardProps {
   society: {
@@ -35,6 +34,7 @@ interface SocietyDashboardProps {
 const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [activeTab, setActiveTab] = React.useState('overview');
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const { data: events } = useGetEventsBySocietyQuery(society._id);
 
   const currentUserRole = useMemo(() => {
@@ -47,17 +47,11 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
       return member?.role || 'MEMBER';
   }, [user, society.members]);
 
-
-
-
   const teamDistributionData = useMemo(() => {
     if (!society.groups || !society.members) return null;
 
     const groupCounts: Record<string, number> = {};
     const groupNames: Record<string, string> = {};
-
-
-
 
     society.groups.forEach((g: { _id: string | { toString(): string }; name: string }) => {
       const gId = typeof g._id === 'object' ? g._id.toString() : g._id;
@@ -120,8 +114,6 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
     };
   }, [society.groups, society.members]);
 
-
-
   const growthData = useMemo(() => {
       if (!society.members) return null;
 
@@ -182,26 +174,38 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
-
       <DashboardSidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
         role={currentUserRole}
       />
 
+      {/* Backdrop */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
-      <div className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
-
-
+      <div className="flex-1 lg:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
         <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-              {society.name} <span className="text-orange-600">Dashboard</span>
-            </h1>
-            <p className="text-slate-500 mt-1 font-medium">Welcome back, {currentUserRole === 'PRESIDENT' ? 'President' : currentUserRole === 'EVENT MANAGER' ? 'Event Manager' : currentUserRole === 'FINANCE MANAGER' ? 'Finance Manager' : ''} {user?.name}</p>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="lg:hidden p-2 text-stone-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+            >
+              <FaBars size={24} />
+            </button>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+                {society.name} <span className="text-orange-600">Dashboard</span>
+              </h1>
+              <p className="text-slate-500 mt-1 font-medium text-sm md:text-base">Welcome back, {currentUserRole === 'PRESIDENT' ? 'President' : currentUserRole === 'EVENT MANAGER' ? 'Event Manager' : currentUserRole === 'FINANCE MANAGER' ? 'Finance Manager' : ''} {user?.name}</p>
+            </div>
           </div>
-
         </div>
 
         {activeTab === 'settings' ? (
@@ -222,13 +226,11 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
           <>
             {activeTab === 'overview' ? (
               <>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                   <StatCard title="Total Members" value={society.members?.length || 0} icon={<FaUsers />} color="orange" />
                   <StatCard title="Total Teams" value={society.groups?.length || 0} icon={<MdGroups />} color="stone" />
                   <StatCard title="Events Held" value={events?.length || 0} icon={<MdEvent />} color="orange" />
                 </div>
-
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                   <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">

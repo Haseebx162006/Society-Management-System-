@@ -1,5 +1,4 @@
-import React from 'react';
-import { MdDashboard, MdEvent } from 'react-icons/md';
+import { MdDashboard, MdClose } from 'react-icons/md';
 import { FaSignOutAlt, FaHome, FaClipboardList, FaUniversity, FaUserTie, FaUsers } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -9,9 +8,11 @@ import { useLogoutMutation } from '@/lib/features/auth/authApiSlice';
 interface AdminSidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab }) => {
+const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, isOpen, onClose }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const refreshToken = useAppSelector(selectRefreshToken);
@@ -39,8 +40,8 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab }) 
   ];
 
   return (
-    <div className="w-64 bg-[#fffdfa] border-r border-stone-200 flex flex-col h-screen fixed left-0 top-0 overflow-y-auto shadow-sm z-50">
-      <div className="p-6 border-b border-stone-100">
+    <div className={`fixed inset-y-0 left-0 w-64 bg-[#fffdfa] border-r border-stone-200 flex flex-col h-screen overflow-y-auto shadow-sm z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className="p-6 border-b border-stone-100 flex items-center justify-between">
         <h2 className="text-xl font-extrabold text-orange-600 tracking-tight flex items-center gap-2">
           <span className="bg-orange-600 text-white rounded-lg p-1 text-sm">
              SA
@@ -49,13 +50,22 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab }) 
              System Admin
           </span>
         </h2>
+        <button 
+          onClick={onClose}
+          className="lg:hidden text-stone-500 hover:text-orange-600 p-2 rounded-lg transition-colors"
+        >
+          <MdClose size={24} />
+        </button>
       </div>
 
       <nav className="flex-1 p-4 space-y-2">
         {navItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => {
+              setActiveTab(item.id);
+              onClose();
+            }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${
               activeTab === item.id
                 ? 'bg-orange-50 text-orange-600 border border-orange-100 shadow-sm'
