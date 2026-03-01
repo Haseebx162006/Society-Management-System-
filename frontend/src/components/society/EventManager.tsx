@@ -217,15 +217,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         ) : null;
     };
 
-    // const openMailModal = (event: EventData) => {
-    //     setMailEventId(event._id);
-    //     setMailEventTitle(event.title);
-    //     setMailSubject(`Update: ${event.title}`);
-    //     setMailMessage('');
-    //     setMailError('');
-    //     setMailSuccess('');
-    //     setShowMailModal(true);
-    // };
 
     const handleSendMail = async () => {
         if (!mailSubject.trim() || !mailMessage.trim()) {
@@ -268,7 +259,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         try {
             const authState = localStorage.getItem('authState');
             if (authState) return JSON.parse(authState).token || '';
-        } catch { /* ignore */ }
+        } catch { }
         return '';
     };
 
@@ -293,7 +284,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
         } catch {
-            setError('Failed to export registrations');
+            toast.error('Failed to export registrations');
         }
     };
 
@@ -343,7 +334,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
 
 
                 <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
-                    {/* Basic Info */}
                     <div>
                         <h3 className="text-lg font-semibold text-slate-800 mb-4">Basic Information</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -392,7 +382,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                         </div>
                     </div>
 
-                    {/* Date & Time */}
                     <div>
                         <h3 className="text-lg font-semibold text-slate-800 mb-4">Date & Time</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -426,7 +415,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                         </div>
                     </div>
 
-                    {/* Registration Settings */}
                     <div>
                         <h3 className="text-lg font-semibold text-slate-800 mb-4">Registration Settings</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -490,7 +478,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                         </div>
                     </div>
 
-                    {/* Banner & Tags */}
                     <div>
                         <h3 className="text-lg font-semibold text-slate-800 mb-4">Media & Tags</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -519,7 +506,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                         </div>
                     </div>
 
-                    {/* Content Sections */}
                     <div>
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-semibold text-slate-800">Content Sections</h3>
@@ -565,7 +551,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                         )}
                     </div>
 
-                    {/* Payment Info */}
                     <div className="bg-orange-50/50 p-6 rounded-2xl border border-orange-100 shadow-sm">
                         <h3 className="text-lg font-semibold text-orange-900 mb-4 flex items-center gap-2">
                              Payment Details
@@ -605,7 +590,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                         </div>
                     </div>
 
-                    {/* Save Button */}
                     <div className="flex gap-3 pt-4 border-t border-slate-100">
                         <button
                             onClick={handleSave}
@@ -649,7 +633,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                     {events.map((event) => (
                         <div key={event._id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
                             <div className="flex">
-                                {/* Banner */}
                                 {event.banner && (
                                     <div className="w-48 h-auto shrink-0 relative">
                                         <Image
@@ -727,13 +710,6 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                             >
                                                 {event.is_public ? <FaEye /> : <FaEyeSlash />}
                                             </button>
-                                            {/* <button
-                                                onClick={() => openMailModal(event)}
-                                                className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                                                title="Send Mail to Participants"
-                                            >
-                                                <FaEnvelope />
-                                            </button> */}
                                             <button
                                                 onClick={() => startEdit(event)}
                                                 className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
