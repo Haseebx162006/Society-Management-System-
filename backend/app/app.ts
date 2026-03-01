@@ -16,6 +16,8 @@ import { AppError } from './src/util/AppError';
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -57,6 +59,7 @@ const globalLimiter = rateLimit({
     message: 'Too many requests from this IP, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { xForwardedForHeader: false, default: true }
 });
 app.use('/api', globalLimiter);
 
@@ -66,6 +69,7 @@ const authLimiter = rateLimit({
     message: 'Too many authentication attempts. Please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { xForwardedForHeader: false, default: true }
 });
 app.use('/api/auth', authLimiter);
 

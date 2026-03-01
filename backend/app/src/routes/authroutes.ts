@@ -21,6 +21,7 @@ const otpLimiter = rateLimit({
     message: 'Too many OTP attempts. Please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { xForwardedForHeader: false, default: true }
 });
 
 const resendLimiter = rateLimit({
@@ -29,6 +30,7 @@ const resendLimiter = rateLimit({
     message: 'Too many resend requests. Please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { xForwardedForHeader: false, default: true }
 });
 
 const signupLimiter = rateLimit({
@@ -37,6 +39,7 @@ const signupLimiter = rateLimit({
     message: 'Too many signup attempts. Please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    validate: { xForwardedForHeader: false, default: true }
 });
 
 router.post('/login', login);
