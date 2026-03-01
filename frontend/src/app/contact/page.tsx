@@ -20,6 +20,7 @@ export default function ContactPage() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
+            //formspree link
             const response = await fetch("https://formspree.io/f/xdalvben", {
                 method: "POST",
                 headers: {
