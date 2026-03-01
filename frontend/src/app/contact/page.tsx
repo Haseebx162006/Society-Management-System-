@@ -20,7 +20,7 @@ export default function ContactPage() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const response = await fetch("https://formspree.io/f/xpqjoaae", {
+            const response = await fetch("https://formspree.io/f/xdalvben", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -106,8 +106,7 @@ export default function ContactPage() {
                                         </div>
                                         <div>
                                             <p className="text-sm font-bold text-stone-400 uppercase tracking-widest mb-1">Email Us</p>
-                                            <p className="text-lg font-bold text-stone-900">sp25-bcs-051@cuilahore.edu.pk</p>
-                                            <p className="text-lg font-bold text-stone-900">sp25-bcs-048@cuilahore.edu.pk</p>
+                                            <p className="text-lg font-bold text-stone-900">comsoc.help@gmail.com</p>
                                         </div>
                                     </div>
 
@@ -269,7 +268,7 @@ export default function ContactPage() {
                                 <Sparkles className="w-8 h-8" />
                             </div>
                             <h4 className="text-xl font-bold mb-3">Partnerships</h4>
-                            <p className="text-stone-500">For sponsorship or collaboration, email sp25-bcs-051@cuilahore.edu.pk , sp25-bcs-048@cuilahore.edu.pk</p>
+                            <p className="text-stone-500">For sponsorship or collaboration, email comsoc.help@gmail.com</p>
                         </div>
                     </div>
                 </div>
