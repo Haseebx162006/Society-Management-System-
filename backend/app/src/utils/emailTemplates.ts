@@ -1,44 +1,41 @@
 export const emailTemplates = {
-  // ─── OTP Verification Email ──────────────────────────────────────────────────
   otpVerification: (name: string, otp: string) => `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
-      <div style="background: linear-gradient(135deg, #059669, #10b981); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+      <div style="background: linear-gradient(135deg, #ea580c, #f97316); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
         <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">Email Verification</h1>
         <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Society Management System</p>
       </div>
       <div style="padding: 32px 24px;">
         <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${name}</strong>,</p>
         <p style="color: #475569; font-size: 15px; margin: 0 0 24px;">Use the OTP code below to verify your email address:</p>
-        <div style="background: white; border-radius: 12px; padding: 24px; border: 2px solid #059669; text-align: center; margin-bottom: 24px;">
-          <p style="font-size: 36px; font-weight: 700; color: #059669; letter-spacing: 8px; margin: 0;">${otp}</p>
+        <div style="background: white; border-radius: 12px; padding: 24px; border: 2px solid #ea580c; text-align: center; margin-bottom: 24px;">
+          <p style="font-size: 36px; font-weight: 700; color: #ea580c; letter-spacing: 8px; margin: 0;">${otp}</p>
         </div>
         <p style="color: #94a3b8; font-size: 13px; text-align: center;">This code expires in <strong>10 minutes</strong>. Do not share it with anyone.</p>
       </div>
     </div>
   `,
 
-  // ─── Password Reset OTP Email ────────────────────────────────────────────────
   passwordResetOTP: (name: string, otp: string) => `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
-      <div style="background: linear-gradient(135deg, #dc2626, #ef4444); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+      <div style="background: linear-gradient(135deg, #ea580c, #f97316); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
         <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">Password Reset</h1>
         <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Society Management System</p>
       </div>
       <div style="padding: 32px 24px;">
         <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${name}</strong>,</p>
         <p style="color: #475569; font-size: 15px; margin: 0 0 24px;">You requested a password reset. Use the OTP code below:</p>
-        <div style="background: white; border-radius: 12px; padding: 24px; border: 2px solid #dc2626; text-align: center; margin-bottom: 24px;">
-          <p style="font-size: 36px; font-weight: 700; color: #dc2626; letter-spacing: 8px; margin: 0;">${otp}</p>
+        <div style="background: white; border-radius: 12px; padding: 24px; border: 2px solid #ea580c; text-align: center; margin-bottom: 24px;">
+          <p style="font-size: 36px; font-weight: 700; color: #ea580c; letter-spacing: 8px; margin: 0;">${otp}</p>
         </div>
         <p style="color: #94a3b8; font-size: 13px; text-align: center;">This code expires in <strong>10 minutes</strong>. If you did not request this, ignore this email.</p>
       </div>
     </div>
   `,
 
-  // ─── Admin Notification: New Society Request ─────────────────────────────────
   societyRequestNotification: (adminName: string, userName: string, societyName: string) => `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
-      <div style="background: linear-gradient(135deg, #7c3aed, #8b5cf6); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+      <div style="background: linear-gradient(135deg, #ea580c, #f97316); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
         <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">New Society Request</h1>
         <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Admin Notification</p>
       </div>
@@ -54,10 +51,9 @@ export const emailTemplates = {
     </div>
   `,
 
-  // ─── Society Request Approved ────────────────────────────────────────────────
   societyRequestApproved: (userName: string, societyName: string) => `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
-      <div style="background: linear-gradient(135deg, #059669, #10b981); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+      <div style="background: linear-gradient(135deg, #ea580c, #f97316); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
         <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">🎉 Congratulations!</h1>
         <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Society Management System</p>
       </div>
@@ -65,7 +61,7 @@ export const emailTemplates = {
         <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${userName}</strong>,</p>
         <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
           <p style="color: #475569; font-size: 15px; line-height: 1.8; margin: 0;">
-            Your request to create <strong>${societyName}</strong> has been <strong style="color: #059669;">approved</strong>! 🎉
+            Your request to create <strong>${societyName}</strong> has been <strong style="color: #ea580c;">approved</strong>! 🎉
           </p>
           <p style="color: #475569; font-size: 15px; margin: 12px 0 0;">You have been assigned as the <strong>President</strong> of the society. Log in to start setting it up!</p>
         </div>
@@ -73,10 +69,9 @@ export const emailTemplates = {
     </div>
   `,
 
-  // ─── Society Request Rejected ────────────────────────────────────────────────
   societyRequestRejected: (userName: string, societyName: string, reason: string) => `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
-      <div style="background: linear-gradient(135deg, #dc2626, #ef4444); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+      <div style="background: linear-gradient(135deg, #ea580c, #f97316); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
         <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">Society Request Update</h1>
         <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Society Management System</p>
       </div>
@@ -84,7 +79,7 @@ export const emailTemplates = {
         <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${userName}</strong>,</p>
         <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
           <p style="color: #475569; font-size: 15px; line-height: 1.8; margin: 0;">
-            Your request to create <strong>${societyName}</strong> has been <strong style="color: #dc2626;">rejected</strong>.
+            Your request to create <strong>${societyName}</strong> has been <strong style="color: #ef4444;">rejected</strong>.
           </p>
           <p style="color: #475569; font-size: 15px; margin: 12px 0 0;"><strong>Reason:</strong> ${reason}</p>
         </div>
@@ -92,10 +87,9 @@ export const emailTemplates = {
     </div>
   `,
 
-  // ─── Congratulations: Membership Approved ────────────────────────────────────
   membershipApproved: (userName: string, societyName: string) => `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
-      <div style="background: linear-gradient(135deg, #059669, #10b981); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+      <div style="background: linear-gradient(135deg, #ea580c, #f97316); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
         <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">🎉 Welcome Aboard!</h1>
         <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Society Management System</p>
       </div>
@@ -103,7 +97,7 @@ export const emailTemplates = {
         <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${userName}</strong>,</p>
         <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
           <p style="color: #475569; font-size: 15px; line-height: 1.8; margin: 0;">
-            Congratulations! Your request to join <strong>${societyName}</strong> has been <strong style="color: #059669;">approved</strong>! 🎉
+            Congratulations! Your request to join <strong>${societyName}</strong> has been <strong style="color: #ea580c;">approved</strong>! 🎉
           </p>
           <p style="color: #475569; font-size: 15px; margin: 12px 0 0;">You are now an official member. Log in to explore your society!</p>
         </div>
@@ -111,10 +105,9 @@ export const emailTemplates = {
     </div>
   `,
 
-  // ─── Membership Rejected ─────────────────────────────────────────────────────
   membershipRejected: (userName: string, societyName: string, reason?: string) => `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
-      <div style="background: linear-gradient(135deg, #dc2626, #ef4444); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+      <div style="background: linear-gradient(135deg, #ea580c, #f97316); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
         <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">Membership Update</h1>
         <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">Society Management System</p>
       </div>
@@ -122,7 +115,7 @@ export const emailTemplates = {
         <p style="color: #334155; font-size: 16px; margin: 0 0 16px;">Hi <strong>${userName}</strong>,</p>
         <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
           <p style="color: #475569; font-size: 15px; line-height: 1.8; margin: 0;">
-            Your request to join <strong>${societyName}</strong> has been <strong style="color: #dc2626;">rejected</strong>.
+            Your request to join <strong>${societyName}</strong> has been <strong style="color: #ef4444;">rejected</strong>.
           </p>
           ${reason ? `<p style="color: #475569; font-size: 15px; margin: 12px 0 0;"><strong>Reason:</strong> ${reason}</p>` : ''}
         </div>
@@ -130,7 +123,6 @@ export const emailTemplates = {
     </div>
   `,
 
-  // ─── Bulk Email Template ─────────────────────────────────────────────────────
   bulkEmail: (
     societyName: string,
     subject: string,
@@ -162,7 +154,6 @@ export const emailTemplates = {
     </div>
   `,
 
-  // ─── Event Notification Template ──────────────────────────────────────────────
   eventNotification: (
     participantName: string,
     eventTitle: string,
@@ -172,7 +163,7 @@ export const emailTemplates = {
     venue?: string
   ) => `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 0;">
-      <div style="background: linear-gradient(135deg, #6366f1, #8b5cf6); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
+      <div style="background: linear-gradient(135deg, #ea580c, #f97316); padding: 32px 24px; text-align: center; border-radius: 0 0 24px 24px;">
         <h1 style="color: white; margin: 0; font-size: 24px; font-weight: 700;">${eventTitle}</h1>
         <p style="color: rgba(255,255,255,0.85); margin: 8px 0 0; font-size: 14px;">by ${societyName}</p>
       </div>
@@ -182,8 +173,8 @@ export const emailTemplates = {
           <p style="color: #475569; font-size: 15px; line-height: 1.6; margin: 0; white-space: pre-line;">${message}</p>
         </div>
         ${eventDate || venue ? `
-        <div style="background: #eef2ff; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;">
-          <h3 style="color: #4338ca; margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Event Details</h3>
+        <div style="background: #fff7ed; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px;">
+          <h3 style="color: #9a3412; margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">Event Details</h3>
           ${eventDate ? `<p style="color: #475569; margin: 4px 0; font-size: 14px;">📅 <strong>Date:</strong> ${eventDate}</p>` : ''}
           ${venue ? `<p style="color: #475569; margin: 4px 0; font-size: 14px;">📍 <strong>Venue:</strong> ${venue}</p>` : ''}
         </div>
@@ -194,5 +185,4 @@ export const emailTemplates = {
   `
 };
 
-// Named export for the bulk email template
 export const bulkEmailTemplate = emailTemplates.bulkEmail;
