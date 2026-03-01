@@ -5,17 +5,19 @@ import app from '../app/app';
 import db from '../app/src/db/db';
 import { Request, Response } from 'express';
 
-// Connect to DB once per cold start (reused across warm invocations)
-db();
+// Await DB connection before handling any request (critical for serverless cold starts)
+let dbReady: Promise<void> | null = null;
 
-// Vercel strips the /api prefix when routing to api/ directory functions.
-// Re-add it so Express routes (/api/auth, /api/user, etc.) match correctly.
-// Root "/" stays untouched so the health-check route responds.
-export default function handler(req: Request, res: Response) {
-  if (req.url === '/' || req.url === '') {
-    return app(req, res);
+export default async function handler(req: Request, res: Response) {
+  // Ensure DB is connected before processing
+  if (!dbReady) {
+    dbReady = db();
   }
-  if (!req.url!.startsWith('/api')) {
+  await dbReady;
+
+  // Vercel strips the /api prefix when routing to api/ directory functions.
+  // Re-add it so Express routes (/api/auth, /api/user, etc.) match correctly.
+  if (req.url !== '/' && req.url !== '' && !req.url!.startsWith('/api')) {
     req.url = '/api' + req.url;
   }
   return app(req, res);
