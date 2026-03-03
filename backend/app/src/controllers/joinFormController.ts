@@ -149,7 +149,7 @@ export const getJoinFormPublic = async (req: AuthRequest, res: Response) => {
         const { formId } = req.params;
 
         const form = await JoinForm.findById(formId)
-            .populate('society_id', 'name description');
+            .populate('society_id', 'name description registration_fee payment_info');
 
         if (!form || !form.is_active) {
             return sendError(res, 404, 'Form not found or no longer active');
