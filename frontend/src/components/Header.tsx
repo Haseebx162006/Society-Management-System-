@@ -31,6 +31,9 @@ export default function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const getStartedRef = useRef<HTMLDivElement>(null);
+  const [getStartedOpen, setGetStartedOpen] = useState(false);
+  const [mobileGetStartedOpen, setMobileGetStartedOpen] = useState(false);
 
   const user = useAppSelector(selectCurrentUser);
   const refreshToken = useAppSelector(selectRefreshToken);
@@ -67,6 +70,13 @@ export default function Header() {
         !dropdownRef.current.contains(e.target as Node)
       ) {
         setDropdownOpen(false);
+      }
+      
+      if (
+        getStartedRef.current &&
+        !getStartedRef.current.contains(e.target as Node)
+      ) {
+        setGetStartedOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -146,6 +156,63 @@ export default function Header() {
                 )}
               </Link>
             ))}
+
+            {/* GET STARTED Dropdown */}
+            <div className="relative" ref={getStartedRef} onMouseEnter={() => setGetStartedOpen(true)} onMouseLeave={() => setGetStartedOpen(false)}>
+                <button
+                className={`nav-link relative px-5 py-2.5 text-[13px] font-semibold tracking-[0.08em] rounded-full transition-all duration-300 flex items-center gap-1 ${
+                    pathname.startsWith('/get-started')
+                    ? "text-orange-600 bg-orange-50/80"
+                    : "text-stone-500 hover:text-stone-900 hover:bg-stone-50/80"
+                }`}
+                >
+                GET STARTED
+                <svg
+                    className={`w-3.5 h-3.5 transition-transform duration-300 ${getStartedOpen ? "rotate-180" : ""}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+                {pathname.startsWith('/get-started') && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-gradient-to-r bg-orange-500 rounded-full" />
+                )}
+                </button>
+
+                <div
+                className={`absolute left-0 top-full pt-2 w-56 transition-all duration-300 origin-top ${
+                    getStartedOpen
+                    ? "opacity-100 scale-100 translate-y-0"
+                    : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+                }`}
+                >
+                    <div className="rounded-2xl bg-[#fffdfa]/95 backdrop-blur-xl border border-stone-100/80 shadow-xl shadow-stone-200/50 py-2">
+                        <Link
+                            href="/get-started/president"
+                            onClick={() => setGetStartedOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-stone-600 hover:text-orange-600 hover:bg-orange-50/80 transition-colors"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.315 48.315 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+                            </svg>
+                            Start as President
+                        </Link>
+                        <Link
+                            href="/get-started/user"
+                            onClick={() => setGetStartedOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-stone-600 hover:text-orange-600 hover:bg-orange-50/80 transition-colors"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
+                            Start as User
+                        </Link>
+                    </div>
+                </div>
+            </div>
+
           </nav>
 
           <div className="hidden lg:flex items-center gap-3">
@@ -285,6 +352,62 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            
+            <div className="flex flex-col">
+              <button
+                onClick={() => setMobileGetStartedOpen(!mobileGetStartedOpen)}
+                className={`flex items-center justify-between px-4 py-3.5 rounded-xl text-[13px] font-semibold tracking-[0.06em] transition-all duration-300 ${
+                  pathname.startsWith('/get-started')
+                    ? "text-orange-600 bg-orange-50/80"
+                    : "text-stone-500 hover:text-stone-900 hover:bg-stone-50/80"
+                }`}
+                style={{
+                  transitionDelay: mobileOpen ? `${NAV_LINKS.length * 50}ms` : "0ms",
+                }}
+              >
+                GET STARTED
+                <svg
+                    className={`w-4 h-4 transition-transform duration-300 ${mobileGetStartedOpen ? "rotate-180" : ""}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              <div 
+                className={`overflow-hidden transition-all duration-300 ${
+                    mobileGetStartedOpen ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                }`}
+              >
+                  <div className="flex flex-col gap-1 px-4 py-2 border-l-2 border-orange-200 ml-4 mt-1">
+                      <Link
+                          href="/get-started/president"
+                          onClick={() => setMobileOpen(false)}
+                          className={`py-2 text-sm font-medium transition-colors ${
+                              pathname === '/get-started/president'
+                              ? "text-orange-600"
+                              : "text-stone-500 hover:text-stone-900"
+                          }`}
+                      >
+                          Start as President
+                      </Link>
+                      <Link
+                          href="/get-started/user"
+                          onClick={() => setMobileOpen(false)}
+                          className={`py-2 text-sm font-medium transition-colors ${
+                              pathname === '/get-started/user'
+                              ? "text-orange-600"
+                              : "text-stone-500 hover:text-stone-900"
+                          }`}
+                      >
+                          Start as User
+                      </Link>
+                  </div>
+              </div>
+            </div>
           </nav>
 
           <div className="mt-auto border-t border-stone-100 pt-6 flex flex-col gap-3">
