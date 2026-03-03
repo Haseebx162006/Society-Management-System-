@@ -16,13 +16,13 @@ const stats = [
 const founders = [
     {
         name: "Hussain Jamal",
-        role: "Lead Architect",
+        role: "Lead Architect & Full-Stack Developer",
         image: "/logos/my-1.jpeg",
         bio: "Driving the technological evolution of campus communities through innovation and strategy."
     },
     {
         name: "Haseeb Ahmed",
-        role: "Lead Developer",
+        role: "Lead Architect & Backend Developer",
         image: "/logos/my-2.jpeg",
         bio: "Crafting seamless operational workflows for modern society management."
     }
@@ -150,7 +150,7 @@ export default function AboutPage() {
                         viewport={{ once: true }}
                         className="text-4xl md:text-5xl font-black text-stone-900 mb-6"
                     >
-                        The <span className="text-orange-600 italic">Founders</span>
+                        The <span className="text-orange-600 italic">Co - Founders</span>
                     </motion.h2>
                     <p className="text-stone-500 max-w-2xl mx-auto">
                         A duo of visionaries dedicated to redefining the student experience at COMSATS.
