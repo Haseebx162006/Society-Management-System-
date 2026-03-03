@@ -314,7 +314,7 @@ export default function Header() {
                   onClick={() => {
                     setMobileOpen(false);
                   }}
-                  className="w-full py-3.5 text-sm font-semibold text-stone-700 bg-stone-50 hover:bg-stone-100 rounded-xl transition-all duration-300"
+                  className="text-center w-full py-3.5 text-sm font-semibold text-stone-700 bg-stone-50 hover:bg-stone-100 rounded-xl transition-all duration-300"
                 >
                   Log In
                 </Link>
@@ -323,7 +323,7 @@ export default function Header() {
                   onClick={() => {
                     setMobileOpen(false);
                   }}
-                  className="w-full py-3.5 text-sm font-semibold text-white bg-gradient-to-r from-orange-600 to-yellow-600 rounded-xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-300"
+                  className="text-center w-full py-3.5 text-sm font-semibold text-white bg-gradient-to-r from-orange-600 to-yellow-600 rounded-xl shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-300"
                 >
                   Sign Up
                 </Link>
