@@ -171,14 +171,10 @@ export default function LoginPage() {
                     }
                 />
 
-                <div className="flex justify-between items-center pb-8 px-1">
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                    
-                     
-                    </label>
-                    <a href="#" className="text-[11px] font-bold text-stone-400 hover:text-orange-600 transition-colors uppercase tracking-widest">
+                <div className="flex justify-end items-center pb-8 px-1">
+                    <Link href="/forgot-password" className="text-[11px] font-bold text-stone-400 hover:text-orange-600 transition-colors uppercase tracking-widest">
                         Forget Password?
-                    </a>
+                    </Link>
                 </div>
 
                 <FuturisticButton
