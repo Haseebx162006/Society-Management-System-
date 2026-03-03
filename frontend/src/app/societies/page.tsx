@@ -29,7 +29,7 @@ const GRADIENTS = [
   "from-stone-700 to-stone-500",
 ];
 
-const CATEGORIES = ["All", "Technology", "Arts", "Engineering", "Sports", "Religious", "Social", "Others"];
+const CATEGORIES = ["All", "Technology", "Arts", "Engineering", "Sports", "Religious", "Social", "Entrepreneurship", "Others"];
 const STATUS_OPTIONS = ["All", "Open", "Closed"];
 
 export default function SocietiesPage() {

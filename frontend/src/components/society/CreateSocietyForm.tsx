@@ -360,6 +360,7 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
                                 <option value="Sports">Sports</option>
                                 <option value="Religious">Religious</option>
                                 <option value="Social">Social</option>
+                                <option value="Entrepreneurship">Entrepreneurship</option>
                                 <option value="Others">Others</option>
                             </select>
                         </div>
