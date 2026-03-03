@@ -43,7 +43,7 @@ export default function Footer() {
             <p className="text-stone-500 font-normal text-lg leading-relaxed max-w-sm mb-12">
               The institutional standard for campus communities. Discover. Lead. Dominate.
             </p>
-            <div className="flex gap-6">
+            {/* <div className="flex gap-6">
               {[
                 { icon: Twitter, href: "#" },
                 { icon: Github, href: "#" },
@@ -54,7 +54,7 @@ export default function Footer() {
                     <social.icon size={18} />
                 </Link>
               ))}
-            </div>
+            </div> */}
           </div>
           
           {Object.entries(footerLinks).map(([category, links]) => (
