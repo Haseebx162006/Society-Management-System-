@@ -487,7 +487,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => setBannerFile(e.target.files?.[0] || null)}
-                                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-600 file:font-medium file:cursor-pointer"
+                                    className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-orange-50 file:text-orange-600 file:font-medium file:cursor-pointer"
                                 />
                                 {selectedEvent?.banner && !bannerFile && (
                                     <p className="text-xs text-slate-400 mt-1">Current banner set. Upload a new one to replace.</p>
@@ -536,14 +536,14 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                             value={section.title}
                                             onChange={(e) => updateContentSection(index, 'title', e.target.value)}
                                             placeholder="Section Title"
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800"
+                                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800"
                                         />
                                         <textarea
                                             value={section.content}
                                             onChange={(e) => updateContentSection(index, 'content', e.target.value)}
                                             placeholder="Section content..."
                                             rows={3}
-                                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none text-slate-800 resize-none"
+                                            className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 resize-none"
                                         />
                                     </div>
                                 ))}

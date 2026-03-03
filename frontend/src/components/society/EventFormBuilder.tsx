@@ -225,7 +225,7 @@ const EventFormBuilder: React.FC<EventFormBuilderProps> = ({ societyId }) => {
                                 <p className="text-slate-400 mb-3">No fields added yet</p>
                                 <button
                                     onClick={addField}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                                    className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
                                 >
                                     Add Your First Field
                                 </button>
