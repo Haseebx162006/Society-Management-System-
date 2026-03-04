@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 import { Oxanium, Titillium_Web } from 'next/font/google';
@@ -49,6 +50,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${oxanium.variable} ${titilliumWeb.variable}`}>
+      <head>
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-BNW65YNVE8" />
+        <Script id="google-analytics">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-BNW65YNVE8');
+          `}
+        </Script>
+      </head>
       <body>
         <StoreProvider>
           {children}
@@ -56,7 +69,7 @@ export default function RootLayout({
             style: {
               background: '#1e293b',
               color: '#fff',
-              border: '1px solid #ea580c', // Updated to orange from blue
+              border: '1px solid #ea580c',
             },
           }} />
         </StoreProvider>

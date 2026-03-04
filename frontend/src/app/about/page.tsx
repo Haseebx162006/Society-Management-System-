@@ -150,7 +150,7 @@ export default function AboutPage() {
                         viewport={{ once: true }}
                         className="text-4xl md:text-5xl font-black text-stone-900 mb-6"
                     >
-                        The <span className="text-orange-600 italic">Co - Founders</span>
+                        The <span className="text-orange-600 italic">Co-Founders</span>
                     </motion.h2>
                     <p className="text-stone-500 max-w-2xl mx-auto">
                         A duo of visionaries dedicated to redefining the student experience at COMSATS.
@@ -172,7 +172,7 @@ export default function AboutPage() {
                                     src={founder.image} 
                                     alt={founder.name} 
                                     fill 
-                                    className="object-cover filter grayscale group-hover:grayscale-0 transition-all duration-700"
+                                    className="object-cover filter group-hover:grayscale-0 transition-all duration-700"
                                 />
                                 <div className="absolute bottom-0 left-0 w-full p-4 bg-gradient-to-t from-stone-900/80 to-transparent z-10 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
                                     <span className="text-white text-xs font-bold uppercase tracking-widest leading-none">Architect of Excellence</span>
