@@ -1,3 +1,5 @@
+import './instrument';
+import * as Sentry from '@sentry/node';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -41,7 +43,6 @@ const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000').spl
 
 app.use(cors({
     origin: (origin, callback) => {
-        // Allow requests with no origin (server-to-server, curl)
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
@@ -101,9 +102,21 @@ app.use('/api', join_routes);
 app.use('/api', event_routes);
 app.use('/api/email', email_routes);
 
+app.get('/debug-sentry', (req: Request, res: Response) => {
+    try {
+        const foo = () => { throw new Error("Intentional Sentry Error"); };
+        foo();
+    } catch (e) {
+        Sentry.captureException(e);
+        res.status(500).send("Error reported to Sentry");
+    }
+});
+
 app.all(/(.*)/, (req: Request, res: Response, next: NextFunction) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
+
+Sentry.setupExpressErrorHandler(app);
 
 app.use(errorHandler);
 
