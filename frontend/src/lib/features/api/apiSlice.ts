@@ -3,7 +3,6 @@ import { Mutex } from 'async-mutex';
 import { RootState } from '../../store';
 import { logOut, updateAccessToken, User } from '../auth/authSlice';
 
-// Create a new mutex
 const mutex = new Mutex();
 
 interface RefreshResponse {
