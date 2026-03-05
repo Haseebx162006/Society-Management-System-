@@ -233,7 +233,7 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ societyId }) => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">File <span className="text-red-500">*</span></label>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">File (Only .doc , .docx allowed) <span className="text-red-500">*</span></label>
                                     <input
                                         type="file"
                                         required
