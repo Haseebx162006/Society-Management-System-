@@ -76,7 +76,7 @@ export default function ProfilePage() {
       });
     }
 
-    const canAccessDashboard = societies?.some((s) => s.role === "PRESIDENT" || s.role === "FINANCE MANAGER" || s.role === "EVENT MANAGER" || s.role === "SPONSOR MANAGER");
+    const canAccessDashboard = societies?.some((s) => s.role === "PRESIDENT" || s.role === "FINANCE MANAGER" || s.role === "EVENT MANAGER" || s.role === "SPONSOR MANAGER" || s.role === "DOCUMENTATION MANAGER");
     if (canAccessDashboard) {
       items.push({
         key: "society-dashboard",

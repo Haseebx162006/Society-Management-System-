@@ -20,6 +20,8 @@ const ALLOWED_MIME_TYPES = [
     'image/webp',
     'application/pdf',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'text/csv',
 ];
 

@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { FaWhatsapp, FaEnvelope, FaSearch, FaUserPlus, FaFilePdf, FaFileExcel, FaTimes } from "react-icons/fa";
 import { MdGroups, MdChevronLeft, MdChevronRight, MdEdit, MdStar, MdManageAccounts, MdAdminPanelSettings, MdAccountBalance, MdEvent, MdPeople, MdShield } from "react-icons/md";
+import { FaClipboardList } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -78,6 +79,15 @@ const ROLE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bgColo
         description: "Organizes and manages events",
         category: "Management",
     },
+    "DOCUMENTATION MANAGER": {
+        icon: <FaClipboardList className="text-base" />,
+        color: "text-blue-700",
+        bgColor: "bg-blue-50",
+        borderColor: "border-blue-200",
+        ringColor: "ring-blue-400",
+        description: "Manages society documents",
+        category: "Management",
+    },
     MEMBER: {
         icon: <MdPeople className="text-base" />,
         color: "text-slate-600",
@@ -89,7 +99,7 @@ const ROLE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bgColo
     },
 };
 
-const ROLE_ORDER = ["SPONSOR MANAGER", "FINANCE MANAGER", "EVENT MANAGER", "MEMBER"];
+const ROLE_ORDER = ["SPONSOR MANAGER", "FINANCE MANAGER", "EVENT MANAGER", "DOCUMENTATION MANAGER", "MEMBER"];
 
 const getRoleBadgeColor = (role: string) => {
     const config = ROLE_CONFIG[role];

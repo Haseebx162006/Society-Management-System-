@@ -14,6 +14,7 @@ import join_routes from './src/routes/joinRoutes';
 import event_routes from './src/routes/eventRoutes';
 import email_routes from './src/routes/emailRoutes';
 import sponsor_routes from './src/routes/sponsorRoutes';
+import documentation_routes from './src/routes/documentationRoutes';
 import { errorHandler } from './src/middleware/errorHandler';
 import { AppError } from './src/util/AppError';
 
@@ -103,6 +104,7 @@ app.use('/api', join_routes);
 app.use('/api', event_routes);
 app.use('/api/email', email_routes);
 app.use('/api/sponsors', sponsor_routes);
+app.use('/api/documentations', documentation_routes);
 
 app.get('/debug-sentry', (req: Request, res: Response) => {
     try {
