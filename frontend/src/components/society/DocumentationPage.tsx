@@ -12,7 +12,7 @@ import {
     useGetSocietyDocumentationsQuery,
     useUploadDocumentationMutation,
     useDeleteDocumentationMutation,
-} from "@/lib/features/documentation/documentationApiSlice";
+} from "@/lib/features/doc/docApiSlice";
 
 interface DocumentationPageProps {
     societyId: string;
