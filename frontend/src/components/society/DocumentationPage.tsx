@@ -113,7 +113,7 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ societyId }) => {
                                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${iconBg}`}>
                                         <FileIcon className={`text-2xl ${iconColor}`} />
                                     </div>
-                                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                         <a
                                             href={doc.fileUrl}
                                             target="_blank"
