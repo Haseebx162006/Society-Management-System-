@@ -17,6 +17,7 @@ import EventManager from '@/components/society/EventManager';
 import EventFormBuilder from '@/components/society/EventFormBuilder';
 import PreviousMembersManager from '@/components/society/PreviousMembersManager';
 import SendEmailManager from '@/components/society/SendEmailManager';
+import SponsorsManager from '@/components/society/SponsorsManager';
 
 interface SocietyDashboardProps {
   society: {
@@ -305,6 +306,8 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
               <EventFormBuilder societyId={society._id} />
             ) : activeTab === 'previous-members' ? (
               <PreviousMembersManager societyId={society._id} />
+            ) : activeTab === 'sponsors' ? (
+              <SponsorsManager societyId={society._id} />
             ) : activeTab === 'send-email' ? (
               <SendEmailManager societyId={society._id} />
             ) : (

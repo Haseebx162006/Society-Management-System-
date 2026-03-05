@@ -1,5 +1,5 @@
 import { MdDashboard, MdEvent, MdSettings, MdGroups, MdEmail, MdClose } from 'react-icons/md';
-import { FaSignOutAlt, FaUsers, FaWpforms, FaClipboardList, FaHome, FaHistory } from 'react-icons/fa';
+import { FaSignOutAlt, FaUsers, FaWpforms, FaClipboardList, FaHome, FaHistory, FaHandshake } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { logOut, selectRefreshToken } from '@/lib/features/auth/authSlice';
@@ -42,6 +42,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
     { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'MEMBER', 'EVENT MANAGER'] },
     { id: 'event-forms', label: 'Event Forms', icon: <FaWpforms />, roles: ['PRESIDENT', 'EVENT MANAGER'] },
     // { id: 'send-email', label: 'Send Email', icon: <MdEmail />, roles: ['PRESIDENT', 'GENERAL SECRETARY', 'EVENT MANAGER', 'LEAD', 'CO-LEAD'] },
+    { id: 'sponsors', label: 'Sponsors', icon: <FaHandshake />, roles: ['PRESIDENT'] },
     { id: 'settings', label: 'Society Form', icon: <MdSettings />, roles: ['PRESIDENT'] },
   ];
 
