@@ -23,7 +23,7 @@ export interface GroupMember {
         phone?: string;
     };
     society_id: string | { _id: string; name: string };
-    role: "LEAD" | "CO-LEAD" | "GENERAL SECRETARY" | "MEMBER";
+    role: "LEAD" | "CO-LEAD" | "SPONSOR MANAGER" | "MEMBER";
     joined_at: string;
 }
 

@@ -33,14 +33,14 @@ const ROLE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bgColo
         description: "Full control over the society",
         category: "Leadership",
     },
-    "GENERAL SECRETARY": {
+    "SPONSOR MANAGER": {
         icon: <MdAdminPanelSettings className="text-base" />,
         color: "text-emerald-700",
         bgColor: "bg-emerald-50",
         borderColor: "border-emerald-200",
         ringColor: "ring-emerald-400",
-        description: "Manages day-to-day operations",
-        category: "Leadership",
+        description: "Manages sponsors ",
+        category: "Management",
     },
     LEAD: {
         icon: <MdManageAccounts className="text-base" />,
@@ -89,7 +89,7 @@ const ROLE_CONFIG: Record<string, { icon: React.ReactNode; color: string; bgColo
     },
 };
 
-const ROLE_ORDER = ["GENERAL SECRETARY", "FINANCE MANAGER", "EVENT MANAGER", "MEMBER"];
+const ROLE_ORDER = ["SPONSOR MANAGER", "FINANCE MANAGER", "EVENT MANAGER", "MEMBER"];
 
 const getRoleBadgeColor = (role: string) => {
     const config = ROLE_CONFIG[role];

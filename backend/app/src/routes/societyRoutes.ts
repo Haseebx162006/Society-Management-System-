@@ -46,9 +46,9 @@ router.post('/:id/suspend', protect, adminOnly, suspendSociety);
 router.post('/:id/reactivate', protect, adminOnly, reactivateSociety);
 
 
-router.get('/:id/members', protect, authorize(['PRESIDENT'], 'SOCIETY'), getSocietyMembers);
-router.post('/:id/members', protect, authorize(['PRESIDENT'], 'SOCIETY'), addMember);
-router.put('/:id/members/:userId', protect, authorize(['PRESIDENT'], 'SOCIETY'), updateMemberRole);
-router.delete('/:id/members/:userId', protect, authorize(['PRESIDENT'], 'SOCIETY'), removeMember);
+router.get('/:id/members', protect, authorize(['PRESIDENT', 'SPONSOR MANAGER'], 'SOCIETY'), getSocietyMembers);
+router.post('/:id/members', protect, authorize(['PRESIDENT', 'SPONSOR MANAGER'], 'SOCIETY'), addMember);
+router.put('/:id/members/:userId', protect, authorize(['PRESIDENT', 'SPONSOR MANAGER'], 'SOCIETY'), updateMemberRole);
+router.delete('/:id/members/:userId', protect, authorize(['PRESIDENT', 'SPONSOR MANAGER'], 'SOCIETY'), removeMember);
 
 export default router;

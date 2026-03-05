@@ -5,11 +5,11 @@ import SocietyUserRole from '../models/SocietyUserRole';
 import mongoose from 'mongoose';
 import { sendResponse, sendError } from '../util/response';
 
-const isPresident = async (userId: string | mongoose.Types.ObjectId, societyId: string | mongoose.Types.ObjectId): Promise<boolean> => {
+const isPresidentOrSponsorManager = async (userId: string | mongoose.Types.ObjectId, societyId: string | mongoose.Types.ObjectId): Promise<boolean> => {
     const role = await SocietyUserRole.findOne({
         user_id: userId,
         society_id: societyId,
-        role: "PRESIDENT"
+        role: { $in: ["PRESIDENT", "SPONSOR MANAGER"] }
     });
     return !!role;
 };
@@ -22,9 +22,9 @@ export const createSponsor = async (req: AuthRequest, res: Response) => {
             return sendError(res, 400, "Society ID, Name, Contact, and Email are required");
         }
 
-        const presidentCheck = await isPresident(req.user!._id, society_id);
+        const presidentCheck = await isPresidentOrSponsorManager(req.user!._id, society_id);
         if (!presidentCheck) {
-            return sendError(res, 403, "Only the President can perform this action");
+            return sendError(res, 403, "Only the President or Sponsor Manager can perform this action");
         }
 
         const sponsor = await Sponsor.create({
@@ -57,9 +57,9 @@ export const updateSponsor = async (req: AuthRequest, res: Response) => {
             return sendError(res, 404, "Sponsor not found");
         }
 
-        const presidentCheck = await isPresident(req.user!._id, sponsor.society_id);
+        const presidentCheck = await isPresidentOrSponsorManager(req.user!._id, sponsor.society_id);
         if (!presidentCheck) {
-            return sendError(res, 403, "Only the President can perform this action");
+            return sendError(res, 403, "Only the President or Sponsor Manager can perform this action");
         }
 
         if (name !== undefined) sponsor.name = name;
@@ -90,9 +90,9 @@ export const deleteSponsor = async (req: AuthRequest, res: Response) => {
             return sendError(res, 404, "Sponsor not found");
         }
 
-        const presidentCheck = await isPresident(req.user!._id, sponsor.society_id);
+        const presidentCheck = await isPresidentOrSponsorManager(req.user!._id, sponsor.society_id);
         if (!presidentCheck) {
-            return sendError(res, 403, "Only the President can perform this action");
+            return sendError(res, 403, "Only the President or Sponsor Manager can perform this action");
         }
 
         await Sponsor.findByIdAndDelete(id);
@@ -109,9 +109,9 @@ export const getSponsorsBySocietyId = async (req: AuthRequest, res: Response) =>
         const { society_id } = req.params;
         const societyIdStr = Array.isArray(society_id) ? society_id[0] : society_id;
 
-        const presidentCheck = await isPresident(req.user!._id, societyIdStr);
+        const presidentCheck = await isPresidentOrSponsorManager(req.user!._id, societyIdStr);
         if (!presidentCheck) {
-            return sendError(res, 403, "Only the President can perform this action");
+            return sendError(res, 403, "Only the President or Sponsor Manager can perform this action");
         }
 
         const sponsors = await Sponsor.find({ society_id: societyIdStr }).sort({ created_at: -1 });

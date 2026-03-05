@@ -604,7 +604,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
                                                             <option value="MEMBER">Member</option>
                                                             <option value="LEAD">Lead</option>
                                                             <option value="CO-LEAD">Co-Lead</option>
-                                                            <option value="GENERAL SECRETARY">Gen. Secretary</option>
+                                                            <option value="SPONSOR MANAGER">Sponsor Manager</option>
                                                         </select>
 
                                                         <a href={`mailto:${user.email}`} className="text-slate-400 hover:text-orange-600 p-2 rounded-lg hover:bg-orange-50 transition-all">

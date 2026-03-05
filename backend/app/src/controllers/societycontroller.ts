@@ -350,7 +350,7 @@ export const getMyManageableSocieties = async (req: AuthRequest, res: Response) 
     try {
         const userRoles = await SocietyUserRole.find({
             user_id: req.user!._id,
-            role: { $in: ["PRESIDENT", "FINANCE MANAGER", "EVENT MANAGER"] }
+            role: { $in: ["PRESIDENT", "FINANCE MANAGER", "EVENT MANAGER", "SPONSOR MANAGER"] }
         });
 
         if (!userRoles.length) {
@@ -558,7 +558,7 @@ export const updateMemberRole = async (req: AuthRequest, res: Response) => {
             return sendError(res, 400, "Role is required");
         }
 
-        const validRoles = ["PRESIDENT", "LEAD", "CO-LEAD", "GENERAL SECRETARY", "MEMBER", "FINANCE MANAGER", "EVENT MANAGER"];
+        const validRoles = ["PRESIDENT", "LEAD", "CO-LEAD", "SPONSOR MANAGER", "MEMBER", "FINANCE MANAGER", "EVENT MANAGER"];
         if (!validRoles.includes(role)) {
             return sendError(res, 400, `Invalid role. Must be one of: ${validRoles.join(", ")}`);
         }

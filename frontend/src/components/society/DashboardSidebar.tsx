@@ -33,16 +33,16 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
   };
 
   const allNavItems = [
-    { id: 'overview', label: 'Overview', icon: <MdDashboard />, roles: ['PRESIDENT', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'MEMBER'] },
-    { id: 'members', label: 'Members', icon: <FaUsers />, roles: ['PRESIDENT', 'GENERAL SECRETARY'] },
+    { id: 'overview', label: 'Overview', icon: <MdDashboard />, roles: ['PRESIDENT', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'SPONSOR MANAGER', 'MEMBER'] },
+    { id: 'members', label: 'Members', icon: <FaUsers />, roles: ['PRESIDENT'] },
     { id: 'teams', label: 'Teams', icon: <MdGroups />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD'] },
-    { id: 'join-form', label: 'Join Form', icon: <FaWpforms />, roles: ['PRESIDENT'] },
     { id: 'join-requests', label: 'Join Requests', icon: <FaClipboardList />, roles: ['PRESIDENT', 'FINANCE MANAGER'] },
     { id: 'previous-members', label: 'Previous Members', icon: <FaHistory />, roles: ['PRESIDENT'] },
-    { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY', 'MEMBER', 'EVENT MANAGER'] },
+    { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD', 'MEMBER', 'EVENT MANAGER'] },
     { id: 'event-forms', label: 'Event Forms', icon: <FaWpforms />, roles: ['PRESIDENT', 'EVENT MANAGER'] },
-    // { id: 'send-email', label: 'Send Email', icon: <MdEmail />, roles: ['PRESIDENT', 'GENERAL SECRETARY', 'EVENT MANAGER', 'LEAD', 'CO-LEAD'] },
-    { id: 'sponsors', label: 'Sponsors', icon: <FaHandshake />, roles: ['PRESIDENT'] },
+    // { id: 'send-email', label: 'Send Email', icon: <MdEmail />, roles: ['PRESIDENT', 'SPONSOR MANAGER', 'EVENT MANAGER', 'LEAD', 'CO-LEAD'] },
+    { id: 'sponsors', label: 'Sponsors', icon: <FaHandshake />, roles: ['PRESIDENT', 'SPONSOR MANAGER'] },
+    { id: 'join-form', label: 'Join Form', icon: <FaWpforms />, roles: ['PRESIDENT'] },
     { id: 'settings', label: 'Society Form', icon: <MdSettings />, roles: ['PRESIDENT'] },
   ];
 
@@ -53,7 +53,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
       <div className="p-6 border-b border-stone-100 flex items-center justify-between">
         <h2 className="text-xl font-extrabold text-orange-600 tracking-tight flex items-center gap-2">
           <span className="bg-orange-600 text-white rounded-lg p-1 text-sm">
-             {role === 'PRESIDENT' ? 'SA' : role === 'FINANCE MANAGER' ? 'FM' : role === 'EVENT MANAGER' ? 'EM' : 'SM'}
+             {role === 'PRESIDENT' ? 'SA' : role === 'FINANCE MANAGER' ? 'FM' : role === 'EVENT MANAGER' ? 'EM' : role === 'SPONSOR MANAGER' ? 'SM' : 'MB'}
           </span>
           <span className="text-sm truncate max-w-[140px]" title={role}>
              {role === 'PRESIDENT' ? 'Society Admin' : role.replace('_', ' ')}
