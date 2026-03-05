@@ -1,6 +1,7 @@
 import { apiSlice } from "../api/apiSlice";
 
-export const documentationApiSlice = apiSlice.injectEndpoints({
+export const docApiSlice = apiSlice.injectEndpoints({
+    overrideExisting: true,
     endpoints: (builder) => ({
         getSocietyDocumentations: builder.query({
             query: (societyId) => `/documentations/society/${societyId}`,
@@ -37,4 +38,4 @@ export const {
     useGetSocietyDocumentationsQuery,
     useUploadDocumentationMutation,
     useDeleteDocumentationMutation,
-} = documentationApiSlice;
+} = docApiSlice;
