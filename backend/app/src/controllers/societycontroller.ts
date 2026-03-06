@@ -205,6 +205,28 @@ export const getAllSocietyRequests = async (req: AuthRequest, res: Response) => 
     }
 };
 
+export const getMySocietyRequests = async (req: AuthRequest, res: Response) => {
+    try {
+        const requests = await SocietyRequest.find({ user_id: req.user?._id }).sort({ created_at: -1 });
+        return sendResponse(res, 200, "My society requests fetched successfully", requests);
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error while fetching your requests", error);
+    }
+};
+
+export const getPendingSocietyRequests = async (req: AuthRequest, res: Response) => {
+    try {
+        const requests = await SocietyRequest.find({ status: "PENDING" })
+            .populate("user_id", "name email")
+            .sort({ created_at: -1 });
+
+        return sendResponse(res, 200, "Pending society requests fetched successfully", requests);
+
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error while fetching pending society requests", error);
+    }
+};
+
 
 export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response) => {
     try {

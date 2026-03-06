@@ -19,6 +19,7 @@ import PreviousMembersManager from '@/components/society/PreviousMembersManager'
 import SendEmailManager from '@/components/society/SendEmailManager';
 import SponsorsManager from '@/components/society/SponsorsManager';
 import DocumentationPage from '@/components/society/DocumentationPage';
+import ApplicationForm from '@/components/profile/forms/ApplicationForm';
 
 interface SocietyDashboardProps {
   society: {
@@ -313,6 +314,10 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
               <SendEmailManager societyId={society._id} />
             ) : activeTab === 'documentation' ? (
               <DocumentationPage societyId={society._id} />
+            ) : activeTab === 'renewal-form' ? (
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-4xl mx-auto">
+                <ApplicationForm />
+              </div>
             ) : (
               <div className="flex items-center justify-center h-96 text-slate-400 animate-pulse">
                 Content for {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} coming soon...

@@ -58,6 +58,16 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       providesTags: ["SocietyRequest"],
       transformResponse: (response: { data: any }) => response.data,
     }),
+    getPendingSocietyRequests: builder.query({
+      query: () => "/society/requests/pending",
+      providesTags: ["SocietyRequest"],
+      transformResponse: (response: { data: any }) => response.data,
+    }),
+    getMySocietyRequests: builder.query({
+      query: () => "/society/requests/me",
+      providesTags: ["SocietyRequest"],
+      transformResponse: (response: { data: any }) => response.data,
+    }),
     updateSocietyRequestStatus: builder.mutation({
       query: ({ id, ...body }) => ({
         url: `/society/requests/${id}`,
@@ -131,4 +141,6 @@ export const {
   useReactivateSocietyMutation,
   useGetSocietyMembersQuery,
   useChangePresidentMutation,
+  useGetPendingSocietyRequestsQuery,
+  useGetMySocietyRequestsQuery,
 } = societyApiSlice;

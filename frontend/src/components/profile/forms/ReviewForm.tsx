@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Trash2, CheckCircle2, AlertTriangle, FileText } from 'lucide-react';
+import { Plus, Trash2, FileText } from 'lucide-react';
 import { useCreateSocietyRequestMutation } from '../../../lib/features/societies/societyApiSlice';
+import toast from 'react-hot-toast';
 
 export default function ReviewForm() {
   const [createRequest, { isLoading }] = useCreateSocietyRequestMutation();
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   // Form State Structured per User Requirements
   const [formData, setFormData] = useState({
@@ -42,11 +41,9 @@ export default function ReviewForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
 
     if (!formData.title.trim()) {
-      setError('Title of Society is required');
+      toast.error('Title of Society is required');
       return;
     }
 
@@ -59,11 +56,11 @@ export default function ReviewForm() {
       };
 
       await createRequest(payload).unwrap();
-      setSuccess('Student Society Review Form submitted successfully. An admin will review it shortly.');
+      toast.success('Student Society Review Form submitted successfully. An admin will review it shortly.');
       // Optional: reset form
     } catch (err: unknown) {
       const apiError = err as { data?: { message?: string } };
-      setError(apiError?.data?.message || 'Failed to submit form');
+      toast.error(apiError?.data?.message || 'Failed to submit form');
     }
   };
 
@@ -81,18 +78,6 @@ export default function ReviewForm() {
         </h3>
         <p className="text-sm text-stone-500 mt-1">For initiating the registration of a new society based on previous/proposed activities.</p>
       </div>
-
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium flex items-center gap-2 border border-red-200">
-          <AlertTriangle className="w-5 h-5" /> {error}
-        </div>
-      )}
-      
-      {success && (
-        <div className="bg-emerald-50 text-emerald-600 p-4 rounded-xl text-sm font-medium flex items-center gap-2 border border-emerald-200">
-          <CheckCircle2 className="w-5 h-5" /> {success}
-        </div>
-      )}
 
       {/* 1. Title */}
       <section>

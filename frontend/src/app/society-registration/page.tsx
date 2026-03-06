@@ -8,10 +8,24 @@ import Link from "next/link";
 import ReviewForm from "../../components/profile/forms/ReviewForm";
 import ApplicationForm from "../../components/profile/forms/ApplicationForm";
 
+import { useGetMySocietyRequestsQuery } from "@/lib/features/societies/societyApiSlice";
+import ReadonlySocietyDetails from "../../components/profile/forms/ReadonlySocietyDetails";
+
 type FormType = "register" | "renew";
 
 export default function SocietyRegistrationFormsPage() {
   const [activeForm, setActiveForm] = useState<FormType>("register");
+
+  const { data: myRequests = [], isLoading } = useGetMySocietyRequestsQuery(undefined);
+
+  // Find if they have a registration request
+  const registrationRequest = myRequests.find((r: any) => r.request_type === "REGISTER");
+  
+  // Can only renew if there's an APPROVED registration
+  const canRenew = registrationRequest?.status === "APPROVED";
+  
+  // If they have any registration request (pending, approved, rejected), we might want to show readonly instead of a blank form
+  const hasSubmittedRegistration = !!registrationRequest;
 
   return (
     <div className="min-h-screen bg-stone-50 font-(--font-family-poppins) pt-24 pb-12 px-4 sm:px-6 lg:px-8">
@@ -46,50 +60,70 @@ export default function SocietyRegistrationFormsPage() {
             >
               <div className="flex items-center justify-center gap-2">
                 <FileText className="w-5 h-5" />
-                Review Form (New Registration)
+                {hasSubmittedRegistration ? "Registration Details" : "Review Form (New Registration)"}
               </div>
             </button>
-            <button
-              onClick={() => setActiveForm("renew")}
-              className={`flex-1 py-6 px-6 font-bold text-sm sm:text-base md:text-lg tracking-wide transition-all ${
-                activeForm === "renew" 
-                  ? "bg-orange-50/50 text-orange-600 border-b-2 border-orange-600" 
-                  : "text-stone-500 hover:bg-stone-50 hover:text-stone-800"
-              }`}
-            >
-              <div className="flex items-center justify-center gap-2">
-                <RefreshCw className="w-5 h-5" />
-                Renewal Form (Yearly)
-              </div>
-            </button>
+            
+            {canRenew && (
+              <button
+                onClick={() => setActiveForm("renew")}
+                className={`flex-1 py-6 px-6 font-bold text-sm sm:text-base md:text-lg tracking-wide transition-all ${
+                  activeForm === "renew" 
+                    ? "bg-orange-50/50 text-orange-600 border-b-2 border-orange-600" 
+                    : "text-stone-500 hover:bg-stone-50 hover:text-stone-800"
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <RefreshCw className="w-5 h-5" />
+                  Renewal Form (Yearly)
+                </div>
+              </button>
+            )}
+            
+            {!canRenew && (
+               <div className="flex-1 py-6 px-6 font-bold text-sm sm:text-base md:text-lg tracking-wide text-stone-300 bg-stone-50/50 flex items-center justify-center gap-2 cursor-not-allowed" title="You must have an approved Society Registration to access this form.">
+                  <RefreshCw className="w-5 h-5 opacity-50" />
+                  Renewal Form (Locked)
+               </div>
+            )}
           </div>
 
           {/* Form Content */}
-          <div className="p-6 sm:p-8 md:p-12 lg:p-16">
-            <AnimatePresence mode="wait">
-              {activeForm === "register" && (
-                <motion.div
-                  key="register"
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ReviewForm />
-                </motion.div>
-              )}
-              {activeForm === "renew" && (
-                <motion.div
-                  key="renew"
-                  initial={{ opacity: 0, scale: 0.98 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.98 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ApplicationForm />
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <div className="p-6 sm:p-8 md:p-12 lg:p-16 min-h-[400px]">
+            {isLoading ? (
+               <div className="flex justify-center items-center h-64">
+                 <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+               </div>
+            ) : (
+              <AnimatePresence mode="wait">
+                {activeForm === "register" && (
+                  <motion.div
+                    key="register"
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {hasSubmittedRegistration ? (
+                      <ReadonlySocietyDetails request={registrationRequest} />
+                    ) : (
+                      <ReviewForm />
+                    )}
+                  </motion.div>
+                )}
+                {activeForm === "renew" && canRenew && (
+                  <motion.div
+                    key="renew"
+                    initial={{ opacity: 0, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ApplicationForm />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            )}
           </div>
         </div>
       </div>

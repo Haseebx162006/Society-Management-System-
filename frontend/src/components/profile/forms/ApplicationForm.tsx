@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, CheckCircle2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Plus, RefreshCw } from 'lucide-react';
 import { useCreateSocietyRequestMutation } from '../../../lib/features/societies/societyApiSlice';
+import toast from 'react-hot-toast';
 
 export default function ApplicationForm() {
   const [createRequest, { isLoading }] = useCreateSocietyRequestMutation();
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   // Form State Structured per User Requirements
   const [formData, setFormData] = useState({
@@ -61,11 +60,9 @@ export default function ApplicationForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
 
     if (!formData.title.trim()) {
-      setError('Title of Society is required');
+      toast.error('Title of Society is required');
       return;
     }
 
@@ -78,10 +75,10 @@ export default function ApplicationForm() {
       };
 
       await createRequest(payload).unwrap();
-      setSuccess('Society Application (Renewal) Form submitted successfully. An admin will review it shortly.');
+      toast.success('Society Application (Renewal) Form submitted successfully. An admin will review it shortly.');
     } catch (err: unknown) {
       const apiError = err as { data?: { message?: string } };
-      setError(apiError?.data?.message || 'Failed to submit form');
+      toast.error(apiError?.data?.message || 'Failed to submit form');
     }
   };
 
@@ -116,18 +113,6 @@ export default function ApplicationForm() {
         </h3>
         <p className="text-sm text-stone-500 mt-1">For renewing registration. Must be completed and submitted to the Office of the Incharge Student Societies.</p>
       </div>
-
-      {error && (
-        <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium flex items-center gap-2 border border-red-200">
-          <AlertTriangle className="w-5 h-5" /> {error}
-        </div>
-      )}
-      
-      {success && (
-        <div className="bg-emerald-50 text-emerald-600 p-4 rounded-xl text-sm font-medium flex items-center gap-2 border border-emerald-200">
-          <CheckCircle2 className="w-5 h-5" /> {success}
-        </div>
-      )}
 
       {/* 1. Title */}
       <section>
@@ -202,7 +187,7 @@ export default function ApplicationForm() {
                 <div className="w-full md:w-48 self-center text-xs font-bold text-stone-500">
                   ({['i','ii','iii','iv','v','vi','vii','viii','ix','x','xi','xii','xiii','xiv','xv'][idx] || idx+1}) {label}
                 </div>
-                <input placeholder="Name" required={idx < 15} value={member.name} onChange={e => updateElect(idx, 'name', e.target.value)} className="input-field flex-1" />
+                <input placeholder="Name" required={idx < 15} value={member.name} onChange={e => updateElect(idx, 'name', e.target.value)} className="input-field" />
                 <input placeholder="Reg No" required={idx < 15} value={member.reg_no} onChange={e => updateElect(idx, 'reg_no', e.target.value)} className="input-field w-full md:w-48" />
               </div>
             );
@@ -239,7 +224,7 @@ export default function ApplicationForm() {
             {formData.calendar_events.events.map((ev, idx) => (
                 <div key={idx} className="flex gap-3 items-center">
                     <span className="text-xs font-bold text-stone-500 min-w-[60px]">Event {idx + 1}:</span>
-                    <input value={ev} onChange={e => updateEvent(idx, e.target.value)} className="input-field flex-1" placeholder="Event description..." />
+                    <input value={ev} onChange={e => updateEvent(idx, e.target.value)} className="input-field" placeholder="Event description..." />
                 </div>
             ))}
         </div>

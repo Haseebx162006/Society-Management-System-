@@ -11,6 +11,7 @@ export interface IUser extends Document {
     is_active: boolean;
     password_reset_required: boolean;
     is_super_admin: boolean;
+    is_society_head: boolean;
     failed_login_attempts: number;
     locked_until: Date | null;
     password_changed_at: Date;
@@ -55,6 +56,10 @@ const userSchema: Schema<IUser> = new Schema({
         default: false
     },
     is_super_admin: {
+        type: Boolean,
+        default: false
+    },
+    is_society_head: {
         type: Boolean,
         default: false
     },

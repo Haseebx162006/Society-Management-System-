@@ -1,11 +1,12 @@
 import express from 'express';
-import { protect, adminOnly } from '../middleware/authmiddleware';
+import { protect, adminOnly, societyHeadOnly, adminOrSocietyHead } from '../middleware/authmiddleware';
 import { authorize } from '../middleware/authorize';
 import { upload } from '../middleware/multer.middleware';
 import {
     createSocietyRequest,
     createSociety,
     getAllSocietyRequests,
+    getPendingSocietyRequests,
     updateSocietyRequestStatus,
     getAllSocieties,
     getAllSocietiesAdmin,
@@ -20,15 +21,18 @@ import {
     changePresident,
     suspendSociety,
     reactivateSociety,
-    deleteSociety
+    deleteSociety,
+    getMySocietyRequests
 } from '../controllers/societycontroller';
 
 const router = express.Router();
 
 
 router.post('/request', protect, createSocietyRequest);
-router.get('/requests', protect, adminOnly, getAllSocietyRequests);
-router.put('/requests/:id', protect, adminOnly, updateSocietyRequestStatus);
+router.get('/requests/me', protect, getMySocietyRequests);
+router.get('/requests', protect, adminOrSocietyHead, getAllSocietyRequests);
+router.get('/requests/pending', protect, societyHeadOnly, getPendingSocietyRequests);
+router.put('/requests/:id', protect, adminOrSocietyHead, updateSocietyRequestStatus);
 
 
 router.post('/', protect, upload.single("logo"), createSociety);
