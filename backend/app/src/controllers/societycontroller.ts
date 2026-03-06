@@ -11,23 +11,26 @@ import mongoose from 'mongoose';
 import { sendResponse, sendError } from '../util/response';
 import { uploadOnCloudinary } from '../utils/cloudinary';
 import { notifySocietyRequest, notifySocietyRequestStatus } from '../services/notificationService';
+import { isFacultyEmail } from '../utils/isFacultyEmail';
 
 
 export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
     try {
+        if (!req.user || !isFacultyEmail(req.user.email)) {
+            return sendError(res, 403, "Only faculty members with a valid university email can request society registration");
+        }
+
         const { society_name, description } = req.body;
 
         if (!society_name || typeof society_name !== "string") {
             return sendError(res, 400, "Society name is required");
         }
 
-        // Check if a society with this name already exists
         const existingSociety = await Society.findOne({ name: society_name });
         if (existingSociety) {
             return sendError(res, 400, "A society with this name already exists");
         }
 
-        // Check if there's already a pending request for this society name
         const existingRequest = await SocietyRequest.findOne({
             society_name,
             status: "PENDING"
@@ -42,7 +45,6 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
             description
         });
 
-        // Notify all admins about the new society request (fire-and-forget)
         notifySocietyRequest(req.user!.name, society_name);
 
         return sendResponse(res, 201, "Society request submitted successfully", societyRequest);

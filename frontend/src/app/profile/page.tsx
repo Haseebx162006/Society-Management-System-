@@ -1,5 +1,9 @@
 "use client";
 
+function isFacultyEmail(email: string): boolean {
+  return /^[^\d]+@cuilahore\.edu\.pk$/i.test(email);
+}
+
 import { useState, useEffect, useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "../../lib/hooks";
 import {
@@ -92,8 +96,9 @@ export default function ProfilePage() {
 
 
     const isPresident = societies?.some((s) => s.role === "PRESIDENT");
+    const isFaculty = user?.email ? isFacultyEmail(user.email) : false;
 
-    if (!user?.is_super_admin && !isPresident) {
+    if (!user?.is_super_admin && !isPresident && isFaculty) {
       items.push({
         key: "request-registration",
         label: "Request Society Registration",
