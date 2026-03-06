@@ -4,6 +4,7 @@ import { RootState } from '@/lib/store';
 import { MdGroups, MdEvent } from 'react-icons/md';
 import { FaUsers, FaArrowRight, FaBell, FaBars } from 'react-icons/fa';
 import { useGetEventsBySocietyQuery } from '@/lib/features/events/eventApiSlice';
+import { useGetSocietyRequestForSocietyQuery } from '@/lib/features/societies/societyApiSlice';
 
 import MemberBarChart from '@/components/charts/MemberBarChart';
 import GrowthLineChart from '@/components/charts/GrowthLineChart';
@@ -16,10 +17,10 @@ import TeamsManager from '@/components/society/TeamsManager';
 import EventManager from '@/components/society/EventManager';
 import EventFormBuilder from '@/components/society/EventFormBuilder';
 import PreviousMembersManager from '@/components/society/PreviousMembersManager';
-import SendEmailManager from '@/components/society/SendEmailManager';
 import SponsorsManager from '@/components/society/SponsorsManager';
 import DocumentationPage from '@/components/society/DocumentationPage';
 import ApplicationForm from '@/components/profile/forms/ApplicationForm';
+import ReadonlySocietyDetails from '@/components/profile/forms/ReadonlySocietyDetails';
 
 interface SocietyDashboardProps {
   society: {
@@ -39,6 +40,9 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   const [activeTab, setActiveTab] = React.useState('overview');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const { data: events } = useGetEventsBySocietyQuery(society._id);
+  const { data: societyRequest, isLoading: isRequestLoading } = useGetSocietyRequestForSocietyQuery(society._id, { 
+    skip: activeTab !== 'review-form'
+  });
 
   const currentUserRole = useMemo(() => {
       if (!user || !society.members) return 'MEMBER';
@@ -310,13 +314,21 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
               <PreviousMembersManager societyId={society._id} />
             ) : activeTab === 'sponsors' ? (
               <SponsorsManager societyId={society._id} />
-            ) : activeTab === 'send-email' ? (
-              <SendEmailManager societyId={society._id} />
             ) : activeTab === 'documentation' ? (
               <DocumentationPage societyId={society._id} />
+            ) : activeTab === 'review-form' ? (
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-4xl mx-auto">
+                {isRequestLoading ? (
+                  <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>
+                ) : societyRequest ? (
+                  <ReadonlySocietyDetails request={societyRequest} />
+                ) : (
+                  <div className="text-center py-12 text-slate-500">No original registration data available.</div>
+                )}
+              </div>
             ) : activeTab === 'renewal-form' ? (
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-4xl mx-auto">
-                <ApplicationForm />
+                <ApplicationForm prefillSocietyName={society.name} />
               </div>
             ) : (
               <div className="flex items-center justify-center h-96 text-slate-400 animate-pulse">

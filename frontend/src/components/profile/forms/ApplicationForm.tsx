@@ -4,12 +4,12 @@ import { Plus, RefreshCw } from 'lucide-react';
 import { useCreateSocietyRequestMutation } from '../../../lib/features/societies/societyApiSlice';
 import toast from 'react-hot-toast';
 
-export default function ApplicationForm() {
+export default function ApplicationForm({ prefillSocietyName }: { prefillSocietyName?: string }) {
   const [createRequest, { isLoading }] = useCreateSocietyRequestMutation();
 
   // Form State Structured per User Requirements
   const [formData, setFormData] = useState({
-    title: '',
+    title: prefillSocietyName || '',
     exec_council: {
       president: { name: '', reg_no: '' },
       gen_sec: { name: '', reg_no: '' },
@@ -115,17 +115,19 @@ export default function ApplicationForm() {
       </div>
 
       {/* 1. Title */}
-      <section>
-        <label className="block text-sm font-bold text-stone-800 mb-2">1. Title of Society *</label>
-        <input
-          required
-          type="text"
-          value={formData.title}
-          onChange={e => setFormData({ ...formData, title: e.target.value })}
-          className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all font-medium text-stone-800"
-          placeholder="e.g. Computer Science Society"
-        />
-      </section>
+      {!prefillSocietyName && (
+        <section>
+          <label className="block text-sm font-bold text-stone-800 mb-2">1. Title of Society *</label>
+          <input
+            required
+            type="text"
+            value={formData.title}
+            onChange={e => setFormData({ ...formData, title: e.target.value })}
+            className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all font-medium text-stone-800"
+            placeholder="e.g. Computer Science Society"
+          />
+        </section>
+      )}
 
       {/* 2. Executive Council */}
       <section className="bg-stone-50/50 border border-stone-100 p-6 rounded-2xl space-y-4">
@@ -134,23 +136,23 @@ export default function ApplicationForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
              <label className="text-xs font-bold text-stone-500 ml-1">(i) President</label>
-             <div className="flex gap-2 mt-1">
-               <input placeholder="Name" required value={formData.exec_council.president.name} onChange={e => setFormData({...formData, exec_council: {...formData.exec_council, president: {...formData.exec_council.president, name: e.target.value}}})} className="input-field" />
-               <input placeholder="Reg No" required value={formData.exec_council.president.reg_no} onChange={e => setFormData({...formData, exec_council: {...formData.exec_council, president: {...formData.exec_council.president, reg_no: e.target.value}}})} className="input-field w-1/3" />
+             <div className="grid grid-cols-3 gap-2 mt-1">
+               <input placeholder="Name" required value={formData.exec_council.president.name} onChange={e => setFormData({...formData, exec_council: {...formData.exec_council, president: {...formData.exec_council.president, name: e.target.value}}})} className="input-field col-span-2" />
+               <input placeholder="Reg No" required value={formData.exec_council.president.reg_no} onChange={e => setFormData({...formData, exec_council: {...formData.exec_council, president: {...formData.exec_council.president, reg_no: e.target.value}}})} className="input-field col-span-1" />
              </div>
           </div>
           <div>
              <label className="text-xs font-bold text-stone-500 ml-1">(ii) General Secretary</label>
-             <div className="flex gap-2 mt-1">
-               <input placeholder="Name" required value={formData.exec_council.gen_sec.name} onChange={e => setFormData({...formData, exec_council: {...formData.exec_council, gen_sec: {...formData.exec_council.gen_sec, name: e.target.value}}})} className="input-field" />
-               <input placeholder="Reg No" required value={formData.exec_council.gen_sec.reg_no} onChange={e => setFormData({...formData, exec_council: {...formData.exec_council, gen_sec: {...formData.exec_council.gen_sec, reg_no: e.target.value}}})} className="input-field w-1/3" />
+             <div className="grid grid-cols-3 gap-2 mt-1">
+               <input placeholder="Name" required value={formData.exec_council.gen_sec.name} onChange={e => setFormData({...formData, exec_council: {...formData.exec_council, gen_sec: {...formData.exec_council.gen_sec, name: e.target.value}}})} className="input-field col-span-2" />
+               <input placeholder="Reg No" required value={formData.exec_council.gen_sec.reg_no} onChange={e => setFormData({...formData, exec_council: {...formData.exec_council, gen_sec: {...formData.exec_council.gen_sec, reg_no: e.target.value}}})} className="input-field col-span-1" />
              </div>
           </div>
           <div>
              <label className="text-xs font-bold text-stone-500 ml-1">(iii) Treasurer</label>
-             <div className="flex gap-2 mt-1">
-               <input placeholder="Name" required value={formData.exec_council.treasurer.name} onChange={e => setFormData({...formData, exec_council: {...formData.exec_council, treasurer: {...formData.exec_council.treasurer, name: e.target.value}}})} className="input-field" />
-               <input placeholder="Reg No" required value={formData.exec_council.treasurer.reg_no} onChange={e => setFormData({...formData, exec_council: {...formData.exec_council, treasurer: {...formData.exec_council.treasurer, reg_no: e.target.value}}})} className="input-field w-1/3" />
+             <div className="grid grid-cols-3 gap-2 mt-1">
+               <input placeholder="Name" required value={formData.exec_council.treasurer.name} onChange={e => setFormData({...formData, exec_council: {...formData.exec_council, treasurer: {...formData.exec_council.treasurer, name: e.target.value}}})} className="input-field col-span-2" />
+               <input placeholder="Reg No" required value={formData.exec_council.treasurer.reg_no} onChange={e => setFormData({...formData, exec_council: {...formData.exec_council, treasurer: {...formData.exec_council.treasurer, reg_no: e.target.value}}})} className="input-field col-span-1" />
              </div>
           </div>
         </div>
@@ -159,9 +161,9 @@ export default function ApplicationForm() {
           {formData.exec_council.others.map((member, idx) => (
             <div key={idx}>
               <label className="text-xs font-bold text-stone-500 ml-1">({['iv', 'v', 'vi', 'vii'][idx] || 'viii'}) Other Member</label>
-              <div className="flex gap-2 mt-1">
-                <input placeholder="Name" value={member.name} onChange={e => updateOtherExec(idx, 'name', e.target.value)} className="input-field" />
-                <input placeholder="Reg No" value={member.reg_no} onChange={e => updateOtherExec(idx, 'reg_no', e.target.value)} className="input-field w-1/3 md:w-1/4" />
+              <div className="grid grid-cols-3 gap-2 mt-1">
+                <input placeholder="Name" value={member.name} onChange={e => updateOtherExec(idx, 'name', e.target.value)} className="input-field col-span-2" />
+                <input placeholder="Reg No" value={member.reg_no} onChange={e => updateOtherExec(idx, 'reg_no', e.target.value)} className="input-field col-span-1" />
               </div>
             </div>
           ))}
@@ -187,8 +189,10 @@ export default function ApplicationForm() {
                 <div className="w-full md:w-48 self-center text-xs font-bold text-stone-500">
                   ({['i','ii','iii','iv','v','vi','vii','viii','ix','x','xi','xii','xiii','xiv','xv'][idx] || idx+1}) {label}
                 </div>
-                <input placeholder="Name" required={idx < 15} value={member.name} onChange={e => updateElect(idx, 'name', e.target.value)} className="input-field" />
-                <input placeholder="Reg No" required={idx < 15} value={member.reg_no} onChange={e => updateElect(idx, 'reg_no', e.target.value)} className="input-field w-full md:w-48" />
+                <div className="grid grid-cols-3 gap-2 flex-1">
+                  <input placeholder="Name" required={idx < 15} value={member.name} onChange={e => updateElect(idx, 'name', e.target.value)} className="input-field col-span-2" />
+                  <input placeholder="Reg No" required={idx < 15} value={member.reg_no} onChange={e => updateElect(idx, 'reg_no', e.target.value)} className="input-field col-span-1" />
+                </div>
               </div>
             );
           })}

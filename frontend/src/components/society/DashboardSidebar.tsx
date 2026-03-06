@@ -1,6 +1,6 @@
 import { MdDashboard, MdEvent, MdSettings, MdGroups, MdEmail, MdClose } from 'react-icons/md';
 import { FaSignOutAlt, FaUsers, FaWpforms, FaClipboardList, FaHome, FaHistory, FaHandshake } from 'react-icons/fa';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { logOut, selectRefreshToken } from '@/lib/features/auth/authSlice';
@@ -46,6 +46,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
     { id: 'documentation', label: 'Documentation', icon: <FaClipboardList />, roles: ['PRESIDENT', 'DOCUMENTATION MANAGER', 'FINANCE MANAGER', 'EVENT MANAGER', 'SPONSOR MANAGER'] },
     { id: 'settings', label: 'Society Form', icon: <MdSettings />, roles: ['PRESIDENT'] },
     { id: 'renewal-form', label: 'Renewal Form', icon: <RefreshCw className="w-5 h-5" />, roles: ['PRESIDENT'] },
+    { id: 'review-form', label: 'Review Form', icon: <FileText className="w-5 h-5" />, roles: ['PRESIDENT'] },
   ];
 
   const navItems = allNavItems.filter(item => item.roles.includes(role));

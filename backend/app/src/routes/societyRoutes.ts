@@ -22,7 +22,8 @@ import {
     suspendSociety,
     reactivateSociety,
     deleteSociety,
-    getMySocietyRequests
+    getMySocietyRequests,
+    getSocietyRequestForSociety
 } from '../controllers/societycontroller';
 
 const router = express.Router();
@@ -40,6 +41,7 @@ router.get('/manageable', protect, getMyManageableSocieties);
 router.get('/admin/all', protect, adminOnly, getAllSocietiesAdmin);
 router.get('/', getAllSocieties);
 router.get('/members/all', protect, adminOnly, getAllPlatformMembers);
+router.get('/:id/request', protect, getSocietyRequestForSociety);
 router.get('/:id', getSocietyById);
 router.put('/:id', protect, authorize(['PRESIDENT'], 'SOCIETY'), upload.single("logo"), updateSociety);
 router.delete('/:id', protect, adminOnly, deleteSociety);

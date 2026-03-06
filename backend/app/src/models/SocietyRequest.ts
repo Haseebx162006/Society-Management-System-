@@ -22,8 +22,7 @@ const societyRequestSchema: Schema = new Schema({
     },
     society_name: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     description: {
         type: String

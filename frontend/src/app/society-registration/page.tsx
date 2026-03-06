@@ -119,7 +119,7 @@ export default function SocietyRegistrationFormsPage() {
                     exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <ApplicationForm />
+                    <ApplicationForm prefillSocietyName={registrationRequest?.society_name} />
                   </motion.div>
                 )}
               </AnimatePresence>

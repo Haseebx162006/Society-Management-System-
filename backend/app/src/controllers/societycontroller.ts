@@ -16,6 +16,12 @@ import { isFacultyEmail } from '../utils/isFacultyEmail';
 
 export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
     try {
+        // Automatically drop the unique index if it still exists in the database
+        try {
+            await SocietyRequest.collection.dropIndex('society_name_1');
+        } catch (idxError) {
+            // Ignore if index doesn't exist
+        }
         if (!req.user || !isFacultyEmail(req.user.email)) {
             return sendError(res, 403, "Only faculty members with a valid university email can request society registration");
         }
@@ -56,6 +62,7 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
         return sendResponse(res, 201, "Society request submitted successfully", societyRequest);
 
     } catch (error: any) {
+        console.error("Error creating society request:", error);
         return sendError(res, 500, "Internal server error while creating society request", error);
     }
 };
@@ -224,6 +231,22 @@ export const getPendingSocietyRequests = async (req: AuthRequest, res: Response)
 
     } catch (error: any) {
         return sendError(res, 500, "Internal server error while fetching pending society requests", error);
+    }
+};
+
+export const getSocietyRequestForSociety = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+        const society = await Society.findById(id);
+        if (!society) return sendError(res, 404, "Society not found");
+        
+        // Find the most recent APPROVED register/renewal request for this society
+        const request = await SocietyRequest.findOne({ society_name: society.name, status: "APPROVED" }).sort({created_at: -1});
+        if (!request) return sendError(res, 404, "Approved registration request not found for this society");
+        
+        return sendResponse(res, 200, "Society request fetched successfully", request);
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error while fetching society request", error);
     }
 };
 
