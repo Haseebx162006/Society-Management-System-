@@ -20,15 +20,19 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
             return sendError(res, 403, "Only faculty members with a valid university email can request society registration");
         }
 
-        const { society_name, description } = req.body;
+        const { society_name, description, request_type, form_data } = req.body;
 
         if (!society_name || typeof society_name !== "string") {
             return sendError(res, 400, "Society name is required");
         }
 
         const existingSociety = await Society.findOne({ name: society_name });
-        if (existingSociety) {
+        if (existingSociety && request_type !== "RENEWAL") {
             return sendError(res, 400, "A society with this name already exists");
+        }
+        
+        if (!existingSociety && request_type === "RENEWAL") {
+            return sendError(res, 404, "Cannot renew a society that does not exist");
         }
 
         const existingRequest = await SocietyRequest.findOne({
@@ -42,7 +46,9 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
         const societyRequest = await SocietyRequest.create({
             user_id: req.user!._id,
             society_name,
-            description
+            description,
+            request_type: request_type || "REGISTER",
+            form_data: form_data || {}
         });
 
         notifySocietyRequest(req.user!.name, society_name);
