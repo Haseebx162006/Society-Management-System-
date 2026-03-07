@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useGetSocietyRequestsQuery, useUpdateSocietyRequestStatusMutation } from "@/lib/features/societies/societyApiSlice";
 import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Clock } from "lucide-react";
 import toast from "react-hot-toast";
-
 import { Search } from "lucide-react";
 
 export default function ManageRenewalsPage() {
