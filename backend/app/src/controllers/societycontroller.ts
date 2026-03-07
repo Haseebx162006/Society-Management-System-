@@ -1040,7 +1040,7 @@ export const compareSocietyRequest = async (req: AuthRequest, res: Response) => 
 
     } catch (error: any) {
         console.error("Error generating comparison report:", error);
-        if (error.message === "GEMINI_API_KEY is not configured in environment variables") {
+        if (error.message?.includes("No LLM API key configured")) {
             return sendError(res, 503, "AI comparison service is not configured. Please contact the administrator.");
         }
         if (error.message === "GEMINI_RATE_LIMITED") {
