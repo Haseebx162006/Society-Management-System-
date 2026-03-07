@@ -46,7 +46,8 @@ app.use(cors({
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
         }
-        return callback(new Error(`CORS policy violation: ${origin} is not allowed`));
+        const err = new AppError(`CORS policy violation: ${origin} is not allowed`, 403);
+        return callback(err);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
