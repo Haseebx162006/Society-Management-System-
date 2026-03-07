@@ -157,11 +157,11 @@ export default function SocietyHeadSocietiesPage() {
                       {society.category}
                     </div>
                     {society.renewal_approved ? (
-                      <span className="flex items-center gap-1 text-[10px] font-black bg-emerald-100 text-emerald-600 px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm shadow-emerald-100">
+                      <span className="flex items-center gap-1 text-[10px] font-medium bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm shadow-emerald-100">
                         <CheckCircle2 size={10} /> Verified
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-[10px] font-black bg-amber-100 text-amber-600 px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm shadow-amber-100">
+                      <span className="flex items-center gap-1 text-[10px] font-medium bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm shadow-amber-100">
                         <AlertCircle size={10} /> Not Verified
                       </span>
                     )}
@@ -177,8 +177,8 @@ export default function SocietyHeadSocietiesPage() {
                         <Users size={18} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Faculty Advisor</p>
-                        <p className="text-sm font-black text-stone-800 line-clamp-1">
+                        <p className="text-[10px] font-medium text-blue-500 uppercase tracking-wider">Faculty Advisor</p>
+                        <p className="text-sm font-semibold text-stone-800 line-clamp-1">
                           {society.faculty_advisor?.name || "Not Assigned"}
                         </p>
                       </div>
@@ -192,8 +192,8 @@ export default function SocietyHeadSocietiesPage() {
                             <UserCircle2 size={18} />
                           </div>
                           <div className="min-w-0">
-                            <p className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">President</p>
-                            <p className="text-sm font-black text-stone-800 line-clamp-1">{society.president.name}</p>
+                            <p className="text-[10px] font-medium text-stone-500 uppercase tracking-wider">President</p>
+                            <p className="text-sm font-semibold text-stone-800 line-clamp-1">{society.president.name}</p>
                           </div>
                         </div>
                       ) : (

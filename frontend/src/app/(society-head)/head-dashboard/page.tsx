@@ -87,14 +87,14 @@ function StatCard({
             <Icon className="w-5 h-5 text-orange-600" />
           </div>
           {trend && trendLabel && (
-            <div className={`flex items-center gap-1 text-xs font-bold ${trendColor}`}>
+            <div className={`flex items-center gap-1 text-xs font-semibold ${trendColor}`}>
               <TrendIcon className="w-3.5 h-3.5" />
               {trendLabel}
             </div>
           )}
         </div>
-        <p className="text-3xl font-black text-stone-900 tracking-tight">{value}</p>
-        <p className="text-sm font-semibold text-stone-500 mt-1">{label}</p>
+        <p className="text-3xl font-bold text-stone-900 tracking-tight">{value}</p>
+        <p className="text-sm font-medium text-stone-500 mt-1">{label}</p>
       </div>
     </motion.div>
   );
@@ -105,7 +105,7 @@ function StatCard({
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-5">
-      <h2 className="text-lg font-black text-stone-900 tracking-tight">{title}</h2>
+      <h2 className="text-lg font-bold text-stone-900 tracking-tight">{title}</h2>
       {subtitle && <p className="text-sm text-stone-400 mt-0.5">{subtitle}</p>}
     </div>
   );
@@ -243,15 +243,15 @@ export default function SocietyHeadOverviewPage() {
     responsive: true,
     cutout: "72%",
     plugins: {
-      legend: { position: "bottom" as const, labels: { color: "#78716c", font: { size: 12, weight: "bold" as const }, padding: 16, usePointStyle: true, pointStyleWidth: 8 } },
+      legend: { position: "bottom" as const, labels: { color: "#78716c", font: { size: 12, weight: "500" as const }, padding: 16, usePointStyle: true, pointStyleWidth: 8 } },
       tooltip: { backgroundColor: "#1c1917", titleColor: "#fff", bodyColor: "#d6d3d1", padding: 10, cornerRadius: 8 },
     },
   };
 
   const statusBadge = (status: string) => {
-    if (status === "PENDING") return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-orange-50 text-orange-600"><Clock className="w-3 h-3" />Pending</span>;
-    if (status === "APPROVED") return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600"><CheckCircle2 className="w-3 h-3" />Approved</span>;
-    return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-red-50 text-red-500"><XCircle className="w-3 h-3" />Rejected</span>;
+    if (status === "PENDING") return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-orange-600"><Clock className="w-3 h-3" />Pending</span>;
+    if (status === "APPROVED") return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600"><CheckCircle2 className="w-3 h-3" />Approved</span>;
+    return <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-500"><XCircle className="w-3 h-3" />Rejected</span>;
   };
 
   const formatDate = (d: string | undefined) => {
@@ -280,12 +280,12 @@ export default function SocietyHeadOverviewPage() {
         className="flex items-start justify-between"
       >
         <div>
-          <h1 className="text-3xl font-black text-stone-900 tracking-tight">Platform Overview</h1>
+          <h1 className="text-3xl font-bold text-stone-900 tracking-tight">Platform Overview</h1>
           <p className="text-sm text-stone-400 mt-1">Real-time insights across all societies and members.</p>
         </div>
         <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-orange-50 border border-orange-100">
           <Activity className="w-4 h-4 text-orange-500" />
-          <span className="text-xs font-bold text-orange-600">Live</span>
+          <span className="text-xs font-medium text-orange-600">Live</span>
         </div>
       </motion.div>
 
@@ -327,7 +327,7 @@ export default function SocietyHeadOverviewPage() {
                 { label: "Rejected", value: rejectedRequests.length, color: "text-stone-400" },
               ].map((item) => (
                 <div key={item.label} className="bg-stone-50 rounded-xl p-2">
-                  <p className={`text-lg font-black ${item.color}`}>{item.value}</p>
+                  <p className={`text-lg font-bold ${item.color}`}>{item.value}</p>
                   <p className="text-xs  text-stone-400">{item.label}</p>
                 </div>
               ))}
@@ -357,10 +357,10 @@ export default function SocietyHeadOverviewPage() {
         >
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-lg font-black text-stone-900 tracking-tight">Recent Requests</h2>
+              <h2 className="text-lg font-bold text-stone-900 tracking-tight">Recent Requests</h2>
               <p className="text-sm text-stone-400 mt-0.5">Latest society approval requests</p>
             </div>
-            <Link href="/head-dashboard/requests" className="flex items-center gap-1.5 text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 px-3 py-2 rounded-xl transition-colors">
+            <Link href="/head-dashboard/requests" className="flex items-center gap-1.5 text-xs font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 px-3 py-2 rounded-xl transition-colors">
               View all <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -375,7 +375,7 @@ export default function SocietyHeadOverviewPage() {
               {recentRequests.map((req: any) => (
                 <div key={req._id} className="flex items-center justify-between px-4 py-3 rounded-xl bg-stone-50 hover:bg-orange-50/40 transition-colors">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-stone-800 truncate">{req.society_name || req.name || "Society Request"}</p>
+                    <p className="text-sm font-semibold text-stone-800 truncate">{req.society_name || req.name || "Society Request"}</p>
                     <p className="text-xs text-stone-400 mt-0.5">{formatDate(req.created_at || req.createdAt)}</p>
                   </div>
                   <div className="ml-3 shrink-0">{statusBadge(req.status)}</div>
@@ -393,10 +393,10 @@ export default function SocietyHeadOverviewPage() {
         >
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-lg font-black text-stone-900 tracking-tight">Newest Societies</h2>
+              <h2 className="text-lg font-bold text-stone-900 tracking-tight">Newest Societies</h2>
               <p className="text-sm text-stone-400 mt-0.5">Recently approved</p>
             </div>
-            <Link href="/head-dashboard/societies" className="flex items-center gap-1.5 text-xs font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 px-3 py-2 rounded-xl transition-colors">
+            <Link href="/head-dashboard/societies" className="flex items-center gap-1.5 text-xs font-medium text-orange-600 bg-orange-50 hover:bg-orange-100 px-3 py-2 rounded-xl transition-colors">
               All <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -411,13 +411,13 @@ export default function SocietyHeadOverviewPage() {
               {recentSocieties.map((s: any, i) => (
                 <div key={s._id} className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-linear-to-br from-orange-400 to-orange-600 flex items-center justify-center shrink-0 shadow-sm">
-                    <span className="text-white font-black text-xs">{(s.name || "S").charAt(0).toUpperCase()}</span>
+                    <span className="text-white font-bold text-xs">{(s.name || "S").charAt(0).toUpperCase()}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-stone-800 truncate">{s.name}</p>
+                    <p className="text-sm font-semibold text-stone-800 truncate">{s.name}</p>
                     <p className="text-xs text-stone-400">{s.category || "General"}</p>
                   </div>
-                  <span className="text-xs font-bold text-stone-400 shrink-0">#{i + 1}</span>
+                  <span className="text-xs font-medium text-stone-400 shrink-0">#{i + 1}</span>
                 </div>
               ))}
             </div>
@@ -426,12 +426,12 @@ export default function SocietyHeadOverviewPage() {
           <div className="mt-4 pt-4 border-t border-stone-100">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-stone-400 font-semibold">Categories</p>
-                <p className="text-lg font-black text-stone-900">{Object.keys(categoryCounts).length}</p>
+                <p className="text-xs text-stone-400 font-medium">Categories</p>
+                <p className="text-lg font-bold text-stone-900">{Object.keys(categoryCounts).length}</p>
               </div>
               <div className="flex flex-wrap gap-1 justify-end">
                 {Object.entries(categoryCounts).slice(0, 3).map(([cat]) => (
-                  <span key={cat} className="text-xs font-bold bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full">{cat}</span>
+                  <span key={cat} className="text-xs font-medium bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full">{cat}</span>
                 ))}
               </div>
             </div>
@@ -480,8 +480,8 @@ export default function SocietyHeadOverviewPage() {
               <item.icon className={`w-5 h-5 ${item.iconColor}`} />
             </div>
             <div>
-              <p className="text-2xl font-black text-stone-900">{item.value}</p>
-              <p className="text-xs font-bold text-stone-500 mt-0.5">{item.label}</p>
+              <p className="text-2xl font-bold text-stone-900">{item.value}</p>
+              <p className="text-xs font-medium text-stone-500 mt-0.5">{item.label}</p>
               <p className="text-xs text-stone-400">{item.sub}</p>
             </div>
           </div>

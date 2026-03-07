@@ -228,13 +228,13 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
               <FaBars size={24} />
             </button>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+              <h1 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">
                 {society.name} <span className="text-orange-600">Dashboard</span>
               </h1>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
                 <p className="text-slate-500 font-medium text-sm md:text-base">Welcome back, {currentUserRole === 'PRESIDENT' ? 'President' : currentUserRole === 'EVENT MANAGER' ? 'Event Manager' : currentUserRole === 'FINANCE MANAGER' ? 'Finance Manager' : ''} {user?.name}</p>
                 {!isApproved && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">
                     <Lock className="w-3 h-3" /> Renewal Required
                   </span>
                 )}
@@ -248,13 +248,13 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
             <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center mb-6">
               <Lock className="w-10 h-10 text-amber-500" />
             </div>
-            <h3 className="text-2xl font-black text-slate-900 mb-2">Feature Locked</h3>
+            <h3 className="text-2xl font-semibold text-slate-900 mb-2">Feature Locked</h3>
             <p className="text-slate-500 max-w-sm px-6">
               This feature is currently locked. You must submit and receive approval for your society&apos;s renewal request to regain full access to the dashboard.
             </p>
             <button 
               onClick={() => setActiveTab('renewal-form')}
-              className="mt-8 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition-all shadow-md flex items-center gap-2"
+              className="mt-8 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-xl transition-all shadow-md flex items-center gap-2"
             >
               Go to Renewal Form <FaArrowRight className="w-4 h-4" />
             </button>
@@ -285,13 +285,13 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                   <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                    <h3 className="text-lg font-semibold text-slate-800 mb-6">Member Growth</h3>
+                    <h3 className="text-lg font-medium text-slate-800 mb-6">Member Growth</h3>
                     <div className="h-64">
                        {growthData && <GrowthLineChart data={growthData} />}
                     </div>
                   </div>
                   <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                    <h3 className="text-lg font-semibold text-slate-800 mb-6">Team Distribution</h3>
+                    <h3 className="text-lg font-medium text-slate-800 mb-6">Team Distribution</h3>
                     <div className="h-64 flex justify-center">
                       {teamDistributionData && <MemberBarChart data={teamDistributionData} />}
                     </div>
@@ -300,7 +300,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                    <h3 className="text-lg font-semibold text-slate-800 mb-6">Recent Activity</h3>
+                    <h3 className="text-lg font-medium text-slate-800 mb-6">Recent Activity</h3>
                     <div className="space-y-4">
                       {recentActivity.length > 0 ? (
                         recentActivity.map((member: SocietyMember, i: number) => (
@@ -310,7 +310,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-slate-800">
-                                   <span className="font-bold">{member.user_id?.name || "Unknown User"}</span> joined the society
+                                   <span className="font-semibold">{member.user_id?.name || "Unknown User"}</span> joined the society
                                 </p>
                                 <p className="text-xs text-slate-400 mt-1">
                                     {new Date(member.assigned_at).toLocaleDateString()}
@@ -324,7 +324,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                     </div>
                   </div>
                   <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                    <h3 className="text-lg font-semibold text-slate-800 mb-6">Quick Actions</h3>
+                    <h3 className="text-lg font-medium text-slate-800 mb-6">Quick Actions</h3>
                     <div className="space-y-3">
                       {(currentUserRole === 'PRESIDENT' || currentUserRole === 'EVENT MANAGER') && (
                           <>
@@ -408,7 +408,7 @@ const StatCard = ({ title, value, icon, color }: { title: string; value: string 
       <div className="flex justify-between items-start">
         <div>
           <p className="text-slate-500 text-sm font-medium mb-1">{title}</p>
-          <h4 className="text-3xl font-bold text-slate-800">{value}</h4>
+          <h4 className="text-3xl font-semibold text-slate-800">{value}</h4>
         </div>
         <span className={`text-2xl p-3 rounded-xl ${iconClass}`}>
           {icon}
