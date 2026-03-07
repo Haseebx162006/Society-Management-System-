@@ -288,33 +288,30 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
             return sendResponse(res, 200, "Society request rejected", societyRequest);
         }
 
-        const existingSociety = await Society.findOne({ name: societyRequest.society_name });
-        if (existingSociety) {
-            return sendError(res, 400, "A society with this name already exists");
+        if (societyRequest.request_type === "REGISTER") {
+            const existingSociety = await Society.findOne({ name: societyRequest.society_name });
+            if (existingSociety) {
+                return sendError(res, 400, "A society with this name already exists");
+            }
+
+            const newSociety = await Society.create({
+                name: societyRequest.society_name,
+                description: `Society created from approved request`,
+                created_by: societyRequest.user_id
+            });
+
+            // Fetch user data to get the name
+            const requestUser = await User.findById(societyRequest.user_id);
+
+            // Assign the requester as PRESIDENT of the new society
+            await SocietyUserRole.create({
+                name: requestUser?.name || societyRequest.society_name,
+                user_id: societyRequest.user_id,
+                society_id: newSociety._id,
+                role: "PRESIDENT",
+                assigned_by: req.user!._id
+            });
         }
-
-        const newSociety = await Society.create({
-            name: societyRequest.society_name,
-            description: `Society created from approved request`,
-            created_by: societyRequest.user_id
-        });
-
-        // Fetch user data to get the name
-        const requestUser = await User.findById(societyRequest.user_id);
-
-
-
-        // Assign the requester as PRESIDENT of the new society
-        const newRole = await SocietyUserRole.create({
-            name: requestUser?.name || societyRequest.society_name,
-            user_id: societyRequest.user_id,
-            society_id: newSociety._id,
-            role: "PRESIDENT",
-            assigned_by: req.user!._id
-        });
-
-
-
         societyRequest.status = "APPROVED";
         await societyRequest.save();
 
@@ -325,9 +322,9 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
             'APPROVED'
         );
 
-        return sendResponse(res, 200, "Society request approved and society created", {
+        return sendResponse(res, 200, "Society request approved", {
             request: societyRequest,
-            society: newSociety
+            ...(societyRequest.request_type === "REGISTER" && { society: "Society Created" })
         });
 
     } catch (error: any) {

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Header from "@/components/Header";
 import { useAppSelector } from "@/lib/hooks";
 import { selectCurrentUser } from "@/lib/features/auth/authSlice";
-import { PieChart, ListChecks, LogOut } from "lucide-react";
+import { PieChart, ListChecks, LogOut, RefreshCw } from "lucide-react";
 
 export default function SocietyHeadLayout({
   children,
@@ -17,6 +17,7 @@ export default function SocietyHeadLayout({
   const navigation = [
     { name: "Overview", href: "/head-dashboard", icon: PieChart },
     { name: "Manage Requests", href: "/head-dashboard/requests", icon: ListChecks },
+    { name: "Manage Renewals", href: "/head-dashboard/renewals", icon: RefreshCw },
   ];
 
   return (

@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useGetPendingSocietyRequestsQuery, useUpdateSocietyRequestStatusMutation } from "@/lib/features/societies/societyApiSlice";
-import { FileText, RefreshCw, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Clock } from "lucide-react";
+import { useGetSocietyRequestsQuery, useUpdateSocietyRequestStatusMutation } from "@/lib/features/societies/societyApiSlice";
+import { FileText, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Clock } from "lucide-react";
 import toast from "react-hot-toast";
 
-type RequestType = "REGISTER" | "RENEWAL";
+import { Search } from "lucide-react";
 
 export default function ManageRequestsPage() {
-  const [activeTab, setActiveTab] = useState<RequestType>("REGISTER");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: requests = [], isLoading, error } = useGetPendingSocietyRequestsQuery(undefined);
+  const { data: allRequests = [], isLoading, error } = useGetSocietyRequestsQuery(undefined);
   const [updateStatus, { isLoading: isUpdating }] = useUpdateSocietyRequestStatusMutation();
 
   const handleStatusUpdate = async (id: string, newStatus: "APPROVED" | "REJECTED") => {
@@ -37,7 +37,10 @@ export default function ManageRequestsPage() {
     }
   };
 
-  const filteredRequests = requests.filter((r: any) => r.request_type === activeTab);
+  const filteredRequests = allRequests.filter((r: any) => 
+    r.request_type === "REGISTER" && 
+    r.society_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (isLoading) {
     return (
@@ -48,7 +51,7 @@ export default function ManageRequestsPage() {
   }
 
   if (error) {
-    console.error("Fetch pending requests error:", error);
+    console.error("Fetch pending requests error:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
     return (
       <div className="p-6 bg-red-50 text-red-600 rounded-2xl flex items-center gap-3">
         <AlertCircle className="w-6 h-6" />
@@ -61,34 +64,18 @@ export default function ManageRequestsPage() {
     <div className="space-y-8 font-(--font-family-poppins)">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
         <div>
-          <h1 className="text-3xl font-black text-stone-900 tracking-tight">Manage Requests</h1>
-          <p className="text-sm text-stone-500 mt-1">Review and approve applications submitted by Faculty Advisors.</p>
+          <h1 className="text-3xl font-black text-stone-900 tracking-tight">Manage Registrations</h1>
+          <p className="text-sm text-stone-500 mt-1">Review and manage new society registration applications.</p>
         </div>
-        
-        {/* Tabs */}
-        <div className="flex bg-stone-100 p-1.5 rounded-xl self-stretch md:self-auto shrink-0 shadow-inner">
-          <button
-            onClick={() => { setActiveTab("REGISTER"); setExpandedId(null); }}
-            className={`flex-1 md:flex-none flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
-              activeTab === "REGISTER" 
-                ? "bg-white text-stone-900 shadow-sm" 
-                : "text-stone-500 hover:text-stone-700"
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            New Registrations
-          </button>
-          <button
-            onClick={() => { setActiveTab("RENEWAL"); setExpandedId(null); }}
-            className={`flex-1 md:flex-none flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${
-              activeTab === "RENEWAL" 
-                ? "bg-white text-stone-900 shadow-sm" 
-                : "text-stone-500 hover:text-stone-700"
-            }`}
-          >
-            <RefreshCw className="w-4 h-4" />
-            Renewals
-          </button>
+        <div className="relative w-full md:w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+          <input
+            type="text"
+            placeholder="Search society by name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-hidden transition-all bg-white"
+          />
         </div>
       </div>
 
@@ -97,7 +84,7 @@ export default function ManageRequestsPage() {
           <div className="text-center py-20 px-6 border-2 border-dashed border-stone-200 rounded-3xl bg-stone-50">
             <CheckCircle2 className="w-12 h-12 text-stone-300 mx-auto mb-4" />
             <h3 className="text-lg font-bold text-stone-900">All Caught Up!</h3>
-            <p className="text-stone-500 text-sm mt-1">There are no pending {activeTab === "REGISTER" ? "registration" : "renewal"} requests right now.</p>
+            <p className="text-stone-500 text-sm mt-1">There are no registration requests right now.</p>
           </div>
         ) : (
           filteredRequests.map((req: any) => (
@@ -111,7 +98,11 @@ export default function ManageRequestsPage() {
                 <div>
                   <div className="flex items-center gap-3 mb-1">
                     <h3 className="text-xl font-bold text-stone-900">{req.society_name}</h3>
-                    <span className="bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
+                      req.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' :
+                      req.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                      'bg-orange-100 text-orange-700'
+                    }`}>
                       {req.status}
                     </span>
                   </div>
@@ -143,13 +134,11 @@ export default function ManageRequestsPage() {
                     <div>
                       <h4 className="text-xl font-black text-stone-900">{req.society_name}</h4>
                       <p className="text-sm text-stone-500 mt-1">
-                        {req.request_type === "REGISTER" 
-                          ? "New Society Registration Request" 
-                          : "Society Renewal Application"}
+                        New Society Registration Request
                       </p>
                     </div>
 
-                    {req.request_type === "REGISTER" ? (
+                    {/* ===================== REVIEW FORM DATA ===================== */
                       /* ===================== REVIEW FORM DATA ===================== */
                       <div className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -237,109 +226,36 @@ export default function ManageRequestsPage() {
                            )}
                         </div>
                       </div>
-                    ) : (
-                      /* ===================== RENEWAL FORM DATA ===================== */
-                      <div className="space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                           <div className="space-y-4">
-                             <h5 className="text-xs font-bold text-stone-400 uppercase tracking-widest border-b border-stone-100 pb-2">President</h5>
-                             <div className="space-y-1 text-sm bg-stone-50 p-4 rounded-xl border border-stone-100">
-                                <p className="font-bold text-stone-900">{req.form_data?.exec_council?.president?.name}</p>
-                                <p className="text-stone-500">{req.form_data?.exec_council?.president?.reg_no}</p>
-                             </div>
-                           </div>
-                           <div className="space-y-4">
-                             <h5 className="text-xs font-bold text-stone-400 uppercase tracking-widest border-b border-stone-100 pb-2">Gen. Secretary</h5>
-                             <div className="space-y-1 text-sm bg-stone-50 p-4 rounded-xl border border-stone-100">
-                                <p className="font-bold text-stone-900">{req.form_data?.exec_council?.gen_sec?.name}</p>
-                                <p className="text-stone-500">{req.form_data?.exec_council?.gen_sec?.reg_no}</p>
-                             </div>
-                           </div>
-                           <div className="space-y-4">
-                             <h5 className="text-xs font-bold text-stone-400 uppercase tracking-widest border-b border-stone-100 pb-2">Treasurer</h5>
-                             <div className="space-y-1 text-sm bg-stone-50 p-4 rounded-xl border border-stone-100">
-                                <p className="font-bold text-stone-900">{req.form_data?.exec_council?.treasurer?.name}</p>
-                                <p className="text-stone-500">{req.form_data?.exec_council?.treasurer?.reg_no}</p>
-                             </div>
-                           </div>
-                        </div>
-
-                        {req.form_data?.exec_council_elect?.filter((m: any) => m.name).length > 0 && (
-                          <div className="space-y-4">
-                            <h5 className="text-xs font-bold text-stone-400 uppercase tracking-widest border-b border-stone-100 pb-2">Executive Council - Elect (Min 15)</h5>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                               {req.form_data.exec_council_elect.filter((m: any) => m.name).map((b: any, i: number) => (
-                                 <div key={i} className="bg-stone-50 p-3 rounded-xl border border-stone-100 text-sm">
-                                    <p className="font-bold text-stone-900">{b.name}</p>
-                                    <p className="text-stone-500 text-xs mt-0.5">{b.reg_no}</p>
-                                 </div>
-                               ))}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="space-y-6">
-                           <h5 className="text-xs font-bold text-stone-400 uppercase tracking-widest border-b border-stone-100 pb-2">Calendar of Events</h5>
-                           <div>
-                             <p className="text-sm font-bold text-stone-800 mb-2">Strategy & Management</p>
-                             <p className="text-sm text-stone-600 bg-stone-50 p-4 rounded-xl leading-relaxed whitespace-pre-wrap border border-stone-100">{req.form_data?.calendar_events?.description}</p>
-                           </div>
-
-                           {req.form_data?.calendar_events?.events?.length > 0 && (
-                             <div>
-                               <p className="text-sm font-bold text-stone-800 mb-3">Proposed Events</p>
-                               <ul className="space-y-2">
-                                 {req.form_data.calendar_events.events.filter((e: string) => e?.trim()).map((ev: string, i: number) => (
-                                   <li key={i} className="flex gap-3 text-sm items-start">
-                                     <span className="w-6 h-6 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center shrink-0 font-bold text-xs">{i+1}</span>
-                                     <span className="text-stone-700 pt-0.5">{ev}</span>
-                                   </li>
-                                 ))}
-                               </ul>
-                             </div>
-                           )}
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-6 border-t border-stone-100">
-                           <div className="space-y-1">
-                             <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">Faculty Advisor</p>
-                             <p className="text-sm font-semibold text-stone-900">{req.form_data?.faculty_advisor || "Not provided"}</p>
-                           </div>
-                           <div className="space-y-1">
-                             <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">Email Address</p>
-                             <p className="text-sm font-semibold text-stone-900">{req.form_data?.email || "Not provided"}</p>
-                           </div>
-                           <div className="space-y-1">
-                             <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">Website</p>
-                             <p className="text-sm font-semibold text-blue-600 hover:underline cursor-pointer">{req.form_data?.website || "None"}</p>
-                           </div>
-                        </div>
-
-                        <div className="space-y-2 pt-6 border-t border-stone-100">
-                             <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">Functions of Society</p>
-                             <p className="text-sm text-stone-600 bg-stone-50 p-4 rounded-xl leading-relaxed whitespace-pre-wrap border border-stone-100">{req.form_data?.functions}</p>
-                        </div>
-                      </div>
-                    )}
+                    }
                   </div>
 
                   {/* Actions */}
-                  <div className="flex flex-col sm:flex-row items-center justify-end gap-3 mt-6 p-4 sm:p-6 sm:pt-0">
-                    <button 
-                      onClick={() => handleStatusUpdate(req._id, "REJECTED")}
-                      disabled={isUpdating}
-                      className="w-full sm:w-auto px-6 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-colors text-sm border border-red-100 disabled:opacity-50"
-                    >
-                      Reject Request
-                    </button>
-                    <button 
-                      onClick={() => handleStatusUpdate(req._id, "APPROVED")}
-                      disabled={isUpdating}
-                      className="w-full sm:w-auto px-6 py-3 bg-stone-900 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors text-sm shadow-md disabled:opacity-50"
-                    >
-                      Approve & {activeTab === "REGISTER" ? "Register Society" : "Renew Society"}
-                    </button>
-                  </div>
+                  {req.status === 'PENDING' ? (
+                    <div className="flex flex-col sm:flex-row items-center justify-end gap-3 mt-6 p-4 sm:p-6 sm:pt-0">
+                      <button 
+                        onClick={() => handleStatusUpdate(req._id, "REJECTED")}
+                        disabled={isUpdating}
+                        className="w-full sm:w-auto px-6 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-colors text-sm border border-red-100 disabled:opacity-50"
+                      >
+                        Reject Request
+                      </button>
+                      <button 
+                        onClick={() => handleStatusUpdate(req._id, "APPROVED")}
+                        disabled={isUpdating}
+                        className="w-full sm:w-auto px-6 py-3 bg-stone-900 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors text-sm shadow-md disabled:opacity-50"
+                      >
+                        {isUpdating && expandedId === req._id ? "Approving..." : "Approve & Register Society"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex justify-end mt-6 p-4 sm:p-6 sm:pt-0">
+                      <div className={`px-6 py-3 rounded-xl font-bold text-sm border ${
+                        req.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'
+                      }`}>
+                        Application {req.status === 'APPROVED' ? 'Approved' : 'Rejected'}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
