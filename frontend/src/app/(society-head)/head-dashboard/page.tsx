@@ -243,7 +243,7 @@ export default function SocietyHeadOverviewPage() {
     responsive: true,
     cutout: "72%",
     plugins: {
-      legend: { position: "bottom" as const, labels: { color: "#78716c", font: { size: 12, weight: "600" as const }, padding: 16, usePointStyle: true, pointStyleWidth: 8 } },
+      legend: { position: "bottom" as const, labels: { color: "#78716c", font: { size: 12, weight: "bold" as const }, padding: 16, usePointStyle: true, pointStyleWidth: 8 } },
       tooltip: { backgroundColor: "#1c1917", titleColor: "#fff", bodyColor: "#d6d3d1", padding: 10, cornerRadius: 8 },
     },
   };
