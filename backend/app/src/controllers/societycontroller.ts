@@ -370,12 +370,12 @@ export const getAllSocietiesAdmin = async (req: AuthRequest, res: Response) => {
         const presidentRoles = await SocietyUserRole.find({
             society_id: { $in: societyIds },
             role: "PRESIDENT"
-        }).populate("user_id", "name email");
+        }).populate("user_id", "name email phone");
 
         const facultyAdvisorRoles = await SocietyUserRole.find({
             society_id: { $in: societyIds },
             role: "FACULTY ADVISOR"
-        }).populate("user_id", "name email");
+        }).populate("user_id", "name email phone");
 
         const societiesWithCounts = societies.map(society => {
             const societyObj = society.toObject();
@@ -799,73 +799,173 @@ export const changePresident = async (req: AuthRequest, res: Response) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
-        const { id: society_id } = req.params;
+        const { id } = req.params;
         const { new_president_id } = req.body;
 
         if (!new_president_id) {
             return sendError(res, 400, "New president ID is required");
         }
 
-        const society = await Society.findById(society_id).session(session);
-        if (!society) {
-            await session.abortTransaction();
-            return sendError(res, 404, "Society not found");
-        }
-
-        // Verify new president exists
-        const newPresidentUser = await User.findById(new_president_id).session(session);
-        if (!newPresidentUser) {
-            await session.abortTransaction();
+        const newPresident = await User.findById(new_president_id).session(session);
+        if (!newPresident) {
             return sendError(res, 404, "New president user not found");
         }
 
-        // Check if new president is ALREADY a member
-        let newPresidentRole = await SocietyUserRole.findOne({
-            user_id: new_president_id,
-            society_id
-        }).session(session);
+        const society = await Society.findById(id).session(session);
+        if (!society) {
+            return sendError(res, 404, "Society not found");
+        }
 
-        // Find current president role
         const currentPresidentRole = await SocietyUserRole.findOne({
-            society_id,
+            society_id: id,
             role: "PRESIDENT"
         }).session(session);
 
         if (currentPresidentRole) {
-            // Demote current president to MEMBER
             currentPresidentRole.role = "MEMBER";
             currentPresidentRole.updated_at = new Date();
             await currentPresidentRole.save({ session });
         }
 
+        const newPresidentRole = await SocietyUserRole.findOne({
+            society_id: id,
+            user_id: new_president_id
+        }).session(session);
+
         if (newPresidentRole) {
-            // Update existing role to PRESIDENT
             newPresidentRole.role = "PRESIDENT";
             newPresidentRole.updated_at = new Date();
             await newPresidentRole.save({ session });
         } else {
-            // Create new role
             await SocietyUserRole.create([{
-                name: newPresidentUser.name,
+                name: newPresident.name,
                 user_id: new_president_id,
-                society_id,
+                society_id: id,
                 role: "PRESIDENT",
-                assigned_by: req.user!._id,
-                assigned_at: new Date()
+                assigned_by: req.user!._id
             }], { session });
         }
 
         await session.commitTransaction();
-
         return sendResponse(res, 200, "President changed successfully");
 
     } catch (error: any) {
         await session.abortTransaction();
-        return sendError(res, 500, "Internal server error", error);
+        return sendError(res, 500, "Internal server error while changing president", error);
     } finally {
         session.endSession();
     }
 };
+
+export const changeFacultyAdvisor = async (req: AuthRequest, res: Response) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+        const { id } = req.params;
+        const { new_advisor_id } = req.body;
+
+        if (!new_advisor_id) {
+            return sendError(res, 400, "New advisor ID is required");
+        }
+
+        const newAdvisor = await User.findById(new_advisor_id).session(session);
+        if (!newAdvisor) {
+            return sendError(res, 404, "New advisor user not found");
+        }
+
+        const society = await Society.findById(id).session(session);
+        if (!society) {
+            return sendError(res, 404, "Society not found");
+        }
+
+        const currentAdvisorRole = await SocietyUserRole.findOne({
+            society_id: id,
+            role: "FACULTY ADVISOR"
+        }).session(session);
+
+        if (currentAdvisorRole) {
+            currentAdvisorRole.role = "MEMBER";
+            currentAdvisorRole.updated_at = new Date();
+            await currentAdvisorRole.save({ session });
+        }
+
+        const newAdvisorRole = await SocietyUserRole.findOne({
+            society_id: id,
+            user_id: new_advisor_id
+        }).session(session);
+
+        if (newAdvisorRole) {
+            newAdvisorRole.role = "FACULTY ADVISOR";
+            newAdvisorRole.updated_at = new Date();
+            await newAdvisorRole.save({ session });
+        } else {
+            await SocietyUserRole.create([{
+                name: newAdvisor.name,
+                user_id: new_advisor_id,
+                society_id: id,
+                role: "FACULTY ADVISOR",
+                assigned_by: req.user!._id
+            }], { session });
+        }
+
+        await session.commitTransaction();
+        return sendResponse(res, 200, "Faculty Advisor changed successfully");
+
+    } catch (error: any) {
+        await session.abortTransaction();
+        return sendError(res, 500, "Internal server error while changing faculty advisor", error);
+    } finally {
+        session.endSession();
+    }
+};
+
+export const updatePresidentDetails = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { phone, name } = req.body;
+
+        if (!phone) {
+            return sendError(res, 400, "Phone number is required");
+        }
+        
+        if (!name) {
+            return sendError(res, 400, "President name is required");
+        }
+
+        const society = await Society.findById(id);
+        if (!society) {
+            return sendError(res, 404, "Society not found");
+        }
+
+        const presidentRole = await SocietyUserRole.findOne({
+            society_id: id,
+            role: "PRESIDENT"
+        });
+
+        if (!presidentRole) {
+            return sendError(res, 404, "President not found for this society");
+        }
+
+        const president = await User.findById(presidentRole.user_id);
+        if (!president) {
+            return sendError(res, 404, "President user not found");
+        }
+
+        president.phone = phone;
+        president.name = name;
+        await president.save();
+        
+        presidentRole.name = name;
+        presidentRole.updated_at = new Date();
+        await presidentRole.save();
+
+        return sendResponse(res, 200, "President details updated successfully");
+
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error while updating president details", error);
+    }
+};
+
 
 export const suspendSociety = async (req: AuthRequest, res: Response) => {
     try {

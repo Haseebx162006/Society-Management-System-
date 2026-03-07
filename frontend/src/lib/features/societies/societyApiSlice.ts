@@ -152,6 +152,22 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       query: (requestId: string) => `/society/requests/${requestId}/compare`,
       transformResponse: (response: { data: any }) => response.data,
     }),
+    changeFacultyAdvisor: builder.mutation({
+      query: ({ societyId, new_advisor_id }) => ({
+        url: `/society/${societyId}/faculty-advisor`,
+        method: "PUT",
+        body: { new_advisor_id },
+      }),
+      invalidatesTags: ["Society", "SocietyMember"],
+    }),
+    updatePresidentDetails: builder.mutation({
+      query: ({ societyId, phone, name }) => ({
+        url: `/society/${societyId}/president/details`,
+        method: "PUT",
+        body: { phone, name },
+      }),
+      invalidatesTags: ["Society", "SocietyMember"],
+    }),
   }),
 });
 
@@ -178,4 +194,6 @@ export const {
   useGetAllUsersQuery,
   useCreatePresidentMutation,
   useLazyCompareSocietyRequestQuery,
+  useChangeFacultyAdvisorMutation,
+  useUpdatePresidentDetailsMutation,
 } = societyApiSlice;

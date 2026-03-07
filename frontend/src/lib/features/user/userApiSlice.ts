@@ -28,7 +28,7 @@ export interface SocietyRequest {
 }
 
 export const userApiSlice = apiSlice.injectEndpoints({
-    
+    overrideExisting: true,
     endpoints: (builder) => ({
         getMySocieties: builder.query<SocietyRole[], void>({
             query: () => '/user/societies',

@@ -26,7 +26,9 @@ import {
     getSocietyRequestForSociety,
     askForRenewal,
     createPresident,
-    compareSocietyRequest
+    compareSocietyRequest,
+    changeFacultyAdvisor,
+    updatePresidentDetails
 } from '../controllers/societycontroller';
 
 const router = express.Router();
@@ -55,6 +57,8 @@ router.post('/:id/president', protect, adminOrSocietyHead, createPresident);
 router.post('/:id/suspend', protect, adminOrSocietyHead, suspendSociety);
 router.post('/:id/reactivate', protect, adminOrSocietyHead, reactivateSociety);
 router.post('/ask-for-renewal', protect, societyHeadOnly, askForRenewal);
+router.put('/:id/faculty-advisor', protect, adminOrSocietyHead, changeFacultyAdvisor);
+router.put('/:id/president/details', protect, adminOrSocietyHead, updatePresidentDetails);
 
 
 router.get('/:id/members', protect, authorize(['PRESIDENT', 'SPONSOR MANAGER'], 'SOCIETY'), getSocietyMembers);
