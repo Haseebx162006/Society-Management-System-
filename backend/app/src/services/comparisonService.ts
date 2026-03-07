@@ -90,7 +90,9 @@ export async function compareSocietyWithExisting(
     const sanitizedSocieties = existingSocieties.map(sanitizeSocietyForLLM);
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    // Models to try in order of preference
+    const modelNames = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"];
 
     const prompt = `You are an academic institution's society review analyst. Compare a NEW society registration request with EXISTING societies and identify overlaps in objectives, activities, and focus areas.
 
@@ -126,9 +128,38 @@ Rules:
 - If the new society has a genuinely unique focus, acknowledge that clearly
 - Keep all text concise and professional`;
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    const text = response.text();
+    let text: string | undefined;
+    let lastError: any;
+
+    for (const modelName of modelNames) {
+        for (let attempt = 0; attempt < 2; attempt++) {
+            try {
+                const model = genAI.getGenerativeModel({ model: modelName });
+                const result = await model.generateContent(prompt);
+                text = result.response.text();
+                break;
+            } catch (err: any) {
+                lastError = err;
+                const isRateLimit = err.status === 429 || err.message?.includes("429");
+                if (isRateLimit && attempt === 0) {
+                    // Wait before retrying the same model
+                    await new Promise((r) => setTimeout(r, 5000));
+                    continue;
+                }
+                // Move on to the next model
+                break;
+            }
+        }
+        if (text) break;
+    }
+
+    if (!text) {
+        const isQuotaExhausted = lastError?.status === 429;
+        if (isQuotaExhausted) {
+            throw new Error("GEMINI_RATE_LIMITED");
+        }
+        throw lastError || new Error("All Gemini models failed to generate a response");
+    }
 
     // Parse the JSON response, handling potential markdown code fences
     let cleanedText = text.trim();

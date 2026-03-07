@@ -1043,6 +1043,9 @@ export const compareSocietyRequest = async (req: AuthRequest, res: Response) => 
         if (error.message === "GEMINI_API_KEY is not configured in environment variables") {
             return sendError(res, 503, "AI comparison service is not configured. Please contact the administrator.");
         }
+        if (error.message === "GEMINI_RATE_LIMITED") {
+            return sendError(res, 429, "AI service quota exceeded. Please try again later or upgrade the API plan.");
+        }
         return sendError(res, 500, "Internal server error while generating comparison report");
     }
 };
