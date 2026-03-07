@@ -2,12 +2,37 @@
 
 import { X, AlertTriangle, CheckCircle2, BarChart3, Lightbulb, Shield, Loader2 } from "lucide-react";
 
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend
+} from 'chart.js';
+import { Radar } from 'react-chartjs-2';
+
+ChartJS.register(
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend
+);
+
 interface OverlappingSociety {
   societyName: string;
   similarityScore: number;
   overlappingObjectives: string[];
   overlappingActivities: string[];
   uniqueAspects: string[];
+  metrics?: {
+    objectivesOverlapScore: number;
+    activitiesOverlapScore: number;
+    challengesSimilarityScore: number;
+  };
 }
 
 interface ComparisonData {
@@ -201,6 +226,100 @@ export default function ComparisonReport({
                                   </li>
                                 ))}
                               </ul>
+                            </div>
+                          )}
+                          {/* Interactive Chart for Metrics */}
+                          {s.metrics && (
+                            <div className="pt-4 border-t border-stone-100 flex flex-col md:flex-row gap-6 items-center">
+                              <div className="w-full md:w-1/2 aspect-square max-w-[250px]">
+                                <Radar 
+                                  data={{
+                                    labels: ['Objectives Overlap', 'Activities Overlap', 'Challenges Similarity'],
+                                    datasets: [
+                                      {
+                                        label: 'Similarity Profile',
+                                        data: [
+                                          s.metrics.objectivesOverlapScore,
+                                          s.metrics.activitiesOverlapScore,
+                                          s.metrics.challengesSimilarityScore
+                                        ],
+                                        backgroundColor: 'rgba(234, 88, 12, 0.2)',
+                                        borderColor: 'rgba(234, 88, 12, 1)',
+                                        pointBackgroundColor: 'rgba(234, 88, 12, 1)',
+                                        pointBorderColor: '#fff',
+                                        pointHoverBackgroundColor: '#fff',
+                                        pointHoverBorderColor: 'rgba(234, 88, 12, 1)'
+                                      }
+                                    ]
+                                  }}
+                                  options={{
+                                    scales: {
+                                      r: {
+                                        min: 0,
+                                        max: 100,
+                                        ticks: {
+                                          stepSize: 20,
+                                          display: false
+                                        },
+                                        grid: {
+                                          color: 'rgba(0, 0, 0, 0.05)'
+                                        },
+                                        angleLines: {
+                                          color: 'rgba(0, 0, 0, 0.05)'
+                                        },
+                                        pointLabels: {
+                                          font: {
+                                            family: 'Poppins',
+                                            size: 10,
+                                            weight: 'bold'
+                                          },
+                                          color: '#78716c'
+                                        }
+                                      }
+                                    },
+                                    plugins: {
+                                      legend: {
+                                        display: false
+                                      },
+                                      tooltip: {
+                                        backgroundColor: 'rgba(28, 25, 23, 0.9)',
+                                        titleFont: { family: 'Poppins', size: 12 },
+                                        bodyFont: { family: 'Poppins', size: 12 },
+                                        padding: 10,
+                                        cornerRadius: 8
+                                      }
+                                    }
+                                  }}
+                                />
+                              </div>
+                              <div className="w-full md:w-1/2 space-y-4">
+                                <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-1">Breakdown</p>
+                                <div className="space-y-3">
+                                  <div className="flex justify-between items-center text-sm">
+                                    <span className="text-stone-600">Objectives Overlap</span>
+                                    <span className="font-bold text-stone-900">{s.metrics.objectivesOverlapScore}%</span>
+                                  </div>
+                                  <div className="w-full bg-stone-100 rounded-full h-1.5 border border-stone-200/50 overflow-hidden">
+                                     <div className="bg-orange-500 h-1.5 rounded-full" style={{ width: `${s.metrics.objectivesOverlapScore}%` }}></div>
+                                  </div>
+
+                                  <div className="flex justify-between items-center text-sm pt-1">
+                                    <span className="text-stone-600">Activities Overlap</span>
+                                    <span className="font-bold text-stone-900">{s.metrics.activitiesOverlapScore}%</span>
+                                  </div>
+                                  <div className="w-full bg-stone-100 rounded-full h-1.5 border border-stone-200/50 overflow-hidden">
+                                     <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: `${s.metrics.activitiesOverlapScore}%` }}></div>
+                                  </div>
+
+                                  <div className="flex justify-between items-center text-sm pt-1">
+                                    <span className="text-stone-600">Challenges & Feedback Similarity</span>
+                                    <span className="font-bold text-stone-900">{s.metrics.challengesSimilarityScore}%</span>
+                                  </div>
+                                  <div className="w-full bg-stone-100 rounded-full h-1.5 border border-stone-200/50 overflow-hidden">
+                                     <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: `${s.metrics.challengesSimilarityScore}%` }}></div>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           )}
                         </div>

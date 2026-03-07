@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import Groq from "groq-sdk";
+import SocietyRequest from "../models/SocietyRequest";
 import Society from "../models/Society";
 
 interface ComparisonResult {
@@ -12,6 +13,11 @@ interface ComparisonResult {
         overlappingObjectives: string[];
         overlappingActivities: string[];
         uniqueAspects: string[];
+        metrics: {
+            objectivesOverlapScore: number;
+            activitiesOverlapScore: number;
+            challengesSimilarityScore: number;
+        };
     }>;
     recommendation: string;
     uniqueValueProposition: string;
@@ -42,22 +48,21 @@ function sanitizeFormDataForLLM(formData: any): Record<string, unknown> {
 }
 
 /**
- * Strips PII from existing societies before sending to the LLM.
+ * Extracts past review data from an existing society's renewal request.
  */
-function sanitizeSocietyForLLM(society: any): Record<string, unknown> {
+function extractReviewData(societyName: string, societyDescription: string, request: any): Record<string, unknown> {
+    const formData = request?.form_data || {};
+    const history = formData.history || {};
+    
     return {
-        name: society.name,
-        description: society.description,
-        category: society.category,
-        content_sections: (society.content_sections || []).map((s: any) => ({
-            title: s.title,
-            content: s.content,
+        name: societyName,
+        description: societyDescription,
+        past_activities: (history.activities || []).map((a: any) => ({
+            title: a.title || "",
+            review: a.review || "",
         })),
-        why_join_us: society.why_join_us || [],
-        faqs: (society.faqs || []).map((f: any) => ({
-            question: f.question,
-            answer: f.answer,
-        })),
+        challenges_faced: history.challenges || "",
+        feedback_to_admin: history.feedback || ""
     };
 }
 
@@ -74,11 +79,11 @@ export async function compareSocietyWithExisting(
     }
 
     // Fetch all active societies
-    const existingSocieties = await Society.find({
+    const activeSocieties = await Society.find({
         status: "ACTIVE",
-    }).select("name description category content_sections why_join_us faqs");
+    }).select("name description");
 
-    if (existingSocieties.length === 0) {
+    if (activeSocieties.length === 0) {
         return {
             requestName: requestSocietyName,
             overallSimilarityScore: 0,
@@ -89,17 +94,36 @@ export async function compareSocietyWithExisting(
         };
     }
 
-    const sanitizedRequest = sanitizeFormDataForLLM(requestFormData);
-    const sanitizedSocieties = existingSocieties.map(sanitizeSocietyForLLM);
+    const activeSocietyNames = activeSocieties.map(s => s.name);
 
-    const prompt = `You are an academic institution's society review analyst. Compare a NEW society registration request with EXISTING societies and identify overlaps in objectives, activities, and focus areas.
+    // Fetch the latest approved renewal requests for these active societies
+    const renewalRequests = await SocietyRequest.find({
+        society_name: { $in: activeSocietyNames },
+        request_type: "RENEWAL",
+        status: "APPROVED"
+    }).sort({ created_at: -1 });
+
+    const renewalMap = new Map();
+    for (const req of renewalRequests) {
+        if (!renewalMap.has(req.society_name)) {
+            renewalMap.set(req.society_name, req);
+        }
+    }
+
+    const sanitizedRequest = sanitizeFormDataForLLM(requestFormData);
+    const sanitizedSocieties = activeSocieties.map(society => {
+        const renewalForm = renewalMap.get(society.name);
+        return extractReviewData(society.name, society.description, renewalForm);
+    });
+
+    const prompt = `You are an academic institution's society review analyst. Compare a NEW society registration request with EXISTING active societies and identify overlaps in objectives, activities, and focus areas.
 
 NEW SOCIETY REQUEST:
 - Name: ${requestSocietyName}
 - Description: ${requestDescription || "Not provided"}
 - Form Details: ${JSON.stringify(sanitizedRequest)}
 
-EXISTING SOCIETIES:
+EXISTING SOCIETIES (Past Activities, Challenges, and Feedback):
 ${JSON.stringify(sanitizedSocieties)}
 
 Analyze and return a JSON response (no markdown, no code fences, just raw JSON) with this exact structure:
@@ -112,7 +136,12 @@ Analyze and return a JSON response (no markdown, no code fences, just raw JSON) 
       "similarityScore": <number 0-100>,
       "overlappingObjectives": ["<objective 1>", "<objective 2>"],
       "overlappingActivities": ["<activity 1>", "<activity 2>"],
-      "uniqueAspects": ["<what makes the new request different from this society>"]
+      "uniqueAspects": ["<what makes the new request different from this society>"],
+      "metrics": {
+         "objectivesOverlapScore": <number 0-100>,
+         "activitiesOverlapScore": <number 0-100>,
+         "challengesSimilarityScore": <number 0-100>
+      }
     }
   ],
   "recommendation": "<your recommendation: APPROVE, REVIEW_CAREFULLY, or LIKELY_DUPLICATE with reasoning>",
@@ -121,6 +150,7 @@ Analyze and return a JSON response (no markdown, no code fences, just raw JSON) 
 
 Rules:
 - Only include societies with similarityScore > 10 in overlappingSocieties
+- Compare the NEW society's proposed activities and objectives against the actual PAST activities and challenges of EXISTING societies.
 - Be objective and fair in your analysis
 - Focus on actual functional overlap, not superficial name similarity
 - If the new society has a genuinely unique focus, acknowledge that clearly
