@@ -93,7 +93,7 @@ export default function ProfilePage() {
       });
     }
 
-    const canAccessDashboard = societies?.some((s) => s.role === "PRESIDENT" || s.role === "FINANCE MANAGER" || s.role === "EVENT MANAGER" || s.role === "SPONSOR MANAGER" || s.role === "DOCUMENTATION MANAGER");
+    const canAccessDashboard = societies?.some((s) => s.role === "PRESIDENT" || s.role === "FACULTY ADVISOR" || s.role === "FINANCE MANAGER" || s.role === "EVENT MANAGER" || s.role === "SPONSOR MANAGER" || s.role === "DOCUMENTATION MANAGER");
     if (canAccessDashboard) {
       items.push({
         key: "society-dashboard",
@@ -108,10 +108,11 @@ export default function ProfilePage() {
     }
 
 
+    const isFacultyAdvisor = societies?.some((s) => s.role === "FACULTY ADVISOR");
     const isPresident = societies?.some((s) => s.role === "PRESIDENT");
     const isFaculty = user?.email ? isFacultyEmail(user.email) : false;
 
-    if (!user?.is_super_admin && !isPresident && isFaculty) {
+    if (!user?.is_super_admin && !isPresident && !isFacultyAdvisor && isFaculty) {
       items.push({
         key: "request-registration",
         label: "Request Society Registration",

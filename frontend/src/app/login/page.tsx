@@ -45,6 +45,11 @@ export default function LoginPage() {
         })
       );
 
+      if (userData.data.user?.password_reset_required) {
+        router.push("/change-password");
+        return;
+      }
+
       toast.success("Welcome back!", {
         style: {
           background: "#ffffff",
@@ -55,7 +60,6 @@ export default function LoginPage() {
 
       router.push("/profile");
     } catch (err) {
-      toast.error("Login failed!");
       const errorMessage =
         (err as { data?: { message?: string } })?.data?.message || "Authentication failed. Access denied.";
       toast.error(errorMessage);

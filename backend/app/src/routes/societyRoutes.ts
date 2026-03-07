@@ -24,7 +24,8 @@ import {
     deleteSociety,
     getMySocietyRequests,
     getSocietyRequestForSociety,
-    askForRenewal
+    askForRenewal,
+    createPresident
 } from '../controllers/societycontroller';
 
 const router = express.Router();
@@ -49,6 +50,7 @@ router.delete('/:id', protect, adminOnly, deleteSociety);
 
 
 router.post('/:id/change-president', protect, adminOnly, changePresident);
+router.post('/:id/president', protect, adminOrSocietyHead, createPresident);
 router.post('/:id/suspend', protect, adminOrSocietyHead, suspendSociety);
 router.post('/:id/reactivate', protect, adminOrSocietyHead, reactivateSociety);
 router.post('/ask-for-renewal', protect, societyHeadOnly, askForRenewal);

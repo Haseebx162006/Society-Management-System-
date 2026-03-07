@@ -4,7 +4,7 @@ import { RootState } from '@/lib/store';
 import { MdGroups, MdEvent } from 'react-icons/md';
 import { FaUsers, FaArrowRight, FaBell, FaBars } from 'react-icons/fa';
 import { useGetEventsBySocietyQuery } from '@/lib/features/events/eventApiSlice';
-import { useGetSocietyRequestForSocietyQuery, useGetMySocietyRequestsQuery } from '@/lib/features/societies/societyApiSlice';
+import { useGetSocietyRequestForSocietyQuery } from '@/lib/features/societies/societyApiSlice';
 import { Lock, AlertCircle } from 'lucide-react';
 
 import MemberBarChart from '@/components/charts/MemberBarChart';
@@ -56,16 +56,13 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   const [activeTab, setActiveTab] = React.useState(isApproved ? 'overview' : 'renewal-form');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const { data: events } = useGetEventsBySocietyQuery(society._id);
-  const { data: societyRequest, isLoading: isRequestLoading } = useGetSocietyRequestForSocietyQuery(society._id, { 
+  const { data: societyRequest, isLoading: isRequestLoading } = useGetSocietyRequestForSocietyQuery({ societyId: society._id, type: 'REGISTER' }, { 
     skip: activeTab !== 'review-form'
   });
-  const { data: myRequests = [] } = useGetMySocietyRequestsQuery(undefined, {
+  const { data: renewalRequest } = useGetSocietyRequestForSocietyQuery({ societyId: society._id, type: 'RENEWAL' }, {
     skip: activeTab !== 'renewal-form'
   });
 
-  const renewalRequest = (myRequests as { request_type: string, society_name: string, status: string, form_data: any }[]).find(
-    (r) => r.request_type === 'RENEWAL' && r.society_name === society.name
-  );
   const isRenewalLocked = renewalRequest && (renewalRequest.status === 'PENDING' || renewalRequest.status === 'APPROVED');
 
   const currentUserRole = useMemo(() => {

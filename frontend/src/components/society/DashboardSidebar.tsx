@@ -35,19 +35,18 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
   };
 
   const allNavItems = [
-    { id: 'overview', label: 'Overview', icon: <MdDashboard />, roles: ['PRESIDENT', 'FINANCE MANAGER', 'DOCUMENTATION MANAGER', 'LEAD', 'CO-LEAD', 'SPONSOR MANAGER', 'MEMBER'] },
-    { id: 'members', label: 'Members', icon: <FaUsers />, roles: ['PRESIDENT'] },
-    { id: 'teams', label: 'Teams', icon: <MdGroups />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD'] },
-    { id: 'join-requests', label: 'Join Requests', icon: <FaClipboardList />, roles: ['PRESIDENT', 'FINANCE MANAGER'] },
-    { id: 'previous-members', label: 'Previous Members', icon: <FaHistory />, roles: ['PRESIDENT'] },
-    { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'LEAD', 'CO-LEAD', 'MEMBER', 'EVENT MANAGER'] },
-    { id: 'event-forms', label: 'Event Forms', icon: <FaWpforms />, roles: ['PRESIDENT', 'EVENT MANAGER'] },
-    // { id: 'send-email', label: 'Send Email', icon: <MdEmail />, roles: ['PRESIDENT', 'SPONSOR MANAGER', 'EVENT MANAGER', 'LEAD', 'CO-LEAD'] },
-    { id: 'sponsors', label: 'Sponsors', icon: <FaHandshake />, roles: ['PRESIDENT', 'SPONSOR MANAGER'] },
-    { id: 'documentation', label: 'Documentation', icon: <FaClipboardList />, roles: ['PRESIDENT', 'DOCUMENTATION MANAGER', 'FINANCE MANAGER', 'EVENT MANAGER', 'SPONSOR MANAGER'] },
-    { id: 'settings', label: 'Society Form', icon: <MdSettings />, roles: ['PRESIDENT'] },
-    { id: 'renewal-form', label: 'Renewal Form', icon: <RefreshCw className="w-5 h-5" />, roles: ['PRESIDENT'] },
-    { id: 'review-form', label: 'Review Form', icon: <FileText className="w-5 h-5" />, roles: ['PRESIDENT'] },
+    { id: 'overview', label: 'Overview', icon: <MdDashboard />, roles: ['PRESIDENT', 'FACULTY ADVISOR', 'FINANCE MANAGER', 'DOCUMENTATION MANAGER', 'LEAD', 'CO-LEAD', 'SPONSOR MANAGER', 'MEMBER'] },
+    { id: 'members', label: 'Members', icon: <FaUsers />, roles: ['PRESIDENT', 'FACULTY ADVISOR'] },
+    { id: 'teams', label: 'Teams', icon: <MdGroups />, roles: ['PRESIDENT', 'FACULTY ADVISOR', 'LEAD', 'CO-LEAD'] },
+    { id: 'join-requests', label: 'Join Requests', icon: <FaClipboardList />, roles: ['PRESIDENT', 'FACULTY ADVISOR', 'FINANCE MANAGER'] },
+    { id: 'previous-members', label: 'Previous Members', icon: <FaHistory />, roles: ['PRESIDENT', 'FACULTY ADVISOR'] },
+    { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'FACULTY ADVISOR', 'LEAD', 'CO-LEAD', 'MEMBER', 'EVENT MANAGER'] },
+    { id: 'event-forms', label: 'Event Forms', icon: <FaWpforms />, roles: ['PRESIDENT', 'FACULTY ADVISOR', 'EVENT MANAGER'] },
+    { id: 'sponsors', label: 'Sponsors', icon: <FaHandshake />, roles: ['PRESIDENT', 'FACULTY ADVISOR', 'SPONSOR MANAGER'] },
+    { id: 'documentation', label: 'Documentation', icon: <FaClipboardList />, roles: ['PRESIDENT', 'FACULTY ADVISOR', 'DOCUMENTATION MANAGER', 'FINANCE MANAGER', 'EVENT MANAGER', 'SPONSOR MANAGER'] },
+    { id: 'settings', label: 'Society Form', icon: <MdSettings />, roles: ['PRESIDENT', 'FACULTY ADVISOR'] },
+    { id: 'renewal-form', label: 'Renewal Form', icon: <RefreshCw className="w-5 h-5" />, roles: ['PRESIDENT', 'FACULTY ADVISOR'] },
+    { id: 'review-form', label: 'Review Form', icon: <FileText className="w-5 h-5" />, roles: ['PRESIDENT', 'FACULTY ADVISOR'] },
   ];
 
   const navItems = allNavItems.filter(item => item.roles.includes(role));
@@ -57,10 +56,10 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
       <div className="p-6 border-b border-stone-100 flex items-center justify-between">
         <h2 className="text-xl font-extrabold text-orange-600 tracking-tight flex items-center gap-2">
           <span className="bg-orange-600 text-white rounded-lg p-1 text-sm">
-             {role === 'PRESIDENT' ? 'SA' : role === 'FINANCE MANAGER' ? 'FM' : role === 'EVENT MANAGER' ? 'EM' : role === 'SPONSOR MANAGER' ? 'SM' : role === 'DOCUMENTATION MANAGER' ? 'DM' : 'MB'}
+             {role === 'PRESIDENT' ? 'SA' : role === 'FACULTY ADVISOR' ? 'FA' : role === 'FINANCE MANAGER' ? 'FM' : role === 'EVENT MANAGER' ? 'EM' : role === 'SPONSOR MANAGER' ? 'SM' : role === 'DOCUMENTATION MANAGER' ? 'DM' : 'MB'}
           </span>
           <span className="text-sm truncate max-w-[140px]" title={role}>
-             {role === 'PRESIDENT' ? 'Society Admin' : role.replace('_', ' ')}
+             {role === 'PRESIDENT' ? 'Society Admin' : role === 'FACULTY ADVISOR' ? 'Faculty Advisor' : role.replace('_', ' ')}
           </span>
         </h2>
         <button 

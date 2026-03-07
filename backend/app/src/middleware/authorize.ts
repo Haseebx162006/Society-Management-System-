@@ -63,7 +63,7 @@ export const authorize = (allowedRoles: string[], context: 'SOCIETY' | 'GROUP' =
 
 
             const hasPermission = userRoles.some(userRole => {
-                if (userRole.role === 'PRESIDENT') return true;
+                if (userRole.role === 'PRESIDENT' || userRole.role === 'FACULTY ADVISOR') return true;
 
                 if (context === 'SOCIETY') {
                      return allowedRoles.includes(userRole.role);

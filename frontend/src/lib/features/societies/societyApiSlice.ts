@@ -64,7 +64,8 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       transformResponse: (response: { data: any }) => response.data,
     }),
     getSocietyRequestForSociety: builder.query({
-      query: (societyId) => `/society/${societyId}/request`,
+      query: ({ societyId, type }: { societyId: string; type?: string }) => 
+        `/society/${societyId}/request${type ? `?type=${type}` : ''}`,
       providesTags: ["SocietyRequest"],
       transformResponse: (response: { data: any }) => response.data,
     }),
@@ -134,6 +135,19 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Society", "SocietyRequest"],
     }),
+    getAllUsers: builder.query({
+      query: () => "/user/all",
+      providesTags: ["User"],
+      transformResponse: (response: { data: unknown }) => response.data,
+    }),
+    createPresident: builder.mutation({
+      query: ({ societyId, ...body }: { societyId: string; name: string; email: string; phone: string; password: string }) => ({
+        url: `/society/${societyId}/president`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Society"],
+    }),
   }),
 });
 
@@ -157,4 +171,6 @@ export const {
   useGetSocietyRequestForSocietyQuery,
   useGetMySocietyRequestsQuery,
   useAskForRenewalMutation,
+  useGetAllUsersQuery,
+  useCreatePresidentMutation,
 } = societyApiSlice;

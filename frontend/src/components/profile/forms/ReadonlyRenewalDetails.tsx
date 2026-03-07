@@ -229,6 +229,9 @@ export default function ReadonlyRenewalDetails({ request }: { request: { society
                     <p><span className="text-stone-500 w-32 inline-block">President:</span> <strong className="text-stone-900">{formData?.exec_council?.president?.name}</strong> <span className="text-stone-400">({formData?.exec_council?.president?.reg_no})</span></p>
                     <p><span className="text-stone-500 w-32 inline-block">Gen Secretary:</span> <strong className="text-stone-900">{formData?.exec_council?.gen_sec?.name}</strong> <span className="text-stone-400">({formData?.exec_council?.gen_sec?.reg_no})</span></p>
                     <p><span className="text-stone-500 w-32 inline-block">Treasurer:</span> <strong className="text-stone-900">{formData?.exec_council?.treasurer?.name}</strong> <span className="text-stone-400">({formData?.exec_council?.treasurer?.reg_no})</span></p>
+                    {formData?.exec_council?.others?.map((member: { name: string, reg_no: string }, idx: number) => (
+                       member.name && <p key={idx}><span className="text-stone-500 w-32 inline-block">Other Member {idx + 1}:</span> <strong className="text-stone-900">{member.name}</strong> <span className="text-stone-400">({member.reg_no})</span></p>
+                    ))}
                  </div>
                </div>
 
@@ -241,6 +244,24 @@ export default function ReadonlyRenewalDetails({ request }: { request: { society
                  </div>
                </div>
             </div>
+
+            {formData?.exec_council_elect && formData.exec_council_elect.length > 0 && (
+              <div className="space-y-4">
+                <h5 className="text-xs font-bold text-stone-400 uppercase tracking-widest border-b border-stone-100 pb-2">Executive Council - Elect</h5>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-6 text-sm">
+                  {formData.exec_council_elect.map((member: { name: string, reg_no: string }, idx: number) => {
+                     const labels = ['President', 'General Secretary', 'Treasurer'];
+                     const label = labels[idx] || `Member ${idx + 1}`;
+                     return member.name && (
+                       <p key={idx} className="flex flex-col mb-2">
+                         <span className="text-stone-500 text-xs">{label}:</span> 
+                         <span><strong className="text-stone-900">{member.name}</strong> <span className="text-stone-400">({member.reg_no})</span></span>
+                       </p>
+                     );
+                  })}
+                </div>
+              </div>
+            )}
 
             {formData?.calendar_events && (
               <div className="space-y-4">
