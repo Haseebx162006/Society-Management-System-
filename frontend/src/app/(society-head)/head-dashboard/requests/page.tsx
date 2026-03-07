@@ -123,7 +123,16 @@ export default function ManageRequestsPage() {
                   </p>
                 </div>
                 
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3">
+                  {req.status === 'PENDING' && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleCompare(req._id); }}
+                      className="hidden sm:flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-xl transition-colors text-sm border border-blue-200 shrink-0"
+                    >
+                      <BarChart3 className="w-4 h-4" />
+                      Compare
+                    </button>
+                  )}
                   <div className="text-right hidden sm:block">
                     <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-1">Date Submitted</p>
                     <p className="text-sm font-semibold text-stone-700 flex items-center justify-end gap-1">
@@ -143,11 +152,20 @@ export default function ManageRequestsPage() {
                   <div className="bg-white m-4 sm:m-0 p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm space-y-10">
                     
                     {/* Header */}
-                    <div>
-                      <h4 className="text-xl font-black text-stone-900">{req.society_name}</h4>
-                      <p className="text-sm text-stone-500 mt-1">
-                        New Society Registration Request
-                      </p>
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                      <div>
+                        <h4 className="text-xl font-black text-stone-900">{req.society_name}</h4>
+                        <p className="text-sm text-stone-500 mt-1">New Society Registration Request</p>
+                      </div>
+                      {req.status === 'PENDING' && (
+                        <button
+                          onClick={() => handleCompare(req._id)}
+                          className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors text-sm shadow-md shadow-blue-500/20 shrink-0"
+                        >
+                          <BarChart3 className="w-4 h-4" />
+                          AI Comparison Report
+                        </button>
+                      )}
                     </div>
 
                     {/* ===================== REVIEW FORM DATA ===================== */
@@ -244,13 +262,6 @@ export default function ManageRequestsPage() {
                   {/* Actions */}
                   {req.status === 'PENDING' ? (
                     <div className="flex flex-col sm:flex-row items-center justify-end gap-3 mt-6 p-4 sm:p-6 sm:pt-0">
-                      <button 
-                        onClick={() => handleCompare(req._id)}
-                        className="w-full sm:w-auto px-6 py-3 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-xl transition-colors text-sm border border-blue-100 flex items-center justify-center gap-2"
-                      >
-                        <BarChart3 className="w-4 h-4" />
-                        Compare with Existing
-                      </button>
                       <button 
                         onClick={() => handleStatusUpdate(req._id, "REJECTED")}
                         disabled={isUpdating}
