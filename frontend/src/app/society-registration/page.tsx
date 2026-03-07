@@ -80,12 +80,6 @@ export default function SocietyRegistrationFormsPage() {
               </button>
             )}
             
-            {!canRenew && (
-               <div className="flex-1 py-6 px-6 font-bold text-sm sm:text-base md:text-lg tracking-wide text-stone-300 bg-stone-50/50 flex items-center justify-center gap-2 cursor-not-allowed" title="You must have an approved Society Registration to access this form.">
-                  <RefreshCw className="w-5 h-5 opacity-50" />
-                  Renewal Form (Locked)
-               </div>
-            )}
           </div>
 
           {/* Form Content */}

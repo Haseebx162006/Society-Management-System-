@@ -5,7 +5,7 @@ import { MdGroups, MdEvent } from 'react-icons/md';
 import { FaUsers, FaArrowRight, FaBell, FaBars } from 'react-icons/fa';
 import { useGetEventsBySocietyQuery } from '@/lib/features/events/eventApiSlice';
 import { useGetSocietyRequestForSocietyQuery, useGetMySocietyRequestsQuery } from '@/lib/features/societies/societyApiSlice';
-import { CheckCircle2, Clock, Lock } from 'lucide-react';
+import { Lock, AlertCircle } from 'lucide-react';
 
 import MemberBarChart from '@/components/charts/MemberBarChart';
 import GrowthLineChart from '@/components/charts/GrowthLineChart';
@@ -22,15 +22,29 @@ import SponsorsManager from '@/components/society/SponsorsManager';
 import DocumentationPage from '@/components/society/DocumentationPage';
 import ApplicationForm from '@/components/profile/forms/ApplicationForm';
 import ReadonlySocietyDetails from '@/components/profile/forms/ReadonlySocietyDetails';
+import ReadonlyRenewalDetails from '@/components/profile/forms/ReadonlyRenewalDetails';
+
+interface SocietyMember {
+  user_id: { _id: string; name: string };
+  role: string;
+  assigned_at: string;
+  group_id?: string | { _id: string; name: string };
+}
+
+interface SocietyGroup {
+  _id: string;
+  name: string;
+}
 
 interface SocietyDashboardProps {
   society: {
     _id: string;
     name: string;
     description: string;
-    members: any[];
-    groups: any[];
+    members: SocietyMember[];
+    groups: SocietyGroup[];
     registration_fee: number;
+    renewal_approved: boolean;
     content_sections: any[];
     [key: string]: any;
   };
@@ -49,8 +63,8 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
     skip: activeTab !== 'renewal-form'
   });
 
-  const renewalRequest = (myRequests as any[]).find(
-    (r: any) => r.request_type === 'RENEWAL' && r.society_name === society.name
+  const renewalRequest = (myRequests as { request_type: string, society_name: string, status: string, form_data: any }[]).find(
+    (r) => r.request_type === 'RENEWAL' && r.society_name === society.name
   );
   const isRenewalLocked = renewalRequest && (renewalRequest.status === 'PENDING' || renewalRequest.status === 'APPROVED');
 
@@ -188,7 +202,6 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
         .slice(0, 5);
   }, [society.members]);
 
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
       <DashboardSidebar
@@ -240,7 +253,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
             </div>
             <h3 className="text-2xl font-black text-slate-900 mb-2">Feature Locked</h3>
             <p className="text-slate-500 max-w-sm px-6">
-              This feature is currently locked. You must submit and receive approval for your society's renewal request to regain full access to the dashboard.
+              This feature is currently locked. You must submit and receive approval for your society&apos;s renewal request to regain full access to the dashboard.
             </p>
             <button 
               onClick={() => setActiveTab('renewal-form')}
@@ -293,8 +306,8 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                     <h3 className="text-lg font-semibold text-slate-800 mb-6">Recent Activity</h3>
                     <div className="space-y-4">
                       {recentActivity.length > 0 ? (
-                        recentActivity.map((member: any) => (
-                            <div key={member._id} className="flex items-center gap-4 p-4 bg-slate-50/80 rounded-xl border border-slate-100 hover:bg-orange-50/50 transition-colors cursor-default">
+                        recentActivity.map((member: SocietyMember, i: number) => (
+                            <div key={i} className="flex items-center gap-4 p-4 bg-slate-50/80 rounded-xl border border-slate-100 hover:bg-orange-50/50 transition-colors cursor-default">
                             <div className="w-10 h-10 rounded-full bg-orange-100/50 flex items-center justify-center text-orange-600 text-lg shadow-sm">
                                 <FaBell />
                             </div>
@@ -363,39 +376,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
             ) : activeTab === 'renewal-form' ? (
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-4xl mx-auto">
                 {isRenewalLocked ? (
-                  <div className="flex flex-col items-center justify-center py-20 text-center px-4">
-                    {renewalRequest.status === 'APPROVED' ? (
-                      <>
-                        <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-6">
-                          <CheckCircle2 className="w-10 h-10 text-emerald-500" />
-                        </div>
-                        <h3 className="text-2xl font-black text-slate-900 mb-2">Renewal Approved</h3>
-                        <p className="text-slate-500 max-w-sm">
-                          Your renewal has been approved. Your society is active. The renewal form will open again when the next renewal cycle begins.
-                        </p>
-                        <div className="mt-6 px-5 py-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-                          <p className="text-sm font-bold text-emerald-700 flex items-center gap-2">
-                            <Lock className="w-4 h-4" /> Form Locked Until Next Cycle
-                          </p>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="w-20 h-20 rounded-full bg-orange-50 flex items-center justify-center mb-6">
-                          <Clock className="w-10 h-10 text-orange-400" />
-                        </div>
-                        <h3 className="text-2xl font-black text-slate-900 mb-2">Renewal Pending Review</h3>
-                        <p className="text-slate-500 max-w-sm">
-                          Your renewal application has been submitted and is awaiting review by the society head. You will be notified once a decision is made.
-                        </p>
-                        <div className="mt-6 px-5 py-3 bg-orange-50 border border-orange-200 rounded-xl">
-                          <p className="text-sm font-bold text-orange-700 flex items-center gap-2">
-                            <Lock className="w-4 h-4" /> Form Locked — Awaiting Approval
-                          </p>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                  <ReadonlyRenewalDetails request={renewalRequest} />
                 ) : (
                   <ApplicationForm prefillSocietyName={society.name} />
                 )}
@@ -411,6 +392,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
     </div>
   );
 };
+
 
 const StatCard = ({ title, value, icon, color }: { title: string; value: string | number; icon: React.ReactNode; color: string }) => {
   const colorMap: Record<string, string> = {

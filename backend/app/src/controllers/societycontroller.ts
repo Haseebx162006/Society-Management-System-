@@ -240,8 +240,14 @@ export const getSocietyRequestForSociety = async (req: AuthRequest, res: Respons
         const society = await Society.findById(id);
         if (!society) return sendError(res, 404, "Society not found");
         
-        // Find the most recent APPROVED register/renewal request for this society
-        const request = await SocietyRequest.findOne({ society_name: society.name, status: "APPROVED" }).sort({created_at: -1});
+        // Find the most recent APPROVED REGISTER request for this society
+        // (This differentiates from RENEWAL requests which have different data structure)
+        const request = await SocietyRequest.findOne({ 
+            society_name: society.name, 
+            status: "APPROVED",
+            request_type: "REGISTER" 
+        }).sort({created_at: -1});
+
         if (!request) return sendError(res, 404, "Approved registration request not found for this society");
         
         return sendResponse(res, 200, "Society request fetched successfully", request);
