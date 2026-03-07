@@ -1,6 +1,6 @@
-import { MdDashboard, MdEvent, MdSettings, MdGroups, MdEmail, MdClose } from 'react-icons/md';
+import { MdDashboard, MdEvent, MdSettings, MdGroups, MdClose } from 'react-icons/md';
 import { FaSignOutAlt, FaUsers, FaWpforms, FaClipboardList, FaHome, FaHistory, FaHandshake } from 'react-icons/fa';
-import { RefreshCw, FileText } from 'lucide-react';
+import { RefreshCw, FileText, Lock } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { logOut, selectRefreshToken } from '@/lib/features/auth/authSlice';
@@ -12,9 +12,10 @@ interface DashboardSidebarProps {
   isOpen: boolean;
   onClose: () => void;
   role?: string;
+  renewal_approved?: boolean;
 }
 
-const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiveTab, isOpen, onClose, role = 'MEMBER' }) => {
+const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiveTab, isOpen, onClose, role = 'MEMBER', renewal_approved = true }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const refreshToken = useAppSelector(selectRefreshToken);
@@ -71,22 +72,35 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
       </div>
 
       <nav className="flex-1 p-4 space-y-2">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => {
-              setActiveTab(item.id);
-              onClose();
-            }}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${activeTab === item.id
-                ? 'bg-orange-50 text-orange-600 border border-orange-100 shadow-sm'
-                : 'text-stone-500 hover:bg-stone-50 hover:text-stone-900'
+        {navItems.map((item) => {
+          const isLocked = !renewal_approved && item.id !== 'renewal-form' && item.id !== 'review-form';
+          
+          return (
+            <button
+              key={item.id}
+              disabled={isLocked}
+              onClick={() => {
+                if (!isLocked) {
+                  setActiveTab(item.id);
+                  onClose();
+                }
+              }}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all font-medium ${
+                activeTab === item.id
+                  ? 'bg-orange-50 text-orange-600 border border-orange-100 shadow-sm'
+                  : isLocked 
+                    ? 'text-stone-300 cursor-not-allowed opacity-60'
+                    : 'text-stone-500 hover:bg-stone-50 hover:text-stone-900'
               }`}
-          >
-            <span className="text-xl">{item.icon}</span>
-            <span>{item.label}</span>
-          </button>
-        ))}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">{item.icon}</span>
+                <span>{item.label}</span>
+              </div>
+              {isLocked && <Lock className="w-4 h-4 text-stone-300" />}
+            </button>
+          );
+        })}
       </nav>
 
       <div className="p-4 border-t border-stone-100 space-y-2">

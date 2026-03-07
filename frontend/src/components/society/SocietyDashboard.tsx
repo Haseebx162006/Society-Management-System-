@@ -38,7 +38,8 @@ interface SocietyDashboardProps {
 
 const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   const { user } = useSelector((state: RootState) => state.auth);
-  const [activeTab, setActiveTab] = React.useState('overview');
+  const isApproved = society.renewal_approved;
+  const [activeTab, setActiveTab] = React.useState(isApproved ? 'overview' : 'renewal-form');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const { data: events } = useGetEventsBySocietyQuery(society._id);
   const { data: societyRequest, isLoading: isRequestLoading } = useGetSocietyRequestForSocietyQuery(society._id, { 
@@ -196,6 +197,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         role={currentUserRole}
+        renewal_approved={isApproved}
       />
 
       {/* Backdrop */}
@@ -219,12 +221,35 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
               <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
                 {society.name} <span className="text-orange-600">Dashboard</span>
               </h1>
-              <p className="text-slate-500 mt-1 font-medium text-sm md:text-base">Welcome back, {currentUserRole === 'PRESIDENT' ? 'President' : currentUserRole === 'EVENT MANAGER' ? 'Event Manager' : currentUserRole === 'FINANCE MANAGER' ? 'Finance Manager' : ''} {user?.name}</p>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
+                <p className="text-slate-500 font-medium text-sm md:text-base">Welcome back, {currentUserRole === 'PRESIDENT' ? 'President' : currentUserRole === 'EVENT MANAGER' ? 'Event Manager' : currentUserRole === 'FINANCE MANAGER' ? 'Finance Manager' : ''} {user?.name}</p>
+                {!isApproved && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
+                    <Lock className="w-3 h-3" /> Renewal Required
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {activeTab === 'settings' ? (
+        {(!isApproved && activeTab !== 'renewal-form' && activeTab !== 'review-form') ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-2xl border border-slate-100 shadow-sm">
+            <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center mb-6">
+              <Lock className="w-10 h-10 text-amber-500" />
+            </div>
+            <h3 className="text-2xl font-black text-slate-900 mb-2">Feature Locked</h3>
+            <p className="text-slate-500 max-w-sm px-6">
+              This feature is currently locked. You must submit and receive approval for your society's renewal request to regain full access to the dashboard.
+            </p>
+            <button 
+              onClick={() => setActiveTab('renewal-form')}
+              className="mt-8 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition-all shadow-md flex items-center gap-2"
+            >
+              Go to Renewal Form <FaArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        ) : activeTab === 'settings' ? (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
              <div className="mb-6">
               <h2 className="text-2xl font-bold text-slate-800">Edit Society Settings</h2>
