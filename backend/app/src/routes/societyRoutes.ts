@@ -40,7 +40,7 @@ router.post('/', protect, upload.single("logo"), createSociety);
 router.get('/manageable', protect, getMyManageableSocieties);
 router.get('/admin/all', protect, adminOnly, getAllSocietiesAdmin);
 router.get('/', getAllSocieties);
-router.get('/members/all', protect, adminOnly, getAllPlatformMembers);
+router.get('/members/all', protect, adminOrSocietyHead, getAllPlatformMembers);
 router.get('/:id/request', protect, getSocietyRequestForSociety);
 router.get('/:id', getSocietyById);
 router.put('/:id', protect, authorize(['PRESIDENT'], 'SOCIETY'), upload.single("logo"), updateSociety);
