@@ -7,7 +7,7 @@ export interface IGroupMember extends Document {
     group_id: mongoose.Types.ObjectId | IGroup;
     user_id: mongoose.Types.ObjectId | IUser;
     society_id: mongoose.Types.ObjectId | ISociety;
-    role: "LEAD" | "CO-LEAD" | "GENERAL SECRETARY" | "MEMBER";
+    role: "LEAD" | "CO-LEAD" | "SPONSOR MANAGER" | "MEMBER";
     joined_at: Date;
 }
 
@@ -29,7 +29,7 @@ const groupMemberSchema: Schema = new Schema({
     },
     role: {
         type: String,
-        enum: ["LEAD", "CO-LEAD", "GENERAL SECRETARY", "MEMBER"],
+        enum: ["LEAD", "CO-LEAD", "SPONSOR MANAGER", "MEMBER"],
         default: "MEMBER"
     },
     joined_at: {

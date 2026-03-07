@@ -4,6 +4,8 @@ import { RootState } from '@/lib/store';
 import { MdGroups, MdEvent } from 'react-icons/md';
 import { FaUsers, FaArrowRight, FaBell, FaBars } from 'react-icons/fa';
 import { useGetEventsBySocietyQuery } from '@/lib/features/events/eventApiSlice';
+import { useGetSocietyRequestForSocietyQuery } from '@/lib/features/societies/societyApiSlice';
+import { Lock, AlertCircle } from 'lucide-react';
 
 import MemberBarChart from '@/components/charts/MemberBarChart';
 import GrowthLineChart from '@/components/charts/GrowthLineChart';
@@ -16,16 +18,33 @@ import TeamsManager from '@/components/society/TeamsManager';
 import EventManager from '@/components/society/EventManager';
 import EventFormBuilder from '@/components/society/EventFormBuilder';
 import PreviousMembersManager from '@/components/society/PreviousMembersManager';
-import SendEmailManager from '@/components/society/SendEmailManager';
+import SponsorsManager from '@/components/society/SponsorsManager';
+import DocumentationPage from '@/components/society/DocumentationPage';
+import ApplicationForm from '@/components/profile/forms/ApplicationForm';
+import ReadonlySocietyDetails from '@/components/profile/forms/ReadonlySocietyDetails';
+import ReadonlyRenewalDetails from '@/components/profile/forms/ReadonlyRenewalDetails';
+
+interface SocietyMember {
+  user_id: { _id: string; name: string };
+  role: string;
+  assigned_at: string;
+  group_id?: string | { _id: string; name: string };
+}
+
+interface SocietyGroup {
+  _id: string;
+  name: string;
+}
 
 interface SocietyDashboardProps {
   society: {
     _id: string;
     name: string;
     description: string;
-    members: any[];
-    groups: any[];
+    members: SocietyMember[];
+    groups: SocietyGroup[];
     registration_fee: number;
+    renewal_approved: boolean;
     content_sections: any[];
     [key: string]: any;
   };
@@ -33,9 +52,18 @@ interface SocietyDashboardProps {
 
 const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   const { user } = useSelector((state: RootState) => state.auth);
-  const [activeTab, setActiveTab] = React.useState('overview');
+  const isApproved = society.renewal_approved;
+  const [activeTab, setActiveTab] = React.useState(isApproved ? 'overview' : 'renewal-form');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const { data: events } = useGetEventsBySocietyQuery(society._id);
+  const { data: societyRequest, isLoading: isRequestLoading } = useGetSocietyRequestForSocietyQuery({ societyId: society._id, type: 'REGISTER' }, { 
+    skip: activeTab !== 'review-form'
+  });
+  const { data: renewalRequest } = useGetSocietyRequestForSocietyQuery({ societyId: society._id, type: 'RENEWAL' }, {
+    skip: activeTab !== 'renewal-form'
+  });
+
+  const isRenewalLocked = renewalRequest && (renewalRequest.status === 'PENDING' || renewalRequest.status === 'APPROVED');
 
   const currentUserRole = useMemo(() => {
       if (!user || !society.members) return 'MEMBER';
@@ -171,7 +199,6 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
         .slice(0, 5);
   }, [society.members]);
 
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
       <DashboardSidebar
@@ -180,6 +207,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         role={currentUserRole}
+        renewal_approved={isApproved}
       />
 
       {/* Backdrop */}
@@ -200,15 +228,38 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
               <FaBars size={24} />
             </button>
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
+              <h1 className="text-2xl md:text-3xl font-semibold text-slate-900 tracking-tight">
                 {society.name} <span className="text-orange-600">Dashboard</span>
               </h1>
-              <p className="text-slate-500 mt-1 font-medium text-sm md:text-base">Welcome back, {currentUserRole === 'PRESIDENT' ? 'President' : currentUserRole === 'EVENT MANAGER' ? 'Event Manager' : currentUserRole === 'FINANCE MANAGER' ? 'Finance Manager' : ''} {user?.name}</p>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
+                <p className="text-slate-500 font-medium text-sm md:text-base">Welcome back, {currentUserRole === 'PRESIDENT' ? 'President' : currentUserRole === 'EVENT MANAGER' ? 'Event Manager' : currentUserRole === 'FINANCE MANAGER' ? 'Finance Manager' : ''} {user?.name}</p>
+                {!isApproved && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700 border border-amber-200">
+                    <Lock className="w-3 h-3" /> Renewal Required
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {activeTab === 'settings' ? (
+        {(!isApproved && activeTab !== 'renewal-form' && activeTab !== 'review-form') ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-2xl border border-slate-100 shadow-sm">
+            <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center mb-6">
+              <Lock className="w-10 h-10 text-amber-500" />
+            </div>
+            <h3 className="text-2xl font-semibold text-slate-900 mb-2">Feature Locked</h3>
+            <p className="text-slate-500 max-w-sm px-6">
+              This feature is currently locked. You must submit and receive approval for your society&apos;s renewal request to regain full access to the dashboard.
+            </p>
+            <button 
+              onClick={() => setActiveTab('renewal-form')}
+              className="mt-8 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-xl transition-all shadow-md flex items-center gap-2"
+            >
+              Go to Renewal Form <FaArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        ) : activeTab === 'settings' ? (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
              <div className="mb-6">
               <h2 className="text-2xl font-bold text-slate-800">Edit Society Settings</h2>
@@ -234,13 +285,13 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                   <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                    <h3 className="text-lg font-semibold text-slate-800 mb-6">Member Growth</h3>
+                    <h3 className="text-lg font-medium text-slate-800 mb-6">Member Growth</h3>
                     <div className="h-64">
                        {growthData && <GrowthLineChart data={growthData} />}
                     </div>
                   </div>
                   <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                    <h3 className="text-lg font-semibold text-slate-800 mb-6">Team Distribution</h3>
+                    <h3 className="text-lg font-medium text-slate-800 mb-6">Team Distribution</h3>
                     <div className="h-64 flex justify-center">
                       {teamDistributionData && <MemberBarChart data={teamDistributionData} />}
                     </div>
@@ -249,17 +300,17 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                    <h3 className="text-lg font-semibold text-slate-800 mb-6">Recent Activity</h3>
+                    <h3 className="text-lg font-medium text-slate-800 mb-6">Recent Activity</h3>
                     <div className="space-y-4">
                       {recentActivity.length > 0 ? (
-                        recentActivity.map((member: any) => (
-                            <div key={member._id} className="flex items-center gap-4 p-4 bg-slate-50/80 rounded-xl border border-slate-100 hover:bg-orange-50/50 transition-colors cursor-default">
+                        recentActivity.map((member: SocietyMember, i: number) => (
+                            <div key={i} className="flex items-center gap-4 p-4 bg-slate-50/80 rounded-xl border border-slate-100 hover:bg-orange-50/50 transition-colors cursor-default">
                             <div className="w-10 h-10 rounded-full bg-orange-100/50 flex items-center justify-center text-orange-600 text-lg shadow-sm">
                                 <FaBell />
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-slate-800">
-                                   <span className="font-bold">{member.user_id?.name || "Unknown User"}</span> joined the society
+                                   <span className="font-semibold">{member.user_id?.name || "Unknown User"}</span> joined the society
                                 </p>
                                 <p className="text-xs text-slate-400 mt-1">
                                     {new Date(member.assigned_at).toLocaleDateString()}
@@ -273,7 +324,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                     </div>
                   </div>
                   <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                    <h3 className="text-lg font-semibold text-slate-800 mb-6">Quick Actions</h3>
+                    <h3 className="text-lg font-medium text-slate-800 mb-6">Quick Actions</h3>
                     <div className="space-y-3">
                       {(currentUserRole === 'PRESIDENT' || currentUserRole === 'EVENT MANAGER') && (
                           <>
@@ -305,8 +356,28 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
               <EventFormBuilder societyId={society._id} />
             ) : activeTab === 'previous-members' ? (
               <PreviousMembersManager societyId={society._id} />
-            ) : activeTab === 'send-email' ? (
-              <SendEmailManager societyId={society._id} />
+            ) : activeTab === 'sponsors' ? (
+              <SponsorsManager societyId={society._id} />
+            ) : activeTab === 'documentation' ? (
+              <DocumentationPage societyId={society._id} />
+            ) : activeTab === 'review-form' ? (
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-4xl mx-auto">
+                {isRequestLoading ? (
+                  <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" /></div>
+                ) : societyRequest ? (
+                  <ReadonlySocietyDetails request={societyRequest} />
+                ) : (
+                  <div className="text-center py-12 text-slate-500">No original registration data available.</div>
+                )}
+              </div>
+            ) : activeTab === 'renewal-form' ? (
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-4xl mx-auto">
+                {isRenewalLocked ? (
+                  <ReadonlyRenewalDetails request={renewalRequest} />
+                ) : (
+                  <ApplicationForm prefillSocietyName={society.name} />
+                )}
+              </div>
             ) : (
               <div className="flex items-center justify-center h-96 text-slate-400 animate-pulse">
                 Content for {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} coming soon...
@@ -318,6 +389,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
     </div>
   );
 };
+
 
 const StatCard = ({ title, value, icon, color }: { title: string; value: string | number; icon: React.ReactNode; color: string }) => {
   const colorMap: Record<string, string> = {
@@ -336,7 +408,7 @@ const StatCard = ({ title, value, icon, color }: { title: string; value: string 
       <div className="flex justify-between items-start">
         <div>
           <p className="text-slate-500 text-sm font-medium mb-1">{title}</p>
-          <h4 className="text-3xl font-bold text-slate-800">{value}</h4>
+          <h4 className="text-3xl font-semibold text-slate-800">{value}</h4>
         </div>
         <span className={`text-2xl p-3 rounded-xl ${iconClass}`}>
           {icon}

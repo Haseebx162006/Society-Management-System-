@@ -9,7 +9,7 @@ const router = express.Router();
 router.get(
     '/:society_id/targets',
     protect,
-    authorize(['PRESIDENT', 'GENERAL SECRETARY', 'EVENT MANAGER', 'LEAD', 'CO-LEAD'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'SPONSOR MANAGER', 'EVENT MANAGER', 'LEAD', 'CO-LEAD'], 'SOCIETY'),
     getEmailTargets
 );
 
@@ -17,7 +17,7 @@ router.get(
 router.post(
     '/:society_id/send',
     protect,
-    authorize(['PRESIDENT', 'GENERAL SECRETARY', 'EVENT MANAGER', 'LEAD', 'CO-LEAD'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'SPONSOR MANAGER', 'EVENT MANAGER', 'LEAD', 'CO-LEAD'], 'SOCIETY'),
     sendBulkEmail
 );
 

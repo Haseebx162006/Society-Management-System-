@@ -5,9 +5,12 @@ export interface User {
   _id?: string; // MongoDB ID from backend
   name: string;
   email: string;
-  phone?: string;
-  is_super_admin: boolean;
+  email_verified: boolean;
+  is_active: boolean;
   password_reset_required: boolean;
+  is_super_admin: boolean;
+  is_society_head: boolean;
+  phone?: string;
   status?: "ACTIVE" | "INACTIVE" | "SUSPENDED" | "IMPORTED";
   locked_until?: string | null;
 }

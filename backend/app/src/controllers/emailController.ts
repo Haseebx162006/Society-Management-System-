@@ -13,7 +13,7 @@ import { bulkEmailTemplate } from '../utils/emailTemplates';
 /**
  * Send email to society members
  * Can target: all members, specific groups, or multiple groups
- * Allowed roles: PRESIDENT, GENERAL SECRETARY, EVENT MANAGER, LEAD, CO-LEAD
+ * Allowed roles: PRESIDENT, SPONSOR MANAGER, EVENT MANAGER, LEAD, CO-LEAD
  */
 export const sendBulkEmail = async (req: AuthRequest, res: Response) => {
     try {

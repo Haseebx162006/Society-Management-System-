@@ -50,3 +50,19 @@ export const adminOnly = async (req: AuthRequest, res: Response, next: NextFunct
         return sendError(res, 403, "Not authorized as admin");
     }
 }
+
+export const societyHeadOnly = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (req.user && req.user.email === "societies.head@cuilahore.edu.pk") {
+         return next();
+    } else {
+        return sendError(res, 403, "Not authorized as society head");
+    }
+}
+
+export const adminOrSocietyHead = async (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (req.user && (req.user.is_super_admin || req.user.email === "societies.head@cuilahore.edu.pk")) {
+         return next();
+    } else {
+        return sendError(res, 403, "Not authorized as admin or society head");
+    }
+}

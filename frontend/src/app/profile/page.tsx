@@ -1,5 +1,9 @@
 "use client";
 
+function isFacultyEmail(email: string): boolean {
+  return /^[^\d]+@cuilahore\.edu\.pk$/i.test(email);
+}
+
 import { useState, useEffect, useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "../../lib/hooks";
 import {
@@ -76,7 +80,20 @@ export default function ProfilePage() {
       });
     }
 
-    const canAccessDashboard = societies?.some((s) => s.role === "PRESIDENT" || s.role === "FINANCE MANAGER" || s.role === "EVENT MANAGER");
+    if (user?.email === "societies.head@cuilahore.edu.pk") {
+      items.push({
+        key: "head-dashboard",
+        label: "Society Head Dashboard",
+        icon: (
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
+          </svg>
+        ),
+        action: () => router.push("/head-dashboard"),
+      });
+    }
+
+    const canAccessDashboard = societies?.some((s) => s.role === "PRESIDENT" || s.role === "FACULTY ADVISOR" || s.role === "FINANCE MANAGER" || s.role === "EVENT MANAGER" || s.role === "SPONSOR MANAGER" || s.role === "DOCUMENTATION MANAGER");
     if (canAccessDashboard) {
       items.push({
         key: "society-dashboard",
@@ -91,9 +108,11 @@ export default function ProfilePage() {
     }
 
 
+    const isFacultyAdvisor = societies?.some((s) => s.role === "FACULTY ADVISOR");
     const isPresident = societies?.some((s) => s.role === "PRESIDENT");
+    const isFaculty = user?.email ? isFacultyEmail(user.email) : false;
 
-    if (!user?.is_super_admin && !isPresident) {
+    if (!user?.is_super_admin && !isPresident && !isFacultyAdvisor && isFaculty) {
       items.push({
         key: "request-registration",
         label: "Request Society Registration",

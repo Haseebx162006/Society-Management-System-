@@ -6,6 +6,8 @@ export interface ISocietyRequest extends Document {
     society_name: string;
     description?: string;
     status: "APPROVED" | "PENDING" | "REJECTED";
+    request_type: "REGISTER" | "RENEWAL";
+    form_data?: any;
     rejection_reason?: string;
     reviewed_by?: mongoose.Types.ObjectId | IUser;
     reviewed_at?: Date;
@@ -20,8 +22,7 @@ const societyRequestSchema: Schema = new Schema({
     },
     society_name: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     description: {
         type: String
@@ -30,6 +31,14 @@ const societyRequestSchema: Schema = new Schema({
         type: String,
         enum: ["APPROVED", "PENDING", "REJECTED"],
         default: "PENDING"
+    },
+    request_type: {
+        type: String,
+        enum: ["REGISTER", "RENEWAL"],
+        default: "REGISTER"
+    },
+    form_data: {
+        type: mongoose.Schema.Types.Mixed
     },
     rejection_reason: {
         type: String

@@ -9,15 +9,15 @@ import gsap from "gsap";
 
 const logos = [
   "/logos/acm.jpg",
-  "/logos/building.png",
+  "/logos/cfds.jpg",
   "/logos/cls.jpg",
   "/logos/gdgoc1.jpg",
   "/logos/mlsa.jpg",
-  "/logos/acm.jpg",
-  "/logos/building.png",
-  "/logos/cls.jpg",
-  "/logos/gdgoc1.jpg",
-  "/logos/mlsa.jpg",
+  "/logos/ctec.jpg",
+  "/logos/cec.jpg",
+  "/logos/cics.jpg",
+  "/logos/cms.jpg",
+  "/logos/ieee.jpg",
   "/logos/acm.jpg",
   "/logos/building.png",
 ];

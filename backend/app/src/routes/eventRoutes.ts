@@ -70,13 +70,13 @@ router.post(
 router.get(
     '/society/:id/events',
     protect,
-    authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'SPONSOR MANAGER'], 'SOCIETY'),
     getEventsBySociety
 );
 router.get(
     '/society/:id/events/:eventId',
     protect,
-    authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'GENERAL SECRETARY'], 'SOCIETY'),
+    authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'SPONSOR MANAGER'], 'SOCIETY'),
     getEventById
 );
 router.put(

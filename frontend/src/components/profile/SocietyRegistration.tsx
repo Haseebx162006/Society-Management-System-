@@ -1,114 +1,78 @@
-import { useState } from "react";
-import { useCreateSocietyRequestMutation } from "../../lib/features/societies/societyApiSlice";
+import { motion } from "framer-motion";
+import { AlertTriangle, Info, ArrowRight, ShieldCheck, FileText } from "lucide-react";
+import Link from "next/link";
 
 export default function SocietyRegistration() {
-  const [formData, setFormData] = useState({
-    society_name: "",
-    description: "",
-  });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [createRequest, { isLoading }] = useCreateSocietyRequestMutation();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-
-    if (!formData.society_name.trim()) {
-      setError("Society name is required");
-      return;
-    }
-
-    try {
-      await createRequest(formData).unwrap();
-      setSuccess("Request submitted successfully! An admin will review it shortly.");
-      setFormData({ society_name: "", description: "" });
-    } catch (err) {
-      console.error("Failed to submit request:", err);
-      const error = err as { data?: { message?: string } };
-      setError(error?.data?.message || "Failed to submit request");
-    }
-  };
-
   return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-stone-900 font-[var(--font-family-poppins)]">
-          Register a New Society
-        </h2>
-        <p className="text-sm text-stone-400 mt-1">
-          Submit a request to create a new society.
-        </p>
-      </div>
+    <div className="space-y-8 font-(--font-family-poppins)">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-4xl mx-auto"
+      >
+        <div className="mb-8">
+          <h2 className="text-3xl font-black text-stone-900 tracking-tight">Registration Guidelines</h2>
+          <p className="text-stone-500 mt-2 font-medium">Please review our policies before submitting a request.</p>
+        </div>
 
-      <div className="bg-stone-50 border border-stone-100 rounded-2xl p-6 md:p-8">
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-              {error}
-            </div>
-          )}
+        <div className="bg-white border border-stone-200 rounded-3xl p-8 md:p-10 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-50 rounded-full blur-3xl -mr-20 -mt-20 opacity-50 pointer-events-none" />
           
-          {success && (
-            <div className="bg-emerald-50 border border-emerald-200 text-emerald-600 px-4 py-3 rounded-lg text-sm">
-              {success}
+          <div className="relative z-10 space-y-8">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-6 h-6 text-orange-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-stone-900 mb-2">Faculty Advisor Requirement</h3>
+                <p className="text-stone-600 leading-relaxed">
+                  Only officially recognized Faculty Advisors are permitted to request society registration or submit renewal forms. Student submissions will be automatically rejected.
+                </p>
+              </div>
             </div>
-          )}
 
-          <div>
-            <label htmlFor="society_name" className="block text-sm font-medium text-stone-700">
-              Society Name
-            </label>
-            <div className="mt-1">
-              <input
-                id="society_name"
-                name="society_name"
-                type="text"
-                required
-                value={formData.society_name}
-                onChange={handleChange}
-                className="appearance-none block w-full px-4 py-3 border border-stone-200 rounded-xl shadow-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 sm:text-sm transition-all duration-200"
-                placeholder="e.g. Green Valley Residents"
-              />
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center shrink-0">
+                <FileText className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-stone-900 mb-2">Dual Submission Forms</h3>
+                <p className="text-stone-600 leading-relaxed">
+                  You will be provided with two specialized forms upon proceeding:
+                  <br/>• <strong className="text-stone-800">Review Form:</strong> For initiating the registration of a completely new society.
+                  <br/>• <strong className="text-stone-800">Renewal Form:</strong> For renewing an existing society's active status every academic year.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-stone-900 mb-2">Strict Information Policy</h3>
+                <p className="text-stone-600 leading-relaxed">
+                  No false or misleading information is tolerated. Ensure all details, including society name and past activity descriptions, are 100% accurate. Discrepancies may lead to permanent suspension of registration privileges.
+                </p>
+              </div>
+            </div>
+
+            <div className="pt-8 border-t border-stone-100 flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-2 text-stone-500 text-sm font-medium">
+                <Info className="w-4 h-4" />
+                By proceeding, you acknowledge these conditions.
+              </div>
+              <Link
+                href="/society-registration"
+                className="flex items-center gap-2 py-3 px-8 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-orange-600/20 group"
+              >
+                Proceed to Form Submission
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
           </div>
-
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-stone-700">
-              Description (Optional)
-            </label>
-            <div className="mt-1">
-              <textarea
-                id="description"
-                name="description"
-                rows={4}
-                value={formData.description}
-                onChange={handleChange}
-                className="appearance-none block w-full px-4 py-3 border border-stone-200 rounded-xl shadow-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 sm:text-sm transition-all duration-200"
-                placeholder="Briefly describe your society..."
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-2">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex justify-center py-2.5 px-6 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-            >
-              {isLoading ? "Submitting..." : "Submit Request"}
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

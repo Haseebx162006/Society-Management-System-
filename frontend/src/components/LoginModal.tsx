@@ -5,6 +5,7 @@ import { useLoginMutation, useSignupMutation } from "../lib/features/auth/authAp
 import { useAppDispatch } from "../lib/hooks";
 import { setCredentials } from "../lib/features/auth/authSlice";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -134,6 +135,17 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               value={formData.password}
               onChange={handleChange}
             />
+            {isLogin && (
+              <div className="mt-1 text-right">
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-orange-600 hover:text-orange-700 hover:underline"
+                  onClick={onClose}
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+            )}
           </div>
           
           <button

@@ -5,7 +5,7 @@ export interface ISociety extends Document {
     name: string;
     description: string;
     registration_fee: number;
-    category: "Technology" | "Arts" | "Engineering" | "Sports" | "Religious" | "Social" | "Others";
+    category: "Technology" | "Arts" | "Engineering" | "Sports" | "Religious" | "Social" | "Entrepreneurship" | "Others";
     custom_fields: Array<{
         label: string;
         type: "text" | "number" | "date" | "select";
@@ -35,6 +35,7 @@ export interface ISociety extends Document {
     logo?: string;
     joining_verification_required: boolean;
     status: "ACTIVE" | "SUSPENDED" | "DELETED";
+    renewal_approved: boolean;
     created_by: mongoose.Types.ObjectId | IUser;
     is_setup: boolean;
     created_at: Date;
@@ -64,7 +65,7 @@ const societySchema: Schema = new Schema({
     },
     category: {
         type: String,
-        enum: ["Technology", "Arts", "Engineering", "Sports", "Religious", "Social", "Others"],
+        enum: ["Technology", "Arts", "Engineering", "Sports", "Religious", "Social", "Entrepreneurship", "Others"],
         required: true,
         default: "Others"
     },
@@ -111,6 +112,10 @@ const societySchema: Schema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    renewal_approved: {
+        type: Boolean,
+        default: false
     },
     is_setup: {
         type: Boolean,

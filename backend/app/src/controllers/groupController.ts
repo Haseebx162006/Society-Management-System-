@@ -355,7 +355,7 @@ export const updateMemberRole = async (req: AuthRequest, res: Response) => {
         const { id: group_id, userId: user_id } = req.params;
         const { role } = req.body;
 
-        if (!["LEAD", "CO-LEAD", "GENERAL SECRETARY", "MEMBER"].includes(role)) {
+        if (!["LEAD", "CO-LEAD", "SPONSOR MANAGER", "MEMBER"].includes(role)) {
             return sendError(res, 400, "Invalid role");
         }
 
@@ -369,7 +369,7 @@ export const updateMemberRole = async (req: AuthRequest, res: Response) => {
         await member.save({ session });
 
         // Handle SocietyUserRole sync
-        if (["LEAD", "CO-LEAD", "GENERAL SECRETARY"].includes(role)) {
+        if (["LEAD", "CO-LEAD", "SPONSOR MANAGER"].includes(role)) {
              await SocietyUserRole.findOneAndUpdate(
                 { user_id, society_id: group.society_id },
                 {

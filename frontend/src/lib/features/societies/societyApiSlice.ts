@@ -58,6 +58,22 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       providesTags: ["SocietyRequest"],
       transformResponse: (response: { data: any }) => response.data,
     }),
+    getPendingSocietyRequests: builder.query({
+      query: () => "/society/requests/pending",
+      providesTags: ["SocietyRequest"],
+      transformResponse: (response: { data: any }) => response.data,
+    }),
+    getSocietyRequestForSociety: builder.query({
+      query: ({ societyId, type }: { societyId: string; type?: string }) => 
+        `/society/${societyId}/request${type ? `?type=${type}` : ''}`,
+      providesTags: ["SocietyRequest"],
+      transformResponse: (response: { data: any }) => response.data,
+    }),
+    getMySocietyRequests: builder.query({
+      query: () => "/society/requests/me",
+      providesTags: ["SocietyRequest"],
+      transformResponse: (response: { data: any }) => response.data,
+    }),
     updateSocietyRequestStatus: builder.mutation({
       query: ({ id, ...body }) => ({
         url: `/society/requests/${id}`,
@@ -112,6 +128,26 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Society", "SocietyMember"],
     }),
+    askForRenewal: builder.mutation({
+      query: () => ({
+        url: "/society/ask-for-renewal",
+        method: "POST",
+      }),
+      invalidatesTags: ["Society", "SocietyRequest"],
+    }),
+    getAllUsers: builder.query({
+      query: () => "/user/all",
+      providesTags: ["User"],
+      transformResponse: (response: { data: unknown }) => response.data,
+    }),
+    createPresident: builder.mutation({
+      query: ({ societyId, ...body }: { societyId: string; name: string; email: string; phone: string; password: string }) => ({
+        url: `/society/${societyId}/president`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Society"],
+    }),
   }),
 });
 
@@ -131,4 +167,10 @@ export const {
   useReactivateSocietyMutation,
   useGetSocietyMembersQuery,
   useChangePresidentMutation,
+  useGetPendingSocietyRequestsQuery,
+  useGetSocietyRequestForSocietyQuery,
+  useGetMySocietyRequestsQuery,
+  useAskForRenewalMutation,
+  useGetAllUsersQuery,
+  useCreatePresidentMutation,
 } = societyApiSlice;

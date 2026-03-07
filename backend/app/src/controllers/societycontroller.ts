@@ -11,23 +11,36 @@ import mongoose from 'mongoose';
 import { sendResponse, sendError } from '../util/response';
 import { uploadOnCloudinary } from '../utils/cloudinary';
 import { notifySocietyRequest, notifySocietyRequestStatus } from '../services/notificationService';
+import { isFacultyEmail } from '../utils/isFacultyEmail';
 
 
 export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
     try {
-        const { society_name, description } = req.body;
+        // Automatically drop the unique index if it still exists in the database
+        try {
+            await SocietyRequest.collection.dropIndex('society_name_1');
+        } catch (idxError) {
+            // Ignore if index doesn't exist
+        }
+        if (!req.user || !isFacultyEmail(req.user.email)) {
+            return sendError(res, 403, "Only faculty members with a valid university email can request society registration");
+        }
+
+        const { society_name, description, request_type, form_data } = req.body;
 
         if (!society_name || typeof society_name !== "string") {
             return sendError(res, 400, "Society name is required");
         }
 
-        // Check if a society with this name already exists
         const existingSociety = await Society.findOne({ name: society_name });
-        if (existingSociety) {
+        if (existingSociety && request_type !== "RENEWAL") {
             return sendError(res, 400, "A society with this name already exists");
         }
+        
+        if (!existingSociety && request_type === "RENEWAL") {
+            return sendError(res, 404, "Cannot renew a society that does not exist");
+        }
 
-        // Check if there's already a pending request for this society name
         const existingRequest = await SocietyRequest.findOne({
             society_name,
             status: "PENDING"
@@ -39,15 +52,17 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
         const societyRequest = await SocietyRequest.create({
             user_id: req.user!._id,
             society_name,
-            description
+            description,
+            request_type: request_type || "REGISTER",
+            form_data: form_data || {}
         });
 
-        // Notify all admins about the new society request (fire-and-forget)
         notifySocietyRequest(req.user!.name, society_name);
 
         return sendResponse(res, 201, "Society request submitted successfully", societyRequest);
 
     } catch (error: any) {
+        console.error("Error creating society request:", error);
         return sendError(res, 500, "Internal server error while creating society request", error);
     }
 };
@@ -197,6 +212,51 @@ export const getAllSocietyRequests = async (req: AuthRequest, res: Response) => 
     }
 };
 
+export const getMySocietyRequests = async (req: AuthRequest, res: Response) => {
+    try {
+        const requests = await SocietyRequest.find({ user_id: req.user?._id }).sort({ created_at: -1 });
+        return sendResponse(res, 200, "My society requests fetched successfully", requests);
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error while fetching your requests", error);
+    }
+};
+
+export const getPendingSocietyRequests = async (req: AuthRequest, res: Response) => {
+    try {
+        const requests = await SocietyRequest.find({ status: "PENDING" })
+            .populate("user_id", "name email")
+            .sort({ created_at: -1 });
+
+        return sendResponse(res, 200, "Pending society requests fetched successfully", requests);
+
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error while fetching pending society requests", error);
+    }
+};
+
+export const getSocietyRequestForSociety = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+        const requestType = (req.query.type as string)?.toUpperCase() || "REGISTER";
+
+        const society = await Society.findById(id);
+        if (!society) return sendError(res, 404, "Society not found");
+        
+        // Find the most recent APPROVED request for this society
+        const request = await SocietyRequest.findOne({ 
+            society_name: society.name, 
+            status: "APPROVED",
+            request_type: requestType 
+        }).sort({created_at: -1});
+
+        if (!request) return sendError(res, 404, "Approved registration request not found for this society");
+        
+        return sendResponse(res, 200, "Society request fetched successfully", request);
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error while fetching society request", error);
+    }
+};
+
 
 export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response) => {
     try {
@@ -224,7 +284,13 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
             societyRequest.rejection_reason = rejection_reason;
             await societyRequest.save();
 
-            // Notify user about rejection (fire-and-forget)
+            if (societyRequest.request_type === "RENEWAL") {
+                await Society.findOneAndUpdate(
+                    { name: societyRequest.society_name },
+                    { $set: { renewal_approved: false, updated_at: new Date() } }
+                );
+            }
+
             notifySocietyRequestStatus(
                 societyRequest.user_id.toString(),
                 societyRequest.society_name,
@@ -235,46 +301,49 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
             return sendResponse(res, 200, "Society request rejected", societyRequest);
         }
 
-        const existingSociety = await Society.findOne({ name: societyRequest.society_name });
-        if (existingSociety) {
-            return sendError(res, 400, "A society with this name already exists");
+        if (societyRequest.request_type === "REGISTER") {
+            const existingSociety = await Society.findOne({ name: societyRequest.society_name });
+            if (existingSociety) {
+                return sendError(res, 400, "A society with this name already exists");
+            }
+
+            const newSociety = await Society.create({
+                name: societyRequest.society_name,
+                description: `Society created from approved request`,
+                created_by: societyRequest.user_id,
+                renewal_approved: false
+            });
+
+            const requestUser = await User.findById(societyRequest.user_id);
+
+            await SocietyUserRole.create({
+                name: requestUser?.name || societyRequest.society_name,
+                user_id: societyRequest.user_id,
+                society_id: newSociety._id,
+                role: "FACULTY ADVISOR",
+                assigned_by: req.user!._id
+            });
         }
 
-        const newSociety = await Society.create({
-            name: societyRequest.society_name,
-            description: `Society created from approved request`,
-            created_by: societyRequest.user_id
-        });
-
-        // Fetch user data to get the name
-        const requestUser = await User.findById(societyRequest.user_id);
-
-
-
-        // Assign the requester as PRESIDENT of the new society
-        const newRole = await SocietyUserRole.create({
-            name: requestUser?.name || societyRequest.society_name,
-            user_id: societyRequest.user_id,
-            society_id: newSociety._id,
-            role: "PRESIDENT",
-            assigned_by: req.user!._id
-        });
-
-
+        if (societyRequest.request_type === "RENEWAL") {
+            await Society.findOneAndUpdate(
+                { name: societyRequest.society_name },
+                { $set: { renewal_approved: true, updated_at: new Date() } }
+            );
+        }
 
         societyRequest.status = "APPROVED";
         await societyRequest.save();
 
-        // Notify user about approval (fire-and-forget)
         notifySocietyRequestStatus(
             societyRequest.user_id.toString(),
             societyRequest.society_name,
             'APPROVED'
         );
 
-        return sendResponse(res, 200, "Society request approved and society created", {
+        return sendResponse(res, 200, "Society request approved", {
             request: societyRequest,
-            society: newSociety
+            ...(societyRequest.request_type === "REGISTER" && { society: "Society Created" })
         });
 
     } catch (error: any) {
@@ -302,13 +371,20 @@ export const getAllSocietiesAdmin = async (req: AuthRequest, res: Response) => {
             role: "PRESIDENT"
         }).populate("user_id", "name email");
 
+        const facultyAdvisorRoles = await SocietyUserRole.find({
+            society_id: { $in: societyIds },
+            role: "FACULTY ADVISOR"
+        }).populate("user_id", "name email");
+
         const societiesWithCounts = societies.map(society => {
             const societyObj = society.toObject();
             const countObj = memberCounts.find(mc => mc._id.toString() === society._id.toString());
             const presidentRole = presidentRoles.find(pr => pr.society_id.toString() === society._id.toString());
+            const advisorRole = facultyAdvisorRoles.find(fa => fa.society_id.toString() === society._id.toString());
             
             (societyObj as any).membersCount = countObj ? countObj.count : 0;
             (societyObj as any).president = presidentRole ? presidentRole.user_id : null;
+            (societyObj as any).faculty_advisor = advisorRole ? advisorRole.user_id : null;
             return societyObj;
         });
 
@@ -321,7 +397,7 @@ export const getAllSocietiesAdmin = async (req: AuthRequest, res: Response) => {
 
 export const getAllSocieties = async (req: AuthRequest, res: Response) => {
     try {
-        const societies = await Society.find({ status: "ACTIVE" })
+        const societies = await Society.find({ status: "ACTIVE", renewal_approved: true })
             .populate("created_by", "name email phone")
             .populate("groups", "name")
             .sort({ created_at: -1 });
@@ -350,7 +426,7 @@ export const getMyManageableSocieties = async (req: AuthRequest, res: Response) 
     try {
         const userRoles = await SocietyUserRole.find({
             user_id: req.user!._id,
-            role: { $in: ["PRESIDENT", "FINANCE MANAGER", "EVENT MANAGER"] }
+            role: { $in: ["PRESIDENT", "FINANCE MANAGER", "EVENT MANAGER", "SPONSOR MANAGER", "FACULTY ADVISOR"] }
         });
 
         if (!userRoles.length) {
@@ -361,7 +437,7 @@ export const getMyManageableSocieties = async (req: AuthRequest, res: Response) 
 
         const societies = await Society.find({
             _id: { $in: societyIds },
-            status: "ACTIVE"
+            status: { $ne: "DELETED" }
         })
         .populate("created_by", "name email phone")
         .populate("groups", "name")
@@ -389,7 +465,7 @@ export const getSocietyById = async (req: AuthRequest, res: Response) => {
         }
 
         if (society.status === "SUSPENDED") {
-             return sendError(res, 403, "This society has been temporarily suspended by the administrator.");
+            return sendError(res, 403, "This society has been temporarily suspended by the administrator.");
         }
 
         // Fetch members of this society
@@ -558,7 +634,7 @@ export const updateMemberRole = async (req: AuthRequest, res: Response) => {
             return sendError(res, 400, "Role is required");
         }
 
-        const validRoles = ["PRESIDENT", "LEAD", "CO-LEAD", "GENERAL SECRETARY", "MEMBER", "FINANCE MANAGER", "EVENT MANAGER"];
+        const validRoles = ["PRESIDENT", "LEAD", "CO-LEAD", "SPONSOR MANAGER", "MEMBER", "FINANCE MANAGER", "EVENT MANAGER"];
         if (!validRoles.includes(role)) {
             return sendError(res, 400, `Invalid role. Must be one of: ${validRoles.join(", ")}`);
         }
@@ -856,6 +932,84 @@ export const deleteSociety = async (req: AuthRequest, res: Response) => {
     } catch (error: any) {
         await session.abortTransaction();
         return sendError(res, 500, "Internal server error", error);
+    } finally {
+        session.endSession();
+    }
+};
+
+export const askForRenewal = async (req: AuthRequest, res: Response) => {
+    try {
+        await SocietyRequest.deleteMany({ request_type: "RENEWAL" });
+        await Society.updateMany(
+            { status: { $ne: "DELETED" } },
+            { $set: { renewal_approved: false, updated_at: new Date() } }
+        );
+        return sendResponse(res, 200, "Renewal cycle reset. All societies must re-submit renewal requests.");
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error while resetting renewal cycle", error);
+    }
+};
+
+export const createPresident = async (req: AuthRequest, res: Response) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+        const { id: society_id } = req.params;
+        const { name, email, phone, password } = req.body;
+
+        if (!name || !email || !phone || !password) {
+            return sendError(res, 400, "Name, email, phone, and password are required");
+        }
+
+        const society = await Society.findById(society_id).session(session);
+        if (!society) {
+            await session.abortTransaction();
+            return sendError(res, 404, "Society not found");
+        }
+
+        const existingPresident = await SocietyUserRole.findOne({ society_id, role: "PRESIDENT" }).session(session);
+        if (existingPresident) {
+            await session.abortTransaction();
+            return sendError(res, 400, "This society already has a president. Use change president instead.");
+        }
+
+        const existingUser = await User.findOne({ email }).session(session);
+        if (existingUser) {
+            await session.abortTransaction();
+            return sendError(res, 400, "A user with this email already exists");
+        }
+
+        const newUser = new User({
+            name,
+            email,
+            phone,
+            password,
+            status: "ACTIVE",
+            email_verified: true,
+            password_reset_required: true
+        });
+        await newUser.save({ session });
+
+        await SocietyUserRole.create([{
+            name,
+            user_id: newUser._id,
+            society_id,
+            role: "PRESIDENT",
+            assigned_by: req.user!._id
+        }], { session });
+
+        await session.commitTransaction();
+
+        return sendResponse(res, 201, "President account created and linked to society successfully", {
+            user: {
+                id: newUser._id,
+                name: newUser.name,
+                email: newUser.email
+            }
+        });
+    } catch (error: any) {
+        await session.abortTransaction();
+        return sendError(res, 500, "Internal server error while creating president", error);
     } finally {
         session.endSession();
     }

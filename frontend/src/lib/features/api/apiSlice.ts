@@ -3,7 +3,6 @@ import { Mutex } from 'async-mutex';
 import { RootState } from '../../store';
 import { logOut, updateAccessToken, User } from '../auth/authSlice';
 
-// Create a new mutex
 const mutex = new Mutex();
 
 interface RefreshResponse {
@@ -80,6 +79,6 @@ const baseQueryWithReauth: BaseQueryFn<
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['User', 'SocietyRequest', 'Society', 'JoinForm', 'JoinRequest', 'Group', 'GroupMember', 'SocietyMember', 'Event', 'EventForm', 'EventRegistration', 'PreviousMember'],
+  tagTypes: ['User', 'SocietyRequest', 'Society', 'JoinForm', 'JoinRequest', 'Group', 'GroupMember', 'SocietyMember', 'Event', 'EventForm', 'EventRegistration', 'PreviousMember', 'Sponsor', 'Documentation'],
   endpoints: (builder) => ({}),
 });

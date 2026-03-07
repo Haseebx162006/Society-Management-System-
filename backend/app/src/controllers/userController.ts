@@ -93,11 +93,20 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
         }
 
         user.password = newPassword;
+        user.password_reset_required = false;
 
         await user.save();
 
         return sendResponse(res, 200, "Password changed successfully");
     } catch (error: any) {
         return sendError(res, 500, "Internal server error changing password", error);
+    }
+};
+export const getAllUsers = async (req: AuthRequest, res: Response) => {
+    try {
+        const users = await User.find({ status: "ACTIVE" }).select("name email phone").sort({ name: 1 });
+        return sendResponse(res, 200, "Users fetched successfully", users);
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error fetching users", error);
     }
 };
