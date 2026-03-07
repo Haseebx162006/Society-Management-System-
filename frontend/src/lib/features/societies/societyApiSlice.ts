@@ -127,6 +127,13 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Society", "SocietyMember"],
     }),
+    askForRenewal: builder.mutation({
+      query: () => ({
+        url: "/society/ask-for-renewal",
+        method: "POST",
+      }),
+      invalidatesTags: ["Society", "SocietyRequest"],
+    }),
   }),
 });
 
@@ -149,4 +156,5 @@ export const {
   useGetPendingSocietyRequestsQuery,
   useGetSocietyRequestForSocietyQuery,
   useGetMySocietyRequestsQuery,
+  useAskForRenewalMutation,
 } = societyApiSlice;

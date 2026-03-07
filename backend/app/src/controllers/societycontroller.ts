@@ -423,8 +423,7 @@ export const getMyManageableSocieties = async (req: AuthRequest, res: Response) 
 
         const societies = await Society.find({
             _id: { $in: societyIds },
-            status: "ACTIVE",
-            renewal_approved: true
+            status: { $ne: "DELETED" }
         })
         .populate("created_by", "name email phone")
         .populate("groups", "name")
@@ -453,10 +452,6 @@ export const getSocietyById = async (req: AuthRequest, res: Response) => {
 
         if (society.status === "SUSPENDED") {
             return sendError(res, 403, "This society has been temporarily suspended by the administrator.");
-        }
-
-        if (!society.renewal_approved) {
-            return sendError(res, 403, "This society is pending renewal approval and is not currently active.");
         }
 
         // Fetch members of this society
@@ -925,5 +920,18 @@ export const deleteSociety = async (req: AuthRequest, res: Response) => {
         return sendError(res, 500, "Internal server error", error);
     } finally {
         session.endSession();
+    }
+};
+
+export const askForRenewal = async (req: AuthRequest, res: Response) => {
+    try {
+        await SocietyRequest.deleteMany({ request_type: "RENEWAL" });
+        await Society.updateMany(
+            { status: { $ne: "DELETED" } },
+            { $set: { renewal_approved: false, updated_at: new Date() } }
+        );
+        return sendResponse(res, 200, "Renewal cycle reset. All societies must re-submit renewal requests.");
+    } catch (error: any) {
+        return sendError(res, 500, "Internal server error while resetting renewal cycle", error);
     }
 };

@@ -4,7 +4,8 @@ import { RootState } from '@/lib/store';
 import { MdGroups, MdEvent } from 'react-icons/md';
 import { FaUsers, FaArrowRight, FaBell, FaBars } from 'react-icons/fa';
 import { useGetEventsBySocietyQuery } from '@/lib/features/events/eventApiSlice';
-import { useGetSocietyRequestForSocietyQuery } from '@/lib/features/societies/societyApiSlice';
+import { useGetSocietyRequestForSocietyQuery, useGetMySocietyRequestsQuery } from '@/lib/features/societies/societyApiSlice';
+import { CheckCircle2, Clock, Lock } from 'lucide-react';
 
 import MemberBarChart from '@/components/charts/MemberBarChart';
 import GrowthLineChart from '@/components/charts/GrowthLineChart';
@@ -43,6 +44,14 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   const { data: societyRequest, isLoading: isRequestLoading } = useGetSocietyRequestForSocietyQuery(society._id, { 
     skip: activeTab !== 'review-form'
   });
+  const { data: myRequests = [] } = useGetMySocietyRequestsQuery(undefined, {
+    skip: activeTab !== 'renewal-form'
+  });
+
+  const renewalRequest = (myRequests as any[]).find(
+    (r: any) => r.request_type === 'RENEWAL' && r.society_name === society.name
+  );
+  const isRenewalLocked = renewalRequest && (renewalRequest.status === 'PENDING' || renewalRequest.status === 'APPROVED');
 
   const currentUserRole = useMemo(() => {
       if (!user || !society.members) return 'MEMBER';
@@ -328,7 +337,43 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
               </div>
             ) : activeTab === 'renewal-form' ? (
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-4xl mx-auto">
-                <ApplicationForm prefillSocietyName={society.name} />
+                {isRenewalLocked ? (
+                  <div className="flex flex-col items-center justify-center py-20 text-center px-4">
+                    {renewalRequest.status === 'APPROVED' ? (
+                      <>
+                        <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-6">
+                          <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                        </div>
+                        <h3 className="text-2xl font-black text-slate-900 mb-2">Renewal Approved</h3>
+                        <p className="text-slate-500 max-w-sm">
+                          Your renewal has been approved. Your society is active. The renewal form will open again when the next renewal cycle begins.
+                        </p>
+                        <div className="mt-6 px-5 py-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                          <p className="text-sm font-bold text-emerald-700 flex items-center gap-2">
+                            <Lock className="w-4 h-4" /> Form Locked Until Next Cycle
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-20 h-20 rounded-full bg-orange-50 flex items-center justify-center mb-6">
+                          <Clock className="w-10 h-10 text-orange-400" />
+                        </div>
+                        <h3 className="text-2xl font-black text-slate-900 mb-2">Renewal Pending Review</h3>
+                        <p className="text-slate-500 max-w-sm">
+                          Your renewal application has been submitted and is awaiting review by the society head. You will be notified once a decision is made.
+                        </p>
+                        <div className="mt-6 px-5 py-3 bg-orange-50 border border-orange-200 rounded-xl">
+                          <p className="text-sm font-bold text-orange-700 flex items-center gap-2">
+                            <Lock className="w-4 h-4" /> Form Locked — Awaiting Approval
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  <ApplicationForm prefillSocietyName={society.name} />
+                )}
               </div>
             ) : (
               <div className="flex items-center justify-center h-96 text-slate-400 animate-pulse">
