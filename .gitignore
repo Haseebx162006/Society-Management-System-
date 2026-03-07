@@ -45,3 +45,5 @@ uploads/
 # Optional: Ignore database dumps
 *.sql
 *.sqlite
+
+scripts/
