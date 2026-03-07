@@ -25,7 +25,8 @@ import {
     getMySocietyRequests,
     getSocietyRequestForSociety,
     askForRenewal,
-    createPresident
+    createPresident,
+    compareSocietyRequest
 } from '../controllers/societycontroller';
 
 const router = express.Router();
@@ -36,6 +37,7 @@ router.get('/requests/me', protect, getMySocietyRequests);
 router.get('/requests', protect, adminOrSocietyHead, getAllSocietyRequests);
 router.get('/requests/pending', protect, societyHeadOnly, getPendingSocietyRequests);
 router.put('/requests/:id', protect, adminOrSocietyHead, updateSocietyRequestStatus);
+router.get('/requests/:id/compare', protect, adminOrSocietyHead, compareSocietyRequest);
 
 
 router.post('/', protect, upload.single("logo"), createSociety);

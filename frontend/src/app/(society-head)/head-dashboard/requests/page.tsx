@@ -1,18 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { useGetSocietyRequestsQuery, useUpdateSocietyRequestStatusMutation } from "@/lib/features/societies/societyApiSlice";
-import { FileText, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Clock } from "lucide-react";
+import { useGetSocietyRequestsQuery, useUpdateSocietyRequestStatusMutation, useLazyCompareSocietyRequestQuery } from "@/lib/features/societies/societyApiSlice";
+import { FileText, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Clock, BarChart3 } from "lucide-react";
 import toast from "react-hot-toast";
+import ComparisonReport from "@/components/society/ComparisonReport";
 
 import { Search } from "lucide-react";
 
 export default function ManageRequestsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [comparisonRequestId, setComparisonRequestId] = useState<string | null>(null);
 
   const { data: allRequests = [], isLoading, error } = useGetSocietyRequestsQuery(undefined);
   const [updateStatus, { isLoading: isUpdating }] = useUpdateSocietyRequestStatusMutation();
+  const [triggerCompare, { data: comparisonData, isFetching: isComparing, error: comparisonError }] = useLazyCompareSocietyRequestQuery();
 
   const handleStatusUpdate = async (id: string, newStatus: "APPROVED" | "REJECTED") => {
     let rejectionReason = "No reason provided.";
@@ -34,6 +37,15 @@ export default function ManageRequestsPage() {
       setExpandedId(null);
     } catch (err: any) {
       toast.error(err?.data?.message || `Failed to ${newStatus.toLowerCase()} request`);
+    }
+  };
+
+  const handleCompare = async (requestId: string) => {
+    setComparisonRequestId(requestId);
+    try {
+      await triggerCompare(requestId).unwrap();
+    } catch {
+      // Error is handled by the ComparisonReport component via comparisonError
     }
   };
 
@@ -233,6 +245,13 @@ export default function ManageRequestsPage() {
                   {req.status === 'PENDING' ? (
                     <div className="flex flex-col sm:flex-row items-center justify-end gap-3 mt-6 p-4 sm:p-6 sm:pt-0">
                       <button 
+                        onClick={() => handleCompare(req._id)}
+                        className="w-full sm:w-auto px-6 py-3 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-xl transition-colors text-sm border border-blue-100 flex items-center justify-center gap-2"
+                      >
+                        <BarChart3 className="w-4 h-4" />
+                        Compare with Existing
+                      </button>
+                      <button 
                         onClick={() => handleStatusUpdate(req._id, "REJECTED")}
                         disabled={isUpdating}
                         className="w-full sm:w-auto px-6 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-colors text-sm border border-red-100 disabled:opacity-50"
@@ -263,6 +282,16 @@ export default function ManageRequestsPage() {
           ))
         )}
       </div>
+
+      {/* Comparison Report Modal */}
+      {comparisonRequestId && (
+        <ComparisonReport
+          data={comparisonData}
+          isLoading={isComparing}
+          error={comparisonError}
+          onClose={() => setComparisonRequestId(null)}
+        />
+      )}
     </div>
   );
 }

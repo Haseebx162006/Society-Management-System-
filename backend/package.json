@@ -10,6 +10,7 @@
     "create-admin": "ts-node scripts/createSuperAdmin.ts"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@sentry/node": "^10.42.0",
     "@types/cors": "^2.8.19",
     "@types/pdfkit": "^0.17.5",

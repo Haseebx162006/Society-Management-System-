@@ -12,6 +12,7 @@ import { sendResponse, sendError } from '../util/response';
 import { uploadOnCloudinary } from '../utils/cloudinary';
 import { notifySocietyRequest, notifySocietyRequestStatus } from '../services/notificationService';
 import { isFacultyEmail } from '../utils/isFacultyEmail';
+import { compareSocietyWithExisting } from '../services/comparisonService';
 
 
 export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
@@ -1012,5 +1013,36 @@ export const createPresident = async (req: AuthRequest, res: Response) => {
         return sendError(res, 500, "Internal server error while creating president", error);
     } finally {
         session.endSession();
+    }
+};
+
+
+export const compareSocietyRequest = async (req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        const societyRequest = await SocietyRequest.findById(id);
+        if (!societyRequest) {
+            return sendError(res, 404, "Society request not found");
+        }
+
+        if (societyRequest.request_type !== "REGISTER") {
+            return sendError(res, 400, "Comparison is only available for new registration requests");
+        }
+
+        const comparisonResult = await compareSocietyWithExisting(
+            societyRequest.form_data,
+            societyRequest.society_name,
+            societyRequest.description
+        );
+
+        return sendResponse(res, 200, "Comparison report generated successfully", comparisonResult);
+
+    } catch (error: any) {
+        console.error("Error generating comparison report:", error);
+        if (error.message === "GEMINI_API_KEY is not configured in environment variables") {
+            return sendError(res, 503, "AI comparison service is not configured. Please contact the administrator.");
+        }
+        return sendError(res, 500, "Internal server error while generating comparison report");
     }
 };

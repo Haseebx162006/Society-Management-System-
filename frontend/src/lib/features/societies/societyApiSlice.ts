@@ -148,6 +148,10 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ["Society"],
     }),
+    compareSocietyRequest: builder.query({
+      query: (requestId: string) => `/society/requests/${requestId}/compare`,
+      transformResponse: (response: { data: any }) => response.data,
+    }),
   }),
 });
 
@@ -173,4 +177,5 @@ export const {
   useAskForRenewalMutation,
   useGetAllUsersQuery,
   useCreatePresidentMutation,
+  useLazyCompareSocietyRequestQuery,
 } = societyApiSlice;
