@@ -277,7 +277,13 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
             societyRequest.rejection_reason = rejection_reason;
             await societyRequest.save();
 
-            // Notify user about rejection (fire-and-forget)
+            if (societyRequest.request_type === "RENEWAL") {
+                await Society.findOneAndUpdate(
+                    { name: societyRequest.society_name },
+                    { $set: { renewal_approved: false, updated_at: new Date() } }
+                );
+            }
+
             notifySocietyRequestStatus(
                 societyRequest.user_id.toString(),
                 societyRequest.society_name,
@@ -297,13 +303,12 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
             const newSociety = await Society.create({
                 name: societyRequest.society_name,
                 description: `Society created from approved request`,
-                created_by: societyRequest.user_id
+                created_by: societyRequest.user_id,
+                renewal_approved: false
             });
 
-            // Fetch user data to get the name
             const requestUser = await User.findById(societyRequest.user_id);
 
-            // Assign the requester as PRESIDENT of the new society
             await SocietyUserRole.create({
                 name: requestUser?.name || societyRequest.society_name,
                 user_id: societyRequest.user_id,
@@ -312,10 +317,17 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
                 assigned_by: req.user!._id
             });
         }
+
+        if (societyRequest.request_type === "RENEWAL") {
+            await Society.findOneAndUpdate(
+                { name: societyRequest.society_name },
+                { $set: { renewal_approved: true, updated_at: new Date() } }
+            );
+        }
+
         societyRequest.status = "APPROVED";
         await societyRequest.save();
 
-        // Notify user about approval (fire-and-forget)
         notifySocietyRequestStatus(
             societyRequest.user_id.toString(),
             societyRequest.society_name,
@@ -371,7 +383,7 @@ export const getAllSocietiesAdmin = async (req: AuthRequest, res: Response) => {
 
 export const getAllSocieties = async (req: AuthRequest, res: Response) => {
     try {
-        const societies = await Society.find({ status: "ACTIVE" })
+        const societies = await Society.find({ status: "ACTIVE", renewal_approved: true })
             .populate("created_by", "name email phone")
             .populate("groups", "name")
             .sort({ created_at: -1 });
@@ -411,7 +423,8 @@ export const getMyManageableSocieties = async (req: AuthRequest, res: Response) 
 
         const societies = await Society.find({
             _id: { $in: societyIds },
-            status: "ACTIVE"
+            status: "ACTIVE",
+            renewal_approved: true
         })
         .populate("created_by", "name email phone")
         .populate("groups", "name")
@@ -439,7 +452,11 @@ export const getSocietyById = async (req: AuthRequest, res: Response) => {
         }
 
         if (society.status === "SUSPENDED") {
-             return sendError(res, 403, "This society has been temporarily suspended by the administrator.");
+            return sendError(res, 403, "This society has been temporarily suspended by the administrator.");
+        }
+
+        if (!society.renewal_approved) {
+            return sendError(res, 403, "This society is pending renewal approval and is not currently active.");
         }
 
         // Fetch members of this society

@@ -328,7 +328,7 @@ export default function SocietyHeadOverviewPage() {
               ].map((item) => (
                 <div key={item.label} className="bg-stone-50 rounded-xl p-2">
                   <p className={`text-lg font-black ${item.color}`}>{item.value}</p>
-                  <p className="text-xs font-semibold text-stone-400">{item.label}</p>
+                  <p className="text-xs  text-stone-400">{item.label}</p>
                 </div>
               ))}
             </div>

@@ -35,6 +35,7 @@ export interface ISociety extends Document {
     logo?: string;
     joining_verification_required: boolean;
     status: "ACTIVE" | "SUSPENDED" | "DELETED";
+    renewal_approved: boolean;
     created_by: mongoose.Types.ObjectId | IUser;
     is_setup: boolean;
     created_at: Date;
@@ -111,6 +112,10 @@ const societySchema: Schema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    renewal_approved: {
+        type: Boolean,
+        default: false
     },
     is_setup: {
         type: Boolean,

@@ -25,9 +25,9 @@ export default function SocietyHeadLayout({
 
   return (
     <div className="min-h-screen bg-[#fffdfa] font-(--font-family-poppins)">
-      <Header />
+      {/* <Header /> */}
       
-      <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-10">
+      <div className="pt-12 pb-12 px-4 sm:px-6 lg:px-10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
           
           {/* Sidebar */}
@@ -58,7 +58,7 @@ export default function SocietyHeadLayout({
                 })}
               </nav>
 
-              <div className="mt-8 pt-4 border-t border-stone-100">
+              <div className="mt-4 pt-2 border-t border-stone-100">
                 <Link
                   href="/profile"
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-stone-500 hover:bg-stone-50 hover:text-stone-900 transition-all"
