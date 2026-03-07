@@ -39,7 +39,7 @@ router.put('/requests/:id', protect, adminOrSocietyHead, updateSocietyRequestSta
 
 router.post('/', protect, upload.single("logo"), createSociety);
 router.get('/manageable', protect, getMyManageableSocieties);
-router.get('/admin/all', protect, adminOnly, getAllSocietiesAdmin);
+router.get('/admin/all', protect, adminOrSocietyHead, getAllSocietiesAdmin);
 router.get('/', getAllSocieties);
 router.get('/members/all', protect, adminOrSocietyHead, getAllPlatformMembers);
 router.get('/:id/request', protect, getSocietyRequestForSociety);
@@ -49,8 +49,8 @@ router.delete('/:id', protect, adminOnly, deleteSociety);
 
 
 router.post('/:id/change-president', protect, adminOnly, changePresident);
-router.post('/:id/suspend', protect, adminOnly, suspendSociety);
-router.post('/:id/reactivate', protect, adminOnly, reactivateSociety);
+router.post('/:id/suspend', protect, adminOrSocietyHead, suspendSociety);
+router.post('/:id/reactivate', protect, adminOrSocietyHead, reactivateSociety);
 router.post('/ask-for-renewal', protect, societyHeadOnly, askForRenewal);
 
 

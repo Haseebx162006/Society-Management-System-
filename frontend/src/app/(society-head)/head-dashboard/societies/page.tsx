@@ -1,18 +1,82 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useGetAllSocietiesQuery } from "@/lib/features/societies/societyApiSlice";
-import { Users, LayoutGrid, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
+import { 
+  useGetAllSocietiesAdminQuery, 
+  useSuspendSocietyMutation, 
+  useReactivateSocietyMutation 
+} from "@/lib/features/societies/societyApiSlice";
+import { Users, AlertCircle, CheckCircle2, ArrowRight, ShieldAlert, RotateCcw, XCircle, Search } from "lucide-react";
+import toast from "react-hot-toast";
+
+interface SocietyCardData {
+  _id: string;
+  name: string;
+  category: string;
+  description: string;
+  status: string;
+  membersCount: number;
+  renewal_approved: boolean;
+}
 
 export default function SocietyHeadSocietiesPage() {
-  const { data: societies = [], isLoading, error } = useGetAllSocietiesQuery(undefined);
+  const { data: societies = [], isLoading, error } = useGetAllSocietiesAdminQuery(undefined);
+  const [suspendSociety] = useSuspendSocietyMutation();
+  const [reactivateSociety] = useReactivateSocietyMutation();
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  const [modalConfig, setModalConfig] = useState<{
+    isOpen: boolean;
+    societyId: string;
+    societyName: string;
+    action: 'SUSPEND' | 'REACTIVATE';
+  }>({
+    isOpen: false,
+    societyId: '',
+    societyName: '',
+    action: 'SUSPEND'
+  });
+
+  const handleAction = async () => {
+    try {
+      if (modalConfig.action === 'SUSPEND') {
+        await suspendSociety(modalConfig.societyId).unwrap();
+        toast.success(`${modalConfig.societyName} suspended successfully`);
+      } else {
+        await reactivateSociety(modalConfig.societyId).unwrap();
+        toast.success(`${modalConfig.societyName} reactivated successfully`);
+      }
+      setModalConfig({ ...modalConfig, isOpen: false });
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Action failed");
+    }
+  };
+
+  const filteredSocieties = (societies as SocietyCardData[]).filter((s: SocietyCardData) => 
+    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="space-y-8 font-(--font-family-poppins)">
-      <div className="mb-8">
-        <h1 className="text-3xl font-black text-stone-900 tracking-tight">Active Societies</h1>
-        <p className="text-sm text-stone-500 mt-1">View all currently active and approved societies across the campus.</p>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-black text-stone-900 tracking-tight">Society Management</h1>
+          <p className="text-sm text-stone-500 mt-1">Manage and monitor all societies across the campus.</p>
+        </div>
+
+        <div className="relative w-full md:w-80">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 w-4 h-4" />
+          <input
+            type="text"
+            placeholder="Search societies..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-11 pr-4 py-3 bg-white border border-stone-200 rounded-2xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all shadow-sm"
+          />
+        </div>
       </div>
 
       <div className="space-y-6">
@@ -25,37 +89,63 @@ export default function SocietyHeadSocietiesPage() {
             <AlertCircle className="w-6 h-6" />
             <p className="font-bold">Failed to load societies. Please try again later.</p>
           </div>
-        ) : societies.length === 0 ? (
+        ) : filteredSocieties.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white border text-stone-400 border-stone-200 border-dashed rounded-3xl p-12 text-center"
           >
-            <CheckCircle2 className="w-12 h-12 text-stone-300 mx-auto mb-4" />
-            <p className="font-bold text-lg text-stone-900">No Active Societies</p>
-            <p className="text-sm mt-1">There are no approved societies operating yet.</p>
+            {searchQuery ? (
+              <>
+                <Search className="w-12 h-12 text-stone-300 mx-auto mb-4" />
+                <p className="font-bold text-lg text-stone-900">No Match Found</p>
+                <p className="text-sm mt-1">We couldn&apos;t find any society matching &quot;{searchQuery}&quot;</p>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-12 h-12 text-stone-300 mx-auto mb-4" />
+                <p className="font-bold text-lg text-stone-900">No Societies Found</p>
+                <p className="text-sm mt-1">There are no societies currently registered.</p>
+              </>
+            )}
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {societies.map((society: any, index: number) => (
+            {filteredSocieties.map((society: SocietyCardData, index: number) => (
               <motion.div
                 key={society._id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6 flex flex-col hover:shadow-md transition-shadow relative overflow-hidden"
+                className="bg-white rounded-2xl border border-stone-200 shadow-sm p-6 flex flex-col hover:shadow-md transition-shadow relative overflow-hidden group"
               >
                 {/* Decorative Top Accent */}
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 to-orange-600" />
+                <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${society.status === 'ACTIVE' ? 'from-orange-400 to-orange-600' : 'from-red-400 to-red-600'}`} />
                 
                 <div className="flex-1">
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="font-black text-xl text-stone-900 tracking-tight leading-tight group-hover:text-orange-600 transition-colors">
                       {society.name}
                     </h3>
+                    {society.status !== 'ACTIVE' && (
+                      <span className="flex items-center gap-1 text-[10px] font-black bg-red-100 text-red-600 px-2 py-0.5 rounded-full uppercase tracking-widest">
+                        <XCircle size={10} /> Suspended
+                      </span>
+                    )}
                   </div>
-                  <div className="inline-flex px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 text-xs font-bold uppercase tracking-wider mb-4">
-                    {society.category}
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="inline-flex px-2.5 py-1 rounded-full bg-stone-100 text-stone-600 text-[10px] font-bold uppercase tracking-wider">
+                      {society.category}
+                    </div>
+                    {society.renewal_approved ? (
+                      <span className="flex items-center gap-1 text-[10px] font-black bg-emerald-100 text-emerald-600 px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm shadow-emerald-100">
+                        <CheckCircle2 size={10} /> Verified
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-[10px] font-black bg-amber-100 text-amber-600 px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm shadow-amber-100">
+                        <AlertCircle size={10} /> Not Verified
+                      </span>
+                    )}
                   </div>
                   <p className="text-sm text-stone-500 line-clamp-3 leading-relaxed">
                     {society.description || "No description provided for this society."}
@@ -68,19 +158,108 @@ export default function SocietyHeadSocietiesPage() {
                     <span className="text-sm font-semibold">{society.membersCount || 0} Members</span>
                   </div>
                   
-                  <Link 
-                    href={`/societies/${society._id}`}
-                    className="flex items-center gap-1.5 text-xs font-bold text-orange-600 hover:text-orange-700 transition-colors bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg"
-                  >
-                    View Details
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    {society.status === 'ACTIVE' ? (
+                      <button
+                        onClick={() => setModalConfig({
+                          isOpen: true,
+                          societyId: society._id,
+                          societyName: society.name,
+                          action: 'SUSPEND'
+                        })}
+                        className="flex items-center gap-1.5 text-xs font-bold text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        <ShieldAlert className="w-3.5 h-3.5" />
+                        Suspend
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setModalConfig({
+                          isOpen: true,
+                          societyId: society._id,
+                          societyName: society.name,
+                          action: 'REACTIVATE'
+                        })}
+                        className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        Reactivate
+                      </button>
+                    )}
+                    <Link 
+                      href={`/societies/${society._id}`}
+                      className="flex items-center gap-1.5 text-xs font-bold text-stone-600 hover:text-orange-700 transition-colors bg-stone-50 hover:bg-orange-50 px-3 py-1.5 rounded-lg border border-stone-100"
+                    >
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
                 </div>
               </motion.div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Custom Confirmation Modal */}
+      <AnimatePresence>
+        {modalConfig.isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setModalConfig({ ...modalConfig, isOpen: false })}
+              className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl overflow-hidden"
+            >
+              {/* Decorative Background Icon */}
+              <div className={`absolute -top-10 -right-10 opacity-5 ${modalConfig.action === 'SUSPEND' ? 'text-red-600' : 'text-emerald-600'}`}>
+                {modalConfig.action === 'SUSPEND' ? <ShieldAlert size={200} /> : <RotateCcw size={200} />}
+              </div>
+
+              <div className="relative z-10">
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-6 ${modalConfig.action === 'SUSPEND' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                  {modalConfig.action === 'SUSPEND' ? <ShieldAlert size={32} /> : <RotateCcw size={32} />}
+                </div>
+
+                <h2 className="text-2xl font-black text-stone-900 mb-2 tracking-tight">
+                  {modalConfig.action === 'SUSPEND' ? 'Suspend Society?' : 'Reactivate Society?'}
+                </h2>
+                <p className="text-stone-500 text-sm leading-relaxed mb-8">
+                  Are you sure you want to {modalConfig.action.toLowerCase()} <span className="font-bold text-stone-800">&quot;{modalConfig.societyName}&quot;</span>? 
+                  {modalConfig.action === 'SUSPEND' 
+                    ? " This will restrict all normal activities and member access for this society temporarily."
+                    : " This will restore all features and access for the society and its members."}
+                </p>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={() => setModalConfig({ ...modalConfig, isOpen: false })}
+                    className="px-6 py-3 rounded-xl font-bold text-stone-600 bg-stone-100 hover:bg-stone-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAction}
+                    className={`px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all active:scale-95 ${
+                      modalConfig.action === 'SUSPEND' 
+                        ? 'bg-red-600 hover:bg-red-700 shadow-red-200' 
+                        : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200'
+                    }`}
+                  >
+                    Confirm {modalConfig.action.charAt(0) + modalConfig.action.slice(1).toLowerCase()}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
