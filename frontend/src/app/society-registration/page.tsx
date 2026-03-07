@@ -10,6 +10,7 @@ import ApplicationForm from "../../components/profile/forms/ApplicationForm";
 
 import { useGetMySocietyRequestsQuery } from "@/lib/features/societies/societyApiSlice";
 import ReadonlySocietyDetails from "../../components/profile/forms/ReadonlySocietyDetails";
+import ReadonlyRenewalDetails from "../../components/profile/forms/ReadonlyRenewalDetails";
 
 type FormType = "register" | "renew";
 
@@ -18,14 +19,18 @@ export default function SocietyRegistrationFormsPage() {
 
   const { data: myRequests = [], isLoading } = useGetMySocietyRequestsQuery(undefined);
 
-  // Find if they have a registration request
-  const registrationRequest = myRequests.find((r: any) => r.request_type === "REGISTER");
+  const sortedRequests = [...myRequests].sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   
-  // Can only renew if there's an APPROVED registration
+  const registrationRequest = sortedRequests.find((r: any) => r.request_type === "REGISTER");
+  const renewalRequest = sortedRequests.find((r: any) => r.request_type === "RENEWAL");
+  
+  const [forceNewRegistration, setForceNewRegistration] = useState(false);
+  const [forceNewRenewal, setForceNewRenewal] = useState(false);
+  
   const canRenew = registrationRequest?.status === "APPROVED";
   
-  // If they have any registration request (pending, approved, rejected), we might want to show readonly instead of a blank form
-  const hasSubmittedRegistration = !!registrationRequest;
+  const showReadonlyRegistration = !!registrationRequest && !forceNewRegistration;
+  const showReadonlyRenewal = !!renewalRequest && !forceNewRenewal;
 
   return (
     <div className="min-h-screen bg-stone-50 font-(--font-family-poppins) pt-24 pb-12 px-4 sm:px-6 lg:px-8">
@@ -60,7 +65,7 @@ export default function SocietyRegistrationFormsPage() {
             >
               <div className="flex items-center justify-center gap-2">
                 <FileText className="w-5 h-5" />
-                {hasSubmittedRegistration ? "Registration Details" : "Review Form (New Registration)"}
+                {showReadonlyRegistration ? "Registration Details" : "Review Form (New Registration)"}
               </div>
             </button>
             
@@ -75,7 +80,7 @@ export default function SocietyRegistrationFormsPage() {
               >
                 <div className="flex items-center justify-center gap-2">
                   <RefreshCw className="w-5 h-5" />
-                  Renewal Form (Yearly)
+                  {showReadonlyRenewal ? "Renewal Details" : "Renewal Form (Yearly)"}
                 </div>
               </button>
             )}
@@ -98,8 +103,8 @@ export default function SocietyRegistrationFormsPage() {
                     exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.3 }}
                   >
-                    {hasSubmittedRegistration ? (
-                      <ReadonlySocietyDetails request={registrationRequest} />
+                    {showReadonlyRegistration ? (
+                      <ReadonlySocietyDetails request={registrationRequest} onReapply={() => setForceNewRegistration(true)} />
                     ) : (
                       <ReviewForm />
                     )}
@@ -113,7 +118,11 @@ export default function SocietyRegistrationFormsPage() {
                     exit={{ opacity: 0, scale: 0.98 }}
                     transition={{ duration: 0.3 }}
                   >
-                    <ApplicationForm prefillSocietyName={registrationRequest?.society_name} />
+                    {showReadonlyRenewal ? (
+                      <ReadonlyRenewalDetails request={renewalRequest} onReapply={() => setForceNewRenewal(true)} />
+                    ) : (
+                      <ApplicationForm prefillSocietyName={registrationRequest?.society_name} />
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

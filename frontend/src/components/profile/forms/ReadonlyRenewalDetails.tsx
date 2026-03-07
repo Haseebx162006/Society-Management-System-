@@ -22,7 +22,7 @@ interface RenewalFormData {
   functions: string;
 }
 
-export default function ReadonlyRenewalDetails({ request }: { request: { society_name: string, status: string, form_data: RenewalFormData } }) {
+export default function ReadonlyRenewalDetails({ request, onReapply }: { request: { society_name: string, status: string, form_data: RenewalFormData, rejection_reason?: string }, onReapply?: () => void }) {
 
   const statusColors: Record<string, string> = {
     APPROVED: "bg-emerald-100 text-emerald-700",
@@ -185,6 +185,31 @@ export default function ReadonlyRenewalDetails({ request }: { request: { society
       animate={{ opacity: 1 }} 
       className="space-y-10 font-(--font-family-poppins)"
     >
+      {request.status === 'REJECTED' && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8">
+          <div className="flex items-start gap-4">
+            <div className="bg-red-100 p-2 rounded-lg text-red-600 shrink-0">
+               <AlertTriangle size={20} />
+            </div>
+            <div className="flex-1">
+               <h4 className="text-red-800 font-bold">Renewal Request Rejected</h4>
+               <p className="text-red-700 text-sm mt-1 leading-relaxed">
+                 {request.rejection_reason || "No reason was provided for this rejection."}
+               </p>
+               {onReapply && (
+                 <button 
+                   onClick={onReapply}
+                   className="mt-4 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-sm transition-colors shadow-sm"
+                 >
+                   Create New Request
+                 </button>
+               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {request.status !== 'REJECTED' && (
       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-4 mb-8">
         <div className="bg-amber-100 p-2 rounded-lg text-amber-600">
            <AlertTriangle size={20} />
@@ -196,6 +221,7 @@ export default function ReadonlyRenewalDetails({ request }: { request: { society
            </p>
         </div>
       </div>
+      )}
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-stone-200 pb-6">
         <div>

@@ -2,39 +2,90 @@
 
 import { useState } from "react";
 import { useGetSocietyRequestsQuery, useUpdateSocietyRequestStatusMutation, useLazyCompareSocietyRequestQuery } from "@/lib/features/societies/societyApiSlice";
-import { FileText, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Clock, BarChart3 } from "lucide-react";
+import { FileText, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, Clock, BarChart3, X, AlertTriangle } from "lucide-react";
 import toast from "react-hot-toast";
 import ComparisonReport from "@/components/society/ComparisonReport";
+import { motion, AnimatePresence } from "framer-motion";
 
 import { Search } from "lucide-react";
+
+function RejectModal({ onClose, onConfirm, isLoading }: { onClose: () => void; onConfirm: (reason: string) => void; isLoading: boolean }) {
+  const [reason, setReason] = useState("");
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative"
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-full transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-red-50 border border-red-100 mx-auto mb-6">
+          <AlertTriangle className="w-8 h-8 text-red-500" />
+        </div>
+
+        <h2 className="text-2xl font-black text-stone-900 text-center tracking-tight mb-2">Reject Request</h2>
+        <p className="text-sm text-stone-500 text-center mb-6 leading-relaxed">
+          Please provide a reason for rejecting this request. This reason will be visible to the society faculty advisor.
+        </p>
+
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Enter rejection reason..."
+          className="w-full p-4 mb-6 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-sm min-h-[100px]"
+        />
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 py-3 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl transition-colors text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => onConfirm(reason)}
+            disabled={isLoading || !reason.trim()}
+            className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            {isLoading ? "Rejecting..." : "Confirm Rejection"}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
 export default function ManageRequestsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [comparisonRequestId, setComparisonRequestId] = useState<string | null>(null);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
 
   const { data: allRequests = [], isLoading, error } = useGetSocietyRequestsQuery(undefined);
   const [updateStatus, { isLoading: isUpdating }] = useUpdateSocietyRequestStatusMutation();
   const [triggerCompare, { data: comparisonData, isFetching: isComparing, error: comparisonError }] = useLazyCompareSocietyRequestQuery();
 
-  const handleStatusUpdate = async (id: string, newStatus: "APPROVED" | "REJECTED") => {
-    let rejectionReason = "No reason provided.";
-    if (newStatus === "REJECTED") {
-      const reason = window.prompt("Please provide a reason for rejecting this request:");
-      if (reason === null) return; // User cancelled
-      rejectionReason = reason;
-    }
-
+  const handleStatusUpdate = async (id: string, newStatus: "APPROVED" | "REJECTED", reason?: string) => {
     try {
       await updateStatus({
         id,
         status: newStatus,
-        rejection_reason: newStatus === "REJECTED" ? rejectionReason : undefined
+        rejection_reason: newStatus === "REJECTED" ? reason : undefined
       }).unwrap();
       
       toast.success(`Request successfully ${newStatus.toLowerCase()}`);
       // Collapse after action
       setExpandedId(null);
+      setRejectingId(null);
     } catch (err: any) {
       toast.error(err?.data?.message || `Failed to ${newStatus.toLowerCase()} request`);
     }
@@ -63,7 +114,7 @@ export default function ManageRequestsPage() {
   }
 
   if (error) {
-    console.error("Fetch pending requests error:", JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+    console.error("Fetch pending requests error:", error);
     return (
       <div className="p-6 bg-red-50 text-red-600 rounded-2xl flex items-center gap-3">
         <AlertCircle className="w-6 h-6" />
@@ -73,8 +124,19 @@ export default function ManageRequestsPage() {
   }
 
   return (
-    <div className="space-y-8 font-(--font-family-poppins)">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
+    <>
+      <AnimatePresence>
+        {rejectingId && (
+          <RejectModal
+            onClose={() => setRejectingId(null)}
+            onConfirm={(reason) => handleStatusUpdate(rejectingId, "REJECTED", reason)}
+            isLoading={isUpdating}
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="space-y-8 font-(--font-family-poppins)">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
         <div>
           <h1 className="text-3xl font-black text-stone-900 tracking-tight">Manage Registrations</h1>
           <p className="text-sm text-stone-500 mt-1">Review and manage new society registration applications.</p>
@@ -263,7 +325,7 @@ export default function ManageRequestsPage() {
                   {req.status === 'PENDING' ? (
                     <div className="flex flex-col sm:flex-row items-center justify-end gap-3 mt-6 p-4 sm:p-6 sm:pt-0">
                       <button 
-                        onClick={() => handleStatusUpdate(req._id, "REJECTED")}
+                        onClick={() => setRejectingId(req._id)}
                         disabled={isUpdating}
                         className="w-full sm:w-auto px-6 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-colors text-sm border border-red-100 disabled:opacity-50"
                       >
@@ -304,5 +366,6 @@ export default function ManageRequestsPage() {
         />
       )}
     </div>
+    </>
   );
 }
