@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useGetAllSocietiesQuery } from "@/lib/features/societies/societyApiSlice";
-import { Users, LayoutGrid, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Users, LayoutGrid, AlertCircle, CheckCircle2, ArrowRight } from "lucide-react";
 
 export default function SocietyHeadSocietiesPage() {
   const { data: societies = [], isLoading, error } = useGetAllSocietiesQuery(undefined);
@@ -66,9 +67,14 @@ export default function SocietyHeadSocietiesPage() {
                     <Users className="w-4 h-4 text-stone-400" />
                     <span className="text-sm font-semibold">{society.membersCount || 0} Members</span>
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-stone-50 flex items-center justify-center">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" title="Active"></span>
-                  </div>
+                  
+                  <Link 
+                    href={`/societies/${society._id}`}
+                    className="flex items-center gap-1.5 text-xs font-bold text-orange-600 hover:text-orange-700 transition-colors bg-orange-50 hover:bg-orange-100 px-3 py-1.5 rounded-lg"
+                  >
+                    View Details
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </motion.div>
             ))}
