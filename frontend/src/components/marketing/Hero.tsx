@@ -18,8 +18,6 @@ const logos = [
   "/logos/cics.jpg",
   "/logos/cms.jpg",
   "/logos/ieee.jpg",
-  "/logos/acm.jpg",
-  "/logos/building.png",
 ];
 
 export default function Hero() {

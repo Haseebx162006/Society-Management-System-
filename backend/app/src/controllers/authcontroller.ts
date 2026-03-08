@@ -55,31 +55,30 @@ export const signup = async (req: Request, res: Response) => {
             email,
             password,
             phone: req.body.phone || "",
-            email_verified: true,
+            email_verified: false,
         });
 
-        const accessToken = generateAccessToken(user._id.toString());
-        const refreshTokenStr = generateRefreshToken();
-
-        await RefreshToken.create({
-            token: refreshTokenStr,
-            user: user._id,
-            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          const otp = generateOTP();
+        const hashedOtp = await hashOTP(otp);
+        await OTP.deleteMany({ email, type: 'SIGNUP' });
+        await OTP.create({
+            email,
+            otp: hashedOtp,
+            type: 'SIGNUP',
+            expires_at: new Date(Date.now() + 10 * 60 * 1000),
         });
 
-        return sendResponse(res, 201, "Signup successful!", {
-            accessToken,
-            refreshToken: refreshTokenStr,
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                is_super_admin: user.is_super_admin,
-                password_reset_required: user.password_reset_required,
-                status: user.status,
-                locked_until: user.locked_until,
-            },
+       
+
+        await  sendEmail(
+            email,
+            'Verify Your Email — Society Management System',
+            emailTemplates.otpVerification(name, otp)
+        );
+
+       return sendResponse(res, 201, "OTP sent to your email. Please verify to complete signup.", {
+            email: user.email,
+            requiresVerification: true,
         });
 
     } catch (error: any) {
