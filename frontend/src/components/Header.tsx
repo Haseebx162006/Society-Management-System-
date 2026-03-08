@@ -190,14 +190,14 @@ export default function Header() {
                 >
                     <div className="rounded-2xl bg-[#fffdfa]/95 backdrop-blur-xl border border-stone-100/80 shadow-xl shadow-stone-200/50 py-2">
                         <Link
-                            href="/get-started/president"
+                            href="/get-started/register"
                             onClick={() => setGetStartedOpen(false)}
                             className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-stone-600 hover:text-orange-600 hover:bg-orange-50/80 transition-colors"
                         >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.315 48.315 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
                             </svg>
-                            Start as President
+                            Register a Society
                         </Link>
                         <Link
                             href="/get-started/user"
@@ -392,7 +392,7 @@ export default function Header() {
                               : "text-stone-500 hover:text-stone-900"
                           }`}
                       >
-                          Start as President
+                          Register a Society
                       </Link>
                       <Link
                           href="/get-started/user"
