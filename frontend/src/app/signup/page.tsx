@@ -5,11 +5,13 @@ import { useSignupMutation } from "../../lib/features/auth/authApiSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, Phone, UserPlus, ArrowLeft, Eye, EyeOff, Check, Sparkles, ShieldCheck } from "lucide-react";
+import { Mail, Lock, User, Phone, ArrowLeft, Eye, EyeOff, Check, Sparkles, ShieldCheck } from "lucide-react";
 import { FuturisticInput } from "../../components/ui/FuturisticInput";
 import { FuturisticButton } from "../../components/ui/FuturisticButton";
 import Link from "next/link";
 import Image from "next/image";
+import { useAppDispatch } from "../../lib/hooks";
+import { setCredentials } from "../../lib/features/auth/authSlice";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -23,6 +25,7 @@ export default function SignupPage() {
   const [agreed, setAgreed] = useState(false);
   const [signup, { isLoading }] = useSignupMutation();
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -48,11 +51,11 @@ export default function SignupPage() {
     if (!isPasswordValid) return;
     try {
       const result = await signup(formData).unwrap();
-      toast.success("OTP sent to your email!");
-      // Redirect to OTP verification page with email
-      router.push(`/signup/verify-otp?email=${encodeURIComponent(formData.email)}`);
+      const { accessToken, refreshToken, user } = result.data;
+      dispatch(setCredentials({ user, accessToken, refreshToken }));
+      toast.success("Signup successful!");
+      router.push("/profile");
     } catch (err) {
-      console.error("Signup failed:", err);
       const errorMessage =
         (err as { data?: { message?: string } })?.data?.message || "Registration failed. Please try again.";
       toast.error(errorMessage);
