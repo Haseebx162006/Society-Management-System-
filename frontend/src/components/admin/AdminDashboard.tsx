@@ -1,10 +1,9 @@
 import React, { useMemo } from 'react';
 import { useAppSelector } from '@/lib/hooks';
 import { selectCurrentUser } from '@/lib/features/auth/authSlice';
-import { useGetAllSocietiesQuery } from '@/lib/features/societies/societyApiSlice';
+import { useGetAllSocietiesQuery, useGetAllPlatformMembersQuery } from '@/lib/features/societies/societyApiSlice';
 import { FaUniversity, FaUsers, FaBars } from 'react-icons/fa';
 import AdminSidebar from './AdminSidebar';
-import AdminRequests from './AdminRequests';
 import AdminSocieties from './AdminSocieties';
 import AdminPresidents from './AdminPresidents';
 import AdminMembers from './AdminMembers';
@@ -16,20 +15,25 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState('overview');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   
-  const { data: societies, isLoading } = useGetAllSocietiesQuery(undefined);
+  const { data: societies, isLoading: isLoadingSocieties } = useGetAllSocietiesQuery(undefined);
+  const { data: allMembers, isLoading: isLoadingMembers } = useGetAllPlatformMembersQuery(undefined);
 
-  const totalSocieties = societies?.length || 0;
-  
-  const totalMembers = useMemo(() => {
-    if (!societies) return 0;
-    return societies.reduce((acc: number, society: any) => acc + (society.membersCount || 0), 0);
+  const isLoading = isLoadingSocieties || isLoadingMembers;
+
+  const activeSocieties = useMemo(() => {
+    if (!societies) return [];
+    return societies.filter((s: any) => s.status === 'ACTIVE');
   }, [societies]);
 
+  const totalSocieties = activeSocieties.length;
+  
+  const totalMembers = allMembers?.length || 0;
+
   const societyDistributionData = useMemo(() => {
-    if (!societies) return null;
+    if (activeSocieties.length === 0) return null;
     
-    const labels = societies.map((s: any) => s.name);
-    const data = societies.map((s: any) => s.membersCount || 0);
+    const labels = activeSocieties.map((s: any) => s.name);
+    const data = activeSocieties.map((s: any) => s.membersCount || 0);
 
     return {
       labels,
@@ -59,12 +63,12 @@ const AdminDashboard: React.FC = () => {
         },
       ],
     };
-  }, [societies]);
+  }, [activeSocieties]);
 
   const growthData = useMemo(() => {
-    if (!societies || societies.length === 0) return null;
+    if (!activeSocieties || activeSocieties.length === 0) return null;
 
-    const sortedSocieties = [...societies].sort((a, b) => 
+    const sortedSocieties = [...activeSocieties].sort((a, b) => 
       new Date(a.created_at || new Date()).getTime() - new Date(b.created_at || new Date()).getTime()
     );
 
@@ -108,7 +112,7 @@ const AdminDashboard: React.FC = () => {
         },
       ],
     };
-  }, [societies]);
+  }, [activeSocieties]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
@@ -196,10 +200,6 @@ const AdminDashboard: React.FC = () => {
         ) : activeTab === 'presidents' ? (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
             <AdminPresidents />
-          </div>
-        ) : activeTab === 'requests' ? (
-          <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-            <AdminRequests />
           </div>
         ) : activeTab === 'societies' ? (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">

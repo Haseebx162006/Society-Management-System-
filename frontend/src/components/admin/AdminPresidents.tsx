@@ -1,11 +1,11 @@
 import React from 'react';
-import { useGetAllSocietiesQuery } from '@/lib/features/societies/societyApiSlice';
+import { useGetAllSocietiesAdminQuery } from '@/lib/features/societies/societyApiSlice';
 import { FaUserTie, FaEnvelope, FaPhone, FaUniversity, FaDownload } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 const AdminPresidents: React.FC = () => {
-  const { data: societies, isLoading } = useGetAllSocietiesQuery(undefined);
+  const { data: societies, isLoading } = useGetAllSocietiesAdminQuery(undefined);
 
   // Extract unique presidents from the societies list
   // The backend populates 'created_by' with 'name' and 'email'
@@ -16,12 +16,14 @@ const AdminPresidents: React.FC = () => {
     const presidentMap = new Map();
     
     societies.forEach((society: any) => {
-      const creator = society.created_by;
-      if (creator && creator._id) {
-        if (!presidentMap.has(creator._id)) {
-            // Keep track of the first society they created for display
-          presidentMap.set(creator._id, {
-            ...creator,
+      if (society.status !== 'ACTIVE') return;
+
+      const president = society.president;
+      if (president && president._id) {
+        if (!presidentMap.has(president._id)) {
+            // Keep track of the first society they lead for display
+          presidentMap.set(president._id, {
+            ...president,
             societyName: society.name
           });
         }

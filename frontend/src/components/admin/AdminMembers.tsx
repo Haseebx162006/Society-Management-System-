@@ -158,9 +158,7 @@ const AdminMembers: React.FC = () => {
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-slate-900">{member.user_id?.name || "Unknown User"}</div>
-                            <div className="text-sm text-slate-500 mt-0.5">
-                               {member.group_id?.name ? `Team: ${member.group_id.name}` : "General Member"}
-                            </div>
+                            
                           </div>
                         </div>
                       </td>

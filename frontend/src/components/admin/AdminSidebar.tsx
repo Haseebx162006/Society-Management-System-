@@ -1,5 +1,5 @@
 import { MdDashboard, MdClose } from 'react-icons/md';
-import { FaSignOutAlt, FaHome, FaClipboardList, FaUniversity, FaUserTie, FaUsers } from 'react-icons/fa';
+import { FaSignOutAlt, FaHome, FaUniversity, FaUserTie, FaUsers } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { logOut, selectRefreshToken } from '@/lib/features/auth/authSlice';
@@ -35,7 +35,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
     { id: 'overview', label: 'Overview', icon: <MdDashboard /> },
     { id: 'members', label: 'Members', icon: <FaUsers /> },
     { id: 'presidents', label: 'Presidents', icon: <FaUserTie /> },
-    { id: 'requests', label: 'Requests', icon: <FaClipboardList /> },
     { id: 'societies', label: 'Societies', icon: <FaUniversity /> },
   ];
 
