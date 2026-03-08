@@ -11,7 +11,7 @@ import Image from 'next/image';
 
 const AdminSocieties: React.FC = () => {
   const { data: societies, isLoading, refetch } = useGetAllSocietiesAdminQuery(undefined);
-  const activeSocieties = societies ? societies.filter((s: any) => s.status === 'ACTIVE') : [];
+  const activeSocieties = societies ? societies.filter((s: any) => s.status === 'ACTIVE' && s.renewal_approved) : [];
 
   const [modalConfig, setModalConfig] = useState({
     isOpen: false,

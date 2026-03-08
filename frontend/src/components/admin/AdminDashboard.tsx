@@ -22,7 +22,7 @@ const AdminDashboard: React.FC = () => {
 
   const activeSocieties = useMemo(() => {
     if (!societies) return [];
-    return societies.filter((s: any) => s.status === 'ACTIVE');
+    return societies.filter((s: any) => s.status === 'ACTIVE' && s.renewal_approved);
   }, [societies]);
 
   const totalSocieties = activeSocieties.length;

@@ -16,7 +16,7 @@ const AdminPresidents: React.FC = () => {
     const presidentMap = new Map();
     
     societies.forEach((society: any) => {
-      if (society.status !== 'ACTIVE') return;
+      if (society.status !== 'ACTIVE' || !society.renewal_approved) return;
 
       const president = society.president;
       if (president && president._id) {
