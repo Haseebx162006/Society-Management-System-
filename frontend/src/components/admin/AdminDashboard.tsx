@@ -7,6 +7,7 @@ import AdminSidebar from './AdminSidebar';
 import AdminSocieties from './AdminSocieties';
 import AdminPresidents from './AdminPresidents';
 import AdminMembers from './AdminMembers';
+import AdminEvents from './AdminEvents';
 import GrowthLineChart from '@/components/charts/GrowthLineChart';
 import MemberBarChart from '@/components/charts/MemberBarChart';
 
@@ -204,6 +205,10 @@ const AdminDashboard: React.FC = () => {
         ) : activeTab === 'societies' ? (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
             <AdminSocieties />
+          </div>
+        ) : activeTab === 'events' ? (
+          <div className="animate-in fade-in slide-in-from-right-8 duration-500">
+            <AdminEvents />
           </div>
         ) : null}
       </div>

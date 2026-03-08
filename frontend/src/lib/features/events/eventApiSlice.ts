@@ -288,6 +288,30 @@ export const eventApiSlice = apiSlice.injectEndpoints({
             }),
             transformResponse: (response: { data: { total: number; successCount: number; failCount: number } }) => response.data,
         }),
+
+        getAllEventsAdmin: builder.query<EventData[], void>({
+            query: () => "/events/admin/all",
+            transformResponse: (response: { data: EventData[] }) => response.data,
+            providesTags: (result) =>
+                result
+                    ? [
+                        ...result.map((e) => ({ type: "Event" as const, id: e._id })),
+                        { type: "Event" as const, id: "ADMIN_ALL" },
+                    ]
+                    : [{ type: "Event" as const, id: "ADMIN_ALL" }],
+        }),
+
+        getEventRegistrationsAdmin: builder.query<EventRegistration[], string>({
+            query: (eventId) => `/events/admin/${eventId}/registrations`,
+            transformResponse: (response: { data: EventRegistration[] }) => response.data,
+            providesTags: (result, _error, eventId) =>
+                result
+                    ? [
+                        ...result.map((r) => ({ type: "EventRegistration" as const, id: r._id })),
+                        { type: "EventRegistration" as const, id: `ADMIN_EVENT_${eventId}` },
+                    ]
+                    : [{ type: "EventRegistration" as const, id: `ADMIN_EVENT_${eventId}` }],
+        }),
     }),
 });
 
@@ -313,4 +337,7 @@ export const {
     useUpdateRegistrationStatusMutation,
     // Mail
     useSendMailToParticipantsMutation,
+    // Admin
+    useGetAllEventsAdminQuery,
+    useGetEventRegistrationsAdminQuery,
 } = eventApiSlice;

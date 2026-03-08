@@ -106,6 +106,21 @@ export const getEventsBySociety = async (req: AuthRequest, res: Response) => {
     }
 };
 
+// ─── Get All Events (Admin) ─────────────────────────────────────────────────
+
+export const getAllEventsAdmin = async (req: AuthRequest, res: Response) => {
+    try {
+        const events = await Event.find()
+            .populate('society_id', 'name description logo category')
+            .populate('registration_form', 'title fields description')
+            .sort({ event_date: -1 });
+
+        return sendResponse(res, 200, 'All events fetched successfully', events);
+    } catch (error: any) {
+        return sendError(res, 500, 'Internal server error', error);
+    }
+};
+
 // ─── Get All Public Events (Across All Societies) ──────────────────────────
 
 export const getAllPublicEvents = async (req: AuthRequest, res: Response) => {
@@ -404,6 +419,23 @@ export const getEventRegistrations = async (req: AuthRequest, res: Response) => 
             .sort({ created_at: -1 });
 
         return sendResponse(res, 200, 'Event registrations fetched successfully', registrations);
+    } catch (error: any) {
+        return sendError(res, 500, 'Internal server error', error);
+    }
+};
+
+// ─── Get All Registrations for an Event (Admin) ─────────────────────────────
+
+export const getEventRegistrationsAdmin = async (req: AuthRequest, res: Response) => {
+    try {
+        const { eventId } = req.params;
+
+        const registrations = await EventRegistration.find({ event_id: eventId })
+            .populate('user_id', 'name email phone')
+            .populate('form_id', 'title fields')
+            .sort({ created_at: -1 });
+
+        return sendResponse(res, 200, 'Event registrations (Admin) fetched successfully', registrations);
     } catch (error: any) {
         return sendError(res, 500, 'Internal server error', error);
     }
