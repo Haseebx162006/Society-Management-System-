@@ -239,7 +239,6 @@ export default function JoinFormPage() {
               </div>
               );
             })()}
-            )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">

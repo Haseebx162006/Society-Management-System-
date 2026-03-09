@@ -8,19 +8,19 @@ export const gmailConfig = {
   fromName: process.env.GMAIL_FROM_NAME || 'Society Management',
 };
 
-// Always use App Password for reliability.
-// OAuth2 refresh tokens expire/revoke frequently on cloud deployments.
-// Set GMAIL_APP_PASSWORD in your .env for this to work.
-// To use Gmail App Password: enable 2FA on Google account, then generate
-// an app password at https://myaccount.google.com/apppasswords
+const clientId = process.env.GMAIL_CLIENT_ID;
+const clientSecret = process.env.GMAIL_CLIENT_SECRET;
+const refreshToken = process.env.GMAIL_REFRESH_TOKEN;
+
 export const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  service: 'gmail',
   auth: {
+    type: 'OAuth2',
     user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
+    clientId,
+    clientSecret,
+    refreshToken,
   },
 });
 
-console.log('[Email] Transport: Gmail App Password');
+console.log('[Email] Transport: Gmail OAuth2');
