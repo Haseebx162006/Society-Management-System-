@@ -67,7 +67,7 @@ export const signup = async (req: Request, res: Response) => {
             email_verified: false,
         });
 
-        const otp = generateOTP();
+          const otp = generateOTP();
         const hashedOtp = await hashOTP(otp);
         await OTP.deleteMany({ email, type: 'SIGNUP' });
         await OTP.create({
@@ -77,13 +77,15 @@ export const signup = async (req: Request, res: Response) => {
             expires_at: new Date(Date.now() + 10 * 60 * 1000),
         });
 
-        await sendEmail(
+       
+
+        await  sendEmail(
             email,
             'Verify Your Email — Society Management System',
             emailTemplates.otpVerification(name, otp)
         );
 
-        return sendResponse(res, 201, "OTP sent to your email. Please verify to complete signup.", {
+       return sendResponse(res, 201, "OTP sent to your email. Please verify to complete signup.", {
             email: user.email,
             requiresVerification: true,
         });

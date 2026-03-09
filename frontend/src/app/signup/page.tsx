@@ -7,11 +7,12 @@ import { setCredentials } from "../../lib/features/auth/authSlice";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, Phone, UserPlus, ArrowLeft, Eye, EyeOff, Check, Sparkles, ShieldCheck } from "lucide-react";
+import { Mail, Lock, User, Phone, ArrowLeft,UserPlus, Eye, EyeOff, Check, Sparkles, ShieldCheck } from "lucide-react";
 import { FuturisticInput } from "../../components/ui/FuturisticInput";
 import { FuturisticButton } from "../../components/ui/FuturisticButton";
 import Link from "next/link";
 import Image from "next/image";
+
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -77,7 +78,6 @@ export default function SignupPage() {
         router.push(`/signup/verify-otp?email=${encodeURIComponent(formData.email)}`);
       }
     } catch (err) {
-      console.error("Signup failed:", err);
       const errorMessage =
         (err as { data?: { message?: string } })?.data?.message || "Registration failed. Please try again.";
       toast.error(errorMessage);

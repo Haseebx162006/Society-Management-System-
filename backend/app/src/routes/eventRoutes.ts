@@ -1,5 +1,5 @@
 import express from 'express';
-import { protect } from '../middleware/authmiddleware';
+import { protect, adminOnly } from '../middleware/authmiddleware';
 import { optionalProtect } from '../middleware/optionalProtect';
 import { authorize } from '../middleware/authorize';
 import { upload } from '../middleware/multer.middleware';
@@ -24,7 +24,9 @@ import {
     exportRegistrationsToExcel,
     exportRegistrationsToPdf,
     sendMailToParticipants,
-    getMyRegistration
+    getMyRegistration,
+    getAllEventsAdmin,
+    getEventRegistrationsAdmin
 } from '../controllers/eventController';
 
 const router = express.Router();
@@ -105,6 +107,21 @@ router.get(
     '/events/:eventId',
     optionalProtect,
     getEventById
+);
+
+// Admin Routes
+router.get(
+    '/events/admin/all',
+    protect,
+    adminOnly,
+    getAllEventsAdmin
+);
+
+router.get(
+    '/events/admin/:eventId/registrations',
+    protect,
+    adminOnly,
+    getEventRegistrationsAdmin
 );
 
 router.post(

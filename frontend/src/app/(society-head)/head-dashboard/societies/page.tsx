@@ -8,8 +8,11 @@ import {
   useSuspendSocietyMutation, 
   useReactivateSocietyMutation,
   useCreatePresidentMutation,
+  useChangeFacultyAdvisorMutation,
+  useUpdatePresidentDetailsMutation,
+  useGetAllUsersQuery
 } from "@/lib/features/societies/societyApiSlice";
-import { Users, AlertCircle, CheckCircle2, ArrowRight, ShieldAlert, RotateCcw, XCircle, Search, UserPlus, UserCircle2, GraduationCap } from "lucide-react";
+import { Users, AlertCircle, CheckCircle2, ArrowRight, ShieldAlert, RotateCcw, XCircle, Search, UserPlus, UserCircle2, Save } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface SocietyCardData {
@@ -24,11 +27,13 @@ interface SocietyCardData {
     _id: string;
     name: string;
     email: string;
+    phone: string;
   };
   faculty_advisor?: {
     _id: string;
     name: string;
     email: string;
+    phone: string;
   };
 }
 
@@ -37,15 +42,21 @@ export default function SocietyHeadSocietiesPage() {
   const [suspendSociety] = useSuspendSocietyMutation();
   const [reactivateSociety] = useReactivateSocietyMutation();
   const [createPresident] = useCreatePresidentMutation();
+  const [changeFacultyAdvisor] = useChangeFacultyAdvisorMutation();
+  const [updatePresidentDetails] = useUpdatePresidentDetailsMutation();
+  const { data: allUsers = [] } = useGetAllUsersQuery(undefined);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [userSearchQuery, setUserSearchQuery] = useState("");
   const [presidentForm, setPresidentForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [presidentUpdateDetails, setPresidentUpdateDetails] = useState({ phone: "", name: "" });
   
   const [modalConfig, setModalConfig] = useState<{
     isOpen: boolean;
     societyId: string;
     societyName: string;
-    action: 'SUSPEND' | 'REACTIVATE' | 'ADD_PRESIDENT';
+    action: 'SUSPEND' | 'REACTIVATE' | 'ADD_PRESIDENT' | 'VIEW_FACULTY' | 'VIEW_PRESIDENT';
+    data?: any;
   }>({
     isOpen: false,
     societyId: '',
@@ -65,11 +76,25 @@ export default function SocietyHeadSocietiesPage() {
         await createPresident({ societyId: modalConfig.societyId, ...presidentForm }).unwrap();
         toast.success(`President account created and linked to ${modalConfig.societyName}`);
         setPresidentForm({ name: "", email: "", phone: "", password: "" });
+      } else if (modalConfig.action === 'VIEW_PRESIDENT') {
+        await updatePresidentDetails({ societyId: modalConfig.societyId, phone: presidentUpdateDetails.phone, name: presidentUpdateDetails.name }).unwrap();
+        toast.success(`President details updated successfully`);
       }
       setModalConfig({ ...modalConfig, isOpen: false });
     } catch (err) {
       const error = err as { data?: { message?: string } };
       toast.error(error?.data?.message || "Action failed");
+    }
+  };
+
+  const handleAdvisorChange = async (newAdvisorId: string) => {
+    try {
+        await changeFacultyAdvisor({ societyId: modalConfig.societyId, new_advisor_id: newAdvisorId }).unwrap();
+        toast.success("Faculty Advisor updated successfully");
+        setModalConfig({ ...modalConfig, isOpen: false });
+    } catch (err) {
+        const error = err as { data?: { message?: string } };
+        toast.error(error?.data?.message || "Failed to update Faculty Advisor");
     }
   };
 
@@ -172,7 +197,19 @@ export default function SocietyHeadSocietiesPage() {
 
                   <div className="space-y-3 mt-auto">
                     {/* Faculty Advisor Section */}
-                    <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-100 flex items-center gap-3">
+                    <div 
+                      onClick={() => {
+                        setModalConfig({
+                          isOpen: true,
+                          societyId: society._id,
+                          societyName: society.name,
+                          action: 'VIEW_FACULTY',
+                          data: society.faculty_advisor
+                        });
+                        setUserSearchQuery("");
+                      }}
+                      className="p-3 bg-blue-50/50 rounded-xl border border-blue-100 flex items-center gap-3 cursor-pointer hover:bg-blue-100/80 transition-colors"
+                    >
                       <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                         <Users size={18} />
                       </div>
@@ -185,7 +222,24 @@ export default function SocietyHeadSocietiesPage() {
                     </div>
 
                     {/* President Section */}
-                    <div className="p-3 bg-stone-50 rounded-xl border border-stone-100">
+                    <div 
+                        className={`p-3 rounded-xl border flex flex-col justify-center ${society.president ? 'bg-stone-50 border-stone-100 cursor-pointer hover:bg-stone-100 transition-colors' : 'bg-red-50/50 border-red-100'}`}
+                        onClick={() => {
+                            if (society.president) {
+                              setPresidentUpdateDetails({ 
+                                  phone: society.president.phone || "",
+                                  name: society.president.name || ""
+                              });
+                              setModalConfig({
+                                isOpen: true,
+                                societyId: society._id,
+                                societyName: society.name,
+                                action: 'VIEW_PRESIDENT',
+                                data: society.president
+                              });
+                            }
+                        }}
+                    >
                       {society.president ? (
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
@@ -280,10 +334,141 @@ export default function SocietyHeadSocietiesPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className={`relative bg-white rounded-3xl overflow-hidden shadow-2xl ${
-                modalConfig.action === 'ADD_PRESIDENT' ? 'max-w-2xl w-full' : 'max-w-md w-full p-8'
+                modalConfig.action === 'ADD_PRESIDENT' || modalConfig.action === 'VIEW_FACULTY' ? 'max-w-2xl w-full' : 'max-w-md w-full p-8'
               }`}
             >
-              {modalConfig.action === 'ADD_PRESIDENT' ? (
+              {modalConfig.action === 'VIEW_FACULTY' ? (
+                 <div className="flex flex-col">
+                  <div className="p-6 border-b border-stone-100 flex items-center justify-between bg-stone-50/50">
+                    <div>
+                      <h2 className="text-xl font-black text-stone-900 tracking-tight">Faculty Advisor Details</h2>
+                      <p className="text-xs text-stone-400 font-bold uppercase tracking-wider mt-0.5">{modalConfig.societyName}</p>
+                    </div>
+                    <button 
+                      onClick={() => setModalConfig({ ...modalConfig, isOpen: false })}
+                      className="w-10 h-10 rounded-full bg-white border border-stone-200 flex items-center justify-center text-stone-400 hover:text-stone-600 transition-colors"
+                    >
+                      <XCircle size={20} />
+                    </button>
+                  </div>
+                  <div className="p-6 space-y-6">
+                      {modalConfig.data ? (
+                          <div className="space-y-4">
+                              <div className="flex items-center gap-4 p-4 border rounded-xl bg-stone-50">
+                                  <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+                                      <Users size={24} />
+                                  </div>
+                                  <div>
+                                      <p className="font-bold text-stone-900">{modalConfig.data.name}</p>
+                                      <p className="text-sm text-stone-500">{modalConfig.data.email}</p>
+                                      <p className="text-sm text-stone-500">{modalConfig.data.phone || 'No phone provided'}</p>
+                                  </div>
+                              </div>
+                          </div>
+                      ) : (
+                          <div className="p-4 border rounded-xl bg-red-50 text-red-600">
+                              <p className="font-bold">No Faculty Advisor Assigned</p>
+                          </div>
+                      )}
+
+                      <div className="border-t pt-6">
+                          <h3 className="text-sm font-bold text-stone-700 mb-4">Change Faculty Advisor</h3>
+                          <div className="relative mb-4">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 w-4 h-4" />
+                              <input 
+                                  type="text"
+                                  placeholder="Search users by name or email..."
+                                  value={userSearchQuery}
+                                  onChange={(e) => setUserSearchQuery(e.target.value)}
+                                  className="w-full pl-10 pr-4 py-2 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                              />
+                          </div>
+                          <div className="max-h-60 overflow-y-auto space-y-2">
+                              {(allUsers as any[]).filter(u => 
+                                  u.name.toLowerCase().includes(userSearchQuery.toLowerCase()) || 
+                                  u.email.toLowerCase().includes(userSearchQuery.toLowerCase())
+                              ).map(user => (
+                                  <div key={user._id} className="flex items-center justify-between p-3 border rounded-xl hover:border-blue-300 hover:bg-blue-50/50 transition-colors">
+                                      <div>
+                                          <p className="font-semibold text-sm text-stone-800">{user.name}</p>
+                                          <p className="text-xs text-stone-500">{user.email}</p>
+                                      </div>
+                                      <button 
+                                          onClick={() => handleAdvisorChange(user._id)}
+                                          className="text-xs font-bold text-blue-600 bg-blue-100 hover:bg-blue-200 px-3 py-1.5 rounded-lg transition-colors"
+                                      >
+                                          Set Advisor
+                                      </button>
+                                  </div>
+                              ))}
+                              {userSearchQuery && (allUsers as any[]).filter(u => u.name.toLowerCase().includes(userSearchQuery.toLowerCase()) || u.email.toLowerCase().includes(userSearchQuery.toLowerCase())).length === 0 && (
+                                  <p className="text-sm text-stone-500 text-center py-4">No users found.</p>
+                              )}
+                          </div>
+                      </div>
+                  </div>
+                 </div>
+              ) : modalConfig.action === 'VIEW_PRESIDENT' ? (
+                <div className="flex flex-col">
+                  <div className="p-6 border-b border-stone-100 flex items-center justify-between bg-stone-50/50">
+                    <div>
+                      <h2 className="text-xl font-black text-stone-900 tracking-tight">President Details</h2>
+                      <p className="text-xs text-stone-400 font-bold uppercase tracking-wider mt-0.5">{modalConfig.societyName}</p>
+                    </div>
+                    <button 
+                      onClick={() => setModalConfig({ ...modalConfig, isOpen: false })}
+                      className="w-10 h-10 rounded-full bg-white border border-stone-200 flex items-center justify-center text-stone-400 hover:text-stone-600 transition-colors"
+                    >
+                      <XCircle size={20} />
+                    </button>
+                  </div>
+                  <div className="p-8 space-y-6">
+                      <div className="flex items-center gap-4 mb-6">
+                          <div className="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center">
+                              <UserCircle2 size={32} />
+                          </div>
+                          <div>
+                              <p className="font-bold text-lg text-stone-900">{modalConfig.data?.email}</p>
+                              <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mt-1">Status: Active</p>
+                          </div>
+                      </div>
+                      
+                      <div className="space-y-4">
+                          <div>
+                              <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5">Full Name</label>
+                              <input
+                                  type="text"
+                                  value={presidentUpdateDetails.name}
+                                  onChange={(e) => setPresidentUpdateDetails({ ...presidentUpdateDetails, name: e.target.value })}
+                                  placeholder="e.g. Muhammad Ali"
+                                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all"
+                              />
+                          </div>
+                          <div>
+                              <label className="block text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5">Phone Number</label>
+                              <input
+                                  type="tel"
+                                  value={presidentUpdateDetails.phone}
+                                  onChange={(e) => setPresidentUpdateDetails({ ...presidentUpdateDetails, phone: e.target.value })}
+                                  placeholder="e.g. +92 300 1234567"
+                                  className="w-full px-4 py-3 bg-stone-50 border border-stone-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all"
+                              />
+                          </div>
+                      </div>
+
+                      <button
+                          onClick={() => handleAction()}
+                          disabled={
+                              (!presidentUpdateDetails.phone || presidentUpdateDetails.phone === modalConfig.data?.phone) && 
+                              (!presidentUpdateDetails.name || presidentUpdateDetails.name === modalConfig.data?.name)
+                          }
+                          className="w-full mt-2 py-3.5 rounded-xl font-black text-sm text-white bg-stone-900 hover:bg-orange-600 transition-all uppercase tracking-widest shadow-lg disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2"
+                      >
+                          <Save size={16} /> Save Changes
+                      </button>
+                  </div>
+                </div>
+              ) : modalConfig.action === 'ADD_PRESIDENT' ? (
                 <div className="flex flex-col">
                   <div className="p-6 border-b border-stone-100 flex items-center justify-between bg-stone-50/50">
                     <div>

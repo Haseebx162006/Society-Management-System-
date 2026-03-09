@@ -65,32 +65,82 @@ function AskForRenewalModal({ onClose, onConfirm, isLoading }: { onClose: () => 
   );
 }
 
+function RejectModal({ onClose, onConfirm, isLoading }: { onClose: () => void; onConfirm: (reason: string) => void; isLoading: boolean }) {
+  const [reason, setReason] = useState("");
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 relative"
+      >
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 p-2 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-full transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-red-50 border border-red-100 mx-auto mb-6">
+          <AlertTriangle className="w-8 h-8 text-red-500" />
+        </div>
+
+        <h2 className="text-2xl font-black text-stone-900 text-center tracking-tight mb-2">Reject Renewal</h2>
+        <p className="text-sm text-stone-500 text-center mb-6 leading-relaxed">
+          Please provide a reason for rejecting this renewal. This reason will be visible to the society faculty advisor.
+        </p>
+
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Enter rejection reason..."
+          className="w-full p-4 mb-6 bg-stone-50 border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-sm min-h-[100px]"
+        />
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 py-3 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl transition-colors text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => onConfirm(reason)}
+            disabled={isLoading || !reason.trim()}
+            className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-60"
+          >
+            {isLoading ? "Rejecting..." : "Confirm Rejection"}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 export default function ManageRenewalsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAskModal, setShowAskModal] = useState(false);
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
 
   const { data: allRequests = [], isLoading, error } = useGetSocietyRequestsQuery(undefined);
   const [updateStatus, { isLoading: isUpdating }] = useUpdateSocietyRequestStatusMutation();
   const [askForRenewal, { isLoading: isAskLoading }] = useAskForRenewalMutation();
 
-  const handleStatusUpdate = async (id: string, newStatus: "APPROVED" | "REJECTED") => {
-    let rejectionReason = "No reason provided.";
-    if (newStatus === "REJECTED") {
-      const reason = window.prompt("Please provide a reason for rejecting this renewal:");
-      if (reason === null) return;
-      rejectionReason = reason;
-    }
-
+  const handleStatusUpdate = async (id: string, newStatus: "APPROVED" | "REJECTED", reason?: string) => {
     try {
       await updateStatus({
         id,
         status: newStatus,
-        rejection_reason: newStatus === "REJECTED" ? rejectionReason : undefined
+        rejection_reason: newStatus === "REJECTED" ? reason : undefined
       }).unwrap();
       
       toast.success(`Renewal successfully ${newStatus.toLowerCase()}`);
       setExpandedId(null);
+      setRejectingId(null);
     } catch (err: any) {
       toast.error(err?.data?.message || `Failed to ${newStatus.toLowerCase()} renewal`);
     }
@@ -136,6 +186,13 @@ export default function ManageRenewalsPage() {
             onClose={() => setShowAskModal(false)}
             onConfirm={handleAskForRenewal}
             isLoading={isAskLoading}
+          />
+        )}
+        {rejectingId && (
+          <RejectModal
+            onClose={() => setRejectingId(null)}
+            onConfirm={(reason) => handleStatusUpdate(rejectingId, "REJECTED", reason)}
+            isLoading={isUpdating}
           />
         )}
       </AnimatePresence>
@@ -309,7 +366,7 @@ export default function ManageRenewalsPage() {
                     {req.status === 'PENDING' ? (
                       <div className="flex flex-col sm:flex-row items-center justify-end gap-3 mt-6 p-4 sm:p-6 sm:pt-0">
                         <button 
-                          onClick={() => handleStatusUpdate(req._id, "REJECTED")}
+                          onClick={() => setRejectingId(req._id)}
                           disabled={isUpdating}
                           className="w-full sm:w-auto px-6 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-colors text-sm border border-red-100 disabled:opacity-50"
                         >

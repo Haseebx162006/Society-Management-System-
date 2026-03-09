@@ -1,26 +1,23 @@
 import React, { useState } from 'react';
 import { 
   useGetAllSocietiesAdminQuery, 
-  useSuspendSocietyMutation, 
-  useReactivateSocietyMutation,
   useGetSocietyMembersQuery,
   useChangePresidentMutation 
 } from '@/lib/features/societies/societyApiSlice';
-import { FaUserTie, FaUsers, FaDownload, FaBan, FaCheckCircle, FaExclamationTriangle, FaTimes, FaExchangeAlt } from 'react-icons/fa';
+import { FaUserTie, FaUsers, FaDownload, FaTimes, FaExchangeAlt, FaCheckCircle } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Image from 'next/image';
 
 const AdminSocieties: React.FC = () => {
   const { data: societies, isLoading, refetch } = useGetAllSocietiesAdminQuery(undefined);
-  const [suspendSociety, { isLoading: isSuspending }] = useSuspendSocietyMutation();
-  const [reactivateSociety, { isLoading: isReactivating }] = useReactivateSocietyMutation();
+  const activeSocieties = societies ? societies.filter((s: any) => s.status === 'ACTIVE' && s.renewal_approved) : [];
 
   const [modalConfig, setModalConfig] = useState({
     isOpen: false,
     societyId: '',
     societyName: '',
-    actionType: 'SUSPEND' as 'SUSPEND' | 'REACTIVATE' | 'CHANGE_PRESIDENT'
+    actionType: 'CHANGE_PRESIDENT' as 'CHANGE_PRESIDENT'
   });
 
   const [selectedNewPresidentId, setSelectedNewPresidentId] = useState<string>('');
@@ -31,15 +28,6 @@ const AdminSocieties: React.FC = () => {
   );
 
   const [changePresident, { isLoading: isChangingPresident }] = useChangePresidentMutation();
-
-  const handleToggleStatus = (id: string, name: string, currentStatus: string) => {
-    setModalConfig({
-      isOpen: true,
-      societyId: id,
-      societyName: name,
-      actionType: currentStatus === 'ACTIVE' ? 'SUSPEND' : 'REACTIVATE'
-    });
-  };
 
   const handleChangePresident = (id: string, name: string) => {
     setSelectedNewPresidentId('');
@@ -53,11 +41,7 @@ const AdminSocieties: React.FC = () => {
 
   const confirmAction = async () => {
     try {
-      if (modalConfig.actionType === 'SUSPEND') {
-         await suspendSociety(modalConfig.societyId).unwrap();
-      } else if (modalConfig.actionType === 'REACTIVATE') {
-         await reactivateSociety(modalConfig.societyId).unwrap();
-      } else if (modalConfig.actionType === 'CHANGE_PRESIDENT' && selectedNewPresidentId) {
+      if (modalConfig.actionType === 'CHANGE_PRESIDENT' && selectedNewPresidentId) {
          await changePresident({ 
             societyId: modalConfig.societyId, 
             new_president_id: selectedNewPresidentId 
@@ -66,7 +50,7 @@ const AdminSocieties: React.FC = () => {
       setModalConfig({ ...modalConfig, isOpen: false });
       refetch();
     } catch (err) {
-      console.error(`Failed to ${modalConfig.actionType.toLowerCase()}`, err);
+      console.error(`Failed to change president`, err);
     }
   };
 
@@ -76,14 +60,14 @@ const AdminSocieties: React.FC = () => {
   };
 
   const downloadPDF = () => {
-    if (!societies || societies.length === 0) return;
+    if (!activeSocieties || activeSocieties.length === 0) return;
 
     const doc = new jsPDF();
     
     doc.setFontSize(18);
     doc.text("Approved Societies", 14, 22);
 
-    const tableData = societies.map((society: any) => [
+    const tableData = activeSocieties.map((society: any) => [
       society.name,
       society.status,
       society.membersCount || 0,
@@ -110,7 +94,7 @@ const AdminSocieties: React.FC = () => {
         </div>
         <button
           onClick={downloadPDF}
-          disabled={isLoading || !societies || societies.length === 0}
+          disabled={isLoading || !activeSocieties || activeSocieties.length === 0}
           className="flex items-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg border border-red-200 transition-all text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
         >
           <FaDownload /> Download PDF
@@ -121,11 +105,11 @@ const AdminSocieties: React.FC = () => {
         <div className="border-t border-slate-200">
           {isLoading ? (
             <div className="p-6 text-center text-slate-500 text-sm">Loading societies...</div>
-          ) : !societies || societies.length === 0 ? (
-            <div className="p-6 text-center text-slate-500 text-sm">No societies found.</div>
+          ) : !activeSocieties || activeSocieties.length === 0 ? (
+            <div className="p-6 text-center text-slate-500 text-sm">No active societies found.</div>
           ) : (
             <ul role="list" className="divide-y divide-slate-100">
-              {societies.map((society: any) => (
+              {activeSocieties.map((society: any) => (
                 <li key={society._id} className="p-6 hover:bg-slate-50/50 transition duration-150 ease-in-out">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex-1">
@@ -149,23 +133,6 @@ const AdminSocieties: React.FC = () => {
                         </div>
                       </div>
                       <div className="mt-4 flex items-center gap-3">
-                           {society.status === 'ACTIVE' ? (
-                               <button 
-                                 onClick={() => handleToggleStatus(society._id, society.name, society.status)}
-                                 disabled={isSuspending || isReactivating}
-                                 className="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-600 rounded drop-shadow-sm text-xs font-semibold hover:bg-red-100 disabled:opacity-50 transition-colors border border-red-200"
-                               >
-                                 <FaBan /> Suspend Society
-                               </button>
-                           ) : society.status === 'SUSPENDED' ? (
-                               <button 
-                                 onClick={() => handleToggleStatus(society._id, society.name, society.status)}
-                                 disabled={isSuspending || isReactivating}
-                                 className="flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded drop-shadow-sm text-xs font-semibold hover:bg-green-100 disabled:opacity-50 transition-colors border border-green-200"
-                               >
-                                 <FaCheckCircle /> Reactivate Society
-                               </button>
-                           ) : null}
                       </div>
                       <p className="text-sm text-slate-600 line-clamp-2 mt-3">
                         {society.description || "No description available."}
@@ -181,16 +148,7 @@ const AdminSocieties: React.FC = () => {
                             <span className="font-semibold text-slate-700">{society.president?.name || society.created_by?.name || "Unknown"}</span>
                           </span>
                         </div>
-                        <div className="h-8 w-px bg-slate-200"></div>
-                        <div className="flex flex-col justify-center items-center">
-                          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1 mt-1">Actions</span>
-                          <button
-                            onClick={() => handleChangePresident(society._id, society.name)}
-                            className="flex items-center gap-1.5 px-2 py-1 bg-white text-orange-600 rounded border border-orange-200 hover:bg-orange-50 transition-colors text-xs font-medium whitespace-nowrap"
-                          >
-                            <FaExchangeAlt className="w-3 h-3" /> Change
-                          </button>
-                        </div>
+                        
                       </div>
                       <div className="w-full h-px bg-slate-200"></div>
                       <div className="flex items-center gap-2 w-full">
@@ -214,13 +172,7 @@ const AdminSocieties: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center p-6 border-b border-slate-100">
               <h3 className="text-xl font-bold flex items-center gap-2 text-slate-800">
-                {modalConfig.actionType === 'SUSPEND' ? (
-                  <><FaExclamationTriangle className="text-red-500" /> Suspend Society</>
-                ) : modalConfig.actionType === 'REACTIVATE' ? (
-                  <><FaCheckCircle className="text-green-500" /> Reactivate Society</>
-                ) : (
-                  <><FaExchangeAlt className="text-orange-500" /> Change President</>
-                )}
+                <FaExchangeAlt className="text-orange-500" /> Change President
               </h3>
               <button 
                 onClick={closeModal}
@@ -231,7 +183,7 @@ const AdminSocieties: React.FC = () => {
             </div>
             
             <div className="p-6">
-              {modalConfig.actionType === 'CHANGE_PRESIDENT' ? (
+              {modalConfig.actionType === 'CHANGE_PRESIDENT' && (
                 <div>
                   <p className="text-slate-600 mb-4">
                     Select a new president for <span className="font-bold text-slate-800">{modalConfig.societyName}</span>. The current president will be demoted to a regular member.
@@ -283,51 +235,23 @@ const AdminSocieties: React.FC = () => {
                     </div>
                   )}
                 </div>
-              ) : (
-                <>
-                  <p className="text-slate-600 mb-2">
-                    Are you sure you want to {modalConfig.actionType === 'SUSPEND' ? 'suspend' : 'reactivate'}{' '}
-                    <span className="font-bold text-slate-800">{modalConfig.societyName}</span>?
-                  </p>
-                  
-                  {modalConfig.actionType === 'SUSPEND' && (
-                    <div className="bg-red-50 border border-red-100 rounded-xl p-4 mt-4">
-                      <p className="text-sm text-red-700 font-medium flex items-start gap-2">
-                        <FaBan className="mt-0.5 shrink-0" />
-                        If suspended, this society will be hidden from all standard users and they will lose access to its dashboard and features until reactivated.
-                      </p>
-                    </div>
-                  )}
-                </>
               )}
             </div>
             
             <div className="p-6 pt-2 flex flex-col sm:flex-row gap-3 sm:justify-end">
               <button
                 onClick={closeModal}
-                disabled={isSuspending || isReactivating || isChangingPresident}
+                disabled={isChangingPresident}
                 className="px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmAction}
-                disabled={isSuspending || isReactivating || isChangingPresident || (modalConfig.actionType === 'CHANGE_PRESIDENT' && !selectedNewPresidentId)}
-                className={`px-5 py-2.5 rounded-xl text-white font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 ${
-                  modalConfig.actionType === 'SUSPEND' 
-                    ? 'bg-red-600 hover:bg-red-700 shadow-sm shadow-red-200' 
-                    : modalConfig.actionType === 'REACTIVATE'
-                      ? 'bg-green-600 hover:bg-green-700 shadow-sm shadow-green-200'
-                      : 'bg-orange-600 hover:bg-orange-700 shadow-sm shadow-orange-200'
-                }`}
+                disabled={isChangingPresident || !selectedNewPresidentId}
+                className={`px-5 py-2.5 rounded-xl text-white font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 shadow-sm shadow-orange-200`}
               >
-                {(isSuspending || isReactivating || isChangingPresident) 
-                  ? 'Processing...' 
-                  : modalConfig.actionType === 'SUSPEND' 
-                    ? 'Yes, Suspend Society' 
-                    : modalConfig.actionType === 'REACTIVATE'
-                      ? 'Yes, Reactivate Society'
-                      : 'Confirm Change'}
+                {isChangingPresident ? 'Processing...' : 'Confirm Change'}
               </button>
             </div>
           </div>

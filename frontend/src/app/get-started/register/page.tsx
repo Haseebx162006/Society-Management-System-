@@ -3,63 +3,47 @@
 import Header from "@/components/Header";
 import Footer from "@/components/marketing/Footer";
 import { motion } from "framer-motion";
-import { Building2, PlusCircle, Users, CreditCard, Send, CheckCircle2 } from "lucide-react";
+import { Building2, CheckCircle2, Mail, FileText, LayoutDashboard, RefreshCcw, Unlock } from "lucide-react";
 import Link from "next/link";
 
 const steps = [
     {
-        title: "Create an Account",
-        description: "Sign up and build your personal profile to gain access to the dynamic COMSATS Society System ecosystem.",
-        icon: UserPlusIcon,
+        title: "Faculty Advisor Authentication",
+        description: "Log in through your official CUI mail. Note: Only Faculty Advisors are authorized to register a society.",
+        icon: Mail,
     },
     {
-        title: "Submit a Society Request",
-        description: "Navigate to the 'Request society registration' section in your profile and submit a formal request. Add your society's name and purpose.",
-        icon: Building2,
+        title: "Request Society Registration",
+        description: "In your profile, request society registration and fill out the detailed review form.",
+        icon: FileText,
     },
     {
-        title: "Await Institutional Approval",
-        description: "Your request is securely forwarded to the administration. Once vetted and approved, your society is officially initialized.",
+        title: "Administrative Review",
+        description: "The Head of Societies will review your application and process it for acceptance or rejection.",
         icon: CheckCircle2,
     },
     {
-        title: "Configure Your Digital Headquarters",
-        description: "Use the 'Society Form' to create detailed society profile, add logos, descriptions, custom forms, FAQs, and your team hierarchy.",
-        icon: PlusCircle,
+        title: "Access Society Dashboard",
+        description: "Upon acceptance, your society dashboard will appear in your profile. Open it to proceed.",
+        icon: LayoutDashboard,
     },
     {
-        title: "Set Registration Fees (Optional)",
-        description: "If your society has an entry fee, establish transparent payment instructions and banking details for prospective members.",
-        icon: CreditCard,
+        title: "Submit Renewal Form",
+        description: "Once in the dashboard, you must fill and submit the renewal form for final verification.",
+        icon: RefreshCcw,
     },
     {
-        title: "Launch & Invite Members",
-        description: "Your society is now live on the public directory! Share your custom join link and watch your member base multiply.",
-        icon: Send,
+        title: "Full Activation",
+        description: "Upon acceptance of your renewal form, your entire dashboard will become fully accessible.",
+        icon: Unlock,
+    },
+    {
+        title: "Create Your Society",
+        description: "Complete the 'Society Form' in your dashboard to officially launch and welcome members!",
+        icon: Building2,
     }
 ];
 
-function UserPlusIcon(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <line x1="19" x2="19" y1="8" y2="14" />
-            <line x1="22" x2="16" y1="11" y2="11" />
-        </svg>
-    )
-}
 
 export default function StartAsPresidentPage() {
     return (
@@ -72,11 +56,10 @@ export default function StartAsPresidentPage() {
                         FOR LEADERS AND VISIONARIES
                     </span>
                     <h1 className="text-4xl md:text-6xl font-black text-stone-900 mb-6 leading-tight tracking-tight">
-                        Launch Your <span className="text-orange-600 bg-orange-50 px-2 rounded-lg">Society</span>
+                        Register a <span className="text-orange-600 bg-orange-50 px-2 rounded-lg">Society</span>
                     </h1>
                     <p className="text-lg text-stone-500 leading-relaxed font-medium">
-                        Become a catalyst for change. Follow this comprehensive guide to establishing,
-                        customizing, and leading your own society within the COMSATS network.
+                        Only Faculty Advisors are authorized to register a society. Log in with your CUI email to begin the process.
                     </p>
                 </div>
 
