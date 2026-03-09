@@ -32,7 +32,7 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
             venue, event_type, max_participants,
             registration_start_date, registration_deadline,
             registration_form, content_sections, tags, is_public, status, price,
-            payment_info
+            payment_info, discounts
         } = req.body;
 
         if (!title || !description || !event_date || !venue) {
@@ -61,6 +61,7 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
         const parsedContentSections = safeParse(content_sections, []);
         const parsedTags = safeParse(tags, []);
         const parsedPaymentInfo = safeParse(payment_info, undefined);
+        const parsedDiscounts = safeParse(discounts, []);
 
         const event = await Event.create({
             society_id,
@@ -81,6 +82,7 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
             status: status ? String(status).toUpperCase() : 'DRAFT',
             created_by: req.user!._id,
             price: Number(price) || 0,
+            discounts: parsedDiscounts,
             payment_info: parsedPaymentInfo
         });
 
@@ -210,7 +212,7 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
             venue, event_type, max_participants,
             registration_start_date, registration_deadline,
             registration_form, content_sections, tags, is_public, status, price,
-            payment_info
+            payment_info, discounts
         } = req.body;
 
         const event = await Event.findById(eventId);
@@ -231,6 +233,9 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
         if (price !== undefined) event.price = Number(price);
         if (payment_info !== undefined) {
             event.payment_info = safeParse(payment_info, undefined);
+        }
+        if (discounts !== undefined) {
+            event.discounts = safeParse(discounts, []);
         }
 
         if (content_sections !== undefined) {

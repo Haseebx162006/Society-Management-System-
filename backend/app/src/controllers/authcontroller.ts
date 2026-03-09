@@ -10,6 +10,11 @@ import { sendEmail } from '../services/emailService';
 import { emailTemplates } from '../utils/emailTemplates';
 
 const MAX_OTP_ATTEMPTS = 5;
+const ALLOWED_DOMAIN = '@cuilahore.edu.pk';
+
+const isAllowedEmail = (email: string): boolean => {
+    return email.toLowerCase().endsWith(ALLOWED_DOMAIN);
+};
 
 const generateOTP = (): string => {
     return crypto.randomInt(100000, 999999).toString();
@@ -30,6 +35,10 @@ export const signup = async (req: Request, res: Response) => {
 
         if (!email || typeof email !== "string") {
             return sendError(res, 400, "Invalid email");
+        }
+
+        if (!isAllowedEmail(email)) {
+            return sendError(res, 400, "Only @cuilahore.edu.pk email addresses are allowed to register");
         }
 
         if (!password || typeof password !== "string") {
@@ -153,6 +162,7 @@ export const verifySignupOTP = async (req: Request, res: Response) => {
                 email: user.email,
                 phone: user.phone,
                 is_super_admin: user.is_super_admin,
+                is_non_comsian: user.is_non_comsian,
                 password_reset_required: user.password_reset_required,
                 status: user.status,
                 locked_until: user.locked_until,
@@ -369,6 +379,12 @@ export const login = async (req: Request, res: Response) => {
              return sendError(res, 401, "Invalid email or password");
         }
 
+        // Non-comsian users and @cuilahore.edu.pk users can log in
+        // Other domains are blocked
+        if (!finduser.is_non_comsian && !isAllowedEmail(email) && !finduser.is_super_admin) {
+            return sendError(res, 403, "Only @cuilahore.edu.pk email addresses are allowed to login");
+        }
+
         // Check if email is verified (skip for super admins)
         if (!finduser.email_verified && !finduser.is_super_admin) {
              return sendError(res, 403, "Email not verified. Please verify your email first.");
@@ -412,6 +428,7 @@ export const login = async (req: Request, res: Response) => {
                 email: finduser.email,
                 phone: finduser.phone,
                 is_super_admin: finduser.is_super_admin,
+                is_non_comsian: finduser.is_non_comsian,
                 password_reset_required: finduser.password_reset_required,
                 status: finduser.status,
                 locked_until: finduser.locked_until
@@ -471,6 +488,7 @@ export const refresh = async (req: Request, res: Response) => {
                 email: user.email,
                 phone: user.phone,
                 is_super_admin: user.is_super_admin,
+                is_non_comsian: user.is_non_comsian,
                 password_reset_required: user.password_reset_required,
                 status: user.status,
                 locked_until: user.locked_until
@@ -500,3 +518,75 @@ export const logout = async (req: Request, res: Response) => {
         return sendError(res, 500, "Error in logout");
     }
 }
+
+// ─── Non-COMSATS Signup (no email verification, limited access) ─────────────
+
+export const nonComsianSignup = async (req: Request, res: Response) => {
+    try {
+        const { name, email, password, phone } = req.body;
+
+        if (!name || typeof name !== "string") {
+            return sendError(res, 400, "Invalid name");
+        }
+
+        if (!email || typeof email !== "string") {
+            return sendError(res, 400, "Invalid email");
+        }
+
+        // Non-comsian users must NOT use CUI domain
+        if (isAllowedEmail(email)) {
+            return sendError(res, 400, "CUI students should use the regular signup");
+        }
+
+        if (!password || typeof password !== "string") {
+            return sendError(res, 400, "Invalid password");
+        }
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!passwordRegex.test(password)) {
+            return sendError(res, 400, "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.");
+        }
+
+        const userFind = await User.findOne({ email });
+        if (userFind) {
+            return sendError(res, 400, "User already exists with this email");
+        }
+
+        const user = await User.create({
+            name,
+            email,
+            password,
+            phone: phone || "",
+            email_verified: true,  // Skip email verification for non-comsian
+            is_non_comsian: true,
+        });
+
+        const accessToken = generateAccessToken(user._id.toString());
+        const refreshTokenStr = generateRefreshToken();
+
+        await RefreshToken.create({
+            token: refreshTokenStr,
+            user: user._id,
+            expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        });
+
+        return sendResponse(res, 201, "Non-COMSATS account created successfully.", {
+            accessToken,
+            refreshToken: refreshTokenStr,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                is_super_admin: user.is_super_admin,
+                is_non_comsian: user.is_non_comsian,
+                password_reset_required: user.password_reset_required,
+                status: user.status,
+                locked_until: user.locked_until,
+            },
+        });
+
+    } catch (error: any) {
+        return sendError(res, 500, "Error in non-comsian signup");
+    }
+};

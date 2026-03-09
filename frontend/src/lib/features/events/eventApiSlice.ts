@@ -29,6 +29,13 @@ export interface EventContentSection {
     content: string;
 }
 
+export interface EventDiscount {
+    discount_percentage: number;
+    start_date: string;
+    end_date: string;
+    label: string;
+}
+
 export interface EventData {
     _id: string;
     society_id: string | { _id: string; name: string; description: string; logo?: string };
@@ -41,6 +48,7 @@ export interface EventData {
     banner?: string;
     max_participants?: number;
     price: number;
+    discounts?: EventDiscount[];
     registration_start_date?: string;
     registration_deadline?: string;
     registration_form?: EventForm | string;

@@ -48,6 +48,11 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
             return sendError(res, 404, 'Form not found or no longer active');
         }
 
+        // Non-comsian users cannot join societies
+        if (req.user!.is_non_comsian) {
+            return sendError(res, 403, 'Non-COMSATS users cannot join societies. You can only view and register for events.');
+        }
+
         // 2. Check if user is already a member of this society
         const existingRole = await SocietyUserRole.findOne({
             user_id: req.user!._id,

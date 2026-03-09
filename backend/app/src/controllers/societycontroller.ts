@@ -27,6 +27,11 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
             return sendError(res, 403, "Only faculty members with a valid university email can request society registration");
         }
 
+        // Non-comsian users cannot create societies
+        if (req.user.is_non_comsian) {
+            return sendError(res, 403, "Non-COMSATS users cannot create societies");
+        }
+
         const { society_name, description, request_type, form_data } = req.body;
 
         if (!society_name || typeof society_name !== "string") {
@@ -142,6 +147,9 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
             }
         }
 
+        let discounts = req.body.discounts;
+        discounts = safeParse(discounts, 'discounts');
+
         // 1. Create Society
         const society = await Society.create({
             name,
@@ -154,6 +162,7 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
             faqs: faqs || [],
             contact_info: contact_info || {},
             payment_info: payment_info || undefined,
+            discounts: discounts || [],
             logo: logoUrl || undefined,
             created_by: req.user!._id,
             status: "ACTIVE",
@@ -756,6 +765,13 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
         
         if (req.body.registration_start_date !== undefined) society.registration_start_date = req.body.registration_start_date;
         if (req.body.registration_end_date !== undefined) society.registration_end_date = req.body.registration_end_date;
+
+        // Handle discounts
+        let discounts = req.body.discounts;
+        if (discounts !== undefined) {
+            discounts = safeParse(discounts, 'discounts');
+            society.discounts = discounts || [];
+        }
 
         // Handle Team Sync
         if (teams && Array.isArray(teams)) {
