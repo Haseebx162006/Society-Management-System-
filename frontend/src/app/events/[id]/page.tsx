@@ -30,6 +30,7 @@ import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '@/components/marketing/Footer';
 import Loading from '@/app/loading';
+import DOMPurify from 'isomorphic-dompurify';
 
 export default function EventDetailsPage() {
     const { id } = useParams();
@@ -460,7 +461,7 @@ export default function EventDetailsPage() {
                                     <span className="bg-orange-500 w-2 h-6 rounded-full inline-block"></span>
                                     {section.title}
                                 </h3>
-                                <div className="prose prose-orange max-w-none text-stone-600 leading-relaxed font-body text-lg whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: section.content }} />
+                                <div className="prose prose-orange max-w-none text-stone-600 leading-relaxed font-body text-lg whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(section.content) }} />
                             </section>
                         ))}
                     </div>
