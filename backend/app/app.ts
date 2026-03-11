@@ -90,7 +90,9 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use((req: Request, _res: Response, next: NextFunction) => {
     if (req.body) req.body = sanitize(req.body);
     if (req.params) req.params = sanitize(req.params) as typeof req.params;
-    if (req.query) req.query = sanitize(req.query) as typeof req.query;
+    if (req.query && Object.keys(req.query).length > 0) {
+        req.query = sanitize(req.query as Record<string, unknown>) as typeof req.query;
+    }
     next();
 });
 
