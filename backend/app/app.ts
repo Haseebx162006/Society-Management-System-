@@ -88,10 +88,10 @@ app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 app.use((req: Request, _res: Response, next: NextFunction) => {
-    if (req.body) req.body = sanitize(req.body);
-    if (req.params) req.params = sanitize(req.params) as typeof req.params;
+    if (req.body) sanitize(req.body);
+    if (req.params) sanitize(req.params);
     if (req.query && Object.keys(req.query).length > 0) {
-        req.query = sanitize(req.query as Record<string, unknown>) as typeof req.query;
+        sanitize(req.query as Record<string, unknown>);
     }
     next();
 });
