@@ -36,11 +36,18 @@ const storage = multer.diskStorage({
     }
 });
 
+const ALLOWED_EXTENSIONS = [
+    '.jpg', '.jpeg', '.png', '.gif', '.webp', 
+    '.pdf', '.xlsx', '.doc', '.docx', '.csv'
+];
+
 const fileFilter = (req: Express.Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-    if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    
+    if (ALLOWED_MIME_TYPES.includes(file.mimetype) && ALLOWED_EXTENSIONS.includes(ext)) {
         cb(null, true);
     } else {
-        cb(new Error(`File type not allowed: ${file.mimetype}`));
+        cb(new Error(`File type or extension not allowed`));
     }
 };
 
