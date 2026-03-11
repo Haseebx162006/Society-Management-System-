@@ -58,6 +58,13 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body,
       }),
     }),
+    nonComsianSignup: builder.mutation({
+      query: (credentials) => ({
+        url: "/auth/signup/non-comsian",
+        method: "POST",
+        body: { ...credentials },
+      }),
+    }),
     changePassword: builder.mutation({
       query: (data: { currentPassword: string; newPassword: string }) => ({
         url: "/user/password",
@@ -77,5 +84,6 @@ export const {
   useVerifyResetOtpMutation,
   useResetPasswordMutation,
   useLogoutMutation,
+  useNonComsianSignupMutation,
   useChangePasswordMutation,
 } = authApiSlice;

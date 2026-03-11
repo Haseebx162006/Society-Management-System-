@@ -168,7 +168,15 @@ export default function JoinFormPage() {
             </p>
             {form.description && <p className="text-slate-500 leading-relaxed text-sm">{form.description}</p>}
             
-            {(form.society_id as any).registration_fee > 0 && (form.society_id as any).payment_info && (
+            {(form.society_id as any).registration_fee > 0 && (form.society_id as any).payment_info && (() => {
+              const society = form.society_id as any;
+              const fee = society.registration_fee;
+              const discounts: Array<{ discount_percentage: number; start_date: string; end_date: string; label: string }> = society.discounts || [];
+              const now = new Date();
+              const activeDiscount = discounts.find(d => new Date(d.start_date) <= now && new Date(d.end_date) >= now);
+              const discountedFee = activeDiscount ? Math.round(fee * (1 - activeDiscount.discount_percentage / 100)) : fee;
+
+              return (
               <div className="mt-8 p-6 bg-orange-50 rounded-2xl border border-orange-100 animate-in fade-in slide-in-from-top-4 duration-500">
                 <div className="flex items-center gap-2 mb-4 text-orange-800">
                   <Hash className="w-4 h-4" />
@@ -177,28 +185,60 @@ export default function JoinFormPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <p className="text-[10px] font-bold text-orange-600/60 uppercase tracking-widest">Fee Amount</p>
-                    <p className="font-bold text-xl text-orange-900">PKR {(form.society_id as any).registration_fee}</p>
+                    {activeDiscount ? (
+                      <div>
+                        <p className="font-bold text-xl text-orange-900">
+                          PKR {discountedFee}{' '}
+                          <span className="text-sm line-through text-orange-400">PKR {fee}</span>
+                        </p>
+                        <span className="inline-block mt-1 px-2 py-0.5 text-[10px] font-bold bg-green-100 text-green-700 rounded-full">
+                          {activeDiscount.label} — {activeDiscount.discount_percentage}% off
+                        </span>
+                      </div>
+                    ) : (
+                      <p className="font-bold text-xl text-orange-900">PKR {fee}</p>
+                    )}
                   </div>
                   <div className="space-y-1">
                     <p className="text-[10px] font-bold text-orange-600/60 uppercase tracking-widest">Account Number</p>
-                    <p className="font-mono font-bold text-orange-900">{(form.society_id as any).payment_info.acc_num}</p>
+                    <p className="font-mono font-bold text-orange-900">{society.payment_info.acc_num}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-[10px] font-bold text-orange-600/60 uppercase tracking-widest">Holder Name</p>
-                    <p className="font-bold text-orange-900">{(form.society_id as any).payment_info.acc_holder_name}</p>
+                    <p className="font-bold text-orange-900">{society.payment_info.acc_holder_name}</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-[10px] font-bold text-orange-600/60 uppercase tracking-widest">Destination</p>
-                    <p className="font-bold text-orange-900">{(form.society_id as any).payment_info.acc_destination}</p>
+                    <p className="font-bold text-orange-900">{society.payment_info.acc_destination}</p>
                   </div>
                 </div>
+
+                {/* Show all discount tiers */}
+                {discounts.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-orange-200">
+                    <p className="text-[10px] font-bold text-orange-600/60 uppercase tracking-widest mb-2">Discount Offers</p>
+                    <div className="space-y-2">
+                      {discounts.map((d, i) => {
+                        const isActive = new Date(d.start_date) <= now && new Date(d.end_date) >= now;
+                        return (
+                          <div key={i} className={`flex items-center justify-between text-xs p-2 rounded-lg ${isActive ? 'bg-green-100 text-green-800 font-semibold' : 'bg-white text-stone-500'}`}>
+                            <span>{d.label} — {d.discount_percentage}% off</span>
+                            <span>{new Date(d.start_date).toLocaleDateString()} – {new Date(d.end_date).toLocaleDateString()}{isActive ? ' (Active)' : ''}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 <div className="mt-4 pt-4 border-t border-orange-200">
                   <p className="text-[11px] text-orange-700 leading-relaxed font-medium bg-orange-100/50 p-2 rounded-lg">
-                    Notice: Membership is subject to fee verification. After submitting this form, please transfer the fee and keep the receipt ready if requested.
+                    Notice: Membership is subject to fee verification. After submitting this form, please transfer {activeDiscount ? `PKR ${discountedFee} (${activeDiscount.label} discount applied)` : `the fee`} and keep the receipt ready if requested.
                   </p>
                 </div>
               </div>
-            )}
+              );
+            })()}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-8">

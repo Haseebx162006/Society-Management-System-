@@ -47,3 +47,5 @@ uploads/
 *.sqlite
 
 scripts/
+
+comparison-feature-changes/

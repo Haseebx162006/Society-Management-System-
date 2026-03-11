@@ -11,7 +11,7 @@ interface ComparisonResult {
         societyName: string;
         similarityScore: number;
         overlappingObjectives: string[];
-        overlappingActivities: string[];
+        overlappingActivities: string[]; 
         uniqueAspects: string[];
         metrics: {
             objectivesOverlapScore: number;

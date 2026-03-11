@@ -13,7 +13,8 @@ import {
     useGetEventFormsBySocietyQuery,
     useSendMailToParticipantsMutation,
     EventData,
-    EventContentSection
+    EventContentSection,
+    EventDiscount
 } from '@/lib/features/events/eventApiSlice';
 import EventRegistrationManager from './EventRegistrationManager';
 
@@ -77,6 +78,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
     const [accHolderName, setAccHolderName] = useState('');
     const [accDestination, setAccDestination] = useState('');
     const [contentSections, setContentSections] = useState<EventContentSection[]>([]);
+    const [discounts, setDiscounts] = useState<EventDiscount[]>([]);
 
     const resetForm = () => {
         setTitle('');
@@ -97,6 +99,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         setAccHolderName('');
         setAccDestination('');
         setContentSections([]);
+        setDiscounts([]);
         setSelectedEvent(null);
     };
 
@@ -120,6 +123,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
         setStatus(event.status);
         setTags(event.tags?.join(', ') || '');
         setContentSections(event.content_sections || []);
+        setDiscounts(event.discounts || []);
         setBannerFile(null);
         setPrice(event.price ? String(event.price) : '0');
         setAccNum(event.payment_info?.acc_num || '');
@@ -167,6 +171,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
             formData.append('tags', JSON.stringify(tags.split(',').map(t => t.trim()).filter(Boolean)));
             formData.append('content_sections', JSON.stringify(contentSections.filter(s => s.title && s.content)));
             formData.append('price', price || '0');
+            formData.append('discounts', JSON.stringify(discounts.filter(d => d.label && d.start_date && d.end_date && d.discount_percentage > 0)));
         
         const paymentInfo = {
             acc_num: accNum,
@@ -588,6 +593,100 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    {/* Early Bird / Time-Based Discounts */}
+                    <div className="bg-green-50/50 p-6 rounded-2xl border border-green-100 shadow-sm">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-semibold text-green-900 flex items-center gap-2">
+                                Discounts / Early Bird Offers
+                                <span className="text-xs font-normal text-green-600/70">(Optional - time-based discounts on registration fee)</span>
+                            </h3>
+                            <button
+                                onClick={() => setDiscounts([...discounts, { label: '', discount_percentage: 0, start_date: '', end_date: '' }])}
+                                className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors font-medium"
+                            >
+                                <FaPlus className="text-xs" /> Add Discount
+                            </button>
+                        </div>
+
+                        {discounts.length === 0 ? (
+                            <p className="text-green-600/60 text-sm">No discounts configured. Add time-based discounts like early bird offers.</p>
+                        ) : (
+                            <div className="space-y-3">
+                                {discounts.map((discount, index) => (
+                                    <div key={index} className="bg-white border border-green-200 rounded-xl p-4 space-y-3">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs font-semibold text-green-600">Discount #{index + 1}</span>
+                                            <button
+                                                onClick={() => setDiscounts(discounts.filter((_, i) => i !== index))}
+                                                className="p-1 text-slate-400 hover:text-red-600"
+                                            >
+                                                <FaTrash className="text-xs" />
+                                            </button>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-500 mb-1">Label *</label>
+                                                <input
+                                                    type="text"
+                                                    value={discount.label}
+                                                    onChange={(e) => {
+                                                        const updated = [...discounts];
+                                                        updated[index] = { ...updated[index], label: e.target.value };
+                                                        setDiscounts(updated);
+                                                    }}
+                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none text-slate-800"
+                                                    placeholder="e.g. Early Bird"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-500 mb-1">Discount %</label>
+                                                <input
+                                                    type="number"
+                                                    value={discount.discount_percentage || ''}
+                                                    onChange={(e) => {
+                                                        const updated = [...discounts];
+                                                        updated[index] = { ...updated[index], discount_percentage: Math.min(100, Math.max(0, Number(e.target.value))) };
+                                                        setDiscounts(updated);
+                                                    }}
+                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none text-slate-800"
+                                                    placeholder="e.g. 20"
+                                                    min="0"
+                                                    max="100"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-500 mb-1">Start Date</label>
+                                                <input
+                                                    type="datetime-local"
+                                                    value={discount.start_date ? new Date(discount.start_date).toISOString().slice(0, 16) : ''}
+                                                    onChange={(e) => {
+                                                        const updated = [...discounts];
+                                                        updated[index] = { ...updated[index], start_date: e.target.value };
+                                                        setDiscounts(updated);
+                                                    }}
+                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none text-slate-800"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-slate-500 mb-1">End Date</label>
+                                                <input
+                                                    type="datetime-local"
+                                                    value={discount.end_date ? new Date(discount.end_date).toISOString().slice(0, 16) : ''}
+                                                    onChange={(e) => {
+                                                        const updated = [...discounts];
+                                                        updated[index] = { ...updated[index], end_date: e.target.value };
+                                                        setDiscounts(updated);
+                                                    }}
+                                                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none text-slate-800"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex gap-3 pt-4 border-t border-slate-100">

@@ -290,6 +290,16 @@ export default function EventDetailsPage() {
 
     const canRegister = ['PUBLISHED', 'ONGOING'].includes(event.status) && isOpen;
 
+    // Compute active discount
+    const activeDiscount = event.discounts?.find(d => {
+        const dStart = new Date(d.start_date);
+        const dEnd = new Date(d.end_date);
+        return now >= dStart && now <= dEnd && d.discount_percentage > 0;
+    });
+    const discountedPrice = activeDiscount
+        ? Math.round(event.price * (1 - activeDiscount.discount_percentage / 100))
+        : event.price;
+
     // Check membership
     const isMember = user && societyData?.members?.some(
         (m: any) => (typeof m.user_id === 'object' ? m.user_id._id : m.user_id) === (user._id || user.id)
@@ -386,9 +396,23 @@ export default function EventDetailsPage() {
                                         : 'bg-green-100 text-green-700 border-green-200'
                                 }`}>
                                     <span className="uppercase tracking-wider">
-                                        {event.price > 0 ? `PKR ${event.price}` : 'Free Entry'}
+                                        {event.price > 0 
+                                            ? activeDiscount 
+                                                ? <>
+                                                    <span className="line-through opacity-60 mr-1">PKR {event.price}</span>
+                                                    PKR {discountedPrice}
+                                                  </>
+                                                : `PKR ${event.price}` 
+                                            : 'Free Entry'}
                                     </span>
                                 </div>
+                                {activeDiscount && event.price > 0 && (
+                                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm border bg-green-100 text-green-700 border-green-200 font-bold">
+                                        <span className="uppercase tracking-wider">
+                                            {activeDiscount.label} — {activeDiscount.discount_percentage}% OFF
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -562,7 +586,9 @@ export default function EventDetailsPage() {
                                                                 </div>
                                                             </div>
                                                             <p className="mt-3 text-[10px] text-orange-600 leading-relaxed italic">
-                                                                Please send the registration fee of PKR {event.price} to the above account and keep the screenshot/receipt for verification.
+                                                                Please send the registration fee of PKR {discountedPrice}
+                                                                {activeDiscount ? ` (${activeDiscount.label} — ${activeDiscount.discount_percentage}% discount applied)` : ''}
+                                                                {' '}to the above account and keep the screenshot/receipt for verification.
                                                             </p>
                                                         </div>
                                                     )}
@@ -626,7 +652,11 @@ export default function EventDetailsPage() {
                                                             </>
                                                         ) : (
                                                             <>
-                                                                {event.price > 0 ? `Register Now - PKR ${event.price}` : 'Register Now (Free)'}
+                                                                {event.price > 0 
+                                                                    ? activeDiscount 
+                                                                        ? `Register Now - PKR ${discountedPrice} (${activeDiscount.discount_percentage}% off)`
+                                                                        : `Register Now - PKR ${event.price}` 
+                                                                    : 'Register Now (Free)'}
                                                                 <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                                                             </>
                                                         )}
@@ -657,6 +687,34 @@ export default function EventDetailsPage() {
                                         <p className="text-center text-xs text-stone-400 mt-4 flex items-center justify-center gap-1.5 font-medium">
                                             <FaUsers className="text-stone-500" /> max {event.max_participants} participants
                                         </p>
+                                    )}
+
+                                    {/* Discount Tiers */}
+                                    {event.discounts && event.discounts.length > 0 && event.price > 0 && (
+                                        <div className="mt-4 pt-4 border-t border-stone-800 space-y-2">
+                                            <p className="text-xs font-bold text-stone-400 uppercase tracking-wider">Discount Offers</p>
+                                            {event.discounts.map((d, i) => {
+                                                const dStart = new Date(d.start_date);
+                                                const dEnd = new Date(d.end_date);
+                                                const isActive = now >= dStart && now <= dEnd;
+                                                const discPrice = Math.round(event.price * (1 - d.discount_percentage / 100));
+                                                return (
+                                                    <div key={i} className={`p-3 rounded-xl text-xs ${isActive ? 'bg-green-500/10 border border-green-500/30' : 'bg-stone-800 border border-stone-700'}`}>
+                                                        <div className="flex justify-between items-center">
+                                                            <span className={`font-bold ${isActive ? 'text-green-400' : 'text-stone-400'}`}>
+                                                                {d.label} {isActive && '(Active)'}
+                                                            </span>
+                                                            <span className={`font-bold ${isActive ? 'text-green-400' : 'text-stone-500'}`}>
+                                                                {d.discount_percentage}% OFF — PKR {discPrice}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-stone-500 mt-1">
+                                                            {dStart.toLocaleDateString()} — {dEnd.toLocaleDateString()}
+                                                        </p>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -784,10 +842,15 @@ export default function EventDetailsPage() {
                                     <FaUsers className="w-4 h-4" />
                                     Payment Instructions
                                 </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                     <div className="space-y-1">
                                         <p className="text-orange-600/70 text-xs">Amount Due</p>
-                                        <p className="font-bold text-lg text-orange-900">PKR {event.price}</p>
+                                        <p className="font-bold text-lg text-orange-900">
+                                            PKR {discountedPrice}
+                                            {activeDiscount && (
+                                                <span className="text-xs font-normal text-green-600 ml-1">({activeDiscount.label} applied)</span>
+                                            )}
+                                        </p>
                                     </div>
                                     <div className="space-y-1">
                                         <p className="text-orange-600/70 text-xs">Destination</p>

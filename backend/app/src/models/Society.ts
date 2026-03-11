@@ -5,6 +5,12 @@ export interface ISociety extends Document {
     name: string;
     description: string;
     registration_fee: number;
+    discounts: Array<{
+        discount_percentage: number;
+        start_date: Date;
+        end_date: Date;
+        label: string;
+    }>;
     category: "Technology" | "Arts" | "Engineering" | "Sports" | "Religious" | "Social" | "Entrepreneurship" | "Others";
     custom_fields: Array<{
         label: string;
@@ -63,6 +69,12 @@ const societySchema: Schema = new Schema({
         type: Number,
         default: 0
     },
+    discounts: [{
+        discount_percentage: { type: Number, required: true, min: 0, max: 100 },
+        start_date: { type: Date, required: true },
+        end_date: { type: Date, required: true },
+        label: { type: String, required: true }
+    }],
     category: {
         type: String,
         enum: ["Technology", "Arts", "Engineering", "Sports", "Religious", "Social", "Entrepreneurship", "Others"],

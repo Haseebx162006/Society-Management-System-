@@ -29,6 +29,14 @@ interface SocietyData {
   groups?: SocietyGroup[];
   content_sections: ContentSection[];
   payment_info?: PaymentInfo;
+  discounts?: SocietyDiscount[];
+}
+
+export interface SocietyDiscount {
+  discount_percentage: number;
+  start_date: string;
+  end_date: string;
+  label: string;
 }
 
 interface CreateSocietyFormProps {
@@ -51,6 +59,7 @@ interface FormData {
   faqs: FAQ[];
   contact_info: ContactInfo;
   payment_info: PaymentInfo;
+  discounts: SocietyDiscount[];
 }
 
 export interface PaymentInfo {
@@ -104,7 +113,12 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
             acc_num: '',
             acc_holder_name: '',
             acc_destination: ''
-        }
+        },
+        discounts: initialData?.discounts?.map(d => ({
+            ...d,
+            start_date: d.start_date ? new Date(d.start_date).toISOString().slice(0, 16) : '',
+            end_date: d.end_date ? new Date(d.end_date).toISOString().slice(0, 16) : ''
+        })) || []
     });
   
   // Set initial preview if logo exists (assuming it's a URL in initialData, though not in interface yet)
@@ -239,6 +253,7 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
       formPayload.append('faqs', JSON.stringify(formData.faqs));
       formPayload.append('contact_info', JSON.stringify(formData.contact_info));
       formPayload.append('payment_info', JSON.stringify(formData.payment_info));
+      formPayload.append('discounts', JSON.stringify(formData.discounts));
       
       if (logo) {
         formPayload.append('logo', logo);
@@ -693,6 +708,102 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
                                 className="w-full bg-white border border-stone-200 rounded-lg px-4 py-3 text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
                                 placeholder="e.g. JazzCash, EasyPaisa, Bank Alfalah"
                             />
+                        </div>
+                    </div>
+
+                    {/* Discounts / Early Bird Offers */}
+                    <div className="mt-8">
+                        <h3 className="text-lg font-semibold text-stone-800 flex items-center gap-2 mb-4">
+                            Discounts / Early Bird Offers
+                            <span className="text-xs font-normal text-stone-400">(Time-based discounts on registration fee)</span>
+                        </h3>
+                        <div className="space-y-4">
+                            {formData.discounts.map((discount, idx) => (
+                                <div key={idx} className="p-4 bg-green-50/50 rounded-xl border border-green-100 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-semibold text-green-800">Discount #{idx + 1}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const updated = [...formData.discounts];
+                                                updated.splice(idx, 1);
+                                                setFormData({ ...formData, discounts: updated });
+                                            }}
+                                            className="text-xs text-red-500 hover:text-red-700 font-medium"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-xs font-medium text-stone-600 mb-1">Label</label>
+                                            <input
+                                                type="text"
+                                                value={discount.label}
+                                                onChange={(e) => {
+                                                    const updated = [...formData.discounts];
+                                                    updated[idx] = { ...updated[idx], label: e.target.value };
+                                                    setFormData({ ...formData, discounts: updated });
+                                                }}
+                                                className="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                                                placeholder="e.g. Early Bird"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-stone-600 mb-1">Discount %</label>
+                                            <input
+                                                type="number"
+                                                min={0}
+                                                max={100}
+                                                value={discount.discount_percentage}
+                                                onChange={(e) => {
+                                                    const updated = [...formData.discounts];
+                                                    updated[idx] = { ...updated[idx], discount_percentage: Number(e.target.value) };
+                                                    setFormData({ ...formData, discounts: updated });
+                                                }}
+                                                className="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                                                placeholder="e.g. 20"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-stone-600 mb-1">Start Date</label>
+                                            <input
+                                                type="datetime-local"
+                                                value={discount.start_date}
+                                                onChange={(e) => {
+                                                    const updated = [...formData.discounts];
+                                                    updated[idx] = { ...updated[idx], start_date: e.target.value };
+                                                    setFormData({ ...formData, discounts: updated });
+                                                }}
+                                                className="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-stone-600 mb-1">End Date</label>
+                                            <input
+                                                type="datetime-local"
+                                                value={discount.end_date}
+                                                onChange={(e) => {
+                                                    const updated = [...formData.discounts];
+                                                    updated[idx] = { ...updated[idx], end_date: e.target.value };
+                                                    setFormData({ ...formData, discounts: updated });
+                                                }}
+                                                className="w-full bg-white border border-stone-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={() => setFormData({
+                                    ...formData,
+                                    discounts: [...formData.discounts, { label: '', discount_percentage: 0, start_date: '', end_date: '' }]
+                                })}
+                                className="w-full py-3 border-2 border-dashed border-green-300 text-green-600 rounded-xl hover:bg-green-50 transition-colors text-sm font-medium"
+                            >
+                                + Add Discount Tier
+                            </button>
                         </div>
                     </div>
                 </div>

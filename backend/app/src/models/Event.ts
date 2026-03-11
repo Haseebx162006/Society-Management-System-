@@ -1,5 +1,12 @@
 import mongoose, { Document, Schema } from 'mongoose';
 
+export interface IEventDiscount {
+    discount_percentage: number;
+    start_date: Date;
+    end_date: Date;
+    label: string;
+}
+
 export interface IEvent extends Document {
     society_id: mongoose.Types.ObjectId;
     title: string;
@@ -22,6 +29,7 @@ export interface IEvent extends Document {
     status: 'DRAFT' | 'PUBLISHED' | 'ONGOING' | 'COMPLETED' | 'CANCELLED';
     created_by: mongoose.Types.ObjectId;
     price: number;
+    discounts: IEventDiscount[];
     payment_info?: {
         acc_num: string;
         acc_holder_name: string;
@@ -100,6 +108,12 @@ const eventSchema = new Schema<IEvent>({
         type: Number,
         default: 0
     },
+    discounts: [{
+        discount_percentage: { type: Number, required: true, min: 0, max: 100 },
+        start_date: { type: Date, required: true },
+        end_date: { type: Date, required: true },
+        label: { type: String, required: true }
+    }],
     payment_info: {
         acc_num: String,
         acc_holder_name: String,
