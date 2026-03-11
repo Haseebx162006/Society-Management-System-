@@ -47,6 +47,7 @@ export default function SocietyHeadSocietiesPage() {
   const { data: allUsers = [] } = useGetAllUsersQuery(undefined);
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'VERIFIED' | 'NOT_VERIFIED'>('ALL');
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [presidentForm, setPresidentForm] = useState({ name: "", email: "", phone: "", password: "" });
   const [presidentUpdateDetails, setPresidentUpdateDetails] = useState({ phone: "", name: "" });
@@ -98,10 +99,16 @@ export default function SocietyHeadSocietiesPage() {
     }
   };
 
-  const filteredSocieties = (societies as SocietyCardData[]).filter((s: SocietyCardData) => 
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredSocieties = (societies as SocietyCardData[]).filter((s: SocietyCardData) => {
+    const matchesSearch = s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.category.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'ALL' || 
+      (statusFilter === 'VERIFIED' && s.renewal_approved) ||
+      (statusFilter === 'NOT_VERIFIED' && !s.renewal_approved);
+
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="space-y-8 font-(--font-family-poppins)">
@@ -121,6 +128,22 @@ export default function SocietyHeadSocietiesPage() {
             className="w-full pl-11 pr-4 py-3 bg-white border border-stone-200 rounded-2xl text-sm focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 outline-none transition-all shadow-sm"
           />
         </div>
+      </div>
+
+      <div className="flex items-center gap-2 p-1 bg-stone-100 rounded-xl w-fit">
+        {(['ALL', 'VERIFIED', 'NOT_VERIFIED'] as const).map((filter) => (
+          <button
+            key={filter}
+            onClick={() => setStatusFilter(filter)}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+              statusFilter === filter 
+                ? 'bg-white text-orange-600 shadow-sm' 
+                : 'text-stone-500 hover:text-stone-700'
+            }`}
+          >
+            {filter === 'ALL' ? 'All Societies' : filter === 'VERIFIED' ? 'Verified' : 'Not Verified'}
+          </button>
+        ))}
       </div>
 
       <div className="space-y-6">
