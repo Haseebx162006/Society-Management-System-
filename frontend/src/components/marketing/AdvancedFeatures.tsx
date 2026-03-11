@@ -10,14 +10,16 @@ const advancedFeatures = [
     description: "Discover active societies at COMSATS Lahore based on your precise interests. We've built the most advanced taxonomy for student groups.",
     benefits: ["Intuitive category mapping", "High-fidelity portfolios", "Executive direct line"],
     accent: "text-orange-600",
-    bg: "bg-orange-50/50"
+    bg: "bg-orange-50/50",
+    image: "/images/infinite_discovery_societies.png"
   },
   {
     title: "Event Command Zero.",
     description: "The complete infrastructure for campus events. From ticketing to real-time check-ins, control every variable from one node.",
     benefits: ["Custom RSVP protocols", "Seamless QR validation", "Automated broadcast system"],
     accent: "text-stone-600",
-    bg: "bg-stone-50"
+    bg: "bg-stone-50",
+    image: "/images/circus_events.png"
   }
 ];
 
@@ -74,41 +76,13 @@ export default function AdvancedFeatures() {
               <motion.div 
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.6 }}
-                className={`relative w-full aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-stone-200 border border-stone-100/50 ${feature.bg} p-8 lg:p-12`}
+                className={`relative w-full aspect-[4/3] rounded-[2.5rem] overflow-hidden shadow-2xl shadow-stone-200 border border-stone-100/50 ${feature.bg}`}
               >
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/40 blur-3xl rounded-full translate-x-1/2 -translate-y-1/2" />
-                <div className="relative h-full bg-white rounded-3xl shadow-lg border border-white p-1 overflow-hidden">
-                    <div className="h-full w-full bg-[#fffdfa] rounded-[1.4rem] p-6 flex flex-col gap-6">
-                        <div className="flex items-center justify-between pb-6 border-b border-stone-100">
-                             <div className="flex gap-2">
-                                <div className="w-2.5 h-2.5 rounded-full bg-stone-100" />
-                                <div className="w-2.5 h-2.5 rounded-full bg-stone-100" />
-                                <div className="w-2.5 h-2.5 rounded-full bg-stone-100" />
-                             </div>
-                             <div className="w-32 h-2.5 rounded-full bg-stone-100" />
-                        </div>
-                        <div className="flex-1 flex flex-col gap-6">
-                            <div className="flex gap-4">
-                                <div className="w-1/2 aspect-square rounded-2xl bg-stone-50 border border-stone-100 p-4 flex flex-col justify-end">
-                                    <div className="w-12 h-2 rounded-full bg-orange-200 mb-3" />
-                                    <div className="w-8 h-2 rounded-full bg-stone-100" />
-                                </div>
-                                <div className="w-1/2 aspect-square rounded-2xl bg-stone-50 border border-stone-100 p-4 flex flex-col justify-end">
-                                    <div className="w-8 h-2 rounded-full bg-stone-100 mb-3" />
-                                    <div className="w-12 h-2 rounded-full bg-stone-200" />
-                                </div>
-                            </div>
-                            <div className="flex-1 rounded-2xl bg-stone-50 border border-stone-100 relative group overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent transition-opacity" />
-                                <div className="p-6">
-                                    <div className="w-32 h-3 bg-stone-200 rounded-full mb-4" />
-                                    <div className="w-full h-2 bg-stone-100 rounded-full mb-2" />
-                                    <div className="w-2/3 h-2 bg-stone-100 rounded-full" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <img 
+                  src={feature.image} 
+                  alt={feature.title} 
+                  className="w-full h-full object-cover"
+                />
               </motion.div>
               
               <motion.div 
