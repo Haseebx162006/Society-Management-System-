@@ -10,7 +10,6 @@ export interface User {
   password_reset_required: boolean;
   is_super_admin: boolean;
   is_society_head: boolean;
-  is_non_comsian: boolean;
   phone?: string;
   status?: "ACTIVE" | "INACTIVE" | "SUSPENDED" | "IMPORTED";
   locked_until?: string | null;

@@ -10,7 +10,6 @@ import {
     forgotPassword,
     verifyResetOTP,
     resetPassword,
-    nonComsianSignup
 } from '../controllers/authcontroller';
 import { protect, adminOnly } from '../middleware/authmiddleware';
 
@@ -45,7 +44,6 @@ const signupLimiter = rateLimit({
 
 router.post('/login', login);
 router.post('/signup', signupLimiter, signup);
-router.post('/signup/non-comsian', signupLimiter, nonComsianSignup);
 router.post('/refresh', refresh);
 router.post('/logout', logout);
 

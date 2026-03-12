@@ -12,7 +12,6 @@ export interface IUser extends Document {
     password_reset_required: boolean;
     is_super_admin: boolean;
     is_society_head: boolean;
-    is_non_comsian: boolean;
     failed_login_attempts: number;
     locked_until: Date | null;
     password_changed_at: Date;
@@ -64,10 +63,7 @@ const userSchema: Schema<IUser> = new Schema({
         type: Boolean,
         default: false
     },
-    is_non_comsian: {
-        type: Boolean,
-        default: false
-    },
+
     failed_login_attempts: {
         type: Number,
         default: 0

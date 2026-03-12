@@ -156,6 +156,16 @@ export default function SocietyDetailsPage() {
     const isNotStarted = startDate && now < startDate;
     const isEnded = endDate && now > endDate;
 
+    const activeDiscount = society.discounts?.find((d: any) => {
+        const dStart = new Date(d.start_date);
+        const dEnd = new Date(d.end_date);
+        return now >= dStart && now <= dEnd;
+    });
+
+    const discountedFee = activeDiscount
+        ? society.registration_fee * (1 - activeDiscount.discount_percentage / 100)
+        : society.registration_fee;
+
     return (
         <main className="min-h-screen bg-stone-50 font-sans">
             <Header />
@@ -346,12 +356,31 @@ export default function SocietyDetailsPage() {
                                     <div className="relative z-10">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
                                         <h3 className="font-display text-lg font-bold text-stone-500 mb-2 uppercase tracking-widest">Membership</h3>
-                                        <div className="flex items-end gap-2 mb-6">
-                                            <span className="text-4xl font-black text-stone-900">
-                                                {society.registration_fee > 0 ? `PKR ${society.registration_fee}` : "Free"}
-                                            </span>
-                                            {society.registration_fee > 0 && <span className="mb-1 text-stone-400 font-bold">/ yr</span>}
-                                        </div>
+                                        {activeDiscount && society.registration_fee > 0 ? (
+                                            <div className="mb-6">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                                                        {activeDiscount.label} (-{activeDiscount.discount_percentage}%)
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-end gap-2">
+                                                    <span className="text-4xl font-black text-stone-900">
+                                                        PKR {Math.round(discountedFee)}
+                                                    </span>
+                                                    <span className="text-lg font-bold text-stone-400 line-through mb-1">
+                                                        PKR {society.registration_fee}
+                                                    </span>
+                                                    <span className="mb-1 text-stone-400 font-bold">/ yr</span>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-end gap-2 mb-6">
+                                                <span className="text-4xl font-black text-stone-900">
+                                                    {society.registration_fee > 0 ? `PKR ${society.registration_fee}` : "Free"}
+                                                </span>
+                                                {society.registration_fee > 0 && <span className="mb-1 text-stone-400 font-bold">/ yr</span>}
+                                            </div>
+                                        )}
                                         
                                         {/* Dates */}
                                         {society.registration_start_date && (

@@ -27,10 +27,7 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
             return sendError(res, 403, "Only faculty members with a valid university email can request society registration");
         }
 
-        // Non-comsian users cannot create societies
-        if (req.user.is_non_comsian) {
-            return sendError(res, 403, "Non-COMSATS users cannot create societies");
-        }
+
 
         const { society_name, description, request_type, form_data } = req.body;
 

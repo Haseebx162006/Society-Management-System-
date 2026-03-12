@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useSignupMutation, useNonComsianSignupMutation } from "../../lib/features/auth/authApiSlice";
+import { useSignupMutation } from "../../lib/features/auth/authApiSlice";
 import { useAppDispatch } from "../../lib/hooks";
 import { setCredentials } from "../../lib/features/auth/authSlice";
 import { useRouter } from "next/navigation";
@@ -22,11 +22,11 @@ export default function SignupPage() {
     phone: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [isNonComsian, setIsNonComsian] = useState(false);
+
 
   const [agreed, setAgreed] = useState(false);
   const [signup, { isLoading }] = useSignupMutation();
-  const [nonComsianSignup, { isLoading: isNonComsianLoading }] = useNonComsianSignupMutation();
+
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -53,16 +53,11 @@ export default function SignupPage() {
     }
     if (!isPasswordValid) return;
 
-    // Email domain validation for COMSATS students
-    if (!isNonComsian && !formData.email.toLowerCase().endsWith("@cuilahore.edu.pk")) {
-      toast.error("Only @cuilahore.edu.pk email addresses are allowed. Check 'Non-COMSATS Student' if you're not from CUI.");
-      return;
-    }
 
     try {
-      if (isNonComsian) {
-        // Non-comsian signup: no OTP, directly creates account
-        const result = await nonComsianSignup(formData).unwrap();
+      const result = await signup(formData).unwrap();
+
+      if (!result.data?.requiresVerification) {
         dispatch(
           setCredentials({
             user: result.data.user,
@@ -73,7 +68,6 @@ export default function SignupPage() {
         toast.success("Account created successfully!");
         router.push("/events");
       } else {
-        await signup(formData).unwrap();
         toast.success("OTP sent to your email!");
         router.push(`/signup/verify-otp?email=${encodeURIComponent(formData.email)}`);
       }
@@ -184,11 +178,7 @@ export default function SignupPage() {
                     onChange={handleChange}
                     required
                 />
-                {!isNonComsian && (
-                    <p className="text-[10px] font-bold text-stone-400 -mt-2 ml-1 uppercase tracking-wider">
-                        Only @cuilahore.edu.pk emails allowed
-                    </p>
-                )}
+
 
                 <FuturisticInput
                     label="Phone Connection"
@@ -199,28 +189,8 @@ export default function SignupPage() {
                     onChange={handleChange}
                 />
 
-                {/* Non-COMSATS Student Toggle */}
-                <div className="flex items-center gap-3 px-1 py-2">
-                    <label className="flex items-center gap-2 cursor-pointer group">
-                        <div className="relative flex items-center justify-center">
-                            <input
-                                type="checkbox"
-                                checked={isNonComsian}
-                                onChange={(e) => setIsNonComsian(e.target.checked)}
-                                className="peer appearance-none w-5 h-5 rounded-lg border-2 border-stone-200 checked:bg-orange-600 checked:border-orange-600 transition-all duration-300 cursor-pointer"
-                            />
-                            <Check className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" strokeWidth={4} />
-                        </div>
-                        <span className="text-[11px] font-bold text-stone-400 group-hover:text-stone-600 transition-colors uppercase tracking-widest">
-                            Non-COMSATS Student (External)
-                        </span>
-                    </label>
-                </div>
-                {isNonComsian && (
-                    <p className="text-[10px] text-orange-600 font-bold -mt-1 ml-1 uppercase tracking-wider">
-                        You will only be able to view &amp; register for events
-                    </p>
-                )}
+
+
 
                 <FuturisticInput
                     label="Password"
@@ -272,11 +242,11 @@ export default function SignupPage() {
 
                 <FuturisticButton
                     type="submit"
-                    isLoading={isLoading || isNonComsianLoading}
+                    isLoading={isLoading}
                     className={`w-full py-5 text-sm rounded-2xl transition-all duration-500 font-black uppercase tracking-[0.15em] shadow-xl ${isPasswordValid ? "bg-stone-900 text-white hover:bg-orange-600 shadow-stone-900/10" : "bg-stone-100 text-stone-300 cursor-not-allowed shadow-none"}`}
                     disabled={!isPasswordValid}
                 >
-                    {isNonComsian ? "Create External Account" : "Complete Entry"}
+                    Complete Entry
                 </FuturisticButton>
             </form>
 
