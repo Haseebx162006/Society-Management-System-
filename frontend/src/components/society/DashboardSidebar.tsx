@@ -38,6 +38,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
     { id: 'overview', label: 'Overview', icon: <MdDashboard />, roles: ['PRESIDENT', 'FACULTY ADVISOR', 'FINANCE MANAGER', 'DOCUMENTATION MANAGER', 'LEAD', 'CO-LEAD', 'SPONSOR MANAGER', 'MEMBER'] },
     { id: 'members', label: 'Members', icon: <FaUsers />, roles: ['PRESIDENT', 'FACULTY ADVISOR'] },
     { id: 'teams', label: 'Teams', icon: <MdGroups />, roles: ['PRESIDENT', 'FACULTY ADVISOR', 'LEAD', 'CO-LEAD'] },
+    { id: 'join-form', label: 'Join Form', icon: <FaWpforms />, roles: ['PRESIDENT', 'FACULTY ADVISOR'] },
     { id: 'join-requests', label: 'Join Requests', icon: <FaClipboardList />, roles: ['PRESIDENT', 'FACULTY ADVISOR', 'FINANCE MANAGER'] },
     { id: 'previous-members', label: 'Previous Members', icon: <FaHistory />, roles: ['PRESIDENT', 'FACULTY ADVISOR'] },
     { id: 'events', label: 'Events', icon: <MdEvent />, roles: ['PRESIDENT', 'FACULTY ADVISOR', 'LEAD', 'CO-LEAD', 'MEMBER', 'EVENT MANAGER'] },
