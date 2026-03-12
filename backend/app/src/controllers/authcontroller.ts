@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { catchAsync } from '../util/catchAsync';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import User from '../models/User';
@@ -20,8 +21,7 @@ const hashOTP = async (otp: string): Promise<string> => {
     return bcrypt.hash(otp, salt);
 };
 
-export const signup = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const signup = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { name, email, password } = req.body;
 
         const userFind = await User.findOne({ email });
@@ -62,13 +62,9 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
             requiresVerification: true,
         });
 
-    } catch (error: any) {
-        return next(error);
-    }
-};
+});
 
-export const verifySignupOTP = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const verifySignupOTP = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { email, otp } = req.body;
 
         const otpRecord = await OTP.findOne({
@@ -134,13 +130,9 @@ export const verifySignupOTP = async (req: Request, res: Response, next: NextFun
             },
         });
 
-    } catch (error: any) {
-        return next(error);
-    }
-};
+});
 
-export const resendSignupOTP = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const resendSignupOTP = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { email } = req.body;
 
         const user = await User.findOne({ email });
@@ -170,13 +162,9 @@ export const resendSignupOTP = async (req: Request, res: Response, next: NextFun
 
         return sendResponse(res, 200, "OTP resent successfully");
 
-    } catch (error: any) {
-        return next(error);
-    }
-};
+});
 
-export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const forgotPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { email } = req.body;
 
         const user = await User.findOne({ email });
@@ -202,13 +190,9 @@ export const forgotPassword = async (req: Request, res: Response, next: NextFunc
 
         return sendResponse(res, 200, "If this email is registered, you will receive a password reset OTP.");
 
-    } catch (error: any) {
-        return next(error);
-    }
-};
+});
 
-export const verifyResetOTP = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const verifyResetOTP = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { email, otp } = req.body;
 
         const otpRecord = await OTP.findOne({
@@ -245,13 +229,9 @@ export const verifyResetOTP = async (req: Request, res: Response, next: NextFunc
             otpVerified: true,
         });
 
-    } catch (error: any) {
-        return next(error);
-    }
-};
+});
 
-export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { email, otp, newPassword } = req.body;
 
         const otpRecord = await OTP.findOne({
@@ -288,13 +268,9 @@ export const resetPassword = async (req: Request, res: Response, next: NextFunct
 
         return sendResponse(res, 200, "Password reset successfully. Please login with your new password.");
 
-    } catch (error: any) {
-        return next(error);
-    }
-};
+});
 
-export const login = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const login = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { email, password } = req.body;
 
         const finduser = await User.findOne({ email });
@@ -351,13 +327,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             }
         });
 
-    } catch (error: any) {
-        return next(error);
-    }
-};
+});
 
-export const refresh = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const refresh = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { refreshToken } = req.body;
 
         if (!refreshToken) {
@@ -408,13 +380,9 @@ export const refresh = async (req: Request, res: Response, next: NextFunction) =
             }
         });
 
-    } catch (error: any) {
-        return next(error);
-    }
-};
+});
 
-export const logout = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const logout = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { refreshToken } = req.body;
 
         if (refreshToken) {
@@ -427,7 +395,4 @@ export const logout = async (req: Request, res: Response, next: NextFunction) =>
 
         return sendResponse(res, 200, "User logged out successfully");
 
-    } catch (error: any) {
-        return next(error);
-    }
-};
+});

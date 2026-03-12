@@ -1,4 +1,5 @@
-import { Response } from 'express';
+import { catchAsync } from '../util/catchAsync';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/authmiddleware';
 import PreviousMember from '../models/PreviousMember';
 import User from '../models/User';
@@ -9,8 +10,7 @@ import fs from 'fs';
 // ─── Upload Excel of Previous Member Emails ──────────────────────────────────
 // President uploads an .xlsx/.xls file. The first column should contain emails.
 
-export const uploadPreviousMembers = async (req: AuthRequest, res: Response) => {
-    try {
+export const uploadPreviousMembers = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
         const file = req.file;
 
@@ -86,15 +86,11 @@ export const uploadPreviousMembers = async (req: AuthRequest, res: Response) => 
             unregistered_emails: withoutAccount
         });
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Failed to process Excel file', error);
-    }
-};
+});
 
 // ─── Get All Previous Member Emails for a Society ────────────────────────────
 
-export const getPreviousMembers = async (req: AuthRequest, res: Response) => {
-    try {
+export const getPreviousMembers = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
 
         const members = await PreviousMember.find({ society_id })
@@ -132,15 +128,11 @@ export const getPreviousMembers = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, 'Previous members fetched', result);
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Delete a Single Previous Member Email ───────────────────────────────────
 
-export const deletePreviousMember = async (req: AuthRequest, res: Response) => {
-    try {
+export const deletePreviousMember = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id, memberId } = req.params;
 
         const deleted = await PreviousMember.findOneAndDelete({
@@ -154,30 +146,22 @@ export const deletePreviousMember = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, 'Previous member email removed', deleted);
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Clear All Previous Members for a Society ────────────────────────────────
 
-export const clearPreviousMembers = async (req: AuthRequest, res: Response) => {
-    try {
+export const clearPreviousMembers = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
 
         const result = await PreviousMember.deleteMany({ society_id });
 
         return sendResponse(res, 200, `${result.deletedCount} previous member(s) removed`);
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Export Unregistered Emails as Excel ─────────────────────────────────────
 
-export const exportUnregisteredMembers = async (req: AuthRequest, res: Response) => {
-    try {
+export const exportUnregisteredMembers = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
 
         // Get all previous members without accounts
@@ -209,7 +193,4 @@ export const exportUnregisteredMembers = async (req: AuthRequest, res: Response)
         res.setHeader('Content-Disposition', 'attachment; filename=unregistered_members.xlsx');
         return res.send(buffer);
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});

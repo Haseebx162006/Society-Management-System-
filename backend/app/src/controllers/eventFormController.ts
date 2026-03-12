@@ -1,4 +1,5 @@
-import { Response } from 'express';
+import { catchAsync } from '../util/catchAsync';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/authmiddleware';
 import EventForm from '../models/EventForm';
 import Society from '../models/Society';
@@ -6,8 +7,7 @@ import { sendResponse, sendError } from '../util/response';
 
 // ─── Create Event Form ──────────────────────────────────────────────────────
 
-export const createEventForm = async (req: AuthRequest, res: Response) => {
-    try {
+export const createEventForm = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
         const { title, description, fields } = req.body;
 
@@ -34,45 +34,33 @@ export const createEventForm = async (req: AuthRequest, res: Response) => {
         });
 
         return sendResponse(res, 201, 'Event form created successfully', form);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get All Event Forms for a Society ───────────────────────────────────────
 
-export const getEventFormsBySociety = async (req: AuthRequest, res: Response) => {
-    try {
+export const getEventFormsBySociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
 
         const forms = await EventForm.find({ society_id })
             .sort({ created_at: -1 });
 
         return sendResponse(res, 200, 'Event forms fetched successfully', forms);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get Single Event Form ──────────────────────────────────────────────────
 
-export const getEventFormById = async (req: AuthRequest, res: Response) => {
-    try {
+export const getEventFormById = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { formId } = req.params;
 
         const form = await EventForm.findById(formId);
         if (!form) return sendError(res, 404, 'Event form not found');
 
         return sendResponse(res, 200, 'Event form fetched successfully', form);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Update Event Form ──────────────────────────────────────────────────────
 
-export const updateEventForm = async (req: AuthRequest, res: Response) => {
-    try {
+export const updateEventForm = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { formId } = req.params;
         const { title, description, fields, is_active } = req.body;
 
@@ -88,15 +76,11 @@ export const updateEventForm = async (req: AuthRequest, res: Response) => {
         await form.save();
 
         return sendResponse(res, 200, 'Event form updated successfully', form);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Delete (Deactivate) Event Form ─────────────────────────────────────────
 
-export const deleteEventForm = async (req: AuthRequest, res: Response) => {
-    try {
+export const deleteEventForm = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { formId } = req.params;
 
         const form = await EventForm.findById(formId);
@@ -107,7 +91,4 @@ export const deleteEventForm = async (req: AuthRequest, res: Response) => {
         await form.save();
 
         return sendResponse(res, 200, 'Event form deactivated successfully');
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});

@@ -1,4 +1,5 @@
-import { Response } from 'express';
+import { catchAsync } from '../util/catchAsync';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/authmiddleware';
 import Group from '../models/Group';
 import GroupMember from '../models/GroupMember';
@@ -15,8 +16,7 @@ import { bulkEmailTemplate } from '../utils/emailTemplates';
  * Can target: all members, specific groups, or multiple groups
  * Allowed roles: PRESIDENT, SPONSOR MANAGER, EVENT MANAGER, LEAD, CO-LEAD
  */
-export const sendBulkEmail = async (req: AuthRequest, res: Response) => {
-    try {
+export const sendBulkEmail = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const societyId = req.params.society_id as string;
         const { subject, message, targetType, groupIds } = req.body;
 
@@ -107,17 +107,13 @@ export const sendBulkEmail = async (req: AuthRequest, res: Response) => {
             target: targetLabel,
         });
 
-    } catch (error: any) {
-        console.error('Bulk email error:', error);
-        return sendError(res, 500, "Failed to send email", error);
-    }
-};
+});
+
 
 /**
  * Get available groups for email targeting (used in frontend dropdown)
  */
-export const getEmailTargets = async (req: AuthRequest, res: Response) => {
-    try {
+export const getEmailTargets = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const societyId = req.params.society_id as string;
 
         if (!societyId || !mongoose.Types.ObjectId.isValid(societyId)) {
@@ -146,7 +142,4 @@ export const getEmailTargets = async (req: AuthRequest, res: Response) => {
             totalMembers,
             groups: groupsWithCounts,
         });
-    } catch (error: any) {
-        return sendError(res, 500, "Failed to fetch email targets", error);
-    }
-};
+});

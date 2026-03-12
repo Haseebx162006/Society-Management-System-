@@ -1,4 +1,5 @@
-import { Response } from 'express';
+import { catchAsync } from '../util/catchAsync';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/authmiddleware';
 import JoinForm from '../models/JoinForm';
 import JoinRequest from '../models/JoinRequest';
@@ -14,8 +15,7 @@ import { notifyNewJoinRequest, notifyRequestStatusChange } from '../services/not
 import { uploadOnCloudinary } from '../utils/cloudinary';
 
 
-export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
-    try {
+export const submitJoinRequest = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { formId } = req.params;
 
         // When using multipart/form-data, responses arrives as a JSON string
@@ -217,18 +217,11 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 201, 'Join request submitted successfully', joinRequest);
 
-    } catch (error: any) {
-        if (error.code === 11000) {
-            return sendError(res, 400, 'You already have a pending request for this society');
-        }
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get All Requests for a Society (President) ──────────────────────────────
 
-export const getJoinRequestsForSociety = async (req: AuthRequest, res: Response) => {
-    try {
+export const getJoinRequestsForSociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
         const { status } = req.query;
 
@@ -245,15 +238,11 @@ export const getJoinRequestsForSociety = async (req: AuthRequest, res: Response)
 
         return sendResponse(res, 200, 'Join requests fetched successfully', requests);
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get Single Request Detail (President) ───────────────────────────────────
 
-export const getJoinRequestById = async (req: AuthRequest, res: Response) => {
-    try {
+export const getJoinRequestById = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { requestId } = req.params;
 
         const joinRequest = await JoinRequest.findById(requestId)
@@ -267,15 +256,11 @@ export const getJoinRequestById = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, 'Join request fetched successfully', joinRequest);
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Approve or Reject (President) ───────────────────────────────────────────
 
-export const updateJoinRequestStatus = async (req: AuthRequest, res: Response) => {
-    try {
+export const updateJoinRequestStatus = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id, requestId } = req.params;
         const { status, rejection_reason, assign_team } = req.body;
 
@@ -382,16 +367,11 @@ export const updateJoinRequestStatus = async (req: AuthRequest, res: Response) =
 
         return sendResponse(res, 200, 'Join request approved', joinRequest);
 
-    } catch (error: any) {
-
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── User: View My Requests ──────────────────────────────────────────────────
 
-export const getMyJoinRequests = async (req: AuthRequest, res: Response) => {
-    try {
+export const getMyJoinRequests = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const requests = await JoinRequest.find({ user_id: req.user!._id })
             .populate('society_id', 'name')
             .populate('form_id', 'title')
@@ -400,7 +380,4 @@ export const getMyJoinRequests = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, 'Your join requests', requests);
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});

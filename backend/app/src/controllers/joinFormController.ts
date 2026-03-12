@@ -1,4 +1,5 @@
-import { Response } from 'express';
+import { catchAsync } from '../util/catchAsync';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/authmiddleware';
 import JoinForm from '../models/JoinForm';
 import Society from '../models/Society';
@@ -7,8 +8,7 @@ import { sendResponse, sendError } from '../util/response';
 
 // ─── Create Form 
 
-export const createJoinForm = async (req: AuthRequest, res: Response) => {
-    try {
+export const createJoinForm = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
         const { title, description, fields, is_public } = req.body;
 
@@ -39,15 +39,11 @@ export const createJoinForm = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 201, 'Join form created successfully', form);
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get All Forms for a Society 
 
-export const getJoinFormsBySociety = async (req: AuthRequest, res: Response) => {
-    try {
+export const getJoinFormsBySociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
 
         const forms = await JoinForm.find({ society_id })
@@ -55,15 +51,11 @@ export const getJoinFormsBySociety = async (req: AuthRequest, res: Response) => 
 
         return sendResponse(res, 200, 'Join forms fetched successfully', forms);
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get Public Active Forms for a Society (anyone can access) ───────────────
 
-export const getPublicJoinFormsBySociety = async (req: AuthRequest, res: Response) => {
-    try {
+export const getPublicJoinFormsBySociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
 
         const forms = await JoinForm.find({
@@ -75,15 +67,11 @@ export const getPublicJoinFormsBySociety = async (req: AuthRequest, res: Respons
 
         return sendResponse(res, 200, 'Public join forms fetched successfully', forms);
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get Single Form (President) 
 
-export const getJoinFormById = async (req: AuthRequest, res: Response) => {
-    try {
+export const getJoinFormById = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { formId } = req.params;
 
         const form = await JoinForm.findById(formId);
@@ -91,15 +79,11 @@ export const getJoinFormById = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, 'Form fetched successfully', form);
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Update Form 
 
-export const updateJoinForm = async (req: AuthRequest, res: Response) => {
-    try {
+export const updateJoinForm = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { formId } = req.params;
         const { title, description, fields, is_active, is_public } = req.body;
 
@@ -117,15 +101,11 @@ export const updateJoinForm = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, 'Form updated successfully', form);
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Delete (Deactivate) Form
 
-export const deleteJoinForm = async (req: AuthRequest, res: Response) => {
-    try {
+export const deleteJoinForm = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { formId } = req.params;
 
         const form = await JoinForm.findById(formId);
@@ -137,15 +117,11 @@ export const deleteJoinForm = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, 'Form deactivated successfully');
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get Form for Filling (Public / User endpoint) 
 
-export const getJoinFormPublic = async (req: AuthRequest, res: Response) => {
-    try {
+export const getJoinFormPublic = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { formId } = req.params;
 
         const form = await JoinForm.findById(formId)
@@ -170,7 +146,4 @@ export const getJoinFormPublic = async (req: AuthRequest, res: Response) => {
             teams
         });
 
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});

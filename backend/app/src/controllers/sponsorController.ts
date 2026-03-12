@@ -1,4 +1,5 @@
-import { Response } from 'express';
+import { catchAsync } from '../util/catchAsync';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/authmiddleware';
 import Sponsor from '../models/Sponsor';
 import SocietyUserRole from '../models/SocietyUserRole';
@@ -14,8 +15,7 @@ const isPresidentOrSponsorManager = async (userId: string | mongoose.Types.Objec
     return !!role;
 };
 
-export const createSponsor = async (req: AuthRequest, res: Response) => {
-    try {
+export const createSponsor = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { society_id, name, description, contact, email, phone, active, logo_url, amount } = req.body;
 
         if (!society_id || !name || !contact || !email) {
@@ -42,13 +42,9 @@ export const createSponsor = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 201, "Sponsor created successfully", sponsor);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error", error);
-    }
-};
+});
 
-export const updateSponsor = async (req: AuthRequest, res: Response) => {
-    try {
+export const updateSponsor = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id } = req.params;
         const { name, description, contact, email, phone, active, logo_url, amount } = req.body;
 
@@ -76,13 +72,9 @@ export const updateSponsor = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, "Sponsor updated successfully", sponsor);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error", error);
-    }
-};
+});
 
-export const deleteSponsor = async (req: AuthRequest, res: Response) => {
-    try {
+export const deleteSponsor = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id } = req.params;
 
         const sponsor = await Sponsor.findById(id);
@@ -99,13 +91,9 @@ export const deleteSponsor = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, "Sponsor deleted successfully");
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error", error);
-    }
-};
+});
 
-export const getSponsorsBySocietyId = async (req: AuthRequest, res: Response) => {
-    try {
+export const getSponsorsBySocietyId = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { society_id } = req.params;
         const societyIdStr = Array.isArray(society_id) ? society_id[0] : society_id;
 
@@ -118,7 +106,4 @@ export const getSponsorsBySocietyId = async (req: AuthRequest, res: Response) =>
 
         return sendResponse(res, 200, "Sponsors fetched successfully", sponsors);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error", error);
-    }
-};
+});

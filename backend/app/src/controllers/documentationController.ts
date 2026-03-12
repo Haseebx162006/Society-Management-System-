@@ -1,4 +1,5 @@
-import { Response } from 'express';
+import { catchAsync } from '../util/catchAsync';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/authmiddleware';
 import Documentation from '../models/Documentation';
 import Society from '../models/Society';
@@ -7,8 +8,7 @@ import { uploadOnCloudinary } from '../utils/cloudinary';
 
 // ─── Upload Documentation ───────────────────────────────────────────────
 
-export const uploadDocumentation = async (req: AuthRequest, res: Response) => {
-    try {
+export const uploadDocumentation = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
         const { title, description } = req.body;
 
@@ -39,15 +39,12 @@ export const uploadDocumentation = async (req: AuthRequest, res: Response) => {
         });
 
         return sendResponse(res, 201, 'Documentation uploaded successfully', documentation);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
+
 
 // ─── Get Society Documentations ─────────────────────────────────────────
 
-export const getSocietyDocumentations = async (req: AuthRequest, res: Response) => {
-    try {
+export const getSocietyDocumentations = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
 
         // Optionally, check if the society exists, or rely on route middlewares
@@ -57,15 +54,12 @@ export const getSocietyDocumentations = async (req: AuthRequest, res: Response) 
             .sort({ uploadedAt: -1 });
 
         return sendResponse(res, 200, 'Documentations fetched successfully', documentations);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
+
 
 // ─── Delete Documentation ───────────────────────────────────────────────
 
-export const deleteDocumentation = async (req: AuthRequest, res: Response) => {
-    try {
+export const deleteDocumentation = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { docId } = req.params;
 
         const documentation = await Documentation.findByIdAndDelete(docId);
@@ -78,7 +72,5 @@ export const deleteDocumentation = async (req: AuthRequest, res: Response) => {
         // but for now just removing from DB.
 
         return sendResponse(res, 200, 'Documentation deleted successfully');
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
+

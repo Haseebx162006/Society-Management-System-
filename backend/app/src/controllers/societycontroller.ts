@@ -1,4 +1,5 @@
-import { Response } from 'express';
+import { Response, NextFunction } from 'express';
+import { catchAsync } from '../util/catchAsync';
 import { AuthRequest } from '../middleware/authmiddleware';
 import Group from '../models/Group';
 import Society from '../models/Society';
@@ -15,8 +16,7 @@ import { isFacultyEmail } from '../utils/isFacultyEmail';
 import { compareSocietyWithExisting } from '../services/comparisonService';
 
 
-export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
-    try {
+export const createSocietyRequest = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         // Automatically drop the unique index if it still exists in the database
         try {
             await SocietyRequest.collection.dropIndex('society_name_1');
@@ -64,14 +64,9 @@ export const createSocietyRequest = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 201, "Society request submitted successfully", societyRequest);
 
-    } catch (error: any) {
-        console.error("Error creating society request:", error);
-        return sendError(res, 500, "Internal server error while creating society request", error);
-    }
-};
+});
 
-export const createSociety = async (req: AuthRequest, res: Response) => {
-    try {
+export const createSociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
 
 
         const { name, description, registration_fee, category } = req.body;
@@ -192,15 +187,10 @@ export const createSociety = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 201, "Society created successfully", newSociety);
 
-    } catch (error: any) {
-
-        return sendError(res, 500, "Internal server error while creating society", error);
-    }
-};
+});
 
 
-export const getAllSocietyRequests = async (req: AuthRequest, res: Response) => {
-    try {
+export const getAllSocietyRequests = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { status } = req.query;
 
         const filter: any = {};
@@ -214,35 +204,23 @@ export const getAllSocietyRequests = async (req: AuthRequest, res: Response) => 
 
         return sendResponse(res, 200, "Society requests fetched successfully", requests);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while fetching society requests", error);
-    }
-};
+});
 
-export const getMySocietyRequests = async (req: AuthRequest, res: Response) => {
-    try {
+export const getMySocietyRequests = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const requests = await SocietyRequest.find({ user_id: req.user?._id }).sort({ created_at: -1 });
         return sendResponse(res, 200, "My society requests fetched successfully", requests);
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while fetching your requests", error);
-    }
-};
+});
 
-export const getPendingSocietyRequests = async (req: AuthRequest, res: Response) => {
-    try {
+export const getPendingSocietyRequests = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const requests = await SocietyRequest.find({ status: "PENDING" })
             .populate("user_id", "name email")
             .sort({ created_at: -1 });
 
         return sendResponse(res, 200, "Pending society requests fetched successfully", requests);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while fetching pending society requests", error);
-    }
-};
+});
 
-export const getSocietyRequestForSociety = async (req: AuthRequest, res: Response) => {
-    try {
+export const getSocietyRequestForSociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id } = req.params;
         const requestType = (req.query.type as string)?.toUpperCase() || "REGISTER";
 
@@ -259,14 +237,10 @@ export const getSocietyRequestForSociety = async (req: AuthRequest, res: Respons
         if (!request) return sendError(res, 404, "Approved registration request not found for this society");
         
         return sendResponse(res, 200, "Society request fetched successfully", request);
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while fetching society request", error);
-    }
-};
+});
 
 
-export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response) => {
-    try {
+export const updateSocietyRequestStatus = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id } = req.params;
         const { status, rejection_reason } = req.body;
 
@@ -353,15 +327,11 @@ export const updateSocietyRequestStatus = async (req: AuthRequest, res: Response
             ...(societyRequest.request_type === "REGISTER" && { society: "Society Created" })
         });
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while updating society request", error);
-    }
-};
+});
 
 
 
-export const getAllSocietiesAdmin = async (req: AuthRequest, res: Response) => {
-    try {
+export const getAllSocietiesAdmin = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const societies = await Society.find({ status: { $ne: "DELETED" } })
             .populate("created_by", "name email phone")
             .populate("groups", "name")
@@ -397,13 +367,9 @@ export const getAllSocietiesAdmin = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, "Admin societies fetched successfully", societiesWithCounts);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while fetching admin societies", error);
-    }
-};
+});
 
-export const getAllSocieties = async (req: AuthRequest, res: Response) => {
-    try {
+export const getAllSocieties = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const societies = await Society.find({ status: "ACTIVE", renewal_approved: true })
             .populate("created_by", "name email phone")
             .populate("groups", "name")
@@ -424,13 +390,9 @@ export const getAllSocieties = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, "Societies fetched successfully", societiesWithCounts);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while fetching societies", error);
-    }
-};
+});
 
-export const getMyManageableSocieties = async (req: AuthRequest, res: Response) => {
-    try {
+export const getMyManageableSocieties = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const userRoles = await SocietyUserRole.find({
             user_id: req.user!._id,
             role: { $in: ["PRESIDENT", "FINANCE MANAGER", "EVENT MANAGER", "SPONSOR MANAGER", "FACULTY ADVISOR"] }
@@ -452,15 +414,11 @@ export const getMyManageableSocieties = async (req: AuthRequest, res: Response) 
 
         return sendResponse(res, 200, "Manageable societies fetched successfully", societies);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while fetching manageable societies", error);
-    }
-};
+});
 
 
 
-export const getSocietyById = async (req: AuthRequest, res: Response) => {
-    try {
+export const getSocietyById = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id } = req.params;
 
         const society = await Society.findById(id)
@@ -507,13 +465,9 @@ export const getSocietyById = async (req: AuthRequest, res: Response) => {
             members: membersWithGroups
         });
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while fetching society", error);
-    }
-};
+});
 
-export const getAllPlatformMembers = async (req: AuthRequest, res: Response) => {
-    try {
+export const getAllPlatformMembers = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const members = await SocietyUserRole.find()
             .populate('user_id', 'name email phone')
             .populate('society_id', 'name')
@@ -521,10 +475,7 @@ export const getAllPlatformMembers = async (req: AuthRequest, res: Response) => 
             .sort({ assigned_at: -1 });
 
         return sendResponse(res, 200, 'All platform members fetched successfully', members);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error fetching platform members', error);
-    }
-};
+});
 
 // ─── Member Management Endpoints ─────────────────────────────────────────────
 
@@ -533,8 +484,7 @@ export const getAllPlatformMembers = async (req: AuthRequest, res: Response) => 
  * Returns paginated list of society members with user details.
  * Query: ?page=1&limit=10&search=term
  */
-export const getSocietyMembers = async (req: AuthRequest, res: Response) => {
-    try {
+export const getSocietyMembers = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
         const page = Math.max(1, parseInt(req.query.page as string) || 1);
         const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
@@ -574,18 +524,14 @@ export const getSocietyMembers = async (req: AuthRequest, res: Response) => {
                 totalPages: Math.ceil(total / limit),
             }
         });
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 /**
  * POST /api/society/:id/members
  * Assigns a user to a society with a specific role.
  * Body: { user_id, role, name?, group_id? }
  */
-export const addMember = async (req: AuthRequest, res: Response) => {
-    try {
+export const addMember = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
         const { user_id, role, name, group_id } = req.body;
 
@@ -622,14 +568,10 @@ export const addMember = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 201, "Member added to society successfully", memberRole);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while adding member", error);
-    }
-};
+});
 
 
-export const updateMemberRole = async (req: AuthRequest, res: Response) => {
-    try {
+export const updateMemberRole = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id, userId: user_id } = req.params;
         const { role, group_id } = req.body;
 
@@ -660,15 +602,11 @@ export const updateMemberRole = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, "Member role updated successfully", memberRole);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while updating member role", error);
-    }
-};
+});
 
 
 
-export const removeMember = async (req: AuthRequest, res: Response) => {
-    try {
+export const removeMember = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id, userId: user_id } = req.params;
 
         const memberRole = await SocietyUserRole.findOneAndDelete({ user_id, society_id });
@@ -678,13 +616,9 @@ export const removeMember = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, "Member removed from society successfully");
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while removing member", error);
-    }
-};
+});
 
-export const updateSociety = async (req: AuthRequest, res: Response) => {
-    try {
+export const updateSociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id } = req.params;
         const { name, description } = req.body;
 
@@ -803,12 +737,9 @@ export const updateSociety = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, "Society updated successfully", society);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error", error);
-    }
-};
+});
 
-export const changePresident = async (req: AuthRequest, res: Response) => {
+export const changePresident = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
@@ -864,13 +795,13 @@ export const changePresident = async (req: AuthRequest, res: Response) => {
 
     } catch (error: any) {
         await session.abortTransaction();
-        return sendError(res, 500, "Internal server error while changing president", error);
+        return next(error);
     } finally {
         session.endSession();
     }
 };
 
-export const changeFacultyAdvisor = async (req: AuthRequest, res: Response) => {
+export const changeFacultyAdvisor = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
@@ -926,14 +857,13 @@ export const changeFacultyAdvisor = async (req: AuthRequest, res: Response) => {
 
     } catch (error: any) {
         await session.abortTransaction();
-        return sendError(res, 500, "Internal server error while changing faculty advisor", error);
+        return next(error);
     } finally {
         session.endSession();
     }
 };
 
-export const updatePresidentDetails = async (req: AuthRequest, res: Response) => {
-    try {
+export const updatePresidentDetails = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id } = req.params;
         const { phone, name } = req.body;
 
@@ -974,14 +904,10 @@ export const updatePresidentDetails = async (req: AuthRequest, res: Response) =>
 
         return sendResponse(res, 200, "President details updated successfully");
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while updating president details", error);
-    }
-};
+});
 
 
-export const suspendSociety = async (req: AuthRequest, res: Response) => {
-    try {
+export const suspendSociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id } = req.params;
 
         const society = await Society.findById(id);
@@ -997,13 +923,9 @@ export const suspendSociety = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, "Society suspended successfully", updated);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error", error);
-    }
-};
+});
 
-export const reactivateSociety = async (req: AuthRequest, res: Response) => {
-    try {
+export const reactivateSociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id } = req.params;
 
         const society = await Society.findById(id);
@@ -1019,12 +941,9 @@ export const reactivateSociety = async (req: AuthRequest, res: Response) => {
 
         return sendResponse(res, 200, "Society reactivated successfully", updated);
 
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error", error);
-    }
-};
+});
 
-export const deleteSociety = async (req: AuthRequest, res: Response) => {
+export const deleteSociety = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
@@ -1045,26 +964,22 @@ export const deleteSociety = async (req: AuthRequest, res: Response) => {
 
     } catch (error: any) {
         await session.abortTransaction();
-        return sendError(res, 500, "Internal server error", error);
+        return next(error);
     } finally {
         session.endSession();
     }
 };
 
-export const askForRenewal = async (req: AuthRequest, res: Response) => {
-    try {
+export const askForRenewal = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         await SocietyRequest.deleteMany({ request_type: "RENEWAL" });
         await Society.updateMany(
             { status: { $ne: "DELETED" } },
             { $set: { renewal_approved: false, updated_at: new Date() } }
         );
         return sendResponse(res, 200, "Renewal cycle reset. All societies must re-submit renewal requests.");
-    } catch (error: any) {
-        return sendError(res, 500, "Internal server error while resetting renewal cycle", error);
-    }
-};
+});
 
-export const createPresident = async (req: AuthRequest, res: Response) => {
+export const createPresident = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     try {
@@ -1123,15 +1038,14 @@ export const createPresident = async (req: AuthRequest, res: Response) => {
         });
     } catch (error: any) {
         await session.abortTransaction();
-        return sendError(res, 500, "Internal server error while creating president", error);
+        return next(error);
     } finally {
         session.endSession();
     }
 };
 
 
-export const compareSocietyRequest = async (req: AuthRequest, res: Response) => {
-    try {
+export const compareSocietyRequest = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id } = req.params;
 
         const societyRequest = await SocietyRequest.findById(id);
@@ -1150,15 +1064,4 @@ export const compareSocietyRequest = async (req: AuthRequest, res: Response) => 
         );
 
         return sendResponse(res, 200, "Comparison report generated successfully", comparisonResult);
-
-    } catch (error: any) {
-        console.error("Error generating comparison report:", error);
-        if (error.message?.includes("No LLM API key configured")) {
-            return sendError(res, 503, "AI comparison service is not configured. Please contact the administrator.");
-        }
-        if (error.message === "GEMINI_RATE_LIMITED") {
-            return sendError(res, 429, "AI service quota exceeded. Please try again later or upgrade the API plan.");
-        }
-        return sendError(res, 500, "Internal server error while generating comparison report");
-    }
-};
+});

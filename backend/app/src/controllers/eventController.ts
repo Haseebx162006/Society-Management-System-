@@ -1,4 +1,5 @@
-import { Response } from 'express';
+import { catchAsync } from '../util/catchAsync';
+import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/authmiddleware';
 import Event from '../models/Event';
 import EventForm from '../models/EventForm';
@@ -24,8 +25,7 @@ const safeParse = (data: any, fallback: any = []) => {
     return data;
 };
 
-export const createEvent = async (req: AuthRequest, res: Response) => {
-    try {
+export const createEvent = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
         const {
             title, description, event_date, event_end_date,
@@ -87,15 +87,11 @@ export const createEvent = async (req: AuthRequest, res: Response) => {
         });
 
         return sendResponse(res, 201, 'Event created successfully', event);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get All Events for a Society ───────────────────────────────────────────
 
-export const getEventsBySociety = async (req: AuthRequest, res: Response) => {
-    try {
+export const getEventsBySociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
 
         const events = await Event.find({ society_id })
@@ -103,30 +99,22 @@ export const getEventsBySociety = async (req: AuthRequest, res: Response) => {
             .sort({ event_date: -1 });
 
         return sendResponse(res, 200, 'Events fetched successfully', events);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get All Events (Admin) ─────────────────────────────────────────────────
 
-export const getAllEventsAdmin = async (req: AuthRequest, res: Response) => {
-    try {
+export const getAllEventsAdmin = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const events = await Event.find()
             .populate('society_id', 'name description logo category')
             .populate('registration_form', 'title fields description')
             .sort({ event_date: -1 });
 
         return sendResponse(res, 200, 'All events fetched successfully', events);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get All Public Events (Across All Societies) ──────────────────────────
 
-export const getAllPublicEvents = async (req: AuthRequest, res: Response) => {
-    try {
+export const getAllPublicEvents = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { search, type, society, page = '1', limit = '12' } = req.query;
 
         const query: any = {
@@ -174,15 +162,11 @@ export const getAllPublicEvents = async (req: AuthRequest, res: Response) => {
                 totalPages: Math.ceil(total / limitNum)
             }
         });
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get Public Events for a Society ────────────────────────────────────────
 
-export const getPublicEventsBySociety = async (req: AuthRequest, res: Response) => {
-    try {
+export const getPublicEventsBySociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
 
         const events = await Event.find({
@@ -194,15 +178,11 @@ export const getPublicEventsBySociety = async (req: AuthRequest, res: Response) 
             .sort({ event_date: -1 });
 
         return sendResponse(res, 200, 'Public events fetched successfully', events);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get Single Event ───────────────────────────────────────────────────────
 
-export const getEventById = async (req: AuthRequest, res: Response) => {
-    try {
+export const getEventById = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
 
         const event = await Event.findById(eventId)
@@ -212,15 +192,11 @@ export const getEventById = async (req: AuthRequest, res: Response) => {
         if (!event) return sendError(res, 404, 'Event not found');
 
         return sendResponse(res, 200, 'Event fetched successfully', event);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Update Event ───────────────────────────────────────────────────────────
 
-export const updateEvent = async (req: AuthRequest, res: Response) => {
-    try {
+export const updateEvent = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
         const {
             title, description, event_date, event_end_date,
@@ -270,15 +246,11 @@ export const updateEvent = async (req: AuthRequest, res: Response) => {
         await event.save();
 
         return sendResponse(res, 200, 'Event updated successfully', event);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Delete Event ───────────────────────────────────────────────────────────
 
-export const deleteEvent = async (req: AuthRequest, res: Response) => {
-    try {
+export const deleteEvent = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
 
         const event = await Event.findById(eventId);
@@ -289,15 +261,11 @@ export const deleteEvent = async (req: AuthRequest, res: Response) => {
         await event.save();
 
         return sendResponse(res, 200, 'Event cancelled successfully');
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Submit Event Registration ──────────────────────────────────────────────
 
-export const submitEventRegistration = async (req: AuthRequest, res: Response) => {
-    try {
+export const submitEventRegistration = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
         const { form_id, responses } = req.body;
 
@@ -382,16 +350,9 @@ export const submitEventRegistration = async (req: AuthRequest, res: Response) =
         });
 
         return sendResponse(res, 201, 'Event registration submitted successfully', registration);
-    } catch (error: any) {
-        if (error.code === 11000) {
-            return sendError(res, 400, 'You have already registered for this event');
-        }
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
-export const getMyRegistration = async (req: AuthRequest, res: Response) => {
-    try {
+export const getMyRegistration = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
         const registration = await EventRegistration.findOne({
             event_id: eventId,
@@ -403,15 +364,11 @@ export const getMyRegistration = async (req: AuthRequest, res: Response) => {
         }
 
         return sendResponse(res, 200, 'My registration fetched successfully', registration);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get Registrations for an Event (President) ─────────────────────────────
 
-export const getEventRegistrations = async (req: AuthRequest, res: Response) => {
-    try {
+export const getEventRegistrations = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
         const { status } = req.query;
 
@@ -424,15 +381,11 @@ export const getEventRegistrations = async (req: AuthRequest, res: Response) => 
             .sort({ created_at: -1 });
 
         return sendResponse(res, 200, 'Event registrations fetched successfully', registrations);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Get All Registrations for an Event (Admin) ─────────────────────────────
 
-export const getEventRegistrationsAdmin = async (req: AuthRequest, res: Response) => {
-    try {
+export const getEventRegistrationsAdmin = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
 
         const registrations = await EventRegistration.find({ event_id: eventId })
@@ -441,15 +394,11 @@ export const getEventRegistrationsAdmin = async (req: AuthRequest, res: Response
             .sort({ created_at: -1 });
 
         return sendResponse(res, 200, 'Event registrations (Admin) fetched successfully', registrations);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Update Registration Status (Approve/Reject) ───────────────────────────
 
-export const updateRegistrationStatus = async (req: AuthRequest, res: Response) => {
-    try {
+export const updateRegistrationStatus = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { registrationId } = req.params;
         const { status, rejection_reason } = req.body;
 
@@ -472,15 +421,11 @@ export const updateRegistrationStatus = async (req: AuthRequest, res: Response) 
         await registration.save();
 
         return sendResponse(res, 200, `Registration ${status.toLowerCase()} successfully`, registration);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Send Mail to Event Participants ────────────────────────────────────────
 
-export const sendMailToParticipants = async (req: AuthRequest, res: Response) => {
-    try {
+export const sendMailToParticipants = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
         const { subject, message } = req.body;
 
@@ -538,15 +483,11 @@ export const sendMailToParticipants = async (req: AuthRequest, res: Response) =>
             successCount,
             failCount
         });
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Export Approved Registrations to Excel ─────────────────────────────────
 
-export const exportRegistrationsToExcel = async (req: AuthRequest, res: Response) => {
-    try {
+export const exportRegistrationsToExcel = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
 
         const event = await Event.findById(eventId);
@@ -591,15 +532,11 @@ export const exportRegistrationsToExcel = async (req: AuthRequest, res: Response
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', `attachment; filename="${event.title}_registrations.xlsx"`);
         return res.send(buffer);
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
 
 // ─── Export Approved Registrations to PDF ────────────────────────────────────
 
-export const exportRegistrationsToPdf = async (req: AuthRequest, res: Response) => {
-    try {
+export const exportRegistrationsToPdf = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
 
         const event = await Event.findById(eventId).populate('society_id', 'name');
@@ -719,7 +656,4 @@ export const exportRegistrationsToPdf = async (req: AuthRequest, res: Response) 
             .text(`Total Approved Participants: ${registrations.length}`, { align: 'right' });
 
         doc.end();
-    } catch (error: any) {
-        return sendError(res, 500, 'Internal server error', error);
-    }
-};
+});
