@@ -52,10 +52,9 @@ export const adminOnly = async (req: AuthRequest, res: Response, next: NextFunct
 }
 
 export const societyHeadOnly = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const headEmail = process.env.SOCIETY_HEAD_EMAIL;
+    const headEmail = "societies.head@cuilahore.edu.pk";
 
     if (!headEmail) {
-        console.warn("SOCIETY_HEAD_EMAIL is not defined in environment variables. Society Head features will be disabled.");
         return sendError(res, 403, "System configuration error: Society Head role is disabled.");
     }
 
@@ -67,7 +66,7 @@ export const societyHeadOnly = async (req: AuthRequest, res: Response, next: Nex
 }
 
 export const adminOrSocietyHead = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const headEmail = process.env.SOCIETY_HEAD_EMAIL;
+    const headEmail = "societies.head@cuilahore.edu.pk";
 
     if (req.user && req.user.is_super_admin) {
         return next();
@@ -77,5 +76,5 @@ export const adminOrSocietyHead = async (req: AuthRequest, res: Response, next: 
          return next();
     }
     
-    return sendError(res, 403, "Not authorized as admin or society head");
+    return sendError(res, 403, "Not authorized as society head");
 }
