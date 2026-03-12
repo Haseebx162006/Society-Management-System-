@@ -12,6 +12,14 @@ import {
     resetPassword,
 } from '../controllers/authcontroller';
 import { protect, adminOnly } from '../middleware/authmiddleware';
+import { validateRequest } from '../middleware/validate';
+import { 
+    signupSchema, 
+    loginSchema, 
+    verifyOTPSchema, 
+    forgotPasswordSchema, 
+    resetPasswordSchema 
+} from '../validators/authValidator';
 
 const router = express.Router();
 
@@ -42,16 +50,16 @@ const signupLimiter = rateLimit({
     validate: { xForwardedForHeader: false, default: true }
 });
 
-router.post('/login', login);
-router.post('/signup', signupLimiter, signup);
+router.post('/login', validateRequest(loginSchema), login);
+router.post('/signup', signupLimiter, validateRequest(signupSchema), signup);
 router.post('/refresh', refresh);
 router.post('/logout', logout);
 
-router.post('/verify-otp', otpLimiter, verifySignupOTP);
+router.post('/verify-otp', otpLimiter, validateRequest(verifyOTPSchema), verifySignupOTP);
 router.post('/resend-otp', resendLimiter, resendSignupOTP);
 
-router.post('/forgot-password', otpLimiter, forgotPassword);
-router.post('/verify-reset-otp', otpLimiter, verifyResetOTP);
-router.post('/reset-password', otpLimiter, resetPassword);
+router.post('/forgot-password', otpLimiter, validateRequest(forgotPasswordSchema), forgotPassword);
+router.post('/verify-reset-otp', otpLimiter, validateRequest(verifyOTPSchema), verifyResetOTP);
+router.post('/reset-password', otpLimiter, validateRequest(resetPasswordSchema), resetPassword);
 
 export default router;

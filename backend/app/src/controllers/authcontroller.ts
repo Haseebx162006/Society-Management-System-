@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import User from '../models/User';
@@ -20,28 +20,9 @@ const hashOTP = async (otp: string): Promise<string> => {
     return bcrypt.hash(otp, salt);
 };
 
-export const signup = async (req: Request, res: Response) => {
+export const signup = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, email, password } = req.body;
-
-        if (!name || typeof name !== "string") {
-            return sendError(res, 400, "Invalid name");
-        }
-
-        if (!email || typeof email !== "string") {
-            return sendError(res, 400, "Invalid email");
-        }
-
-
-
-        if (!password || typeof password !== "string") {
-            return sendError(res, 400, "Invalid password");
-        }
-
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        if (!passwordRegex.test(password)) {
-            return sendError(res, 400, "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.");
-        }
 
         const userFind = await User.findOne({ email });
         if (userFind && userFind.email_verified) {
@@ -60,7 +41,7 @@ export const signup = async (req: Request, res: Response) => {
             email_verified: false,
         });
 
-          const otp = generateOTP();
+        const otp = generateOTP();
         const hashedOtp = await hashOTP(otp);
         await OTP.deleteMany({ email, type: 'SIGNUP' });
         await OTP.create({
@@ -70,35 +51,25 @@ export const signup = async (req: Request, res: Response) => {
             expires_at: new Date(Date.now() + 10 * 60 * 1000),
         });
 
-       
-
-        await  sendEmail(
+        await sendEmail(
             email,
             'Verify Your Email — Society Management System',
             emailTemplates.otpVerification(name, otp)
         );
 
-       return sendResponse(res, 201, "OTP sent to your email. Please verify to complete signup.", {
-                email: user.email,
+        return sendResponse(res, 201, "OTP sent to your email. Please verify to complete signup.", {
+            email: user.email,
             requiresVerification: true,
         });
 
     } catch (error: any) {
-        return sendError(res, 500, "Error in signup");
+        return next(error);
     }
 };
 
-export const verifySignupOTP = async (req: Request, res: Response) => {
+export const verifySignupOTP = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, otp } = req.body;
-
-        if (!email || !otp) {
-            return sendError(res, 400, "Email and OTP are required");
-        }
-
-        if (typeof otp !== 'string' || otp.length !== 6) {
-            return sendError(res, 400, "Invalid OTP format");
-        }
 
         const otpRecord = await OTP.findOne({
             email,
@@ -164,17 +135,13 @@ export const verifySignupOTP = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        return sendError(res, 500, "Error verifying OTP");
+        return next(error);
     }
 };
 
-export const resendSignupOTP = async (req: Request, res: Response) => {
+export const resendSignupOTP = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email } = req.body;
-
-        if (!email) {
-            return sendError(res, 400, "Email is required");
-        }
 
         const user = await User.findOne({ email });
         if (!user) {
@@ -204,17 +171,13 @@ export const resendSignupOTP = async (req: Request, res: Response) => {
         return sendResponse(res, 200, "OTP resent successfully");
 
     } catch (error: any) {
-        return sendError(res, 500, "Error resending OTP");
+        return next(error);
     }
 };
 
-export const forgotPassword = async (req: Request, res: Response) => {
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email } = req.body;
-
-        if (!email || typeof email !== "string") {
-            return sendError(res, 400, "Email is required");
-        }
 
         const user = await User.findOne({ email });
         if (!user) {
@@ -240,21 +203,13 @@ export const forgotPassword = async (req: Request, res: Response) => {
         return sendResponse(res, 200, "If this email is registered, you will receive a password reset OTP.");
 
     } catch (error: any) {
-        return sendError(res, 500, "Error in forgot password");
+        return next(error);
     }
 };
 
-export const verifyResetOTP = async (req: Request, res: Response) => {
+export const verifyResetOTP = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, otp } = req.body;
-
-        if (!email || !otp) {
-            return sendError(res, 400, "Email and OTP are required");
-        }
-
-        if (typeof otp !== 'string' || otp.length !== 6) {
-            return sendError(res, 400, "Invalid OTP format");
-        }
 
         const otpRecord = await OTP.findOne({
             email,
@@ -291,22 +246,13 @@ export const verifyResetOTP = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        return sendError(res, 500, "Error verifying reset OTP");
+        return next(error);
     }
 };
 
-export const resetPassword = async (req: Request, res: Response) => {
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, otp, newPassword } = req.body;
-
-        if (!email || !otp || !newPassword) {
-            return sendError(res, 400, "Email, OTP, and new password are required");
-        }
-
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        if (!passwordRegex.test(newPassword)) {
-            return sendError(res, 400, "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.");
-        }
 
         const otpRecord = await OTP.findOne({
             email,
@@ -343,58 +289,38 @@ export const resetPassword = async (req: Request, res: Response) => {
         return sendResponse(res, 200, "Password reset successfully. Please login with your new password.");
 
     } catch (error: any) {
-        return sendError(res, 500, "Error resetting password");
+        return next(error);
     }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password } = req.body;
-
-        const emailRegex = /^[^\s@]+@[^\s@]+$/;
-
-        if (!email || typeof email !== "string") {
-            return sendError(res, 400, "Invalid email");
-        }
-        if (!emailRegex.test(email)) {
-             return sendError(res, 400, "Invalid email format");
-        }
-        
-        if (!password || typeof password !== "string") {
-             return sendError(res, 400, "Invalid password");
-        }
-        if (password.length < 6) {
-             return sendError(res, 400, "Password must be at least 6 characters long");
-        }
 
         const finduser = await User.findOne({ email });
 
         if (!finduser) {
-             return sendError(res, 401, "Invalid email or password");
+            return sendError(res, 401, "Invalid email or password");
         }
 
-
-
-
-
         if (!finduser.email_verified && !finduser.is_super_admin) {
-             return sendError(res, 403, "Email not verified. Please verify your email first.");
+            return sendError(res, 403, "Email not verified. Please verify your email first.");
         }
 
         if (finduser.locked_until && finduser.locked_until > new Date()) {
-             return sendError(res, 403, "Account is temporarily locked. Please try again later.");
+            return sendError(res, 403, "Account is temporarily locked. Please try again later.");
         }
 
         if (!await finduser.matchpassword(password)) {
-             finduser.failed_login_attempts += 1;
-             
-             if (finduser.failed_login_attempts >= 5) {
-                 finduser.locked_until = new Date(Date.now() + 15 * 60 * 1000);
-                 finduser.failed_login_attempts = 0;
-             }
-             await finduser.save();
+            finduser.failed_login_attempts += 1;
 
-             return sendError(res, 401, "Invalid email or password");
+            if (finduser.failed_login_attempts >= 5) {
+                finduser.locked_until = new Date(Date.now() + 15 * 60 * 1000);
+                finduser.failed_login_attempts = 0;
+            }
+            await finduser.save();
+
+            return sendError(res, 401, "Invalid email or password");
         }
 
         finduser.failed_login_attempts = 0;
@@ -426,12 +352,11 @@ export const login = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-
-        return sendError(res, 500, "Error in login");
+        return next(error);
     }
-}
+};
 
-export const refresh = async (req: Request, res: Response) => {
+export const refresh = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { refreshToken } = req.body;
 
@@ -484,11 +409,11 @@ export const refresh = async (req: Request, res: Response) => {
         });
 
     } catch (error: any) {
-        return sendError(res, 500, "Error in refresh token");
+        return next(error);
     }
-}
+};
 
-export const logout = async (req: Request, res: Response) => {
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { refreshToken } = req.body;
 
@@ -503,7 +428,6 @@ export const logout = async (req: Request, res: Response) => {
         return sendResponse(res, 200, "User logged out successfully");
 
     } catch (error: any) {
-        return sendError(res, 500, "Error in logout");
+        return next(error);
     }
-}
-
+};
