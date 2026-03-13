@@ -223,7 +223,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
 
         doc.setFontSize(10);
         doc.setTextColor(100, 100, 100);
-        doc.text("Students Societies Office", 200, 15, { align: "right" });
+        doc.text("Students Societies office", 200, 15, { align: "right" });
         doc.text("COMSATS University Islamabad, Lahore Campus", 200, 20, { align: "right" });
 
         try {
