@@ -13,6 +13,8 @@ import { emailTemplates } from '../utils/emailTemplates';
 import SocietyUserRole from '../models/SocietyUserRole';
 import * as XLSX from 'xlsx';
 import PDFDocument from 'pdfkit';
+import path from 'path';
+import fs from 'fs';
 
 const safeParse = (data: any, fallback: any = []) => {
     if (typeof data === 'string') {
@@ -44,7 +46,6 @@ export const createEvent = catchAsync(async (req: AuthRequest, res: Response, ne
             return sendError(res, 404, 'Active society not found');
         }
 
-        // If a registration form is referenced, verify it exists
         if (registration_form) {
             const form = await EventForm.findById(registration_form);
             if (!form) {
@@ -89,47 +90,30 @@ export const createEvent = catchAsync(async (req: AuthRequest, res: Response, ne
         return sendResponse(res, 201, 'Event created successfully', event);
 });
 
-// ─── Get All Events for a Society ───────────────────────────────────────────
-
 export const getEventsBySociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
-
         const events = await Event.find({ society_id })
             .populate('registration_form', 'title fields')
             .sort({ event_date: -1 });
-
         return sendResponse(res, 200, 'Events fetched successfully', events);
 });
-
-// ─── Get All Events (Admin) ─────────────────────────────────────────────────
 
 export const getAllEventsAdmin = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const events = await Event.find()
             .populate('society_id', 'name description logo category')
             .populate('registration_form', 'title fields description')
             .sort({ event_date: -1 });
-
         return sendResponse(res, 200, 'All events fetched successfully', events);
 });
 
-// ─── Get All Public Events (Across All Societies) ──────────────────────────
-
 export const getAllPublicEvents = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { search, type, society, page = '1', limit = '12' } = req.query;
-
         const query: any = {
             is_public: true,
             status: { $in: ['PUBLISHED', 'ONGOING'] }
         };
-
-        if (type && type !== 'All') {
-            query.event_type = type;
-        }
-
-        if (society) {
-            query.society_id = society;
-        }
-
+        if (type && type !== 'All') query.event_type = type;
+        if (society) query.society_id = society;
         if (search) {
             query.$or = [
                 { title: { $regex: search, $options: 'i' } },
@@ -138,11 +122,9 @@ export const getAllPublicEvents = catchAsync(async (req: AuthRequest, res: Respo
                 { tags: { $in: [new RegExp(search as string, 'i')] } }
             ];
         }
-
         const pageNum = Math.max(1, parseInt(page as string));
         const limitNum = Math.min(50, Math.max(1, parseInt(limit as string)));
         const skip = (pageNum - 1) * limitNum;
-
         const [events, total] = await Promise.all([
             Event.find(query)
                 .populate('society_id', 'name description logo category')
@@ -152,49 +134,28 @@ export const getAllPublicEvents = catchAsync(async (req: AuthRequest, res: Respo
                 .limit(limitNum),
             Event.countDocuments(query)
         ]);
-
         return sendResponse(res, 200, 'Public events fetched successfully', {
             events,
-            pagination: {
-                total,
-                page: pageNum,
-                limit: limitNum,
-                totalPages: Math.ceil(total / limitNum)
-            }
+            pagination: { total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) }
         });
 });
 
-// ─── Get Public Events for a Society ────────────────────────────────────────
-
 export const getPublicEventsBySociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
-
         const events = await Event.find({
             society_id,
             is_public: true,
             status: { $in: ['PUBLISHED', 'ONGOING'] }
-        })
-            .populate('registration_form', 'title fields description')
-            .sort({ event_date: -1 });
-
+        }).populate('registration_form', 'title fields description').sort({ event_date: -1 });
         return sendResponse(res, 200, 'Public events fetched successfully', events);
 });
 
-// ─── Get Single Event ───────────────────────────────────────────────────────
-
 export const getEventById = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
-
-        const event = await Event.findById(eventId)
-            .populate('registration_form')
-            .populate('society_id', 'name description logo');
-
+        const event = await Event.findById(eventId).populate('registration_form').populate('society_id', 'name description logo');
         if (!event) return sendError(res, 404, 'Event not found');
-
         return sendResponse(res, 200, 'Event fetched successfully', event);
 });
-
-// ─── Update Event ───────────────────────────────────────────────────────────
 
 export const updateEvent = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
@@ -205,10 +166,8 @@ export const updateEvent = catchAsync(async (req: AuthRequest, res: Response, ne
             registration_form, content_sections, tags, is_public, status, price,
             payment_info, discounts
         } = req.body;
-
         const event = await Event.findById(eventId);
         if (!event) return sendError(res, 404, 'Event not found');
-
         if (title) event.title = title;
         if (description) event.description = description;
         if (event_date) event.event_date = event_date;
@@ -222,438 +181,193 @@ export const updateEvent = catchAsync(async (req: AuthRequest, res: Response, ne
         if (is_public !== undefined) event.is_public = is_public === 'true' || is_public === true;
         if (status) event.status = String(status).toUpperCase() as any;
         if (price !== undefined) event.price = Number(price);
-        if (payment_info !== undefined) {
-            event.payment_info = safeParse(payment_info, undefined);
-        }
-        if (discounts !== undefined) {
-            event.discounts = safeParse(discounts, []);
-        }
-
-        if (content_sections !== undefined) {
-            event.content_sections = safeParse(content_sections, []);
-        }
-        if (tags !== undefined) {
-            event.tags = safeParse(tags, []);
-        }
-
-        // Handle banner upload
+        if (payment_info !== undefined) event.payment_info = safeParse(payment_info, undefined);
+        if (discounts !== undefined) event.discounts = safeParse(discounts, []);
+        if (content_sections !== undefined) event.content_sections = safeParse(content_sections, []);
+        if (tags !== undefined) event.tags = safeParse(tags, []);
         if (req.file) {
             const result = await uploadOnCloudinary(req.file.path);
             if (result) event.banner = result.secure_url;
         }
-
         event.updated_at = new Date();
         await event.save();
-
         return sendResponse(res, 200, 'Event updated successfully', event);
 });
 
-// ─── Delete Event ───────────────────────────────────────────────────────────
-
 export const deleteEvent = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
-
         const event = await Event.findById(eventId);
         if (!event) return sendError(res, 404, 'Event not found');
-
         event.status = 'CANCELLED';
         event.updated_at = new Date();
         await event.save();
-
         return sendResponse(res, 200, 'Event cancelled successfully');
 });
-
-// ─── Submit Event Registration ──────────────────────────────────────────────
 
 export const submitEventRegistration = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
         const { form_id, responses } = req.body;
-
         const event = await Event.findById(eventId);
         if (!event) return sendError(res, 404, 'Event not found');
-
-        if (!['PUBLISHED', 'ONGOING'].includes(event.status)) {
-            return sendError(res, 400, 'Event is not currently accepting registrations');
-        }
-
-        // Check if event is private and user is a member
+        if (!['PUBLISHED', 'ONGOING'].includes(event.status)) return sendError(res, 400, 'Event is not currently accepting registrations');
         if (!event.is_public) {
-            const isMember = await SocietyUserRole.findOne({
-                society_id: event.society_id,
-                user_id: req.user!._id
-            });
-
-            if (!isMember) {
-                return sendError(res, 403, 'This event is private. Only society members can register.');
-            }
+            const isMember = await SocietyUserRole.findOne({ society_id: event.society_id, user_id: req.user!._id });
+            if (!isMember) return sendError(res, 403, 'This event is private. Only society members can register.');
         }
-
-        // Check registration deadline
-        if (event.registration_deadline && new Date() > new Date(event.registration_deadline)) {
-            return sendError(res, 400, 'Registration deadline has passed');
-        }
-
-        // Check max participants
+        if (event.registration_deadline && new Date() > new Date(event.registration_deadline)) return sendError(res, 400, 'Registration deadline has passed');
         if (event.max_participants) {
-            const currentCount = await EventRegistration.countDocuments({
-                event_id: eventId,
-                status: { $in: ['PENDING', 'APPROVED'] }
-            });
-            if (currentCount >= event.max_participants) {
-                return sendError(res, 400, 'Maximum participant limit reached');
-            }
+            const currentCount = await EventRegistration.countDocuments({ event_id: eventId, status: { $in: ['PENDING', 'APPROVED'] } });
+            if (currentCount >= event.max_participants) return sendError(res, 400, 'Maximum participant limit reached');
         }
-
-        // Check for duplicate registration
-        const existing = await EventRegistration.findOne({
-            event_id: eventId,
-            user_id: req.user!._id,
-            status: { $in: ['PENDING', 'APPROVED'] }
-        });
-        if (existing) {
-            return sendError(res, 400, 'You have already registered for this event');
-        }
-
-        // Parse responses (may come as string from FormData)
+        const existing = await EventRegistration.findOne({ event_id: eventId, user_id: req.user!._id, status: { $in: ['PENDING', 'APPROVED'] } });
+        if (existing) return sendError(res, 400, 'You have already registered for this event');
         let parsedResponses = responses;
-        if (typeof responses === 'string') {
-            try { parsedResponses = JSON.parse(responses); } catch { parsedResponses = []; }
-        }
-
-        // Handle file uploads
+        if (typeof responses === 'string') { try { parsedResponses = JSON.parse(responses); } catch { parsedResponses = []; } }
         if (req.files && Array.isArray(req.files)) {
             for (const file of req.files) {
                 const result = await uploadOnCloudinary(file.path);
                 if (result) {
                     const fieldName = file.fieldname;
-                    const responseIndex = parsedResponses.findIndex(
-                        (r: any) => r.field_label === fieldName
-                    );
-                    if (responseIndex >= 0) {
-                        parsedResponses[responseIndex].value = result.secure_url;
-                    } else {
-                        parsedResponses.push({
-                            field_label: fieldName,
-                            field_type: 'FILE',
-                            value: result.secure_url
-                        });
-                    }
+                    const responseIndex = parsedResponses.findIndex((r: any) => r.field_label === fieldName);
+                    if (responseIndex >= 0) parsedResponses[responseIndex].value = result.secure_url;
+                    else parsedResponses.push({ field_label: fieldName, field_type: 'FILE', value: result.secure_url });
                 }
             }
         }
-
-        const registration = await EventRegistration.create({
-            event_id: eventId,
-            user_id: req.user!._id,
-            form_id: form_id || event.registration_form,
-            responses: parsedResponses
-        });
-
+        const registration = await EventRegistration.create({ event_id: eventId, user_id: req.user!._id, form_id: form_id || event.registration_form, responses: parsedResponses });
         return sendResponse(res, 201, 'Event registration submitted successfully', registration);
 });
 
 export const getMyRegistration = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
-        const registration = await EventRegistration.findOne({
-            event_id: eventId,
-            user_id: req.user!._id
-        }).populate('form_id', 'title fields');
-
-        if (!registration) {
-            return sendResponse(res, 200, 'Not registered', null);
-        }
-
+        const registration = await EventRegistration.findOne({ event_id: eventId, user_id: req.user!._id }).populate('form_id', 'title fields');
+        if (!registration) return sendResponse(res, 200, 'Not registered', null);
         return sendResponse(res, 200, 'My registration fetched successfully', registration);
 });
-
-// ─── Get Registrations for an Event (President) ─────────────────────────────
 
 export const getEventRegistrations = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
         const { status } = req.query;
-
         const query: any = { event_id: eventId };
         if (status) query.status = status;
-
-        const registrations = await EventRegistration.find(query)
-            .populate('user_id', 'name email phone')
-            .populate('form_id', 'title fields')
-            .sort({ created_at: -1 });
-
+        const registrations = await EventRegistration.find(query).populate('user_id', 'name email phone').populate('form_id', 'title fields').sort({ created_at: -1 });
         return sendResponse(res, 200, 'Event registrations fetched successfully', registrations);
 });
 
-// ─── Get All Registrations for an Event (Admin) ─────────────────────────────
-
 export const getEventRegistrationsAdmin = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
-
-        const registrations = await EventRegistration.find({ event_id: eventId })
-            .populate('user_id', 'name email phone')
-            .populate('form_id', 'title fields')
-            .sort({ created_at: -1 });
-
+        const registrations = await EventRegistration.find({ event_id: eventId }).populate('user_id', 'name email phone').populate('form_id', 'title fields').sort({ created_at: -1 });
         return sendResponse(res, 200, 'Event registrations (Admin) fetched successfully', registrations);
 });
-
-// ─── Update Registration Status (Approve/Reject) ───────────────────────────
 
 export const updateRegistrationStatus = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { registrationId } = req.params;
         const { status, rejection_reason } = req.body;
-
-        if (!['APPROVED', 'REJECTED'].includes(status)) {
-            return sendError(res, 400, 'Status must be APPROVED or REJECTED');
-        }
-
-        const registration = await EventRegistration.findById(registrationId)
-            .populate('user_id', 'name email phone');
-
+        if (!['APPROVED', 'REJECTED'].includes(status)) return sendError(res, 400, 'Status must be APPROVED or REJECTED');
+        const registration = await EventRegistration.findById(registrationId).populate('user_id', 'name email phone');
         if (!registration) return sendError(res, 404, 'Registration not found');
-
         registration.status = status;
-        if (status === 'REJECTED' && rejection_reason) {
-            registration.rejection_reason = rejection_reason;
-        }
+        if (status === 'REJECTED' && rejection_reason) registration.rejection_reason = rejection_reason;
         registration.reviewed_by = req.user!._id;
         registration.reviewed_at = new Date();
-
         await registration.save();
-
         return sendResponse(res, 200, `Registration ${status.toLowerCase()} successfully`, registration);
 });
-
-// ─── Send Mail to Event Participants ────────────────────────────────────────
 
 export const sendMailToParticipants = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { eventId } = req.params;
         const { subject, message } = req.body;
-
-        if (!subject || !message) {
-            return sendError(res, 400, 'Subject and message are required');
-        }
-
+        if (!subject || !message) return sendError(res, 400, 'Subject and message are required');
         const event = await Event.findById(eventId).populate('society_id', 'name logo');
         if (!event) return sendError(res, 404, 'Event not found');
-
-        const registrations = await EventRegistration.find({
-            event_id: eventId,
-            status: 'APPROVED'
-        }).populate('user_id', 'name email');
-
-        if (registrations.length === 0) {
-            return sendError(res, 400, 'No approved participants to send mail to');
-        }
-
-        const societyName = typeof event.society_id === 'object' && 'name' in event.society_id
-            ? (event.society_id as any).name
-            : 'Society';
-
-        let successCount = 0;
-        let failCount = 0;
-
+        const registrations = await EventRegistration.find({ event_id: eventId, status: 'APPROVED' }).populate('user_id', 'name email');
+        if (registrations.length === 0) return sendError(res, 400, 'No approved participants to send mail to');
+        const societyName = typeof event.society_id === 'object' && 'name' in event.society_id ? (event.society_id as any).name : 'Society';
+        let successCount = 0; let failCount = 0;
         for (const reg of registrations) {
             const user = reg.user_id as any;
-            if (!user || !user.email) {
-                failCount++;
-                continue;
-            }
+            if (!user || !user.email) { failCount++; continue; }
             try {
-                const html = emailTemplates.eventNotification(
-                    user.name || 'Participant',
-                    event.title,
-                    societyName,
-                    message,
-                    event.event_date ? new Date(event.event_date).toLocaleDateString('en-US', {
-                        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-                        hour: '2-digit', minute: '2-digit'
-                    }) : undefined,
-                    event.venue
-                );
+                const html = emailTemplates.eventNotification(user.name || 'Participant', event.title, societyName, message, event.event_date ? new Date(event.event_date).toLocaleDateString() : undefined, event.venue);
                 await sendEmail(user.email, subject, html);
                 successCount++;
-            } catch (err) {
-                console.error(`Failed to send email to ${user.email}:`, err);
-                failCount++;
-            }
+            } catch (err) { failCount++; }
         }
-
-        return sendResponse(res, 200, `Emails sent: ${successCount} successful, ${failCount} failed`, {
-            total: registrations.length,
-            successCount,
-            failCount
-        });
+        return sendResponse(res, 200, `Emails sent: ${successCount} successful, ${failCount} failed`, { total: registrations.length, successCount, failCount });
 });
-
-// ─── Export Approved Registrations to Excel ─────────────────────────────────
 
 export const exportRegistrationsToExcel = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
-        const { eventId } = req.params;
-
-        const event = await Event.findById(eventId);
-        if (!event) return sendError(res, 404, 'Event not found');
-
-        const registrations = await EventRegistration.find({
-            event_id: eventId,
-            status: 'APPROVED'
-        })
-            .populate('user_id', 'name email phone')
-            .populate('form_id', 'title fields');
-
-        // Build Excel data
-        const rows: any[] = [];
-
-        registrations.forEach((reg: any, index: number) => {
-            const row: any = {
-                'S.No': index + 1,
-                'Name': reg.user_id?.name || 'N/A',
-                'Email': reg.user_id?.email || 'N/A',
-                'Phone': reg.user_id?.phone || 'N/A',
-                'Registration Date': new Date(reg.created_at).toLocaleDateString(),
-                'Status': reg.status
-            };
-
-            // Add dynamic form responses as columns
-            if (reg.responses && reg.responses.length > 0) {
-                reg.responses.forEach((resp: any) => {
-                    row[resp.field_label] = resp.value;
-                });
-            }
-
-            rows.push(row);
-        });
-
-        const workbook = XLSX.utils.book_new();
-        const worksheet = XLSX.utils.json_to_sheet(rows);
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Registrations');
-
-        const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-
-        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        res.setHeader('Content-Disposition', `attachment; filename="${event.title}_registrations.xlsx"`);
-        return res.send(buffer);
+    const { eventId } = req.params;
+    const event = await Event.findById(eventId);
+    if (!event) return sendError(res, 404, 'Event not found');
+    const registrations = await EventRegistration.find({ event_id: eventId, status: 'APPROVED' }).populate('user_id', 'name email phone').populate('form_id', 'title fields');
+    const rows: any[] = [];
+    registrations.forEach((reg: any, index: number) => {
+        const row: any = { 'S.No': index + 1, 'Name': reg.user_id?.name || 'N/A', 'Email': reg.user_id?.email || 'N/A', 'Phone': reg.user_id?.phone || 'N/A', 'Registration Date': new Date(reg.created_at).toLocaleDateString(), 'Status': reg.status };
+        if (reg.responses && reg.responses.length > 0) { reg.responses.forEach((resp: any) => { row[resp.field_label] = resp.value; }); }
+        rows.push(row);
+    });
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Registrations');
+    const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${event.title}_registrations.xlsx"`);
+    return res.send(buffer);
 });
 
-// ─── Export Approved Registrations to PDF ────────────────────────────────────
-
 export const exportRegistrationsToPdf = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
-        const { eventId } = req.params;
-
-        const event = await Event.findById(eventId).populate('society_id', 'name');
-        if (!event) return sendError(res, 404, 'Event not found');
-
-        const registrations = await EventRegistration.find({
-            event_id: eventId,
-            status: 'APPROVED'
-        })
-            .populate('user_id', 'name email phone')
-            .populate('form_id', 'title fields');
-
-        const societyName = typeof event.society_id === 'object' && 'name' in event.society_id
-            ? (event.society_id as any).name : 'Society';
-
-        // Create PDF document
-        const doc = new PDFDocument({ margin: 40, size: 'A4' });
-
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="${event.title}_registrations.pdf"`);
-        doc.pipe(res);
-
-        // ── Header ──
-        doc.fontSize(18).font('Helvetica-Bold').text(event.title, { align: 'center' });
-        doc.moveDown(0.3);
-        doc.fontSize(11).font('Helvetica').fillColor('#666666')
-            .text(`${societyName}  •  Approved Participants`, { align: 'center' });
-        doc.moveDown(0.3);
-        doc.fontSize(9).text(`Generated: ${new Date().toLocaleDateString('en-US', {
-            year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-        })}`, { align: 'center' });
-        doc.moveDown(1);
-
-        // ── Divider ──
-        doc.strokeColor('#e2e8f0').lineWidth(1)
-            .moveTo(40, doc.y).lineTo(555, doc.y).stroke();
-        doc.moveDown(0.8);
-
-        // ── Collect dynamic field labels from first registration ──
-        const dynamicLabels: string[] = [];
-        if (registrations.length > 0 && registrations[0].responses) {
-            registrations[0].responses.forEach((r: any) => {
-                if (r.field_type !== 'FILE') dynamicLabels.push(r.field_label);
-            });
-        }
-
-        // ── Table header columns ──
-        const baseHeaders = ['#', 'Name', 'Email', 'Phone'];
-        const allHeaders = [...baseHeaders, ...dynamicLabels];
-
-        // Column widths
-        const pageWidth = 515;
-        const numWidth = 25;
-        const remainingWidth = pageWidth - numWidth;
-        const colCount = allHeaders.length - 1; // minus the # column
-        const colWidth = Math.floor(remainingWidth / colCount);
-
-        const drawTableHeader = () => {
-            const y = doc.y;
-            doc.rect(40, y, pageWidth, 22).fill('#4f46e5');
-            doc.fillColor('#ffffff').fontSize(8).font('Helvetica-Bold');
-
-            let x = 40;
-            doc.text('#', x + 4, y + 6, { width: numWidth, align: 'center' });
-            x += numWidth;
-            for (let i = 1; i < allHeaders.length; i++) {
-                doc.text(allHeaders[i], x + 4, y + 6, { width: colWidth - 8 });
-                x += colWidth;
-            }
-
-            doc.fillColor('#333333').font('Helvetica');
-            doc.y = y + 26;
-        };
-
-        drawTableHeader();
-
-        // ── Table rows ──
-        registrations.forEach((reg: any, index: number) => {
-            // Check if we need a new page
-            if (doc.y > 720) {
-                doc.addPage();
-                drawTableHeader();
-            }
-
-            const y = doc.y;
-            const bgColor = index % 2 === 0 ? '#f8fafc' : '#ffffff';
-            doc.rect(40, y, pageWidth, 20).fill(bgColor);
-            doc.fillColor('#333333').fontSize(7.5).font('Helvetica');
-
-            let x = 40;
-            doc.text(String(index + 1), x + 4, y + 5, { width: numWidth, align: 'center' });
-            x += numWidth;
-            doc.text(reg.user_id?.name || 'N/A', x + 4, y + 5, { width: colWidth - 8 });
-            x += colWidth;
-            doc.text(reg.user_id?.email || 'N/A', x + 4, y + 5, { width: colWidth - 8 });
-            x += colWidth;
-            doc.text(reg.user_id?.phone || 'N/A', x + 4, y + 5, { width: colWidth - 8 });
-            x += colWidth;
-
-            // Dynamic fields
-            dynamicLabels.forEach((label) => {
-                const resp = reg.responses?.find((r: any) => r.field_label === label);
-                const val = resp ? String(resp.value).substring(0, 30) : '-';
-                doc.text(val, x + 4, y + 5, { width: colWidth - 8 });
-                x += colWidth;
-            });
-
-            doc.y = y + 22;
+    const { eventId } = req.params;
+    const event = await Event.findById(eventId).populate('society_id', 'name');
+    if (!event) return sendError(res, 404, 'Event not found');
+    const registrations = await EventRegistration.find({ event_id: eventId, status: 'APPROVED' }).populate('user_id', 'name email phone').populate('form_id', 'title fields');
+    const societyName = typeof event.society_id === 'object' && 'name' in event.society_id ? (event.society_id as any).name : 'Society';
+    const doc = new PDFDocument({ margin: 40, size: 'A4' });
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${event.title}_registrations.pdf"`);
+    doc.pipe(res);
+    const logoPath = path.join(__dirname, '../../../../frontend/public/logo.png');
+    try { if (fs.existsSync(logoPath)) { doc.image(logoPath, 50, 45, { width: 60 }); } } catch (err) {}
+    doc.fontSize(10).fillColor('#666666').text('COMSATS University Islamabad, Lahore Campus', 400, 50, { align: 'right' });
+    doc.moveDown(4);
+    doc.fontSize(20).fillColor('#000000').text('Event Registration List', { align: 'center' });
+    doc.fontSize(12).text(`Event: ${event.title}`, { align: 'center' }).text(`Society: ${societyName}`, { align: 'center' });
+    doc.moveDown();
+    doc.strokeColor('#e2e8f0').lineWidth(1).moveTo(40, doc.y).lineTo(555, doc.y).stroke();
+    doc.moveDown(0.8);
+    const dynamicLabels: string[] = [];
+    if (registrations.length > 0 && registrations[0].responses) { registrations[0].responses.forEach((r: any) => { if (r.field_type !== 'FILE') dynamicLabels.push(r.field_label); }); }
+    const baseHeaders = ['#', 'Name', 'Email', 'Phone'];
+    const allHeaders = [...baseHeaders, ...dynamicLabels];
+    const pageWidth = 515; const numWidth = 25; const remainingWidth = pageWidth - numWidth;
+    const colCount = allHeaders.length - 1; const colWidth = Math.floor(remainingWidth / colCount);
+    const drawTableHeader = () => {
+        const y = doc.y; doc.rect(40, y, pageWidth, 22).fill('#2563eb');
+        doc.fillColor('#ffffff').fontSize(8).font('Helvetica-Bold');
+        let x = 40; doc.text('#', x + 4, y + 6, { width: numWidth, align: 'center' }); x += numWidth;
+        for (let i = 1; i < allHeaders.length; i++) { doc.text(allHeaders[i], x + 4, y + 6, { width: colWidth - 8 }); x += colWidth; }
+        doc.fillColor('#333333').font('Helvetica'); doc.y = y + 26;
+    };
+    drawTableHeader();
+    registrations.forEach((reg: any, index: number) => {
+        if (doc.y > 720) { doc.addPage(); drawTableHeader(); }
+        const y = doc.y; const bgColor = index % 2 === 0 ? '#f8fafc' : '#ffffff';
+        doc.rect(40, y, pageWidth, 20).fill(bgColor);
+        doc.fillColor('#333333').fontSize(7.5).font('Helvetica');
+        let x = 40; doc.text(String(index + 1), x + 4, y + 5, { width: numWidth, align: 'center' }); x += numWidth;
+        doc.text(reg.user_id?.name || 'N/A', x + 4, y + 5, { width: colWidth - 8 }); x += colWidth;
+        doc.text(reg.user_id?.email || 'N/A', x + 4, y + 5, { width: colWidth - 8 }); x += colWidth;
+        doc.text(reg.user_id?.phone || 'N/A', x + 4, y + 5, { width: colWidth - 8 }); x += colWidth;
+        dynamicLabels.forEach((label) => {
+            const resp = reg.responses?.find((r: any) => r.field_label === label);
+            const val = resp ? String(resp.value).substring(0, 30) : '-';
+            doc.text(val, x + 4, y + 5, { width: colWidth - 8 }); x += colWidth;
         });
-
-        // ── Footer summary ──
-        doc.moveDown(1.5);
-        doc.strokeColor('#e2e8f0').lineWidth(1)
-            .moveTo(40, doc.y).lineTo(555, doc.y).stroke();
-        doc.moveDown(0.5);
-        doc.fontSize(10).font('Helvetica-Bold').fillColor('#333333')
-            .text(`Total Approved Participants: ${registrations.length}`, { align: 'right' });
-
-        doc.end();
+        doc.y = y + 22;
+    });
+    doc.moveDown(1.5);
+    doc.strokeColor('#e2e8f0').lineWidth(1).moveTo(40, doc.y).lineTo(555, doc.y).stroke();
+    doc.moveDown(0.5);
+    doc.fontSize(10).font('Helvetica-Bold').fillColor('#333333').text(`Total Approved Participants: ${registrations.length}`, { align: 'right' });
+    doc.end();
 });
