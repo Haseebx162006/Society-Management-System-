@@ -31,10 +31,23 @@ const AdminMembers: React.FC = () => {
 
     const doc = new jsPDF();
     
+    const img = new Image();
+    img.src = '/logo.png';
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text('Comsats University Islamabad, Lahore', 200, 15, { align: 'right' });
+
+    try {
+        doc.addImage(img, 'PNG', 14, 10, 25, 25);
+    } catch (e) {
+        console.error('Logo failed to load for PDF', e);
+    }
+
     doc.setFontSize(18);
-    doc.text("Platform Members", 14, 22);
+    doc.setTextColor(0);
+    doc.text("Platform Members", 14, 45);
     
-    // Add subtitle indicating filters if any
     doc.setFontSize(11);
     doc.setTextColor(100);
     let subtitle = `Total: ${filteredMembers.length} members`;
@@ -45,7 +58,7 @@ const AdminMembers: React.FC = () => {
     if (searchTerm) {
         subtitle += ` | Searched: "${searchTerm}"`;
     }
-    doc.text(subtitle, 14, 30);
+    doc.text(subtitle, 14, 53);
 
     const tableData = filteredMembers.map((member: any) => [
       member.user_id?.name || "Unknown",
@@ -57,7 +70,7 @@ const AdminMembers: React.FC = () => {
     ]);
 
     autoTable(doc, {
-      startY: 38,
+      startY: 61,
       head: [['Name', 'Email', 'Phone', 'Society', 'Role', 'Team']],
       body: tableData,
       theme: 'grid',

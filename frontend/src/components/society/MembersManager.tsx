@@ -217,8 +217,24 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
         if (!members.length) return;
 
         const doc = new jsPDF();
+
+        const img = new Image();
+        img.src = "/logo.png";
+
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text("Students Societies Office", 200, 15, { align: "right" });
+        doc.text("COMSATS University Islamabad, Lahore Campus", 200, 20, { align: "right" });
+
+        try {
+            doc.addImage(img, "PNG", 14, 10, 30, 25);
+        } catch (e) {
+            console.error("Logo failed to load", e);
+        }
+
         doc.setFontSize(18);
-        doc.text("Society Members", 14, 22);
+        doc.setTextColor(0);
+        doc.text("Society Members", 14, 45);
 
         const tableData = members.map((member) => {
             const user = member.user_id;
@@ -235,7 +251,7 @@ const MembersManager: React.FC<MembersManagerProps> = ({ societyId }) => {
         autoTable(doc, {
             head: [["Name", "Role", "Email", "Phone", "Joined Date"]],
             body: tableData,
-            startY: 30,
+            startY: 52,
         });
 
         doc.save("society_members.pdf");

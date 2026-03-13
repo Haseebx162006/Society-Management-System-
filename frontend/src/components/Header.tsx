@@ -384,10 +384,10 @@ export default function Header() {
               >
                   <div className="flex flex-col gap-1 px-4 py-2 border-l-2 border-orange-200 ml-4 mt-1">
                       <Link
-                          href="/get-started/president"
+                          href="/get-started/register"
                           onClick={() => setMobileOpen(false)}
                           className={`py-2 text-sm font-medium transition-colors ${
-                              pathname === '/get-started/president'
+                              pathname === '/get-started/register'
                               ? "text-orange-600"
                               : "text-stone-500 hover:text-stone-900"
                           }`}

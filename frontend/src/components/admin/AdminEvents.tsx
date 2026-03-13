@@ -70,27 +70,31 @@ const AdminEvents: React.FC = () => {
 
     const doc = new jsPDF();
     
-    // Add Logo (Optional: if we can get a base64, otherwise text)
-    // For now, we'll try to add the logo if possible, otherwise skip it safely
+    const img = new Image();
+    img.src = '/logo.png';
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text('Comsats University Islamabad, Lahore', 200, 15, { align: 'right' });
+
     try {
-        const img = new Image();
-        img.src = '/logo.png';
-        doc.addImage(img, 'PNG', 14, 10, 30, 30);
+        doc.addImage(img, 'PNG', 14, 10, 25, 25);
     } catch (e) {
         console.error('Logo failed to load for PDF', e);
     }
 
-    doc.setFontSize(20);
-    doc.setTextColor(234, 88, 12); // Orange-600
-    doc.text('COMSOC - Event Registrations', 50, 25);
+    doc.setFontSize(18);
+    doc.setTextColor(0);
+    doc.text('Event Registrations', 14, 45);
     
-    doc.setFontSize(14);
-    doc.setTextColor(100);
-    doc.text(`Event: ${selectedEvent?.title}`, 50, 35);
-    doc.text(`Society: ${selectedEvent?.society_id?.name || 'N/A'}`, 50, 42);
+    doc.setFontSize(13);
+    doc.setTextColor(80);
+    doc.text(`Event: ${selectedEvent?.title}`, 14, 53);
+    doc.text(`Society: ${selectedEvent?.society_id?.name || 'N/A'}`, 14, 59);
 
     doc.setFontSize(10);
-    doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 55);
+    doc.setTextColor(100);
+    doc.text(`Export Date: ${new Date().toLocaleDateString()}`, 14, 66);
 
     const tableData = registrations.map((reg: any, index: number) => [
       index + 1,
@@ -101,7 +105,7 @@ const AdminEvents: React.FC = () => {
     ]);
 
     autoTable(doc, {
-      startY: 60,
+      startY: 72,
       head: [['#', 'Name', 'Email', 'Phone', 'Status']],
       body: tableData,
       theme: 'grid',

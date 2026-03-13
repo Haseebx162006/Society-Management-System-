@@ -37,9 +37,23 @@ const AdminPresidents: React.FC = () => {
     if (!presidents || presidents.length === 0) return;
 
     const doc = new jsPDF();
+
+    const img = new Image();
+    img.src = '/logo.png';
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text('Comsats University Islamabad, Lahore', 200, 15, { align: 'right' });
+
+    try {
+        doc.addImage(img, 'PNG', 14, 10, 25, 25);
+    } catch (e) {
+        console.error('Logo failed to load for PDF', e);
+    }
     
     doc.setFontSize(18);
-    doc.text("Society Presidents", 14, 22);
+    doc.setTextColor(0);
+    doc.text("Society Presidents", 14, 45);
 
     const tableData = presidents.map((president: any) => [
       president.name || "Unknown",
@@ -49,7 +63,7 @@ const AdminPresidents: React.FC = () => {
     ]);
 
     autoTable(doc, {
-      startY: 30,
+      startY: 52,
       head: [['Name', 'Email', 'Phone', 'Society']],
       body: tableData,
       theme: 'grid',

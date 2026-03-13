@@ -344,12 +344,28 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
 
     const exportToPDF = () => {
         const doc = new jsPDF();
+
+        const img = new Image();
+        img.src = "/logo.png";
+
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text("Students Societies Office", 200, 15, { align: "right" });
+        doc.text("COMSATS University Islamabad, Lahore Campus", 200, 20, { align: "right" });
+
+        try {
+            doc.addImage(img, "PNG", 14, 10, 30, 25);
+        } catch (e) {
+            console.error("Logo failed to load", e);
+        }
+
         doc.setFontSize(18);
+        doc.setTextColor(0);
 
         if (selectedTeamId && teamMembers) {
             // Export Members of Selected Team
             const teamName = getSelectedTeamName();
-            doc.text(`${teamName} - Members`, 14, 22);
+            doc.text(`${teamName} - Members`, 14, 45);
 
             const tableData = teamMembers.map((member) => {
                 const user = typeof member.user_id === "string" ? null : member.user_id;
@@ -364,13 +380,13 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
             autoTable(doc, {
                 head: [["Name", "Email", "Phone", "Joined Date"]],
                 body: tableData,
-                startY: 30,
+                startY: 52,
             });
             doc.save(`${teamName.replace(/\s+/g, "_")}_members.pdf`);
 
         } else if (groups?.length) {
             // Export List of Teams
-            doc.text("Society Teams", 14, 22);
+            doc.text("Society Teams", 14, 45);
 
             const tableData = groups.map((group) => {
                 return [
@@ -383,7 +399,7 @@ const TeamsManager: React.FC<TeamsManagerProps> = ({ societyId }) => {
             autoTable(doc, {
                 head: [["Team Name", "Members Count"]],
                 body: tableData,
-                startY: 30,
+                startY: 52,
             });
 
             doc.save("society_teams.pdf");

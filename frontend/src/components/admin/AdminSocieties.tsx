@@ -64,25 +64,44 @@ const AdminSocieties: React.FC = () => {
 
     const doc = new jsPDF();
     
+    const img = new Image();
+    img.src = '/logo.png';
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text('Comsats University Islamabad, Lahore', 200, 15, { align: 'right' });
+
+    try {
+        doc.addImage(img, 'PNG', 14, 10, 25, 25);
+    } catch (e) {
+        console.error('Logo failed to load for PDF', e);
+    }
+
     doc.setFontSize(18);
-    doc.text("Approved Societies", 14, 22);
+    doc.setTextColor(0);
+    doc.text("Approved Societies", 14, 45);
+    
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Total: ${activeSocieties.length} societies | Date: ${new Date().toLocaleDateString()}`, 14, 53);
 
     const tableData = activeSocieties.map((society: any) => [
-      society.name,
-      society.status,
-      society.membersCount || 0,
-      society.created_by?.name || "Unknown"
+      society.name || "Unknown",
+      society.category || "N/A",
+      society.president?.name || "N/A",
+      society.president?.email || "N/A",
+      society.status || "PENDING"
     ]);
 
     autoTable(doc, {
-      startY: 30,
-      head: [['Society Name', 'Status', 'Members', 'Created By']],
+      startY: 61,
+      head: [['Society Name', 'Category', 'President', 'Email', 'Status']],
       body: tableData,
       theme: 'grid',
       headStyles: { fillColor: [234, 88, 12] },
     });
 
-    doc.save("societies_list.pdf");
+    doc.save("approved_societies_list.pdf");
   };
 
   return (

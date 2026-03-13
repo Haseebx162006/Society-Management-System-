@@ -65,10 +65,27 @@ export default function SocietyHeadMembersPage() {
 
   const downloadPDF = () => {
     const doc = new jsPDF();
-    doc.text("Society Members Directory", 14, 15);
+
+    const img = new Image();
+    img.src = "/logo.png";
+
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text(`Generated: ${generationTimestamp}`, 14, 22);
+    doc.text("Comsats University Islamabad, Lahore", 200, 15, { align: "right" });
+
+    try {
+      doc.addImage(img, "PNG", 14, 10, 25, 25);
+    } catch (e) {
+      console.error("Logo failed to load", e);
+    }
+
+    doc.setFontSize(18);
+    doc.setTextColor(0);
+    doc.text("Society Members Directory", 14, 45);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text(`Generated: ${generationTimestamp}`, 14, 53);
     
     const tableData = filteredMembers.map((m: any, i: number) => [
       i + 1,
@@ -80,7 +97,7 @@ export default function SocietyHeadMembersPage() {
     ]);
 
     autoTable(doc, {
-      startY: 28,
+      startY: 61,
       head: [["#", "Name", "Society", "Role", "Email", "Phone"]],
       body: tableData,
       theme: "grid",
