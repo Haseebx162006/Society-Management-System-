@@ -190,7 +190,7 @@ export default function ReviewForm() {
 
         <div>
           <label className="block text-sm font-bold text-stone-800 mb-2">(iv) Official Documents</label>
-          <textarea rows={3} value={formData.history.official_documents} onChange={e => setFormData({ ...formData, history: { ...formData.history, official_documents: e.target.value }})} className="input-field" placeholder="List guidelines, membership policy, constitution, etc." />
+          <textarea rows={3} value={formData.history.official_documents} onChange={e => setFormData({ ...formData, history: { ...formData.history, official_documents: e.target.value }})} className="input-field" placeholder="Which official documents have you developed for your society? e.g List guidelines, membership policy, constitution, etc. Please list all of them and include copies with this application" />
         </div>
       </section>
 
