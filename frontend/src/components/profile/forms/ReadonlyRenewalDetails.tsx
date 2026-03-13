@@ -41,10 +41,6 @@ export default function ReadonlyRenewalDetails({ request, onReapply }: { request
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     const societyName = request.society_name || 'Society';
-
-    // Add Logo
-    const img = new Image();
-    img.src = '/logo.png';
     
     // Header Section
     doc.setFontSize(10);
@@ -52,7 +48,9 @@ export default function ReadonlyRenewalDetails({ request, onReapply }: { request
     doc.text('Students Societies Office', 200, 15, { align: 'right' });
     doc.text('COMSATS University Islamabad, Lahore Campus', 200, 20, { align: 'right' });
 
-    // Draw logo if loaded (or just leave space)
+    const img = new window.Image();
+    img.src = '/logo.png';
+
     try {
       doc.addImage(img, 'PNG', 14, 10, 30, 25);
     } catch (e) {

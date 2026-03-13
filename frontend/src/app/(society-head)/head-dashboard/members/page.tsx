@@ -66,7 +66,7 @@ export default function SocietyHeadMembersPage() {
   const downloadPDF = () => {
     const doc = new jsPDF();
 
-    const img = new Image();
+    const img = new window.Image();
     img.src = "/logo.png";
 
     doc.setFontSize(10);

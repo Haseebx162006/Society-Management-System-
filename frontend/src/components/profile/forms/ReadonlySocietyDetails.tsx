@@ -37,16 +37,15 @@ export default function ReadonlySocietyDetails({ request, onReapply }: { request
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     const societyName = request.society_name || 'Society';
-
-    // Add Logo
-    const img = new Image();
-    img.src = '/logo.png';
     
     // Header Section
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.text('Students Societies Office', 200, 15, { align: 'right' });
     doc.text('COMSATS University Islamabad, Lahore Campus', 200, 20, { align: 'right' });
+
+    const img = new window.Image();
+    img.src = '/logo.png';
 
     // Draw logo if loaded (or just leave space)
     try {
