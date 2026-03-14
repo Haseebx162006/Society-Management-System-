@@ -122,6 +122,14 @@ export default function SocietyHeadOverviewPage() {
     () => (allRequests as any[]).filter((r) => r.status === "PENDING"),
     [allRequests]
   );
+  const pendingReviewRequests = useMemo(
+    () => (allRequests as any[]).filter((r) => r.status === "PENDING" && r.request_type === "REGISTER"),
+    [allRequests]
+  );
+  const pendingRenewRequests = useMemo(
+    () => (allRequests as any[]).filter((r) => r.status === "PENDING" && r.request_type === "RENEWAL"),
+    [allRequests]
+  );
   const approvedRequests = useMemo(
     () => (allRequests as any[]).filter((r) => r.status === "APPROVED"),
     [allRequests]
@@ -289,10 +297,11 @@ export default function SocietyHeadOverviewPage() {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
         <StatCard label="Active Societies" value={societies.length} icon={Building2} trend="up" trendLabel={`${societies.length} total`} accent="from-orange-50/80 to-transparent" delay={0} href="/head-dashboard/societies" />
         <StatCard label="Platform Members" value={members.length} icon={Users} trend="up" trendLabel={`+${membersByMonth.datasets[0].data.slice(-1)[0] || 0} this month`} accent="from-orange-50/80 to-transparent" delay={0.07} href="/head-dashboard/members" />
-        <StatCard label="Pending Requests" value={pendingRequests.length} icon={ListChecks} trend={pendingRequests.length > 0 ? "neutral" : "up"} trendLabel={pendingRequests.length > 0 ? "Needs review" : "All cleared"} accent="from-orange-50/80 to-transparent" delay={0.14} href="/head-dashboard/requests" />
+        <StatCard label="Review Requests" value={pendingReviewRequests.length} icon={ListChecks} trend={pendingReviewRequests.length > 0 ? "neutral" : "up"} trendLabel={pendingReviewRequests.length > 0 ? "Needs review" : "All cleared"} accent="from-orange-50/80 to-transparent" delay={0.14} href="/head-dashboard/requests" />
+        <StatCard label="Renew Requests" value={pendingRenewRequests.length} icon={RefreshCw} trend={pendingRenewRequests.length > 0 ? "neutral" : "up"} trendLabel={pendingRenewRequests.length > 0 ? "Pending renewal" : "All cleared"} accent="from-orange-50/80 to-transparent" delay={0.18} href="/head-dashboard/renewals" />
         <StatCard label="Total Requests" value={(allRequests as any[]).length} icon={Layers} trend="up" trendLabel={`${approvedRequests.length} approved`} accent="from-orange-50/80 to-transparent" delay={0.21} href="/head-dashboard/requests" />
       </div>
 
