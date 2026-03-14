@@ -62,7 +62,7 @@ export default function Hero() {
 
   return (
     <section className="relative min-h-screen md:min-h-[95vh] flex items-center justify-center overflow-hidden bg-[#fffdfa] pt-24 pb-16">
-      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none opacity-40">
+      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none opacity-100">
         <div className="w-[1200px] h-[1200px] flex items-center justify-center -translate-y-10">
           <Lottie
             animationData={blobData}
@@ -105,7 +105,7 @@ export default function Hero() {
           >
             THE HEART OF <br />
             CAMPUS LIFE AT <br />
-            <span className="text-orange-600 italic">COMSATS</span>.
+            <span className="text-orange-700 italic">COMSATS</span>.
           </motion.h1>
 
           <motion.p
