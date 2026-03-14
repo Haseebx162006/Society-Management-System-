@@ -101,11 +101,11 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tighter text-stone-950 mb-10 max-w-6xl leading-[0.9] drop-shadow-sm"
+            className="text-4xl md:text-5xl lg:text-7xl font-family-poppins font-semibold tracking-tighter text-stone-950 mb-10 max-w-6xl leading-[0.9] drop-shadow-sm"
           >
             THE HEART OF <br />
             CAMPUS LIFE AT <br />
-            <span className="text-orange-700 italic">COMSATS</span>.
+            <span className="text-orange-700 italic font-family-poppins font-semibold">COMSATS</span>.
           </motion.h1>
 
           <motion.p
