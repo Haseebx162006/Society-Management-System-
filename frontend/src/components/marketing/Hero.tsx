@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { motion } from "framer-motion";
+import { useRef, useMemo } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
-import { Shield, Users } from "lucide-react";
-import gsap from "gsap";
+import { Shield, Users, ArrowRight } from "lucide-react";
+import Lottie from "lottie-react";
+import blobData from "../../../public/blob.json";
 
 const logos = [
   "/logos/acm.jpg",
@@ -20,139 +20,130 @@ const logos = [
   "/logos/ieee.jpg",
 ];
 
-export default function Hero() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const lastMousePos = useRef({ x: 0, y: 0 });
-  const logoIndex = useRef(0);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const spawnLogo = (x: number, y: number) => {
-      const imgPath = logos[logoIndex.current % logos.length];
-      logoIndex.current++;
-
-      const logo = document.createElement("div");
-      logo.className = "absolute pointer-events-none z-0 select-none";
-      logo.style.left = `${x}px`;
-      logo.style.top = `${y}px`;
-      logo.style.width = "80px";
-      logo.style.height = "80px";
-      logo.style.transform = "translate(-50%, -50%) scale(0)";
-      
-      const img = document.createElement("img");
-      img.src = imgPath;
-      img.className = "w-full h-full object-contain rounded-xl shadow-lg border border-white/40 backdrop-blur-[2px]";
-      logo.appendChild(img);
-      section.appendChild(logo);
-
-      const tl = gsap.timeline({
-        onComplete: () => {
-          logo.remove();
-        }
-      });
-
-      tl.to(logo, {
-        scale: 1,
-        duration: 0.4,
-        ease: "back.out(1.7)"
-      })
-      .to(logo, {
-        y: y - 100 - Math.random() * 100,
-        x: x + (Math.random() - 0.5) * 200,
-        rotation: (Math.random() - 0.5) * 45,
-        opacity: 0,
-        scale: 0.5,
-        duration: 2,
-        ease: "power2.out"
-      }, "-=0.1");
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = section.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const dist = Math.hypot(x - lastMousePos.current.x, y - lastMousePos.current.y);
-
-      if (dist > 80) {
-        spawnLogo(x, y);
-        lastMousePos.current = { x, y };
-      }
-    };
-
-    section.addEventListener("mousemove", handleMouseMove);
-    return () => section.removeEventListener("mousemove", handleMouseMove);
-  }, []);
+const InfiniteColumn = ({ direction = 1, className = "" }: { direction?: 1 | -1, className?: string }) => {
+  const columnRef = useRef<HTMLDivElement>(null);
+  const extendedLogos = useMemo(() => [...logos, ...logos, ...logos, ...logos], []);
 
   return (
-    <section 
-      ref={sectionRef}
-      className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-[#fffdfa] py-20 mt-10"
-    >
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[120px] animate-blob" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-yellow-500/5 rounded-full blur-[120px] animate-blob animation-delay-2000" />
+    <div className={`flex flex-col gap-6 overflow-hidden pointer-events-none select-none ${className}`}>
+      <motion.div
+        animate={{
+          y: direction === 1 ? [0, -1000] : [-1000, 0],
+        }}
+        transition={{
+          duration: 35,
+          repeat: Infinity,
+          ease: "linear",
+          repeatType: "reverse"
+        }}
+        className="flex flex-col gap-6 items-center"
+      >
+        {extendedLogos.map((logo, idx) => (
+          <div
+            key={idx}
+            className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 bg-white rounded-2xl shadow-xl border border-stone-100 flex items-center justify-center p-4"
+          >
+            <img
+              src={logo}
+              alt="Society Logo"
+              className="w-full h-full object-contain"
+            />
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  );
+};
+
+export default function Hero() {
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 500], [0, 100]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+
+  return (
+    <section className="relative min-h-screen md:min-h-[95vh] flex items-center justify-center overflow-hidden bg-[#fffdfa] pt-24 pb-16">
+      <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-none opacity-40">
+        <div className="w-[1200px] h-[1200px] flex items-center justify-center -translate-y-10">
+          <Lottie
+            animationData={blobData}
+            loop={true}
+            style={{ width: "100%", height: "100%" }}
+          />
+        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col items-center text-center">
+      <div className="absolute left-4 md:left-12 top-0 bottom-0 z-10 w-24 md:w-32 hidden lg:flex items-center">
+        <InfiniteColumn direction={1} />
+      </div>
+      <div className="absolute right-4 md:right-12 top-0 bottom-0 z-10 w-24 md:w-32 hidden lg:flex items-center">
+        <InfiniteColumn direction={-1} />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 relative z-20 flex flex-col items-center text-center">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 border border-orange-200 text-orange-600 text-sm font-medium mb-8"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-50/80 backdrop-blur-sm border border-orange-200 text-orange-700 text-sm font-semibold mb-10 shadow-sm"
         >
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-100"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
           </span>
           COMSATS Lahore Student Portal
         </motion.div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter text-stone-900 mb-8 max-w-5xl leading-none"
-        >
-          The Heart of <br />
-          Campus Life at <br />
-          <span className="text-orange-600 italic">COMSATS</span>.
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-xl md:text-2xl text-stone-600 mb-12 max-w-2xl leading-relaxed"
-        >
-          The unified platform for <span className="font-bold text-stone-900">societies</span> to manage operations, 
-          and for <span className="font-bold text-stone-900">students</span> to discover, join, and lead communities.
-        </motion.p>
-
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-6 w-full sm:w-auto"
+           style={{ y: y1, opacity }}
+           className="relative"
         >
-          <Link
-            href="/societies"
-            className="w-full sm:w-auto px-10 py-4 bg-orange-600 text-white rounded-full font-bold hover:bg-orange-700 transition-all shadow-xl hover:shadow-orange-200 flex items-center justify-center gap-2 text-lg hover:-translate-y-1"
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter text-stone-950 mb-10 max-w-6xl leading-[0.9] drop-shadow-sm"
           >
-            <Users className="w-5 h-5" />
-            Find a Society
-          </Link>
-          <Link
-            href="/profile"
-            className="w-full sm:w-auto px-10 py-4 bg-white text-stone-700 border-2 border-stone-100 rounded-full font-bold hover:bg-stone-50 hover:border-stone-200 transition-all flex items-center justify-center gap-2 text-lg hover:-translate-y-1 shadow-sm"
+            THE HEART OF <br />
+            CAMPUS LIFE AT <br />
+            <span className="text-orange-600 italic">COMSATS</span>.
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-xl md:text-2xl lg:text-3xl text-stone-600 mb-14 max-w-3xl leading-relaxed mx-auto font-medium"
           >
-            <Shield className="w-5 h-5 text-stone-500" />
-            Manage Society
-          </Link>
+            The unified platform for <span className="font-bold text-stone-950 underline decoration-orange-400 decoration-wavy decoration-2 underline-offset-4">societies</span> to thrive, 
+            and for <span className="font-bold text-stone-950 underline decoration-orange-400 decoration-wavy decoration-2 underline-offset-4">students</span> to rewrite their journey.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-6 w-full sm:w-auto mt-6"
+          >
+            <Link
+              href="/societies"
+              className="group w-full sm:w-auto px-12 py-5 bg-orange-600 text-white rounded-2xl font-black hover:bg-orange-700 transition-all shadow-2xl hover:shadow-orange-400/30 flex items-center justify-center gap-3 text-xl hover:-translate-y-1 active:scale-95"
+            >
+              <Users className="w-6 h-6 transition-transform group-hover:scale-110" />
+              Explore Societies
+              <ArrowRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+            </Link>
+            <Link
+              href="/profile"
+              className="w-full sm:w-auto px-12 py-5 bg-white text-stone-900 border-2 border-stone-200 rounded-2xl font-black hover:bg-stone-50 hover:border-stone-300 transition-all flex items-center justify-center gap-3 text-xl hover:-translate-y-1 shadow-md active:scale-95"
+            >
+              <Shield className="w-6 h-6 text-orange-600" />
+              Manage Portal
+            </Link>
+          </motion.div>
         </motion.div>
       </div>
+
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#fffdfa] to-transparent z-30 pointer-events-none" />
     </section>
   );
 }
