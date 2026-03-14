@@ -101,7 +101,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter text-stone-950 mb-10 max-w-6xl leading-[0.9] drop-shadow-sm"
+            className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tighter text-stone-950 mb-10 max-w-6xl leading-[0.9] drop-shadow-sm"
           >
             THE HEART OF <br />
             CAMPUS LIFE AT <br />
@@ -112,7 +112,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl md:text-2xl lg:text-3xl text-stone-600 mb-14 max-w-3xl leading-relaxed mx-auto font-medium"
+            className="text-lg md:text-xl lg:text-2xl text-stone-600 mb-14 max-w-3xl leading-relaxed mx-auto font-normal"
           >
             The unified platform for <span className="font-bold text-stone-950 underline decoration-orange-400 decoration-wavy decoration-2 underline-offset-4">societies</span> to thrive, 
             and for <span className="font-bold text-stone-950 underline decoration-orange-400 decoration-wavy decoration-2 underline-offset-4">students</span> to rewrite their journey.
