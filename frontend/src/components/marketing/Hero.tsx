@@ -41,7 +41,7 @@ const InfiniteColumn = ({ direction = 1, className = "" }: { direction?: 1 | -1,
         {extendedLogos.map((logo, idx) => (
           <div
             key={idx}
-            className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0 bg-white rounded-2xl shadow-xl border border-stone-100 flex items-center justify-center p-4"
+            className="w-28 h-28 md:w-40 md:h-40 flex-shrink-0 bg-white rounded-2xl border border-stone-100 flex items-center justify-center p-4"
           >
             <img
               src={logo}
@@ -72,10 +72,10 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="absolute left-4 md:left-12 top-0 bottom-0 z-10 w-24 md:w-32 hidden lg:flex items-center">
+      <div className="absolute left-0 top-0 bottom-0 z-10 w-28 md:w-40 hidden lg:flex items-center">
         <InfiniteColumn direction={1} />
       </div>
-      <div className="absolute right-4 md:right-12 top-0 bottom-0 z-10 w-24 md:w-32 hidden lg:flex items-center">
+      <div className="absolute right-0 top-0 bottom-0 z-10 w-28 md:w-40 hidden lg:flex items-center">
         <InfiniteColumn direction={-1} />
       </div>
 
