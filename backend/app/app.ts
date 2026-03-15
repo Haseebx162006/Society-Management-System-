@@ -7,7 +7,6 @@ import rateLimit from 'express-rate-limit';
 import slowDown from 'express-slow-down';
 import { sanitize } from 'express-mongo-sanitize';
 const xssClean = require('xss-clean');
-import morgan from 'morgan';
 import auth_routes from './src/routes/authroutes';
 import user_routes from './src/routes/userRoutes';
 import society_routes from './src/routes/societyRoutes';
@@ -20,6 +19,9 @@ import documentation_routes from './src/routes/documentationRoutes';
 import { errorHandler } from './src/middleware/errorHandler';
 import { AppError } from './src/util/AppError';
 import { paginationLimiter } from './src/middleware/paginationLimiter';
+import { morganMiddleware } from './src/middleware/morganLogger';
+import { attachRequestMetadata } from './src/middleware/auditLogger';
+import logger from './src/util/logger';
 
 const app = express();
 
@@ -32,12 +34,18 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 app.set('trust proxy', 1);
 
-if (process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'));
-} else {
-    // Production logging
-    app.use(morgan('combined'));
-}
+// HTTP Request logging with Morgan (via Winston)
+app.use(morganMiddleware);
+
+// Attach request metadata for audit logging
+app.use(attachRequestMetadata);
+
+// Log startup
+logger.info('Express server initialized', {
+    environment: process.env.NODE_ENV || 'development',
+    port: process.env.PORT || 5000,
+    timestamp: new Date().toISOString(),
+});
 
 app.use(helmet({
     contentSecurityPolicy: {
