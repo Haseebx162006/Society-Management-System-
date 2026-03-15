@@ -19,8 +19,16 @@ import sponsor_routes from './src/routes/sponsorRoutes';
 import documentation_routes from './src/routes/documentationRoutes';
 import { errorHandler } from './src/middleware/errorHandler';
 import { AppError } from './src/util/AppError';
+import { paginationLimiter } from './src/middleware/paginationLimiter';
 
 const app = express();
+
+// Set request timeout globally (30 seconds for API operations)
+app.use((req: Request, res: Response, next: NextFunction) => {
+    req.setTimeout(30000);
+    res.setTimeout(30000);
+    next();
+});
 
 app.set('trust proxy', 1);
 
@@ -97,6 +105,9 @@ app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 app.use(xssClean());
+
+// Add pagination limiter to prevent resource exhaustion
+app.use(paginationLimiter);
 
 app.use((req: Request, _res: Response, next: NextFunction) => {
     if (req.body) sanitize(req.body);

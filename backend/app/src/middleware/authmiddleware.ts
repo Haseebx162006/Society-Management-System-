@@ -52,7 +52,7 @@ export const adminOnly = async (req: AuthRequest, res: Response, next: NextFunct
 }
 
 export const societyHeadOnly = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const headEmail = "societies.head@cuilahore.edu.pk";
+    const headEmail = process.env.SOCIETY_HEAD_EMAIL || "societies.head@cuilahore.edu.pk";
 
     if (!headEmail) {
         return sendError(res, 403, "System configuration error: Society Head role is disabled.");
@@ -66,7 +66,7 @@ export const societyHeadOnly = async (req: AuthRequest, res: Response, next: Nex
 }
 
 export const adminOrSocietyHead = async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const headEmail = "societies.head@cuilahore.edu.pk";
+    const headEmail = process.env.SOCIETY_HEAD_EMAIL || "societies.head@cuilahore.edu.pk";
 
     if (req.user && req.user.is_super_admin) {
         return next();

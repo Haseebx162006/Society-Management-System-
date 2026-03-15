@@ -3,6 +3,8 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import os from "os";
+import { Request, Response, NextFunction } from 'express';
+import { validateFileUpload } from "../util/fileValidation";
 
 // Vercel serverless only allows writes to /tmp
 const tempDir = process.env.VERCEL
@@ -58,3 +60,45 @@ export const upload = multer({
         fileSize: 5 * 1024 * 1024,
     },
 });
+
+/**
+ * Middleware wrapper for file upload with server-side validation
+ * Validates file magic bytes to prevent spoofed file types
+ */
+export const uploadWithValidation = (fieldName: string) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        const singleUpload = upload.single(fieldName);
+
+        singleUpload(req as any, res, (err: any) => {
+            if (err) {
+                return res.status(400).json({ success: false, message: err.message });
+            }
+
+            if (!req.file) {
+                // No file uploaded, that's fine, continue
+                return next();
+            }
+
+            // Validate file magic bytes (server-side security check)
+            const validation = validateFileUpload(
+                req.file.path,
+                req.file.originalname,
+                req.file.mimetype,
+                5 * 1024 * 1024
+            );
+
+            if (!validation.valid) {
+                // Delete the uploaded file immediately
+                try {
+                    fs.unlinkSync(req.file.path);
+                } catch (e) {
+                    console.error('Error deleting invalid file:', e);
+                }
+                return res.status(400).json({ success: false, message: validation.error });
+            }
+
+            // File is valid, continue
+            next();
+        });
+    };
+};
