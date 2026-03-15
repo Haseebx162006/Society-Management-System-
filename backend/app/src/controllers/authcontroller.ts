@@ -43,13 +43,26 @@ export const signup = catchAsync(async (req: Request, res: Response, next: NextF
 
         const otp = generateOTP();
         const hashedOtp = await hashOTP(otp);
-        await OTP.deleteMany({ email, type: 'SIGNUP' });
-        await OTP.create({
-            email,
-            otp: hashedOtp,
-            type: 'SIGNUP',
-            expires_at: new Date(Date.now() + 10 * 60 * 1000),
-        });
+        
+        // FIX: Use atomic findOneAndUpdate to prevent race conditions
+        await OTP.findOneAndUpdate(
+            { email, type: 'SIGNUP' },
+            {
+                $set: {
+                    email,
+                    otp: hashedOtp,
+                    type: 'SIGNUP',
+                    expires_at: new Date(Date.now() + 10 * 60 * 1000),
+                    verified: false,
+                    attempts: 0,
+                    created_at: new Date(),
+                }
+            },
+            { 
+                upsert: true,  // Create if doesn't exist
+                new: true 
+            }
+        );
 
         await sendEmail(
             email,
@@ -146,13 +159,26 @@ export const resendSignupOTP = catchAsync(async (req: Request, res: Response, ne
 
         const otp = generateOTP();
         const hashedOtp = await hashOTP(otp);
-        await OTP.deleteMany({ email, type: 'SIGNUP' });
-        await OTP.create({
-            email,
-            otp: hashedOtp,
-            type: 'SIGNUP',
-            expires_at: new Date(Date.now() + 10 * 60 * 1000),
-        });
+        
+        // FIX: Use atomic findOneAndUpdate to prevent race conditions
+        await OTP.findOneAndUpdate(
+            { email, type: 'SIGNUP' },
+            {
+                $set: {
+                    email,
+                    otp: hashedOtp,
+                    type: 'SIGNUP',
+                    expires_at: new Date(Date.now() + 10 * 60 * 1000),
+                    verified: false,
+                    attempts: 0,
+                    created_at: new Date(),
+                }
+            },
+            { 
+                upsert: true,
+                new: true 
+            }
+        );
 
         await sendEmail(
             email,
@@ -174,13 +200,26 @@ export const forgotPassword = catchAsync(async (req: Request, res: Response, nex
 
         const otp = generateOTP();
         const hashedOtp = await hashOTP(otp);
-        await OTP.deleteMany({ email, type: 'PASSWORD_RESET' });
-        await OTP.create({
-            email,
-            otp: hashedOtp,
-            type: 'PASSWORD_RESET',
-            expires_at: new Date(Date.now() + 10 * 60 * 1000),
-        });
+        
+        // FIX: Use atomic operation to prevent race conditions
+        await OTP.findOneAndUpdate(
+            { email, type: 'PASSWORD_RESET' },
+            {
+                $set: {
+                    email,
+                    otp: hashedOtp,
+                    type: 'PASSWORD_RESET',
+                    expires_at: new Date(Date.now() + 10 * 60 * 1000),
+                    verified: false,
+                    attempts: 0,
+                    created_at: new Date(),
+                }
+            },
+            { 
+                upsert: true,
+                new: true 
+            }
+        );
 
         await sendEmail(
             email,

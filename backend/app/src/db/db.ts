@@ -16,9 +16,18 @@ const db = async (): Promise<void> => {
         await mongoose.connect(process.env.DB_URL, {
             serverSelectionTimeoutMS: 10000,
             socketTimeoutMS: 20000,
+            // OPTIMIZATION: Connection pool configuration for handling 1000+ concurrent users
+            maxPoolSize: 50,  // Maximum connections in the pool
+            minPoolSize: 20,  // Minimum connections to maintain
+            maxIdleTimeMS: 45000,  // Close idle connections after 45s
+            // Retry configuration
+            retryWrites: true,
+            retryReads: true,
+            // Performance tuning
+            waitQueueTimeoutMS: 10000,
         });
         isConnected = true;
-        console.log("Database connected");
+        console.log("Database connected with optimized connection pool");
     } catch (error: any) {
         console.error("Database connection failed: ", error.message);
         console.error("Please whitelist 0.0.0.0/0 in MongoDB Atlas Network Access.");

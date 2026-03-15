@@ -11,6 +11,7 @@ import { uploadOnCloudinary } from '../utils/cloudinary';
 import { sendEmail } from '../services/emailService';
 import { emailTemplates } from '../utils/emailTemplates';
 import SocietyUserRole from '../models/SocietyUserRole';
+import { createSafeRegex, validateString, validateNumber } from '../util/stringUtils';
 import * as XLSX from 'xlsx';
 import PDFDocument from 'pdfkit';
 import path from 'path';
@@ -108,35 +109,61 @@ export const getAllEventsAdmin = catchAsync(async (req: AuthRequest, res: Respon
 
 export const getAllPublicEvents = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { search, type, society, page = '1', limit = '12' } = req.query;
+        
+        // Validate pagination parameters
+        const pageNum = Math.max(1, validateNumber(page, 1, 1000, 'page'));
+        const limitNum = Math.min(100, Math.max(1, validateNumber(limit, 1, 100, 'limit')));
+        const skip = (pageNum - 1) * limitNum;
+
         const query: any = {
             is_public: true,
             status: { $in: ['PUBLISHED', 'ONGOING'] }
         };
-        if (type && type !== 'All') query.event_type = type;
-        if (society) query.society_id = society;
-        if (search) {
-            query.$or = [
-                { title: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } },
-                { venue: { $regex: search, $options: 'i' } },
-                { tags: { $in: [new RegExp(search as string, 'i')] } }
-            ];
+
+        if (type && type !== 'All') {
+            query.event_type = type;
         }
-        const pageNum = Math.max(1, parseInt(page as string));
-        const limitNum = Math.min(50, Math.max(1, parseInt(limit as string)));
-        const skip = (pageNum - 1) * limitNum;
+
+        if (society) {
+            query.society_id = society;
+        }
+
+        // FIX: Use MongoDB text search instead of unescaped regex to prevent ReDoS
+        if (search) {
+            try {
+                const searchStr = validateString(search, 100, 'search');
+                // Use MongoDB text index for better performance and security
+                query.$text = { $search: searchStr };
+            } catch (error) {
+                return sendError(res, 400, 'Invalid search query');
+            }
+        }
+
         const [events, total] = await Promise.all([
             Event.find(query)
-                .populate('society_id', 'name description logo category')
-                .populate('registration_form', 'title fields description')
-                .sort({ event_date: 1 })
+                .populate({
+                    path: 'society_id',
+                    select: 'name logo category',
+                })
+                .populate({
+                    path: 'registration_form',
+                    select: 'title fields description',
+                })
+                .sort(search ? { score: { $meta: 'textScore' } } : { event_date: 1 })
                 .skip(skip)
-                .limit(limitNum),
+                .limit(limitNum)
+                .lean(),  // FIX: Return plain JS objects for better performance
             Event.countDocuments(query)
         ]);
+
         return sendResponse(res, 200, 'Public events fetched successfully', {
             events,
-            pagination: { total, page: pageNum, limit: limitNum, totalPages: Math.ceil(total / limitNum) }
+            pagination: { 
+                total, 
+                page: pageNum, 
+                limit: limitNum, 
+                totalPages: Math.ceil(total / limitNum) 
+            }
         });
 });
 

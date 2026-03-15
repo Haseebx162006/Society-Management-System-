@@ -6,6 +6,8 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import slowDown from 'express-slow-down';
 import { sanitize } from 'express-mongo-sanitize';
+const xssClean = require('xss-clean');
+import morgan from 'morgan';
 import auth_routes from './src/routes/authroutes';
 import user_routes from './src/routes/userRoutes';
 import society_routes from './src/routes/societyRoutes';
@@ -21,6 +23,13 @@ import { AppError } from './src/util/AppError';
 const app = express();
 
 app.set('trust proxy', 1);
+
+if (process.env.NODE_ENV === 'development') {
+    app.use(morgan('dev'));
+} else {
+    // Production logging
+    app.use(morgan('combined'));
+}
 
 app.use(helmet({
     contentSecurityPolicy: {
@@ -86,6 +95,8 @@ app.use('/api', speedLimiter);
 
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+app.use(xssClean());
 
 app.use((req: Request, _res: Response, next: NextFunction) => {
     if (req.body) sanitize(req.body);

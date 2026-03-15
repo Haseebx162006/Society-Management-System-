@@ -125,5 +125,11 @@ const eventSchema = new Schema<IEvent>({
 
 eventSchema.index({ society_id: 1, status: 1 });
 eventSchema.index({ event_date: 1 });
+// Additional performance indexes
+eventSchema.index({ is_public: 1, status: 1 });  // Public event queries
+eventSchema.index({ created_by: 1, created_at: -1 });  // User's events sorted by date
+eventSchema.index({ status: 1, event_date: 1 });  // Event listing by status
+// Text index for search functionality (prevents ReDoS)
+eventSchema.index({ title: 'text', description: 'text', venue: 'text' });
 
 export default mongoose.model<IEvent>('Event', eventSchema);

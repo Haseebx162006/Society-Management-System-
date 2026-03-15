@@ -44,6 +44,11 @@ const otpSchema: Schema<IOTP> = new Schema({
 
 otpSchema.index({ expires_at: 1 }, { expireAfterSeconds: 0 });
 
-otpSchema.index({ email: 1, type: 1 });
+// Compound index for optimal querying in auth controller
+otpSchema.index({ email: 1, type: 1, verified: 1, created_at: -1 });
+
+// Additional indexes for performance
+otpSchema.index({ email: 1, type: 1 });  // Find OTP by email and type
+otpSchema.index({ token: 1 }, { unique: true, sparse: true });  // Prevent duplicate tokens
 
 export default mongoose.model<IOTP>('OTP', otpSchema);
