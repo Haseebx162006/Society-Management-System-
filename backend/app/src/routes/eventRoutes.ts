@@ -3,6 +3,7 @@ import { protect, adminOnly } from '../middleware/authmiddleware';
 import { optionalProtect } from '../middleware/optionalProtect';
 import { authorize } from '../middleware/authorize';
 import { upload } from '../middleware/multer.middleware';
+import { eventRegistrationLimiter, exportLimiter } from '../middleware/rateLimiters';
 import {
     createEventForm,
     getEventFormsBySociety,
@@ -127,6 +128,7 @@ router.get(
 router.post(
     '/events/:eventId/register',
     protect,
+    eventRegistrationLimiter,  // ✅ RATE LIMIT: Prevent spam registrations
     upload.any(),
     submitEventRegistration
 );
@@ -153,12 +155,14 @@ router.put(
 router.get(
     '/society/:id/events/:eventId/export',
     protect,
+    exportLimiter,  // ✅ RATE LIMIT: Prevent resource exhaustion
     authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER'], 'SOCIETY'),
     exportRegistrationsToExcel
 );
 router.get(
     '/society/:id/events/:eventId/export-pdf',
     protect,
+    exportLimiter,  // ✅ RATE LIMIT: Prevent resource exhaustion
     authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER'], 'SOCIETY'),
     exportRegistrationsToPdf
 );

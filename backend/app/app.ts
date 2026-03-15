@@ -68,9 +68,16 @@ app.use(helmet({
 
 const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000').split(',').map(o => o.trim());
 
+// ✅ SECURITY FIX: Strict CORS configuration
 app.use(cors({
     origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
+        // ✅ FIX: Reject requests without Origin header (form submissions bypass CORS)
+        // Only allow via browser requests with Origin header
+        if (!origin) {
+            // Special case: allow for mobile apps or curl requests from same domain
+            // But in production, ensure API is only accessed from allowed origins
+            return callback(new AppError('Origin header is required', 403));
+        }
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
         }
@@ -80,6 +87,7 @@ app.use(cors({
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200
 }));
 
 const globalLimiter = rateLimit({

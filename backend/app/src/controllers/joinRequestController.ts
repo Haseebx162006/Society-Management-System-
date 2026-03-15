@@ -13,6 +13,7 @@ import { sendResponse, sendError } from '../util/response';
 import { validateResponses } from '../util/formValidator';
 import { notifyNewJoinRequest, notifyRequestStatusChange } from '../services/notificationService';
 import { uploadOnCloudinary } from '../utils/cloudinary';
+import logger from '../util/logger';
 
 
 export const submitJoinRequest = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -101,25 +102,32 @@ export const submitJoinRequest = catchAsync(async (req: AuthRequest, res: Respon
                 assigned_by: req.user!._id    // self-assigned via auto-approval
             }]);
 
-            // Assign teams if selected
+            // ✅ FIX N+1 QUERY: Batch all team queries instead of looping
             if (selected_teams && selected_teams.length > 0) {
-                for (const teamId of selected_teams) {
-                    try {
-                        const team = await Group.findOne({ _id: teamId, society_id: form.society_id });
-                        if (team) {
+                try {
+                    // Single query for all teams
+                    const teams = await Group.find({
+                        _id: { $in: selected_teams },
+                        society_id: form.society_id
+                    }).select('_id').lean();
 
-                            await GroupMember.create([{
-                                group_id: teamId,
-                                user_id: req.user!._id,
-                                society_id: form.society_id
-                            }]);
-                        } else {
-                        }
-                    } catch {
+                    // Validate all requested teams exist
+                    if (teams.length === selected_teams.length) {
+                        // Bulk insert all memberships in single operation
+                        const membershipDocs = selected_teams.map(teamId => ({
+                            group_id: teamId,
+                            user_id: req.user!._id,
+                            society_id: form.society_id
+                        }));
+                        await GroupMember.insertMany(membershipDocs, { ordered: false });
                     }
+                } catch (error) {
+                    logger.warn('TEAM_ASSIGNMENT_ERROR', {
+                        userId: req.user!._id,
+                        societyId: form.society_id,
+                        teamsCount: selected_teams.length
+                    });
                 }
-            } else {
-
             }
 
             // Remove from previous members list (one-time use)

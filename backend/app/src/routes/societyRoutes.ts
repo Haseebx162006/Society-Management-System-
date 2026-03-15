@@ -2,6 +2,7 @@ import express from 'express';
 import { protect, adminOnly, societyHeadOnly, adminOrSocietyHead } from '../middleware/authmiddleware';
 import { authorize } from '../middleware/authorize';
 import { upload } from '../middleware/multer.middleware';
+import { memberOperationsLimiter, adminActionLimiter, societyCreationLimiter } from '../middleware/rateLimiters';
 import {
     createSocietyRequest,
     createSociety,
@@ -41,7 +42,8 @@ router.get('/requests/pending', protect, societyHeadOnly, getPendingSocietyReque
 router.get('/requests/:id/compare', protect, adminOrSocietyHead, compareSocietyRequest);
 router.put('/requests/:id', protect, adminOrSocietyHead, updateSocietyRequestStatus);
 
-router.post('/', protect, upload.single("logo"), createSociety);
+// ✅ ADD RATE LIMITER: Prevent spam society creation
+router.post('/', protect, societyCreationLimiter, upload.single("logo"), createSociety);
 router.get('/manageable', protect, getMyManageableSocieties);
 router.get('/admin/all', protect, adminOrSocietyHead, getAllSocietiesAdmin);
 router.get('/', getAllSocieties);
@@ -54,16 +56,18 @@ router.delete('/:id', protect, adminOnly, deleteSociety);
 
 router.post('/:id/change-president', protect, adminOnly, changePresident);
 router.post('/:id/president', protect, adminOrSocietyHead, createPresident);
-router.post('/:id/suspend', protect, adminOrSocietyHead, suspendSociety);
-router.post('/:id/reactivate', protect, adminOrSocietyHead, reactivateSociety);
+// ✅ ADD RATE LIMITER: Prevent admin abuse
+router.post('/:id/suspend', protect, adminActionLimiter, adminOrSocietyHead, suspendSociety);
+router.post('/:id/reactivate', protect, adminActionLimiter, adminOrSocietyHead, reactivateSociety);
 router.post('/ask-for-renewal', protect, societyHeadOnly, askForRenewal);
 router.put('/:id/faculty-advisor', protect, adminOrSocietyHead, changeFacultyAdvisor);
 router.put('/:id/president/details', protect, adminOrSocietyHead, updatePresidentDetails);
 
 
+// ✅ ADD RATE LIMITER: Prevent mass member operations
 router.get('/:id/members', protect, authorize(['PRESIDENT', 'SPONSOR MANAGER'], 'SOCIETY'), getSocietyMembers);
-router.post('/:id/members', protect, authorize(['PRESIDENT', 'SPONSOR MANAGER'], 'SOCIETY'), addMember);
-router.put('/:id/members/:userId', protect, authorize(['PRESIDENT', 'SPONSOR MANAGER'], 'SOCIETY'), updateMemberRole);
-router.delete('/:id/members/:userId', protect, authorize(['PRESIDENT', 'SPONSOR MANAGER'], 'SOCIETY'), removeMember);
+router.post('/:id/members', protect, memberOperationsLimiter, authorize(['PRESIDENT', 'SPONSOR MANAGER'], 'SOCIETY'), addMember);
+router.put('/:id/members/:userId', protect, memberOperationsLimiter, authorize(['PRESIDENT', 'SPONSOR MANAGER'], 'SOCIETY'), updateMemberRole);
+router.delete('/:id/members/:userId', protect, memberOperationsLimiter, authorize(['PRESIDENT', 'SPONSOR MANAGER'], 'SOCIETY'), removeMember);
 
 export default router;

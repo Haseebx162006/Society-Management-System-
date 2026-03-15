@@ -95,7 +95,8 @@ export const getEventsBySociety = catchAsync(async (req: AuthRequest, res: Respo
         const { id: society_id } = req.params;
         const events = await Event.find({ society_id })
             .populate('registration_form', 'title fields')
-            .sort({ event_date: -1 });
+            .sort({ event_date: -1 })
+            .lean();  // ✅ PERF: No Mongoose overhead for read-only query
         return sendResponse(res, 200, 'Events fetched successfully', events);
 });
 
@@ -103,7 +104,8 @@ export const getAllEventsAdmin = catchAsync(async (req: AuthRequest, res: Respon
         const events = await Event.find()
             .populate('society_id', 'name description logo category')
             .populate('registration_form', 'title fields description')
-            .sort({ event_date: -1 });
+            .sort({ event_date: -1 })
+            .lean();  // ✅ PERF: Prevent N+1 Mongoose hydration
         return sendResponse(res, 200, 'All events fetched successfully', events);
 });
 

@@ -56,4 +56,18 @@ const societyUserRolesSchema: Schema = new Schema({
 
 });
 
+// ✅ CRITICAL INDEXES FOR ACCESS CONTROL AND QUERIES
+// Index for access control queries
+societyUserRolesSchema.index({ society_id: 1, role: 1 });
+// Index for user's roles
+societyUserRolesSchema.index({ user_id: 1, society_id: 1 });
+// Index for role lookups
+societyUserRolesSchema.index({ user_id: 1, role: 1 });
+// Compound index for membership checks
+societyUserRolesSchema.index({
+    user_id: 1,
+    society_id: 1,
+    role: 1
+}, { sparse: true });
+
 export default mongoose.model<ISocietyUserRole>("SocietyUserRole", societyUserRolesSchema);

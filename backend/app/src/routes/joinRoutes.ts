@@ -3,6 +3,7 @@ import { protect } from '../middleware/authmiddleware';
 import { optionalProtect } from '../middleware/optionalProtect';
 import { authorize } from '../middleware/authorize';
 import { upload } from '../middleware/multer.middleware';
+import { joinRequestLimiter, exportLimiter } from '../middleware/rateLimiters';
 import {
     createJoinForm,
     getJoinFormsBySociety,
@@ -74,6 +75,7 @@ router.get(
 router.post(
     '/join-forms/:formId/submit',
     protect,   // submission always requires login
+    joinRequestLimiter,  // ✅ RATE LIMIT: Prevent spam join requests
     upload.any(),
     submitJoinRequest
 );
