@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { catchAsync } from '../util/catchAsync';
 import { Response, NextFunction } from 'express';
 import { AuthRequest } from '../middleware/authmiddleware';
@@ -296,6 +297,10 @@ export const updateRegistrationStatus = catchAsync(async (req: AuthRequest, res:
         const registration = await EventRegistration.findById(registrationId).populate('user_id', 'name email phone');
         if (!registration) return sendError(res, 404, 'Registration not found');
         registration.status = status;
+        if (status === 'APPROVED' && !registration.qr_token) {
+            registration.qr_token = crypto.randomBytes(32).toString('hex');
+            registration.entry_status = 'NOT_ENTERED';
+        }
         if (status === 'REJECTED' && rejection_reason) registration.rejection_reason = rejection_reason;
         registration.reviewed_by = req.user!._id;
         registration.reviewed_at = new Date();

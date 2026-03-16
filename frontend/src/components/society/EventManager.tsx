@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
-import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaEye, FaEyeSlash, FaClipboardList, FaFileExcel, FaEnvelope } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaEye, FaEyeSlash, FaClipboardList, FaFileExcel, FaEnvelope, FaQrcode } from 'react-icons/fa';
 import { MdEvent } from 'react-icons/md';
 import {
     useGetEventsBySocietyQuery,
@@ -17,6 +17,7 @@ import {
     EventDiscount
 } from '@/lib/features/events/eventApiSlice';
 import EventRegistrationManager from './EventRegistrationManager';
+import EntryScanner from './EntryScanner';
 
 interface EventManagerProps {
     societyId: string;
@@ -48,7 +49,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
     const [deleteEvent] = useDeleteEventMutation();
     const [sendMail, { isLoading: isSendingMail }] = useSendMailToParticipantsMutation();
 
-    const [view, setView] = useState<'list' | 'create' | 'edit' | 'registrations'>('list');
+    const [view, setView] = useState<'list' | 'create' | 'edit' | 'registrations' | 'scanner'>('list');
     const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
 
 
@@ -317,6 +318,16 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                     eventTitle={selectedEvent.title}
                 />
             </div>
+        );
+    }
+
+    if (view === 'scanner' && selectedEvent) {
+        return (
+            <EntryScanner
+                eventId={selectedEvent._id}
+                societyId={societyId}
+                onClose={() => { setView('list'); setSelectedEvent(null); }}
+            />
         );
     }
 
@@ -784,6 +795,13 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                         </div>
 
                                         <div className="flex items-center gap-1 ml-4">
+                                            <button
+                                                onClick={() => { setSelectedEvent(event); setView('scanner'); }}
+                                                className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                                title="Confirm Entry"
+                                            >
+                                                <FaQrcode />
+                                            </button>
                                             <button
                                                 onClick={() => viewRegistrations(event)}
                                                 className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"

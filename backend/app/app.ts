@@ -16,6 +16,7 @@ import event_routes from './src/routes/eventRoutes';
 import email_routes from './src/routes/emailRoutes';
 import sponsor_routes from './src/routes/sponsorRoutes';
 import documentation_routes from './src/routes/documentationRoutes';
+import qr_routes from './src/routes/qrRoutes';
 import { errorHandler } from './src/middleware/errorHandler';
 import { AppError } from './src/util/AppError';
 import { paginationLimiter } from './src/middleware/paginationLimiter';
@@ -155,6 +156,7 @@ app.use('/api', event_routes);
 app.use('/api/email', email_routes);
 app.use('/api/sponsors', sponsor_routes);
 app.use('/api/documentations', documentation_routes);
+app.use('/api', qr_routes);
 
 app.get('/debug-sentry', (req: Request, res: Response) => {
     try {

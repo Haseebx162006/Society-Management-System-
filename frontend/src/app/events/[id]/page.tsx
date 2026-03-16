@@ -31,6 +31,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Footer from '@/components/marketing/Footer';
 import Loading from '@/app/loading';
 import DOMPurify from 'isomorphic-dompurify';
+import QRCodeDisplay from '@/components/society/QRCodeDisplay';
 
 export default function EventDetailsPage() {
     const { id } = useParams();
@@ -899,6 +900,13 @@ export default function EventDetailsPage() {
                                 </p>
                             </div>
                         </div>
+
+                        {myRegistration.status === 'APPROVED' && myRegistration.qr_token && (
+                            <div className="mb-8 flex flex-col items-center gap-2">
+                                <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">Your Entry QR Code</p>
+                                <QRCodeDisplay qr_token={myRegistration.qr_token} eventTitle={event.title} />
+                            </div>
+                        )}
 
                         <div className="space-y-4">
                             <h4 className="font-bold text-stone-900 border-b border-stone-100 pb-2">Form Data</h4>

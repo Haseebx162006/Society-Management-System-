@@ -83,6 +83,9 @@ export interface EventRegistration {
     reviewed_by?: string;
     reviewed_at?: string;
     created_at: string;
+    qr_token?: string;
+    entry_status?: 'NOT_ENTERED' | 'ENTERED';
+    entry_confirmed_at?: string;
 }
 
 // -- API Slice --
@@ -320,6 +323,36 @@ export const eventApiSlice = apiSlice.injectEndpoints({
                     ]
                     : [{ type: "EventRegistration" as const, id: `ADMIN_EVENT_${eventId}` }],
         }),
+
+        // ─── QR Entry ───────────────────────────────────────────────
+        validateQR: builder.mutation<
+            {
+                status: 'VALID' | 'ALREADY_ENTERED' | 'INVALID_QR';
+                student?: { name: string; email: string; phone?: string };
+                event?: { title: string };
+                entry_status?: string;
+                entry_confirmed_at?: string;
+            },
+            { qr_token: string; society_id: string }
+        >({
+            query: (body) => ({
+                url: `/qr/validate`,
+                method: "POST",
+                body,
+            }),
+        }),
+
+        confirmEntry: builder.mutation<
+            { status: 'CONFIRMED' | 'ALREADY_ENTERED'; entry_confirmed_at?: string },
+            { qr_token: string; society_id: string }
+        >({
+            query: (body) => ({
+                url: `/qr/confirm`,
+                method: "POST",
+                body,
+            }),
+            invalidatesTags: [{ type: "EventRegistration", id: "LIST" }],
+        }),
     }),
 });
 
@@ -348,4 +381,7 @@ export const {
     // Admin
     useGetAllEventsAdminQuery,
     useGetEventRegistrationsAdminQuery,
+    // QR Entry
+    useValidateQRMutation,
+    useConfirmEntryMutation,
 } = eventApiSlice;

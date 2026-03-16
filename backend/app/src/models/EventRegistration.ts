@@ -25,6 +25,11 @@ export interface IEventRegistration extends Document {
     rejection_reason?: string;
     reviewed_by?: mongoose.Types.ObjectId;
     reviewed_at?: Date;
+    // --- New fields ---
+    qr_token?: string;
+    entry_status: 'NOT_ENTERED' | 'ENTERED';
+    entry_confirmed_by?: mongoose.Types.ObjectId;
+    entry_confirmed_at?: Date;
     created_at: Date;
 }
 
@@ -56,6 +61,14 @@ const eventRegistrationSchema = new Schema<IEventRegistration>({
         ref: 'User'
     },
     reviewed_at: { type: Date },
+    qr_token: { type: String },
+    entry_status: {
+        type: String,
+        enum: ['NOT_ENTERED', 'ENTERED'],
+        default: 'NOT_ENTERED'
+    },
+    entry_confirmed_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    entry_confirmed_at: { type: Date },
     created_at: { type: Date, default: Date.now }
 });
 
@@ -67,5 +80,8 @@ eventRegistrationSchema.index(
         partialFilterExpression: { status: 'PENDING' }
     }
 );
+
+// Sparse unique index on qr_token for global uniqueness (null allowed for non-approved)
+eventRegistrationSchema.index({ qr_token: 1 }, { unique: true, sparse: true });
 
 export default mongoose.model<IEventRegistration>('EventRegistration', eventRegistrationSchema);
