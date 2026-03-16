@@ -75,9 +75,8 @@ app.use(cors({
         // ✅ FIX: Reject requests without Origin header (form submissions bypass CORS)
         // Only allow via browser requests with Origin header
         if (!origin) {
-            // Special case: allow for mobile apps or curl requests from same domain
-            // But in production, ensure API is only accessed from allowed origins
-            return callback(new AppError('Origin header is required', 403));
+            // Allow non-browser requests like Postman, server-to-server, curl, etc.
+            return callback(null, true);
         }
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
