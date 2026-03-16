@@ -17,12 +17,6 @@ import { compareSocietyWithExisting } from '../services/comparisonService';
 
 
 export const createSocietyRequest = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
-        // Automatically drop the unique index if it still exists in the database
-        try {
-            await SocietyRequest.collection.dropIndex('society_name_1');
-        } catch (idxError) {
-            // Ignore if index doesn't exist
-        }
         if (!req.user || !isFacultyEmail(req.user.email)) {
             return sendError(res, 403, "Only faculty members with a valid university email can request society registration");
         }
@@ -353,15 +347,15 @@ export const getAllSocietiesAdmin = catchAsync(async (req: AuthRequest, res: Res
             role: "FACULTY ADVISOR"
         }).populate("user_id", "name email phone");
 
+        const countMap = new Map(memberCounts.map((mc: any) => [mc._id.toString(), mc.count]));
+        const presidentMap = new Map(presidentRoles.map(pr => [pr.society_id.toString(), pr]));
+        const advisorMap = new Map(facultyAdvisorRoles.map(fa => [fa.society_id.toString(), fa]));
+
         const societiesWithCounts = societies.map(society => {
             const societyObj = society.toObject();
-            const countObj = memberCounts.find(mc => mc._id.toString() === society._id.toString());
-            const presidentRole = presidentRoles.find(pr => pr.society_id.toString() === society._id.toString());
-            const advisorRole = facultyAdvisorRoles.find(fa => fa.society_id.toString() === society._id.toString());
-            
-            (societyObj as any).membersCount = countObj ? countObj.count : 0;
-            (societyObj as any).president = presidentRole ? presidentRole.user_id : null;
-            (societyObj as any).faculty_advisor = advisorRole ? advisorRole.user_id : null;
+            (societyObj as any).membersCount = countMap.get(society._id.toString()) ?? 0;
+            (societyObj as any).president = presidentMap.get(society._id.toString())?.user_id ?? null;
+            (societyObj as any).faculty_advisor = advisorMap.get(society._id.toString())?.user_id ?? null;
             return societyObj;
         });
 
@@ -381,10 +375,11 @@ export const getAllSocieties = catchAsync(async (req: AuthRequest, res: Response
             { $group: { _id: "$society_id", count: { $sum: 1 } } }
         ]);
 
+        const countMap = new Map(memberCounts.map((mc: any) => [mc._id.toString(), mc.count]));
+
         const societiesWithCounts = societies.map(society => {
             const societyObj = society.toObject();
-            const countObj = memberCounts.find(mc => mc._id.toString() === society._id.toString());
-            (societyObj as any).membersCount = countObj ? countObj.count : 0;
+            (societyObj as any).membersCount = countMap.get(society._id.toString()) ?? 0;
             return societyObj;
         });
 
@@ -468,13 +463,30 @@ export const getSocietyById = catchAsync(async (req: AuthRequest, res: Response,
 });
 
 export const getAllPlatformMembers = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
-        const members = await SocietyUserRole.find()
-            .populate('user_id', 'name email phone')
-            .populate('society_id', 'name')
-            .populate('group_id', 'name')
-            .sort({ assigned_at: -1 });
+        const page = Math.max(1, parseInt(req.query.page as string) || 1);
+        const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string) || 50));
+        const skip = (page - 1) * limit;
 
-        return sendResponse(res, 200, 'All platform members fetched successfully', members);
+        const [members, total] = await Promise.all([
+            SocietyUserRole.find()
+                .populate('user_id', 'name email phone')
+                .populate('society_id', 'name')
+                .populate('group_id', 'name')
+                .sort({ assigned_at: -1 })
+                .skip(skip)
+                .limit(limit),
+            SocietyUserRole.countDocuments(),
+        ]);
+
+        return sendResponse(res, 200, 'All platform members fetched successfully', {
+            members,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit),
+            },
+        });
 });
 
 // ─── Member Management Endpoints ─────────────────────────────────────────────
@@ -497,12 +509,10 @@ export const getSocietyMembers = catchAsync(async (req: AuthRequest, res: Respon
         // If searching, first find matching user IDs, then filter roles
         let userIdFilter: mongoose.Types.ObjectId[] | null = null;
         if (search) {
-            const matchingUsers = await User.find({
-                $or: [
-                    { name: { $regex: search, $options: 'i' } },
-                    { email: { $regex: search, $options: 'i' } },
-                ]
-            }).select('_id');
+            const matchingUsers = await User.find(
+                { $text: { $search: search } },
+                { score: { $meta: 'textScore' } }
+            ).select('_id').sort({ score: { $meta: 'textScore' } });
             userIdFilter = matchingUsers.map(u => u._id);
             baseQuery.user_id = { $in: userIdFilter };
         }

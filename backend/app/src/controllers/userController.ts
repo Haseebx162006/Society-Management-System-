@@ -96,8 +96,27 @@ export const changePassword = catchAsync(async (req: AuthRequest, res: Response,
     return sendResponse(res, 200, "Password changed successfully");
 });
 export const getAllUsers = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
-    const users = await User.find({ status: "ACTIVE" }).select("-password").sort({ name: 1 });
-    // FIX: Mask sensitive user data before returning
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+    const skip = (page - 1) * limit;
+
+    const [users, total] = await Promise.all([
+        User.find({ status: "ACTIVE" })
+            .select("-password")
+            .sort({ name: 1 })
+            .skip(skip)
+            .limit(limit),
+        User.countDocuments({ status: "ACTIVE" }),
+    ]);
+
     const maskedUsers = maskUsersData(users);
-    return sendResponse(res, 200, "Users fetched successfully", maskedUsers);
+    return sendResponse(res, 200, "Users fetched successfully", {
+        users: maskedUsers,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
+        },
+    });
 });

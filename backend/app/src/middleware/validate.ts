@@ -13,7 +13,10 @@ export const validateRequest = (schema: ZodTypeAny) => {
             next();
         } catch (error) {
             if (error instanceof ZodError) {
-                const errorMessage = error.issues.map(err => `${err.path.join('.')}: ${err.message}`).join(', ');
+                const errorMessage = error.issues.map(err => {
+                    const field = err.path.slice(1).join('.'); // strip leading 'body'/'query'/'params'
+                    return field ? `${field}: ${err.message}` : err.message;
+                }).join(', ');
                 return sendError(res, 400, `Validation failed: ${errorMessage}`);
             }
             next(error);

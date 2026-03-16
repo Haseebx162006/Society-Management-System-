@@ -103,5 +103,6 @@ userSchema.index({ email: 1 }, { unique: true });  // Email lookup for login
 userSchema.index({ status: 1, created_at: -1 });  // Filtering by status
 userSchema.index({ is_super_admin: 1, email_verified: 1 });  // Admin queries
 userSchema.index({ locked_until: 1 }, { sparse: true });  // Account freeze queries
+userSchema.index({ name: 'text', email: 'text' });  // Text search for member lookup
 
 export default mongoose.model<IUser>("User", userSchema);
