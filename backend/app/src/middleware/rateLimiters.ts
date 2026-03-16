@@ -67,7 +67,7 @@ export const exportLimiter = rateLimit({
 // Prevents spam society creation
 export const societyCreationLimiter = rateLimit({
     max: 5,                             // 5 society creations
-    windowMs: 30 * 24 * 60 * 60 * 1000, // Per 30 days
+    windowMs: 7 * 24 * 60 * 60 * 1000,  // Per 7 days (30d exceeds 32-bit int limit)
     message: 'You have reached the limit for creating new societies.',
     statusCode: 429,
     keyGenerator: (req: any) => `${req.user?._id}:society_create`,

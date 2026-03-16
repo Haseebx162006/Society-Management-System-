@@ -99,7 +99,6 @@ userSchema.methods.matchpassword = async function (enterpassword: string) {
 }
 
 // Add indexes for better query performance
-userSchema.index({ email: 1 }, { unique: true });  // Email lookup for login
 userSchema.index({ status: 1, created_at: -1 });  // Filtering by status
 userSchema.index({ is_super_admin: 1, email_verified: 1 });  // Admin queries
 userSchema.index({ locked_until: 1 }, { sparse: true });  // Account freeze queries

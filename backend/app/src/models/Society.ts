@@ -164,7 +164,6 @@ societySchema.virtual('groups', {
 });
 
 // Add performance indexes
-societySchema.index({ name: 1 }, { unique: true });  // Lookup by name
 societySchema.index({ status: 1, created_at: -1 });  // List active societies
 societySchema.index({ created_by: 1 });  // User's societies
 societySchema.index({ category: 1, status: 1 });  // Filter by category
