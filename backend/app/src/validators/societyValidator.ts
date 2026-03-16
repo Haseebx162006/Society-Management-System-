@@ -75,3 +75,46 @@ export const createSocietyRequestSchema = z.object({
         form_data: z.record(z.string(), z.any()).optional().default({}),
     }),
 });
+
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+export const createPresidentSchema = z.object({
+    body: z.object({
+        name: z
+            .string({ message: 'Name is required' })
+            .min(2, 'Name must be at least 2 characters')
+            .max(100, 'Name must not exceed 100 characters')
+            .trim(),
+        email: z
+            .string({ message: 'Email is required' })
+            .email('Invalid email format')
+            .toLowerCase(),
+        phone: z
+            .string({ message: 'Phone is required' })
+            .min(5, 'Phone must be at least 5 characters')
+            .max(20, 'Phone must not exceed 20 characters')
+            .trim(),
+        password: z
+            .string({ message: 'Password is required' })
+            .min(8, 'Password must be at least 8 characters')
+            .regex(passwordRegex, 'Password must include uppercase, lowercase, number and special character'),
+    }),
+});
+
+export const updatePresidentDetailsSchema = z.object({
+    body: z.object({
+        name: z
+            .string({ message: 'Name is required' })
+            .min(2, 'Name must be at least 2 characters')
+            .max(100, 'Name must not exceed 100 characters')
+            .trim(),
+        phone: z
+            .string({ message: 'Phone is required' })
+            .min(5, 'Phone must be at least 5 characters')
+            .max(20, 'Phone must not exceed 20 characters')
+            .trim(),
+    }),
+    params: z.object({
+        id: z.string().length(24, 'Invalid society ID'),
+    }),
+});

@@ -138,6 +138,14 @@ app.get("/", (req: Request, res: Response) => {
     res.send("Hello How are you");
 });
 
+app.get("/health", (req: Request, res: Response) => {
+    res.status(200).json({
+        status: "ok",
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+    });
+});
+
 app.use('/api/auth', auth_routes);
 app.use('/api/user', user_routes);
 app.use('/api/society', society_routes);

@@ -3,6 +3,8 @@ import { protect, adminOnly, societyHeadOnly, adminOrSocietyHead } from '../midd
 import { authorize } from '../middleware/authorize';
 import { upload } from '../middleware/multer.middleware';
 import { memberOperationsLimiter, adminActionLimiter, societyCreationLimiter } from '../middleware/rateLimiters';
+import { validateRequest } from '../middleware/validate';
+import { createPresidentSchema, updatePresidentDetailsSchema } from '../validators/societyValidator';
 import {
     createSocietyRequest,
     createSociety,
@@ -55,13 +57,13 @@ router.delete('/:id', protect, adminOnly, deleteSociety);
 
 
 router.post('/:id/change-president', protect, adminOnly, changePresident);
-router.post('/:id/president', protect, adminOrSocietyHead, createPresident);
+router.post('/:id/president', protect, adminOrSocietyHead, validateRequest(createPresidentSchema), createPresident);
 // ✅ ADD RATE LIMITER: Prevent admin abuse
 router.post('/:id/suspend', protect, adminActionLimiter, adminOrSocietyHead, suspendSociety);
 router.post('/:id/reactivate', protect, adminActionLimiter, adminOrSocietyHead, reactivateSociety);
 router.post('/ask-for-renewal', protect, societyHeadOnly, askForRenewal);
 router.put('/:id/faculty-advisor', protect, adminOrSocietyHead, changeFacultyAdvisor);
-router.put('/:id/president/details', protect, adminOrSocietyHead, updatePresidentDetails);
+router.put('/:id/president/details', protect, adminOrSocietyHead, validateRequest(updatePresidentDetailsSchema), updatePresidentDetails);
 
 
 // ✅ ADD RATE LIMITER: Prevent mass member operations
