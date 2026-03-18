@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useValidateQRMutation, useConfirmEntryMutation } from '@/lib/features/events/eventApiSlice';
 import { FaTimes, FaQrcode, FaCheckCircle, FaExclamationCircle, FaUserCheck } from 'react-icons/fa';
+import jsQR from 'jsqr';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
 
@@ -19,6 +20,7 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
     const [manualToken, setManualToken] = useState('');
     const [confirmed, setConfirmed] = useState(false);
     const [imageError, setImageError] = useState<string | null>(null);
+    const [isScanning, setIsScanning] = useState(false);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -26,7 +28,7 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
         useValidateQRMutation();
     const [confirmEntry, { data: confirmResult, isLoading: isConfirming }] = useConfirmEntryMutation();
 
-    // ─── Decode QR from image file ────────────────────────────────────────────
+    // ─── Decode QR from image file using jsQR ────────────────────────────────────────────
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -36,24 +38,17 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
         resetValidate();
         setScannedToken(null);
         setConfirmed(false);
-
-        // Check if BarcodeDetector is available
-        if (!('BarcodeDetector' in window)) {
-            setImageError('QR scanning not supported in this browser. Please use Chrome/Edge or enter the token manually below.');
-            if (fileInputRef.current) fileInputRef.current.value = '';
-            return;
-        }
+        setIsScanning(true);
 
         try {
-            const bitmap = await createImageBitmap(file);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
-            const barcodes = await detector.detect(bitmap);
+            // Read the image file
+            const imageData = await readImageFile(file);
             
-            console.log('Detected barcodes:', barcodes);
+            // Decode QR code using jsQR
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
             
-            if (barcodes.length > 0) {
-                const token = barcodes[0].rawValue as string;
+            if (code && code.data) {
+                const token = code.data.trim();
                 console.log('Extracted QR token:', token);
                 console.log('Token length:', token.length);
                 setScannedToken(token);
@@ -64,17 +59,46 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
         } catch (error) {
             console.error('QR detection error:', error);
             setImageError('Failed to read QR code from image. Please try manual entry below.');
+        } finally {
+            setIsScanning(false);
         }
 
         // Reset file input so same file can be re-selected
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
+    // Helper function to read image file and convert to ImageData
+    const readImageFile = (file: File): Promise<ImageData> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    if (!ctx) {
+                        reject(new Error('Could not get canvas context'));
+                        return;
+                    }
+                    ctx.drawImage(img, 0, 0);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    resolve(imageData);
+                };
+                img.onerror = () => reject(new Error('Failed to load image'));
+                img.src = e.target?.result as string;
+            };
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.readAsDataURL(file);
+        });
+    };
+
     // ─── Manual token submit ──────────────────────────────────────────────────
 
     const handleManualSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const token = manualToken.trim();
+        const token = manualToken.trim().toLowerCase(); // Convert to lowercase
         if (!token) return;
 
         resetValidate();
@@ -132,13 +156,16 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
                         <p className="text-sm font-medium text-stone-600 mb-2">Scan QR Code from Image</p>
                         <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-stone-300 rounded-xl cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-colors">
                             <FaQrcode className="text-3xl text-stone-300 mb-1" />
-                            <span className="text-sm text-stone-400">Click to upload QR image</span>
+                            <span className="text-sm text-stone-400">
+                                {isScanning ? 'Scanning...' : 'Click to upload QR image'}
+                            </span>
                             <input
                                 ref={fileInputRef}
                                 type="file"
                                 accept="image/*"
                                 className="hidden"
                                 onChange={handleFileChange}
+                                disabled={isScanning}
                             />
                         </label>
                         {imageError && (
@@ -147,6 +174,14 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
                             </p>
                         )}
                     </div>
+
+                    {/* Scanning Status */}
+                    {isScanning && (
+                        <div className="flex items-center justify-center py-2">
+                            <div className="w-5 h-5 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />
+                            <span className="ml-2 text-sm text-stone-500">Reading QR code...</span>
+                        </div>
+                    )}
 
                     {/* Divider */}
                     <div className="flex items-center gap-3">
@@ -161,12 +196,13 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
                             type="text"
                             value={manualToken}
                             onChange={(e) => setManualToken(e.target.value)}
-                            placeholder="Paste QR token here..."
-                            className="flex-1 border border-stone-300 rounded-lg px-3 py-2 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                            placeholder="Enter 6-digit code (e.g., abc123)"
+                            maxLength={6}
+                            className="flex-1 border border-stone-300 rounded-lg px-3 py-2 text-sm text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent uppercase"
                         />
                         <button
                             type="submit"
-                            disabled={!manualToken.trim() || isValidating}
+                            disabled={!manualToken.trim() || isValidating || manualToken.trim().length !== 6}
                             className="px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         >
                             Validate

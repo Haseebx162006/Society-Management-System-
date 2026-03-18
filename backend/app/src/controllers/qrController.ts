@@ -13,7 +13,10 @@ export const validateQR = catchAsync(async (req: AuthRequest, res: Response, _ne
         return res.status(400).json({ status: 'INVALID_QR', message: 'QR token is required' });
     }
 
-    const registration = await EventRegistration.findOne({ qr_token })
+    // Convert to lowercase for case-insensitive matching
+    const tokenLower = qr_token.trim().toLowerCase();
+
+    const registration = await EventRegistration.findOne({ qr_token: tokenLower })
         .populate<{ user_id: { name: string; email: string; phone?: string } }>('user_id', 'name email phone')
         .populate<{ event_id: { title: string } }>('event_id', 'title');
 
@@ -56,8 +59,11 @@ export const validateQR = catchAsync(async (req: AuthRequest, res: Response, _ne
 export const confirmEntry = catchAsync(async (req: AuthRequest, res: Response, _next: NextFunction) => {
     const { qr_token } = req.body;
 
+    // Convert to lowercase for case-insensitive matching
+    const tokenLower = qr_token.trim().toLowerCase();
+
     const result = await EventRegistration.findOneAndUpdate(
-        { qr_token, entry_status: 'NOT_ENTERED', status: 'APPROVED' },
+        { qr_token: tokenLower, entry_status: 'NOT_ENTERED', status: 'APPROVED' },
         {
             entry_status: 'ENTERED',
             entry_confirmed_by: req.user!._id,

@@ -290,6 +290,16 @@ export const getEventRegistrationsAdmin = catchAsync(async (req: AuthRequest, re
         return sendResponse(res, 200, 'Event registrations (Admin) fetched successfully', registrations);
 });
 
+// Generate a 6-character alphanumeric token (lowercase + numbers)
+const generateShortToken = (): string => {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let token = '';
+    for (let i = 0; i < 6; i++) {
+        token += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return token;
+};
+
 export const updateRegistrationStatus = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { registrationId } = req.params;
         const { status, rejection_reason } = req.body;
@@ -298,7 +308,15 @@ export const updateRegistrationStatus = catchAsync(async (req: AuthRequest, res:
         if (!registration) return sendError(res, 404, 'Registration not found');
         registration.status = status;
         if (status === 'APPROVED' && !registration.qr_token) {
-            const token = crypto.randomBytes(32).toString('hex');
+            // Generate unique 6-char token, retry if collision
+            let token = generateShortToken();
+            let attempts = 0;
+            while (attempts < 10) {
+                const existing = await EventRegistration.findOne({ qr_token: token });
+                if (!existing) break;
+                token = generateShortToken();
+                attempts++;
+            }
             console.log('Generated QR token:', token);
             console.log('Token length:', token.length);
             registration.qr_token = token;

@@ -1,7 +1,7 @@
 'use client';
 
 import QRCode from 'react-qr-code';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 interface QRCodeDisplayProps {
   qr_token: string;
@@ -10,11 +10,18 @@ interface QRCodeDisplayProps {
 
 export default function QRCodeDisplay({ qr_token, eventTitle }: QRCodeDisplayProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     console.log('QRCodeDisplay - qr_token:', qr_token);
     console.log('QRCodeDisplay - qr_token length:', qr_token?.length);
   }, [qr_token]);
+
+  const handleCopyToken = () => {
+    navigator.clipboard.writeText(qr_token.toUpperCase());
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleDownload = () => {
     const svg = containerRef.current?.querySelector('svg');
@@ -110,8 +117,25 @@ export default function QRCodeDisplay({ qr_token, eventTitle }: QRCodeDisplayPro
           <div ref={containerRef} className="p-4 bg-white rounded-lg shadow-sm">
             <QRCode value={qr_token} size={200} />
           </div>
-          <div className="text-xs text-gray-500 font-mono break-all max-w-xs text-center">
-            Token: {qr_token.substring(0, 16)}...
+          <div className="flex flex-col items-center gap-2">
+            <div className="text-sm text-gray-600 font-medium">
+              Entry Code
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="text-2xl font-bold text-gray-900 font-mono tracking-wider bg-gray-50 px-4 py-2 rounded border-2 border-gray-200">
+                {qr_token.toUpperCase()}
+              </div>
+              <button
+                onClick={handleCopyToken}
+                className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded border border-gray-300 transition-colors text-sm"
+                title="Copy code"
+              >
+                {copied ? '✓ Copied!' : '📋 Copy'}
+              </button>
+            </div>
+            <div className="text-xs text-gray-500">
+              Show this QR code or code at the event entrance
+            </div>
           </div>
           <div className="flex gap-2">
             <button
