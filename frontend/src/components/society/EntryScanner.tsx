@@ -48,17 +48,17 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
                     fps: 10,
                     qrbox: { width: 250, height: 250 }
                 },
-                async (decodedText) => {
+                (decodedText) => {
                     // QR Code detected
                     console.log('QR Code detected:', decodedText);
                     const token = decodedText.trim().toLowerCase();
-                    setScannedToken(token);
                     
-                    // Stop scanning
-                    await stopCameraScanner();
-                    
-                    // Validate the token
-                    await validateQR({ qr_token: token, society_id: societyId });
+                    // Stop scanning first
+                    stopCameraScanner().then(() => {
+                        setScannedToken(token);
+                        // Validate the token
+                        validateQR({ qr_token: token, society_id: societyId });
+                    });
                 },
                 (errorMessage) => {
                     // Scanning in progress, ignore errors
@@ -99,9 +99,9 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
 
     // ─── Switch scan mode ─────────────────────────────────────────────────────
 
-    const handleScanModeChange = async (mode: 'camera' | 'upload') => {
+    const handleScanModeChange = (mode: 'camera' | 'upload') => {
         if (mode === 'upload' && isCameraActive) {
-            await stopCameraScanner();
+            stopCameraScanner();
         }
         setScanMode(mode);
         setImageError(null);
@@ -142,14 +142,15 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
                 console.log('Extracted QR token:', token);
                 console.log('Token length:', token.length);
                 setScannedToken(token);
-                await validateQR({ qr_token: token, society_id: societyId });
+                setIsScanning(false);
+                validateQR({ qr_token: token, society_id: societyId });
             } else {
                 setImageError('No QR code found in the image. Please ensure the QR code is clear and try again, or use manual entry below.');
+                setIsScanning(false);
             }
         } catch (error) {
             console.error('QR detection error:', error);
             setImageError('Failed to read QR code from image. Please try manual entry below.');
-        } finally {
             setIsScanning(false);
         }
 
@@ -186,7 +187,7 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
 
     // ─── Manual token submit ──────────────────────────────────────────────────
 
-    const handleManualSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleManualSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const token = manualToken.trim().toLowerCase(); // Convert to lowercase
         if (!token) return;
@@ -194,7 +195,7 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
         resetValidate();
         setScannedToken(token);
         setConfirmed(false);
-        await validateQR({ qr_token: token, society_id: societyId });
+        validateQR({ qr_token: token, society_id: societyId });
     };
 
     // ─── Confirm entry ────────────────────────────────────────────────────────
@@ -211,7 +212,7 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
 
     // ─── Reset to scan another ────────────────────────────────────────────────
 
-    const handleReset = async () => {
+    const handleReset = () => {
         setScannedToken(null);
         setManualToken('');
         setConfirmed(false);
@@ -220,7 +221,7 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
         
         // Restart camera if in camera mode
         if (scanMode === 'camera') {
-            await startCameraScanner();
+            startCameraScanner();
         }
     };
 
@@ -247,7 +248,7 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
                 {/* Body */}
                 <div className="px-6 py-5 flex flex-col gap-5">
                     {/* Mode Selector */}
-                    {!scannedToken && (
+                    {!validateResult && (
                         <div className="flex gap-2 bg-stone-100 p-1 rounded-lg">
                             <button
                                 onClick={() => handleScanModeChange('camera')}
@@ -275,7 +276,7 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
                     )}
 
                     {/* Camera Scanner */}
-                    {scanMode === 'camera' && !scannedToken && (
+                    {scanMode === 'camera' && !validateResult && (
                         <div>
                             <p className="text-sm font-medium text-stone-600 mb-2">Point camera at QR code</p>
                             <div id="qr-reader" className="rounded-xl overflow-hidden border-2 border-stone-300"></div>
@@ -294,7 +295,7 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
                     )}
 
                     {/* Upload Scanner */}
-                    {scanMode === 'upload' && !scannedToken && (
+                    {scanMode === 'upload' && !validateResult && (
                         <div>
                             <p className="text-sm font-medium text-stone-600 mb-2">Upload QR Code Image</p>
                             <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-stone-300 rounded-xl cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-colors">
@@ -327,7 +328,7 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
                     )}
 
                     {/* Divider */}
-                    {!scannedToken && (
+                    {!validateResult && (
                         <div className="flex items-center gap-3">
                             <div className="flex-1 h-px bg-stone-200" />
                             <span className="text-xs text-stone-400 font-medium">or enter code manually</span>
@@ -336,7 +337,7 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
                     )}
 
                     {/* Manual Token Entry */}
-                    {!scannedToken && (
+                    {!validateResult && (
                         <form onSubmit={handleManualSubmit} className="flex gap-2">
                             <input
                                 type="text"
