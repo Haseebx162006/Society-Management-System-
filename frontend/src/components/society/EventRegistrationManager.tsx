@@ -14,6 +14,7 @@ interface EventRegistrationManagerProps {
     societyId: string;
     eventId: string;
     eventTitle: string;
+    showOnlyEntered?: boolean;
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -22,6 +23,7 @@ const EventRegistrationManager: React.FC<EventRegistrationManagerProps> = ({
     societyId,
     eventId,
     eventTitle,
+    showOnlyEntered = false,
 }) => {
     // ── Data ──
     const { data: registrations, isLoading } = useGetEventRegistrationsQuery({ societyId, eventId });
@@ -113,6 +115,7 @@ const EventRegistrationManager: React.FC<EventRegistrationManagerProps> = ({
         let list = [...registrations];
 
         if (filterStatus) list = list.filter(r => r.status === filterStatus);
+        if (showOnlyEntered) list = list.filter(r => r.entry_status === 'ENTERED');
 
         if (searchQuery.trim()) {
             const q = searchQuery.toLowerCase();
@@ -132,13 +135,17 @@ const EventRegistrationManager: React.FC<EventRegistrationManagerProps> = ({
     // ── Counts ──
     const counts = useMemo(() => {
         if (!registrations) return { total: 0, pending: 0, approved: 0, rejected: 0 };
+        const baseList = showOnlyEntered 
+            ? registrations?.filter(r => r.entry_status === 'ENTERED') || []
+            : registrations || [];
+
         return {
-            total: registrations.length,
-            pending: registrations.filter(r => r.status === 'PENDING').length,
-            approved: registrations.filter(r => r.status === 'APPROVED').length,
-            rejected: registrations.filter(r => r.status === 'REJECTED').length,
+            total: baseList.length,
+            pending: baseList.filter(r => r.status === 'PENDING').length,
+            approved: baseList.filter(r => r.status === 'APPROVED').length,
+            rejected: baseList.filter(r => r.status === 'REJECTED').length,
         };
-    }, [registrations]);
+    }, [registrations, showOnlyEntered]);
 
     // ── Loading ──
     if (isLoading) {
@@ -157,7 +164,9 @@ const EventRegistrationManager: React.FC<EventRegistrationManagerProps> = ({
             {/* ── Header with export buttons ── */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-800">Event Registrations</h2>
+                    <h2 className="text-2xl font-bold text-slate-800">
+                        {showOnlyEntered ? 'Event Entries' : 'Event Registrations'}
+                    </h2>
                     <p className="text-slate-500 mt-1">{eventTitle}</p>
                 </div>
                 <div className="flex gap-2">
@@ -248,10 +257,13 @@ const EventRegistrationManager: React.FC<EventRegistrationManagerProps> = ({
                 </div>
             ) : (
                 <div className="text-center py-16 bg-white rounded-2xl border border-slate-200">
-                    <div className="text-5xl mb-4">📭</div>
-                    <h3 className="text-lg font-semibold text-slate-700 mb-2">No Registrations Found</h3>
+                    <div className="text-5xl mb-4">{showOnlyEntered ? '🎟️' : '📭'}</div>
+                    <h2 className="text-lg font-semibold text-slate-700 mb-2">
+                        {showOnlyEntered ? 'No Entries Found' : 'No Registrations Found'}
+                    </h2>
                     <p className="text-slate-400">
-                        {filterStatus || searchQuery ? 'Try adjusting your filters' : 'No one has registered yet'}
+                        {filterStatus || searchQuery ? 'Try adjusting your filters' : 
+                         showOnlyEntered ? 'No students have checked in yet' : 'No one has registered yet'}
                     </p>
                 </div>
             )}

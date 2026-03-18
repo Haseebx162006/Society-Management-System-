@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import Image from 'next/image';
-import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaEye, FaEyeSlash, FaClipboardList, FaFileExcel, FaEnvelope, FaQrcode } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaCalendarAlt, FaMapMarkerAlt, FaUsers, FaEye, FaEyeSlash, FaClipboardList, FaFileExcel, FaEnvelope, FaQrcode, FaSignInAlt } from 'react-icons/fa';
 import { MdEvent } from 'react-icons/md';
 import {
     useGetEventsBySocietyQuery,
@@ -49,7 +49,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
     const [deleteEvent] = useDeleteEventMutation();
     const [sendMail, { isLoading: isSendingMail }] = useSendMailToParticipantsMutation();
 
-    const [view, setView] = useState<'list' | 'create' | 'edit' | 'registrations' | 'scanner'>('list');
+    const [view, setView] = useState<'list' | 'create' | 'edit' | 'registrations' | 'entries' | 'scanner'>('list');
     const [selectedEvent, setSelectedEvent] = useState<EventData | null>(null);
 
 
@@ -303,7 +303,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
     }
 
 
-    if (view === 'registrations' && selectedEvent) {
+    if ((view === 'registrations' || view === 'entries') && selectedEvent) {
         return (
             <div>
                 <button
@@ -316,6 +316,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                     societyId={societyId}
                     eventId={selectedEvent._id}
                     eventTitle={selectedEvent.title}
+                    showOnlyEntered={view === 'entries'}
                 />
             </div>
         );
@@ -742,9 +743,9 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                 <div className="space-y-4">
                     {events.map((event) => (
                         <div key={event._id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex">
+                            <div className="flex flex-col md:flex-row">
                                 {event.banner && (
-                                    <div className="w-48 h-auto shrink-0 relative">
+                                    <div className="w-full md:w-48 h-48 md:h-auto shrink-0 relative">
                                         <Image
                                             src={event.banner}
                                             alt={event.title}
@@ -754,7 +755,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                     </div>
                                 )}
                                 <div className="flex-1 p-5">
-                                    <div className="flex justify-between items-start">
+                                    <div className="flex flex-col lg:flex-row justify-between gap-4">
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <h3 className="text-lg font-bold text-slate-800">{event.title}</h3>
@@ -762,7 +763,7 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                             </div>
                                             <p className="text-slate-500 text-sm line-clamp-2">{event.description}</p>
 
-                                            <div className="flex flex-wrap gap-4 mt-3 text-sm text-slate-500">
+                                            <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 text-sm text-slate-500">
                                                 <span className="flex items-center gap-1.5">
                                                     <FaCalendarAlt className="text-orange-400" />
                                                     {new Date(event.event_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
@@ -794,53 +795,67 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                             )}
                                         </div>
 
-                                        <div className="flex items-center gap-1 ml-4">
+                                        <div className="flex flex-wrap items-center gap-2 shrink-0">
                                             <button
                                                 onClick={() => { setSelectedEvent(event); setView('scanner'); }}
-                                                className="p-2 text-slate-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded-lg transition-colors text-sm font-medium"
                                                 title="Confirm Entry"
                                             >
-                                                <FaQrcode />
+                                                <FaQrcode className="text-xs" /> <span>Scan Entry</span>
                                             </button>
+                                            
                                             <button
                                                 onClick={() => viewRegistrations(event)}
-                                                className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors text-sm font-medium"
                                                 title="View Registrations"
                                             >
-                                                <FaClipboardList />
+                                                <FaClipboardList className="text-xs" /> <span>Registrations</span>
                                             </button>
+
+                                            <button
+                                                onClick={() => { setSelectedEvent(event); setView('entries'); }}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-50 text-cyan-600 hover:bg-cyan-100 rounded-lg transition-colors text-sm font-medium"
+                                                title="View Entries"
+                                            >
+                                                <FaSignInAlt className="text-xs" /> <span>Entries</span>
+                                            </button>
+
                                             <button
                                                 onClick={() => handleExportExcel(event._id)}
-                                                className="p-2 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg transition-colors text-sm font-medium"
                                                 title="Export to Excel"
                                             >
-                                                <FaFileExcel />
+                                                <FaFileExcel className="text-xs" /> <span>Export</span>
                                             </button>
+
                                             <button
                                                 onClick={() => handleToggleVisibility(event)}
-                                                className={`p-2 rounded-lg transition-colors ${
+                                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors text-sm font-medium ${
                                                     event.is_public 
-                                                        ? 'text-green-500 hover:bg-green-50' 
-                                                        : 'text-amber-500 hover:bg-amber-50'
+                                                        ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' 
+                                                        : 'bg-amber-50 text-amber-600 hover:bg-amber-100'
                                                 }`}
                                                 title={event.is_public ? "Make Private" : "Make Public"}
                                             >
-                                                {event.is_public ? <FaEye /> : <FaEyeSlash />}
+                                                {event.is_public ? <FaEye className="text-xs" /> : <FaEyeSlash className="text-xs" />}
+                                                <span>{event.is_public ? "Public" : "Private"}</span>
                                             </button>
+
                                             <button
                                                 onClick={() => startEdit(event)}
-                                                className="p-2 text-slate-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                                                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors text-sm font-medium"
                                                 title="Edit Event"
                                             >
-                                                <FaEdit />
+                                                <FaEdit className="text-xs" /> <span>Edit</span>
                                             </button>
+
                                             {event.status !== 'CANCELLED' && (
                                                 <button
                                                     onClick={() => handleDelete(event._id)}
-                                                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors text-sm font-medium"
                                                     title="Cancel Event"
                                                 >
-                                                    <FaTrash />
+                                                    <FaTrash className="text-xs" /> <span>Cancel</span>
                                                 </button>
                                             )}
                                         </div>

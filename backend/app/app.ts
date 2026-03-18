@@ -6,7 +6,6 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import slowDown from 'express-slow-down';
 import { sanitize } from 'express-mongo-sanitize';
-const xssClean = require('xss-clean');
 import auth_routes from './src/routes/authroutes';
 import user_routes from './src/routes/userRoutes';
 import society_routes from './src/routes/societyRoutes';
@@ -117,7 +116,6 @@ app.use('/api', speedLimiter);
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-app.use(xssClean());
 
 // Add pagination limiter to prevent resource exhaustion
 app.use(paginationLimiter);
