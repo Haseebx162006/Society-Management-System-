@@ -72,6 +72,7 @@ const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000').spl
 app.use(cors({
     origin: (origin, callback) => {
         if (!origin) {
+            // Allow non-browser requests like Postman, server-to-server, curl, etc.
             return callback(null, true);
         }
         if (allowedOrigins.includes(origin)) {

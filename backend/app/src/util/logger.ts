@@ -1,16 +1,30 @@
 import winston from 'winston';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 
 /**
  * Winston Logger Configuration
  * Handles structured logging for production monitoring
  */
 
+// Determine logs directory - use /tmp for Lambda/container, fallback to local logs
+let logsDir = path.join(process.cwd(), 'logs');
+let canUseFileTransport = true;
+
+// Try to use temp directory in Lambda/container environments
+if (process.env.LAMBDA_TASK_ROOT || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    logsDir = path.join(os.tmpdir(), 'logs');
+}
+
 // Create logs directory if it doesn't exist
-const logsDir = path.join(process.cwd(), 'logs');
-if (!fs.existsSync(logsDir)) {
-    fs.mkdirSync(logsDir, { recursive: true });
+try {
+    if (!fs.existsSync(logsDir)) {
+        fs.mkdirSync(logsDir, { recursive: true });
+    }
+} catch (error) {
+    console.error('Failed to create logs directory:', error);
+    canUseFileTransport = false;
 }
 
 // Custom format for better readability
@@ -48,10 +62,11 @@ const infoFormat = winston.format.combine(
 /**
  * Create Winston logger instance
  */
-const logger = winston.createLogger({
-    level: process.env.LOG_LEVEL || 'info',
-    format: customFormat,
-    transports: [
+const transportsList: winston.transport[] = [];
+
+// Add file transports only if directory creation succeeded
+if (canUseFileTransport) {
+    transportsList.push(
         // Error logs - File transport
         new winston.transports.File({
             filename: path.join(logsDir, 'error.log'),
@@ -76,8 +91,26 @@ const logger = winston.createLogger({
             format: infoFormat,
             maxsize: 5242880, // 5MB
             maxFiles: 10,
-        }),
-    ],
+        })
+    );
+}
+
+// Always add console transport as fallback/primary in production containers
+transportsList.push(
+    new winston.transports.Console({
+        format: process.env.NODE_ENV === 'production' 
+            ? winston.format.json()
+            : winston.format.combine(
+                winston.format.colorize(),
+                winston.format.simple()
+            ),
+    })
+);
+
+const logger = winston.createLogger({
+    level: process.env.LOG_LEVEL || 'info',
+    format: customFormat,
+    transports: transportsList,
 });
 
 // Add console transport in development
@@ -92,12 +125,14 @@ if (process.env.NODE_ENV !== 'production') {
     );
 }
 
-// Log uncaught exceptions
-logger.exceptions.handle(
-    new winston.transports.File({
-        filename: path.join(logsDir, 'exceptions.log'),
-    })
-);
+// Log uncaught exceptions - only to file if available, otherwise console handles it
+if (canUseFileTransport) {
+    logger.exceptions.handle(
+        new winston.transports.File({
+            filename: path.join(logsDir, 'exceptions.log'),
+        })
+    );
+}
 
 // Log unhandled rejections
 process.on('unhandledRejection', (reason, promise) => {
