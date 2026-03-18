@@ -37,24 +37,33 @@ const EntryScanner: React.FC<EntryScannerProps> = ({ eventId: _eventId, societyI
         setScannedToken(null);
         setConfirmed(false);
 
-        if ('BarcodeDetector' in window) {
-            try {
-                const bitmap = await createImageBitmap(file);
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
-                const barcodes = await detector.detect(bitmap);
-                if (barcodes.length > 0) {
-                    const token = barcodes[0].rawValue as string;
-                    setScannedToken(token);
-                    await validateQR({ qr_token: token, society_id: societyId });
-                } else {
-                    setImageError('No QR code found in the image. Please try manual entry.');
-                }
-            } catch {
-                setImageError('Failed to read QR code. Please try manual entry.');
+        // Check if BarcodeDetector is available
+        if (!('BarcodeDetector' in window)) {
+            setImageError('QR scanning not supported in this browser. Please use Chrome/Edge or enter the token manually below.');
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            return;
+        }
+
+        try {
+            const bitmap = await createImageBitmap(file);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const detector = new (window as any).BarcodeDetector({ formats: ['qr_code'] });
+            const barcodes = await detector.detect(bitmap);
+            
+            console.log('Detected barcodes:', barcodes);
+            
+            if (barcodes.length > 0) {
+                const token = barcodes[0].rawValue as string;
+                console.log('Extracted QR token:', token);
+                console.log('Token length:', token.length);
+                setScannedToken(token);
+                await validateQR({ qr_token: token, society_id: societyId });
+            } else {
+                setImageError('No QR code found in the image. Please ensure the QR code is clear and try again, or use manual entry below.');
             }
-        } else {
-            setImageError('QR scanning not supported in this browser. Please use manual token entry below.');
+        } catch (error) {
+            console.error('QR detection error:', error);
+            setImageError('Failed to read QR code from image. Please try manual entry below.');
         }
 
         // Reset file input so same file can be re-selected

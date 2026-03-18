@@ -298,13 +298,17 @@ export const updateRegistrationStatus = catchAsync(async (req: AuthRequest, res:
         if (!registration) return sendError(res, 404, 'Registration not found');
         registration.status = status;
         if (status === 'APPROVED' && !registration.qr_token) {
-            registration.qr_token = crypto.randomBytes(32).toString('hex');
+            const token = crypto.randomBytes(32).toString('hex');
+            console.log('Generated QR token:', token);
+            console.log('Token length:', token.length);
+            registration.qr_token = token;
             registration.entry_status = 'NOT_ENTERED';
         }
         if (status === 'REJECTED' && rejection_reason) registration.rejection_reason = rejection_reason;
         registration.reviewed_by = req.user!._id;
         registration.reviewed_at = new Date();
         await registration.save();
+        console.log('Saved registration with qr_token:', registration.qr_token);
         return sendResponse(res, 200, `Registration ${status.toLowerCase()} successfully`, registration);
 });
 

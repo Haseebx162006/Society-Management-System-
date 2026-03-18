@@ -6,9 +6,19 @@ import EventRegistration from '../models/EventRegistration';
 export const validateQR = catchAsync(async (req: AuthRequest, res: Response, _next: NextFunction) => {
     const { qr_token } = req.body;
 
+    console.log('Validating QR token:', qr_token);
+    console.log('Token length:', qr_token?.length);
+
+    if (!qr_token || qr_token.trim() === '') {
+        return res.status(400).json({ status: 'INVALID_QR', message: 'QR token is required' });
+    }
+
     const registration = await EventRegistration.findOne({ qr_token })
         .populate<{ user_id: { name: string; email: string; phone?: string } }>('user_id', 'name email phone')
         .populate<{ event_id: { title: string } }>('event_id', 'title');
+
+    console.log('Found registration:', registration ? 'Yes' : 'No');
+    console.log('Registration status:', registration?.status);
 
     if (!registration || registration.status !== 'APPROVED') {
         return res.status(404).json({ status: 'INVALID_QR' });
