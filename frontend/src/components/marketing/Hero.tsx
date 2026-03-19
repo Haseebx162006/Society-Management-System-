@@ -1,57 +1,73 @@
 "use client";
 
-import { useRef, useMemo } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { Shield, Users, ArrowRight } from "lucide-react";
 import Lottie from "lottie-react";
 import blobData from "../../../public/blob.json";
 
-const logos = [
+const leftLogos = [
   "/logos/acm.jpg",
   "/logos/cfds.jpg",
   "/logos/cls.jpg",
+];
+
+const rightLogos = [
   "/logos/gdgoc1.jpg",
-  "/logos/mlsa.jpg",
   "/logos/ctec.jpg",
-  "/logos/cec.jpg",
-  "/logos/cics.jpg",
-  "/logos/cms.jpg",
   "/logos/ieee.jpg",
 ];
 
-const InfiniteColumn = ({ direction = 1, className = "" }: { direction?: 1 | -1, className?: string }) => {
-  const columnRef = useRef<HTMLDivElement>(null);
-  const extendedLogos = useMemo(() => [...logos, ...logos, ...logos, ...logos], []);
+const HangingLogo = ({ logo, index }: { logo: string; index: number }) => {
+  const ropeLength = 180 + (index % 2) * 60;
+  const swingDelay = index * 0.3;
+  const swingDuration = 3 + (index % 3) * 0.5;
 
   return (
-    <div className={`flex flex-col gap-6 overflow-hidden pointer-events-none select-none ${className}`}>
+    <motion.div
+      initial={{ opacity: 0, y: -50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: index * 0.1 }}
+      className="relative flex flex-col items-center"
+      style={{ zIndex: 10 }}
+    >
+      {/* Rope */}
       <motion.div
+        drag
+        dragConstraints={{ left: -100, right: 100, top: 0, bottom: 50 }}
+        dragElastic={0.2}
+        dragTransition={{ bounceStiffness: 300, bounceDamping: 20 }}
+        whileDrag={{ scale: 1.1, cursor: "grabbing" }}
         animate={{
-          y: direction === 1 ? [0, -1000] : [-1000, 0],
+          rotate: [-3, 3, -3],
         }}
         transition={{
-          duration: 35,
+          duration: swingDuration,
           repeat: Infinity,
-          ease: "linear",
-          repeatType: "reverse"
+          ease: "easeInOut",
+          delay: swingDelay,
         }}
-        className="flex flex-col gap-6 items-center"
+        className="relative flex flex-col items-center cursor-grab"
+        style={{ transformOrigin: "top center" }}
       >
-        {extendedLogos.map((logo, idx) => (
-          <div
-            key={idx}
-            className="w-28 h-28 md:w-40 md:h-40 flex-shrink-0 bg-white rounded-2xl border border-stone-100 flex items-center justify-center p-4"
-          >
-            <img
-              src={logo}
-              alt="Society Logo"
-              className="w-full h-full object-contain"
-            />
-          </div>
-        ))}
+        <div
+          className="w-0.5 bg-gradient-to-b from-stone-400 to-stone-600"
+          style={{ height: `${ropeLength}px` }}
+        />
+        
+        {/* Logo Card */}
+        <motion.div
+          whileHover={{ scale: 1.15, rotate: 0 }}
+          className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-xl border-2 border-stone-200 shadow-lg flex items-center justify-center p-3 hover:shadow-2xl transition-shadow"
+        >
+          <img
+            src={logo}
+            alt="Society Logo"
+            className="w-full h-full object-contain pointer-events-none"
+          />
+        </motion.div>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -72,11 +88,22 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="absolute left-0 top-0 bottom-0 z-10 w-28 md:w-40 hidden lg:flex items-center">
-        <InfiniteColumn direction={1} />
+      {/* Hanging Logos from Navbar - Left Side */}
+      <div className="absolute top-0 left-0 z-10 hidden lg:block">
+        <div className="flex gap-8 pl-12 pt-2">
+          {leftLogos.map((logo, index) => (
+            <HangingLogo key={`left-${index}`} logo={logo} index={index} />
+          ))}
+        </div>
       </div>
-      <div className="absolute right-0 top-0 bottom-0 z-10 w-28 md:w-40 hidden lg:flex items-center">
-        <InfiniteColumn direction={-1} />
+
+      {/* Hanging Logos from Navbar - Right Side */}
+      <div className="absolute top-0 right-0 z-10 hidden lg:block">
+        <div className="flex gap-8 pr-12 pt-2">
+          {rightLogos.map((logo, index) => (
+            <HangingLogo key={`right-${index}`} logo={logo} index={index} />
+          ))}
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 relative z-20 flex flex-col items-center text-center">
