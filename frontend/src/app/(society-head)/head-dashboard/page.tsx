@@ -119,32 +119,34 @@ export default function SocietyHeadOverviewPage() {
   const isLoading = societiesLoading || requestsLoading || membersLoading;
 
   const pendingRequests = useMemo(
-    () => (allRequests as any[]).filter((r) => r.status === "PENDING"),
+    () => Array.isArray(allRequests) ? allRequests.filter((r) => r.status === "PENDING") : [],
     [allRequests]
   );
   const pendingReviewRequests = useMemo(
-    () => (allRequests as any[]).filter((r) => r.status === "PENDING" && r.request_type === "REGISTER"),
+    () => Array.isArray(allRequests) ? allRequests.filter((r) => r.status === "PENDING" && r.request_type === "REGISTER") : [],
     [allRequests]
   );
   const pendingRenewRequests = useMemo(
-    () => (allRequests as any[]).filter((r) => r.status === "PENDING" && r.request_type === "RENEWAL"),
+    () => Array.isArray(allRequests) ? allRequests.filter((r) => r.status === "PENDING" && r.request_type === "RENEWAL") : [],
     [allRequests]
   );
   const approvedRequests = useMemo(
-    () => (allRequests as any[]).filter((r) => r.status === "APPROVED"),
+    () => Array.isArray(allRequests) ? allRequests.filter((r) => r.status === "APPROVED") : [],
     [allRequests]
   );
   const rejectedRequests = useMemo(
-    () => (allRequests as any[]).filter((r) => r.status === "REJECTED"),
+    () => Array.isArray(allRequests) ? allRequests.filter((r) => r.status === "REJECTED") : [],
     [allRequests]
   );
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    (societies as any[]).forEach((s) => {
-      const cat = s.category || "Other";
-      counts[cat] = (counts[cat] || 0) + 1;
-    });
+    if (Array.isArray(societies)) {
+      societies.forEach((s) => {
+        const cat = s.category || "Other";
+        counts[cat] = (counts[cat] || 0) + 1;
+      });
+    }
     return counts;
   }, [societies]);
 
@@ -152,7 +154,8 @@ export default function SocietyHeadOverviewPage() {
     const currentMonth = new Date().getMonth();
     const labels = MONTHS.slice(0, currentMonth + 1);
     const dataPoints = labels.map((_, i) => {
-      const count = (societies as any[]).filter((s) => {
+      if (!Array.isArray(societies)) return 0;
+      const count = societies.filter((s) => {
         const created = new Date(s.created_at || s.createdAt || Date.now());
         return created.getMonth() <= i;
       }).length;
@@ -193,7 +196,8 @@ export default function SocietyHeadOverviewPage() {
     const currentMonth = new Date().getMonth();
     const labels = MONTHS.slice(0, currentMonth + 1);
     const dataPoints = labels.map((_, i) => {
-      return (members as any[]).filter((m) => {
+      if (!Array.isArray(members)) return 0;
+      return members.filter((m) => {
         const d = new Date(m.created_at || m.createdAt || Date.now());
         return d.getMonth() === i;
       }).length;
@@ -214,18 +218,22 @@ export default function SocietyHeadOverviewPage() {
   }, [members]);
 
   const recentRequests = useMemo(
-    () =>
-      [...(allRequests as any[])]
+    () => {
+      if (!Array.isArray(allRequests)) return [];
+      return [...allRequests]
         .sort((a, b) => new Date(b.created_at || b.createdAt || 0).getTime() - new Date(a.created_at || a.createdAt || 0).getTime())
-        .slice(0, 6),
+        .slice(0, 6);
+    },
     [allRequests]
   );
 
   const recentSocieties = useMemo(
-    () =>
-      [...(societies as any[])]
+    () => {
+      if (!Array.isArray(societies)) return [];
+      return [...societies]
         .sort((a, b) => new Date(b.created_at || b.createdAt || 0).getTime() - new Date(a.created_at || a.createdAt || 0).getTime())
-        .slice(0, 4),
+        .slice(0, 4);
+    },
     [societies]
   );
 
@@ -298,11 +306,11 @@ export default function SocietyHeadOverviewPage() {
       </motion.div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-        <StatCard label="Active Societies" value={societies.length} icon={Building2} trend="up" trendLabel={`${societies.length} total`} accent="from-orange-50/80 to-transparent" delay={0} href="/head-dashboard/societies" />
-        <StatCard label="Platform Members" value={members.length} icon={Users} trend="up" trendLabel={`+${membersByMonth.datasets[0].data.slice(-1)[0] || 0} this month`} accent="from-orange-50/80 to-transparent" delay={0.07} href="/head-dashboard/members" />
+        <StatCard label="Active Societies" value={Array.isArray(societies) ? societies.length : 0} icon={Building2} trend="up" trendLabel={`${Array.isArray(societies) ? societies.length : 0} total`} accent="from-orange-50/80 to-transparent" delay={0} href="/head-dashboard/societies" />
+        <StatCard label="Platform Members" value={Array.isArray(members) ? members.length : 0} icon={Users} trend="up" trendLabel={`+${membersByMonth.datasets[0].data.slice(-1)[0] || 0} this month`} accent="from-orange-50/80 to-transparent" delay={0.07} href="/head-dashboard/members" />
         <StatCard label="Review Requests" value={pendingReviewRequests.length} icon={ListChecks} trend={pendingReviewRequests.length > 0 ? "neutral" : "up"} trendLabel={pendingReviewRequests.length > 0 ? "Needs review" : "All cleared"} accent="from-orange-50/80 to-transparent" delay={0.14} href="/head-dashboard/requests" />
         <StatCard label="Renew Requests" value={pendingRenewRequests.length} icon={RefreshCw} trend={pendingRenewRequests.length > 0 ? "neutral" : "up"} trendLabel={pendingRenewRequests.length > 0 ? "Pending renewal" : "All cleared"} accent="from-orange-50/80 to-transparent" delay={0.18} href="/head-dashboard/renewals" />
-        <StatCard label="Total Requests" value={(allRequests as any[]).length} icon={Layers} trend="up" trendLabel={`${approvedRequests.length} approved`} accent="from-orange-50/80 to-transparent" delay={0.21} href="/head-dashboard/requests" />
+        <StatCard label="Total Requests" value={Array.isArray(allRequests) ? allRequests.length : 0} icon={Layers} trend="up" trendLabel={`${approvedRequests.length} approved`} accent="from-orange-50/80 to-transparent" delay={0.21} href="/head-dashboard/requests" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -458,10 +466,10 @@ export default function SocietyHeadOverviewPage() {
           {
             icon: BarChart3,
             label: "Approval Rate",
-            value: (allRequests as any[]).length > 0
-              ? `${Math.round((approvedRequests.length / (allRequests as any[]).length) * 100)}%`
+            value: Array.isArray(allRequests) && allRequests.length > 0
+              ? `${Math.round((approvedRequests.length / allRequests.length) * 100)}%`
               : "—",
-            sub: `${approvedRequests.length} of ${(allRequests as any[]).length} approved`,
+            sub: `${approvedRequests.length} of ${Array.isArray(allRequests) ? allRequests.length : 0} approved`,
             bg: "bg-orange-50",
             iconColor: "text-orange-500",
           },
@@ -476,10 +484,10 @@ export default function SocietyHeadOverviewPage() {
           {
             icon: TrendingUp,
             label: "Avg. Members/Society",
-            value: societies.length > 0
-              ? Math.round(members.length / societies.length)
+            value: Array.isArray(societies) && societies.length > 0
+              ? Math.round((Array.isArray(members) ? members.length : 0) / societies.length)
               : 0,
-            sub: `Across ${societies.length} societies`,
+            sub: `Across ${Array.isArray(societies) ? societies.length : 0} societies`,
             bg: "bg-orange-50",
             iconColor: "text-orange-500",
           },
