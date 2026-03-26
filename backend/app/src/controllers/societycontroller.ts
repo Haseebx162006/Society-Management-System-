@@ -326,10 +326,23 @@ export const updateSocietyRequestStatus = catchAsync(async (req: AuthRequest, re
 
 
 export const getAllSocietiesAdmin = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
-        const societies = await Society.find({ status: { $ne: "DELETED" } })
-            .populate("created_by", "name email phone")
-            .populate("groups", "name")
-            .sort({ created_at: -1 });
+        const page = Math.max(1, parseInt(req.query.page as string) || 1);
+        const limit = Math.min(50, parseInt(req.query.limit as string) || 10);
+        const skip = (page - 1) * limit;
+
+        const query = { status: { $ne: "DELETED" } };
+
+        const [societies, total] = await Promise.all([
+            Society.find(query)
+                .select("name description category logo registration_fee created_by status renewal_approved")
+                .populate("created_by", "name email phone")
+                .populate("groups", "name")
+                .sort({ created_at: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Society.countDocuments(query)
+        ]);
 
         const societyIds = societies.map(s => s._id);
         const memberCounts = await SocietyUserRole.aggregate([
@@ -340,34 +353,56 @@ export const getAllSocietiesAdmin = catchAsync(async (req: AuthRequest, res: Res
         const presidentRoles = await SocietyUserRole.find({
             society_id: { $in: societyIds },
             role: "PRESIDENT"
-        }).populate("user_id", "name email phone");
+        }).populate("user_id", "name email phone").lean();
 
         const facultyAdvisorRoles = await SocietyUserRole.find({
             society_id: { $in: societyIds },
             role: "FACULTY ADVISOR"
-        }).populate("user_id", "name email phone");
+        }).populate("user_id", "name email phone").lean();
 
         const countMap = new Map(memberCounts.map((mc: any) => [mc._id.toString(), mc.count]));
         const presidentMap = new Map(presidentRoles.map(pr => [pr.society_id.toString(), pr]));
         const advisorMap = new Map(facultyAdvisorRoles.map(fa => [fa.society_id.toString(), fa]));
 
         const societiesWithCounts = societies.map(society => {
-            const societyObj = society.toObject();
-            (societyObj as any).membersCount = countMap.get(society._id.toString()) ?? 0;
-            (societyObj as any).president = presidentMap.get(society._id.toString())?.user_id ?? null;
-            (societyObj as any).faculty_advisor = advisorMap.get(society._id.toString())?.user_id ?? null;
-            return societyObj;
+            return {
+                ...society,
+                membersCount: countMap.get(society._id.toString()) ?? 0,
+                president: presidentMap.get(society._id.toString())?.user_id ?? null,
+                faculty_advisor: advisorMap.get(society._id.toString())?.user_id ?? null
+            };
         });
 
-        return sendResponse(res, 200, "Admin societies fetched successfully", societiesWithCounts);
+        return sendResponse(res, 200, "Admin societies fetched successfully", {
+            societies: societiesWithCounts,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        });
 
 });
 
 export const getAllSocieties = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
-        const societies = await Society.find({ status: "ACTIVE", renewal_approved: true })
-            .populate("created_by", "name email phone")
-            .populate("groups", "name")
-            .sort({ created_at: -1 });
+        const page = Math.max(1, parseInt(req.query.page as string) || 1);
+        const limit = Math.min(50, parseInt(req.query.limit as string) || 10);
+        const skip = (page - 1) * limit;
+
+        const query = { status: "ACTIVE", renewal_approved: true };
+
+        const [societies, total] = await Promise.all([
+            Society.find(query)
+                .select("name description category logo registration_fee created_by status")
+                .populate("created_by", "name email phone")
+                .populate("groups", "name")
+                .sort({ created_at: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Society.countDocuments(query)
+        ]);
 
         const societyIds = societies.map(s => s._id);
         const memberCounts = await SocietyUserRole.aggregate([
@@ -378,12 +413,21 @@ export const getAllSocieties = catchAsync(async (req: AuthRequest, res: Response
         const countMap = new Map(memberCounts.map((mc: any) => [mc._id.toString(), mc.count]));
 
         const societiesWithCounts = societies.map(society => {
-            const societyObj = society.toObject();
-            (societyObj as any).membersCount = countMap.get(society._id.toString()) ?? 0;
-            return societyObj;
+            return {
+                ...society,
+                membersCount: countMap.get(society._id.toString()) ?? 0
+            };
         });
 
-        return sendResponse(res, 200, "Societies fetched successfully", societiesWithCounts);
+        return sendResponse(res, 200, "Societies fetched successfully", {
+            societies: societiesWithCounts,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        });
 
 });
 

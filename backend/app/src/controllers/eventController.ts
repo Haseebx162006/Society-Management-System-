@@ -94,20 +94,58 @@ export const createEvent = catchAsync(async (req: AuthRequest, res: Response, ne
 
 export const getEventsBySociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
-        const events = await Event.find({ society_id })
-            .populate('registration_form', 'title fields')
-            .sort({ event_date: -1 })
-            .lean();  // ✅ PERF: No Mongoose overhead for read-only query
-        return sendResponse(res, 200, 'Events fetched successfully', events);
+        const page = Math.max(1, parseInt(req.query.page as string) || 1);
+        const limit = Math.min(50, parseInt(req.query.limit as string) || 10);
+        const skip = (page - 1) * limit;
+
+        const [events, total] = await Promise.all([
+            Event.find({ society_id })
+                .select("title description event_date venue event_type banner status is_public price")
+                .populate('registration_form', 'title fields')
+                .sort({ event_date: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Event.countDocuments({ society_id })
+        ]);
+
+        return sendResponse(res, 200, 'Events fetched successfully', {
+            events,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        });
 });
 
 export const getAllEventsAdmin = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
-        const events = await Event.find()
-            .populate('society_id', 'name description logo category')
-            .populate('registration_form', 'title fields description')
-            .sort({ event_date: -1 })
-            .lean();  // ✅ PERF: Prevent N+1 Mongoose hydration
-        return sendResponse(res, 200, 'All events fetched successfully', events);
+        const page = Math.max(1, parseInt(req.query.page as string) || 1);
+        const limit = Math.min(50, parseInt(req.query.limit as string) || 10);
+        const skip = (page - 1) * limit;
+
+        const [events, total] = await Promise.all([
+            Event.find()
+                .select("title description event_date venue event_type banner status is_public society_id price")
+                .populate('society_id', 'name logo category')
+                .populate('registration_form', 'title fields description')
+                .sort({ event_date: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Event.countDocuments()
+        ]);
+
+        return sendResponse(res, 200, 'All events fetched successfully', {
+            events,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        });
 });
 
 export const getAllPublicEvents = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -144,6 +182,7 @@ export const getAllPublicEvents = catchAsync(async (req: AuthRequest, res: Respo
 
         const [events, total] = await Promise.all([
             Event.find(query)
+                .select("title description event_date venue event_type banner status is_public society_id price max_participants")
                 .populate({
                     path: 'society_id',
                     select: 'name logo category',
@@ -172,12 +211,36 @@ export const getAllPublicEvents = catchAsync(async (req: AuthRequest, res: Respo
 
 export const getPublicEventsBySociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
-        const events = await Event.find({
+        const page = Math.max(1, parseInt(req.query.page as string) || 1);
+        const limit = Math.min(50, parseInt(req.query.limit as string) || 10);
+        const skip = (page - 1) * limit;
+
+        const query = {
             society_id,
             is_public: true,
             status: { $in: ['PUBLISHED', 'ONGOING'] }
-        }).populate('registration_form', 'title fields description').sort({ event_date: -1 });
-        return sendResponse(res, 200, 'Public events fetched successfully', events);
+        };
+
+        const [events, total] = await Promise.all([
+            Event.find(query)
+                .select("title description event_date venue event_type banner price max_participants")
+                .populate('registration_form', 'title fields description')
+                .sort({ event_date: -1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
+            Event.countDocuments(query)
+        ]);
+
+        return sendResponse(res, 200, 'Public events fetched successfully', {
+            events,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
+            }
+        });
 });
 
 export const getEventById = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {

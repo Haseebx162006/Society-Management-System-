@@ -180,7 +180,7 @@ export const eventApiSlice = apiSlice.injectEndpoints({
 
         getEventsBySociety: builder.query<EventData[], string>({
             query: (societyId) => `/society/${societyId}/events`,
-            transformResponse: (response: { data: EventData[] }) => response.data,
+            transformResponse: (response: { data: { events: EventData[], pagination: any } }) => response.data.events,
             providesTags: (result, _error, societyId) =>
                 result
                     ? [
@@ -192,7 +192,7 @@ export const eventApiSlice = apiSlice.injectEndpoints({
 
         getPublicEventsBySociety: builder.query<EventData[], string>({
             query: (societyId) => `/society/${societyId}/public-events`,
-            transformResponse: (response: { data: EventData[] }) => response.data,
+            transformResponse: (response: { data: { events: EventData[], pagination: any } }) => response.data.events,
             providesTags: (result) =>
                 result
                     ? result.map((e) => ({ type: "Event" as const, id: e._id }))
@@ -302,7 +302,7 @@ export const eventApiSlice = apiSlice.injectEndpoints({
 
         getAllEventsAdmin: builder.query<EventData[], void>({
             query: () => "/events/admin/all",
-            transformResponse: (response: { data: EventData[] }) => response.data,
+            transformResponse: (response: { data: { events: EventData[], pagination: any } }) => response.data.events,
             providesTags: (result) =>
                 result
                     ? [

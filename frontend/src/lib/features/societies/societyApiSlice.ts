@@ -28,12 +28,12 @@ export const societyApiSlice = apiSlice.injectEndpoints({
     getAllSocieties: builder.query({
         query: () => "/society",
         providesTags: ["Society"],
-        transformResponse: (response: { data: any }) => response.data,
+        transformResponse: (response: { data: any }) => response.data.societies || response.data,
     }),
     getAllSocietiesAdmin: builder.query({
         query: () => "/society/admin/all",
         providesTags: ["Society"],
-        transformResponse: (response: { data: any }) => response.data,
+        transformResponse: (response: { data: any }) => response.data.societies || response.data,
     }),
     getAllPlatformMembers: builder.query({
         query: () => "/society/members/all",
