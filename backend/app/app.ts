@@ -22,8 +22,20 @@ import { paginationLimiter } from './src/middleware/paginationLimiter';
 import { morganMiddleware } from './src/middleware/morganLogger';
 import { attachRequestMetadata } from './src/middleware/auditLogger';
 import logger from './src/util/logger';
+import compression from 'compression';
 
 const app = express();
+
+app.use(compression({
+    level: 6,
+    threshold: 1024,
+    filter: (req, res) => {
+        if (req.headers['x-no-compression']) {
+            return false;
+        }
+        return compression.filter(req, res);
+    }
+}));
 
 // Set request timeout globally (30 seconds for API operations)
 app.use((req: Request, res: Response, next: NextFunction) => {
