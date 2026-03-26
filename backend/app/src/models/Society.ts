@@ -170,4 +170,22 @@ societySchema.index({ category: 1, status: 1 });  // Filter by category
 // Text index for search
 societySchema.index({ name: 'text', description: 'text' });
 
+import { invalidateCache } from '../util/cache';
+
+societySchema.post('save', function() {
+  invalidateCache('society');
+});
+societySchema.post('findOneAndUpdate', function() {
+  invalidateCache('society');
+});
+societySchema.post('findOneAndDelete', function() {
+  invalidateCache('society');
+});
+societySchema.post('updateOne', function() {
+  invalidateCache('society');
+});
+societySchema.post('deleteOne', function() {
+  invalidateCache('society');
+});
+
 export default mongoose.model<ISociety>("Society", societySchema);

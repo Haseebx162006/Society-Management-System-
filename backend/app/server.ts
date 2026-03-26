@@ -3,8 +3,10 @@ dotenv.config();
 
 import app from './app';
 import db from './src/db/db';
+import { connectRedis } from './src/config/redis';
 
 db();
+connectRedis();
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

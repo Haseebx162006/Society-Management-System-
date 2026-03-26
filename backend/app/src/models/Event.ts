@@ -142,4 +142,22 @@ eventSchema.index({
     event_date: -1
 });
 
+import { invalidateCache } from '../util/cache';
+
+eventSchema.post('save', function() {
+  invalidateCache('events');
+});
+eventSchema.post('findOneAndUpdate', function() {
+  invalidateCache('events');
+});
+eventSchema.post('findOneAndDelete', function() {
+  invalidateCache('events');
+});
+eventSchema.post('updateOne', function() {
+  invalidateCache('events');
+});
+eventSchema.post('deleteOne', function() {
+  invalidateCache('events');
+});
+
 export default mongoose.model<IEvent>('Event', eventSchema);

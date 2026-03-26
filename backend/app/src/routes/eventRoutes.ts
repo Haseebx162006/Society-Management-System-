@@ -4,6 +4,7 @@ import { optionalProtect } from '../middleware/optionalProtect';
 import { authorize } from '../middleware/authorize';
 import { upload } from '../middleware/multer.middleware';
 import { eventRegistrationLimiter, exportLimiter } from '../middleware/rateLimiters';
+import { cacheMiddleware } from '../middleware/cache';
 import {
     createEventForm,
     getEventFormsBySociety,
@@ -42,12 +43,14 @@ router.get(
     '/society/:id/event-forms',
     protect,
     authorize(['PRESIDENT', 'EVENT MANAGER'], 'SOCIETY'),
+    cacheMiddleware(120),
     getEventFormsBySociety
 );
 router.get(
     '/society/:id/event-forms/:formId',
     protect,
     authorize(['PRESIDENT', 'EVENT MANAGER'], 'SOCIETY'),
+    cacheMiddleware(120),
     getEventFormById
 );
 router.put(
@@ -74,12 +77,14 @@ router.get(
     '/society/:id/events',
     protect,
     authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'SPONSOR MANAGER'], 'SOCIETY'),
+    cacheMiddleware(120),
     getEventsBySociety
 );
 router.get(
     '/society/:id/events/:eventId',
     protect,
     authorize(['PRESIDENT', 'EVENT MANAGER', 'FINANCE MANAGER', 'LEAD', 'CO-LEAD', 'SPONSOR MANAGER'], 'SOCIETY'),
+    cacheMiddleware(120),
     getEventById
 );
 router.put(
@@ -98,15 +103,18 @@ router.delete(
 
 router.get(
     '/events',
+    cacheMiddleware(120),
     getAllPublicEvents
 );
 router.get(
     '/society/:id/public-events',
+    cacheMiddleware(120),
     getPublicEventsBySociety
 );
 router.get(
     '/events/:eventId',
     optionalProtect,
+    cacheMiddleware(120),
     getEventById
 );
 

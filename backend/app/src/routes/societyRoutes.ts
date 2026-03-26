@@ -4,6 +4,7 @@ import { authorize } from '../middleware/authorize';
 import { upload } from '../middleware/multer.middleware';
 import { memberOperationsLimiter, adminActionLimiter, societyCreationLimiter } from '../middleware/rateLimiters';
 import { validateRequest } from '../middleware/validate';
+import { cacheMiddleware } from '../middleware/cache';
 import { createPresidentSchema, updatePresidentDetailsSchema } from '../validators/societyValidator';
 import {
     createSocietyRequest,
@@ -46,12 +47,12 @@ router.put('/requests/:id', protect, adminOrSocietyHead, updateSocietyRequestSta
 
 // ✅ ADD RATE LIMITER: Prevent spam society creation
 router.post('/', protect, societyCreationLimiter, upload.single("logo"), createSociety);
-router.get('/manageable', protect, getMyManageableSocieties);
-router.get('/admin/all', protect, adminOrSocietyHead, getAllSocietiesAdmin);
-router.get('/', getAllSocieties);
-router.get('/members/all', protect, adminOrSocietyHead, getAllPlatformMembers);
-router.get('/:id/request', protect, getSocietyRequestForSociety);
-router.get('/:id', getSocietyById);
+router.get('/manageable', protect, cacheMiddleware(300), getMyManageableSocieties);
+router.get('/admin/all', protect, adminOrSocietyHead, cacheMiddleware(300), getAllSocietiesAdmin);
+router.get('/', cacheMiddleware(300), getAllSocieties);
+router.get('/members/all', protect, adminOrSocietyHead, cacheMiddleware(300), getAllPlatformMembers);
+router.get('/:id/request', protect, cacheMiddleware(300), getSocietyRequestForSociety);
+router.get('/:id', cacheMiddleware(300), getSocietyById);
 router.put('/:id', protect, authorize(['PRESIDENT'], 'SOCIETY'), upload.single("logo"), updateSociety);
 router.delete('/:id', protect, adminOnly, deleteSociety);
 
