@@ -89,7 +89,7 @@ const eventSchema = new Schema<IEvent>({
         title: { type: String, required: true },
         content: { type: String, required: true }
     }],
-    tags: [{ type: String }],
+    tags: [{ type: String, default: [] }],
     is_public: {
         type: Boolean,
         default: true

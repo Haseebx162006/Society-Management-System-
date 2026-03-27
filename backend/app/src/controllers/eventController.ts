@@ -19,6 +19,7 @@ import path from 'path';
 import fs from 'fs';
 
 const safeParse = (data: any, fallback: any = []) => {
+    if (data === undefined || data === null) return fallback;
     if (typeof data === 'string') {
         try {
             return JSON.parse(data);
@@ -100,7 +101,7 @@ export const getEventsBySociety = catchAsync(async (req: AuthRequest, res: Respo
 
         const [events, total] = await Promise.all([
             Event.find({ society_id })
-                .select("title description event_date venue event_type banner status is_public price")
+                .select("title description event_date venue event_type banner status is_public price tags")
                 .populate('registration_form', 'title fields')
                 .sort({ event_date: -1 })
                 .skip(skip)
@@ -127,7 +128,7 @@ export const getAllEventsAdmin = catchAsync(async (req: AuthRequest, res: Respon
 
         const [events, total] = await Promise.all([
             Event.find()
-                .select("title description event_date venue event_type banner status is_public society_id price")
+                .select("title description event_date venue event_type banner status is_public society_id price tags")
                 .populate('society_id', 'name logo category')
                 .populate('registration_form', 'title fields description')
                 .sort({ event_date: -1 })
@@ -182,7 +183,7 @@ export const getAllPublicEvents = catchAsync(async (req: AuthRequest, res: Respo
 
         const [events, total] = await Promise.all([
             Event.find(query)
-                .select("title description event_date venue event_type banner status is_public society_id price max_participants")
+                .select("title description event_date venue event_type banner status is_public society_id price max_participants tags")
                 .populate({
                     path: 'society_id',
                     select: 'name logo category',
@@ -223,7 +224,7 @@ export const getPublicEventsBySociety = catchAsync(async (req: AuthRequest, res:
 
         const [events, total] = await Promise.all([
             Event.find(query)
-                .select("title description event_date venue event_type banner price max_participants")
+                .select("title description event_date venue event_type banner price max_participants tags")
                 .populate('registration_form', 'title fields description')
                 .sort({ event_date: -1 })
                 .skip(skip)

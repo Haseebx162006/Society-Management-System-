@@ -241,7 +241,7 @@ export default function SocietyDetailsPage() {
                         {/* Custom Content Sections */}
                         {society.content_sections?.length > 0 && (
                             <div className="prose prose-lg prose-orange max-w-none">
-                                {society.content_sections.map((section: any, index: number) => (
+                                {society.content_sections?.map((section: any, index: number) => (
                                     <div key={index} className="mb-10 last:mb-0">
                                         <h3 className="font-display text-2xl font-bold text-stone-900 mb-4 flex items-center gap-3">
                                             {section.title}
@@ -263,7 +263,7 @@ export default function SocietyDetailsPage() {
                                      Additional Specs
                                 </h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {society.custom_fields.map((field: any, index: number) => (
+                                    {society.custom_fields?.map((field: any, index: number) => (
                                         <div key={index} className="bg-stone-50 p-4 rounded-2xl border border-stone-100">
                                             <p className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-1">
                                                 {field.label}
@@ -320,7 +320,7 @@ export default function SocietyDetailsPage() {
                                     Frequently Asked Questions
                                 </h3>
                                 <div className="space-y-3">
-                                    {society.faqs.map((faq: any, index: number) => (
+                                    {society.faqs?.map((faq: any, index: number) => (
                                         <FaqItem key={index} faq={faq} />
                                     ))}
                                 </div>

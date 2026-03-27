@@ -141,7 +141,7 @@ const SocietyEventsSection: React.FC<SocietyEventsSectionProps> = ({ societyId, 
                                 
                                 <div className="mt-4 pt-4 border-t border-stone-100 flex justify-between items-center">
                                     <div className="flex flex-wrap gap-2">
-                                        {event.tags.map((tag, i) => (
+                                        {event.tags?.map((tag: string, i: number) => (
                                             <span key={i} className="text-[10px] font-bold text-stone-400 uppercase tracking-tighter">#{tag}</span>
                                         ))}
                                     </div>
