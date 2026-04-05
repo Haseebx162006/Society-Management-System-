@@ -49,7 +49,7 @@ export const societyApiSlice = apiSlice.injectEndpoints({
     getAllPlatformMembers: builder.query({
         query: () => "/society/members/all",
         providesTags: ["SocietyMember"],
-        transformResponse: (response: { data: any }) => response.data,
+        transformResponse: (response: { data: any }) => response.data.members || response.data,
     }),
     getMyManageableSocieties: builder.query({
         query: () => "/society/manageable",
