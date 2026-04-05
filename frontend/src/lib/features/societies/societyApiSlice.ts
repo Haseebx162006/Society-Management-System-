@@ -26,9 +26,20 @@ export const societyApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: ["User", "Society"],
     }),
     getAllSocieties: builder.query({
-        query: () => "/society",
+        query: (params?: { page?: number; limit?: number }) => {
+            const searchParams = new URLSearchParams();
+            if (params?.page) searchParams.append('page', String(params.page));
+            if (params?.limit) searchParams.append('limit', String(params.limit));
+            const qs = searchParams.toString();
+            return `/society${qs ? `?${qs}` : ''}`;
+        },
         providesTags: ["Society"],
         transformResponse: (response: { data: any }) => response.data.societies || response.data,
+    }),
+    getFeaturedSocieties: builder.query({
+        query: () => "/society/featured",
+        providesTags: ["Society"],
+        transformResponse: (response: { data: any }) => response.data,
     }),
     getAllSocietiesAdmin: builder.query({
         query: () => "/society/admin/all",
@@ -175,6 +186,7 @@ export const {
   useCreateSocietyRequestMutation,
   useCreateSocietyMutation,
   useGetAllSocietiesQuery,
+  useGetFeaturedSocietiesQuery,
   useGetAllPlatformMembersQuery,
   useGetMyManageableSocietiesQuery,
   useGetSocietyRequestsQuery,

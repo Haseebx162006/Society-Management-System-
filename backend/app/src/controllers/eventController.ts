@@ -210,6 +210,30 @@ export const getAllPublicEvents = catchAsync(async (req: AuthRequest, res: Respo
         });
 });
 
+export const getFeaturedEvents = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
+        const query: any = {
+            is_public: true,
+            status: { $in: ['PUBLISHED', 'ONGOING'] }
+        };
+
+        const events = await Event.find(query)
+            .select("title description event_date venue event_type banner status is_public society_id price max_participants tags")
+            .populate({
+                path: 'society_id',
+                select: 'name logo category',
+            })
+            .populate({
+                path: 'registration_form',
+                select: 'title fields description',
+            })
+            .sort({ event_date: 1 })
+            .limit(5)
+            .lean();
+
+        // the frontend EventShowcase expects ALL public events format or just { events: [...] }
+        return sendResponse(res, 200, 'Featured public events fetched successfully', { events });
+});
+
 export const getPublicEventsBySociety = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const { id: society_id } = req.params;
         const page = Math.max(1, parseInt(req.query.page as string) || 1);

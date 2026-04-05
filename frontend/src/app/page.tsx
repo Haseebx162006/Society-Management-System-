@@ -9,6 +9,8 @@ import CTA from "@/components/marketing/CTA";
 import Footer from "@/components/marketing/Footer";
 import Header from "@/components/Header";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 export default function Home() {
   return (
@@ -28,7 +30,10 @@ export default function Home() {
                   >
                       <h2 className="text-5xl md:text-7xl font-black text-stone-900 mb-8 tracking-tighter">
                           Student <span className="text-orange-600 italic">Societies</span>.
-                      </h2>                      
+                      </h2>
+                      <Link href="/societies" className="inline-flex items-center gap-2 px-6 py-3 bg-stone-900 text-white rounded-full font-medium hover:bg-stone-800 transition-colors shadow-sm">
+                          View All Societies <ArrowRight className="w-4 h-4" />
+                      </Link>
                   </motion.div>
               </div>
             </div>
@@ -44,7 +49,10 @@ export default function Home() {
                   >
                       <h2 className="text-5xl md:text-7xl font-black text-stone-900 mb-8 tracking-tighter">
                           Upcoming <span className="text-orange-600 italic">Events</span>.
-                      </h2>                      
+                      </h2>
+                      <Link href="/events" className="inline-flex items-center gap-2 px-6 py-3 bg-stone-900 text-white rounded-full font-medium hover:bg-stone-800 transition-colors shadow-sm">
+                          View All Events <ArrowRight className="w-4 h-4" />
+                      </Link>
                   </motion.div>
               </div>
             </div>

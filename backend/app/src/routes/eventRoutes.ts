@@ -28,7 +28,8 @@ import {
     sendMailToParticipants,
     getMyRegistration,
     getAllEventsAdmin,
-    getEventRegistrationsAdmin
+    getEventRegistrationsAdmin,
+    getFeaturedEvents
 } from '../controllers/eventController';
 
 const router = express.Router();
@@ -101,6 +102,11 @@ router.delete(
     deleteEvent
 );
 
+router.get(
+    '/events/featured',
+    cacheMiddleware(120),
+    getFeaturedEvents
+);
 router.get(
     '/events',
     cacheMiddleware(120),

@@ -178,6 +178,18 @@ export const eventApiSlice = apiSlice.injectEndpoints({
                     : [{ type: "Event" as const, id: "ALL_PUBLIC" }],
         }),
 
+        getFeaturedEvents: builder.query<EventData[], void>({
+            query: () => "/events/featured",
+            transformResponse: (response: { data: { events: EventData[] } }) => response.data.events,
+            providesTags: (result) =>
+                result
+                    ? [
+                        ...result.map((e) => ({ type: "Event" as const, id: e._id })),
+                        { type: "Event" as const, id: "FEATURED_EVENTS" },
+                    ]
+                    : [{ type: "Event" as const, id: "FEATURED_EVENTS" }],
+        }),
+
         getEventsBySociety: builder.query<EventData[], string>({
             query: (societyId) => `/society/${societyId}/events`,
             transformResponse: (response: { data: { events: EventData[], pagination: any } }) => response.data.events,
@@ -365,6 +377,7 @@ export const {
     useDeleteEventFormMutation,
     // Events
     useGetAllPublicEventsQuery,
+    useGetFeaturedEventsQuery,
     useGetEventsBySocietyQuery,
     useGetPublicEventsBySocietyQuery,
     useGetEventByIdQuery,

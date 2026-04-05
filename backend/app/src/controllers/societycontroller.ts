@@ -431,6 +431,31 @@ export const getAllSocieties = catchAsync(async (req: AuthRequest, res: Response
 
 });
 
+export const getFeaturedSocieties = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
+        const query = { status: "ACTIVE", renewal_approved: true };
+
+        const societies = await Society.find(query)
+            .select("name description category logo registration_fee created_by status")
+            .sort({ created_at: -1 })
+            .limit(5)
+            .lean();
+
+        const societyIds = societies.map(s => s._id);
+        const memberCounts = await SocietyUserRole.aggregate([
+            { $match: { society_id: { $in: societyIds } } },
+            { $group: { _id: "$society_id", count: { $sum: 1 } } }
+        ]);
+
+        const countMap = new Map(memberCounts.map((mc: any) => [mc._id.toString(), mc.count]));
+
+        const societiesWithCounts = societies.map(society => ({
+            ...society,
+            membersCount: countMap.get(society._id.toString()) ?? 0
+        }));
+
+        return sendResponse(res, 200, "Featured societies fetched successfully", societiesWithCounts);
+});
+
 export const getMyManageableSocieties = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
         const userRoles = await SocietyUserRole.find({
             user_id: req.user!._id,

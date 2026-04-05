@@ -32,7 +32,10 @@ const customFormat = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.errors({ stack: true }),
     winston.format.splat(),
-    winston.format.json()
+    winston.format.printf(({ timestamp, level, message, ...meta }) => {
+        const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
+        return `[${timestamp}] [${level}] ${message}${metaStr}`;
+    })
 );
 
 // Error log format
@@ -98,12 +101,14 @@ if (canUseFileTransport) {
 // Always add console transport as fallback/primary in production containers
 transportsList.push(
     new winston.transports.Console({
-        format: process.env.NODE_ENV === 'production' 
-            ? winston.format.json()
-            : winston.format.combine(
-                winston.format.colorize(),
-                winston.format.simple()
-            ),
+        format: winston.format.combine(
+            winston.format.colorize(),
+            winston.format.timestamp({ format: 'HH:mm:ss' }),
+            winston.format.printf(({ timestamp, level, message, ...meta }) => {
+                const metaStr = Object.keys(meta).length ? ` ${JSON.stringify(meta)}` : '';
+                return `\x1b[90m[${timestamp}]\x1b[0m ${level}: ${message}${metaStr}`;
+            })
+        ),
     })
 );
 
@@ -112,18 +117,6 @@ const logger = winston.createLogger({
     format: customFormat,
     transports: transportsList,
 });
-
-// Add console transport in development
-if (process.env.NODE_ENV !== 'production') {
-    logger.add(
-        new winston.transports.Console({
-            format: winston.format.combine(
-                winston.format.colorize(),
-                winston.format.simple()
-            ),
-        })
-    );
-}
 
 // Log uncaught exceptions - only to file if available, otherwise console handles it
 if (canUseFileTransport) {

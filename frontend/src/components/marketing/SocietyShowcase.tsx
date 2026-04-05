@@ -40,7 +40,7 @@ const GRADIENTS = [
 const DEFAULT_IMAGE = "/logo.png?v=1";
 
 export default function SocietyShowcase() {
-  const { data: societiesData, isLoading } = useGetAllSocietiesQuery({});
+  const { data: societiesData, isLoading } = useGetAllSocietiesQuery({ limit: 5 });
   
   const displaySocieties = useMemo<DisplaySociety[]>(() => {
     if (!societiesData || !Array.isArray(societiesData)) return [];
@@ -78,9 +78,28 @@ export default function SocietyShowcase() {
 
   if (isLoading) {
       return (
-          <div className="h-[800px] w-full bg-gray-900 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-orange-500"></div>
-          </div>
+          <section className="relative h-[800px] w-full overflow-hidden bg-gray-900 items-center border-t border-gray-800">
+              <div className="absolute inset-0 bg-gray-900" />
+              <div className="relative z-20 container mx-auto px-6 h-full flex flex-col md:flex-row items-center gap-12 py-24">
+                  <div className="flex-1 w-full space-y-8 animate-pulse">
+                      <div className="h-6 bg-gray-800 rounded-full w-24 mb-4" />
+                      <div className="h-16 md:h-20 bg-gray-800 rounded-xl w-3/4 mb-6" />
+                      <div className="h-4 bg-gray-800 rounded-md w-full max-w-2xl" />
+                      <div className="h-4 bg-gray-800 rounded-md w-5/6 max-w-xl mb-8" />
+                      <div className="flex items-center gap-8 mb-10">
+                          <div className="h-5 bg-gray-800 rounded-md w-32" />
+                      </div>
+                      <div className="h-14 bg-gray-800 rounded-full w-40" />
+                  </div>
+              </div>
+              <div className="absolute bottom-0 right-0 w-full md:w-auto h-auto z-30 flex flex-col items-end pb-8 pl-4">
+                  <div className="flex space-x-6 overflow-x-auto pb-4 px-8 w-full md:w-[600px]">
+                      {[1, 2, 3, 4].map((i) => (
+                          <div key={i} className="relative shrink-0 w-48 h-72 rounded-xl bg-gray-800 animate-pulse border border-gray-700/50" />
+                      ))}
+                  </div>
+              </div>
+          </section>
       );
   }
 
@@ -202,7 +221,7 @@ export default function SocietyShowcase() {
               <span className="text-orange-600 font-bold text-sm tracking-widest uppercase">Explore</span>
               <h2 className="text-4xl font-black text-stone-900 italic">Student Societies</h2>
             </div>
-            {displaySocieties.slice(0, 4).map((society, index) => (
+            {displaySocieties.slice(0, 5).map((society, index) => (
               <motion.div
                 key={society.id}
                 initial={{ opacity: 0, y: 20 }}

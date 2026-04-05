@@ -32,7 +32,8 @@ import {
     createPresident,
     compareSocietyRequest,
     changeFacultyAdvisor,
-    updatePresidentDetails
+    updatePresidentDetails,
+    getFeaturedSocieties
 } from '../controllers/societycontroller';
 
 const router = express.Router();
@@ -49,6 +50,7 @@ router.put('/requests/:id', protect, adminOrSocietyHead, updateSocietyRequestSta
 router.post('/', protect, societyCreationLimiter, upload.single("logo"), createSociety);
 router.get('/manageable', protect, cacheMiddleware(300), getMyManageableSocieties);
 router.get('/admin/all', protect, adminOrSocietyHead, cacheMiddleware(300), getAllSocietiesAdmin);
+router.get('/featured', cacheMiddleware(300), getFeaturedSocieties);
 router.get('/', cacheMiddleware(300), getAllSocieties);
 router.get('/members/all', protect, adminOrSocietyHead, cacheMiddleware(300), getAllPlatformMembers);
 router.get('/:id/request', protect, cacheMiddleware(300), getSocietyRequestForSociety);

@@ -32,9 +32,9 @@ morgan.token('request-id', (req: any) => {
 });
 
 /**
- * Custom format combining useful information
+ * Custom format combining useful information for development
  */
-const customFormat = ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent" :response-time ms';
+const customFormat = ':method :url :status :response-time ms - :res[content-length]';
 
 /**
  * Create Morgan middleware with Winston integration
