@@ -503,7 +503,20 @@ const EventManager: React.FC<EventManagerProps> = ({ societyId }) => {
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    onChange={(e) => setBannerFile(e.target.files?.[0] || null)}
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+                                            if (file.size > MAX_SIZE) {
+                                                toast.error("Image size large, image cannot be larger than this size: 5MB");
+                                                e.target.value = ""; // Clear input
+                                                return;
+                                            }
+                                            setBannerFile(file);
+                                        } else {
+                                            setBannerFile(null);
+                                        }
+                                    }}
                                     className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none text-slate-800 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-orange-50 file:text-orange-600 file:font-medium file:cursor-pointer"
                                 />
                                 {selectedEvent?.banner && !bannerFile && (

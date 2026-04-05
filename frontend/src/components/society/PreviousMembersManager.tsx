@@ -30,6 +30,13 @@ const PreviousMembersManager: React.FC<PreviousMembersManagerProps> = ({ society
         const file = e.target.files?.[0];
         if (!file) return;
 
+        const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+        if (file.size > MAX_SIZE) {
+            toast.error("File size large, file cannot be larger than this size: 5MB");
+            e.target.value = ""; // Clear input
+            return;
+        }
+
         // Validate file type
         const validTypes = [
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

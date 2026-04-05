@@ -238,8 +238,15 @@ const DocumentationPage: React.FC<DocumentationPageProps> = ({ societyId }) => {
                                         type="file"
                                         required
                                         onChange={(e) => {
-                                            if (e.target.files && e.target.files.length > 0) {
-                                                setFile(e.target.files[0]);
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+                                                if (file.size > MAX_SIZE) {
+                                                    toast.error("File size large, file cannot be larger than this size: 5MB");
+                                                    e.target.value = ""; // Clear input
+                                                    return;
+                                                }
+                                                setFile(file);
                                             }
                                         }}
                                         className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-orange-700 hover:file:bg-orange-100"

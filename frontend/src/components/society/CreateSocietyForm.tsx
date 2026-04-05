@@ -383,18 +383,24 @@ const CreateSocietyForm = ({ initialData, isEditing = false, isModal = true, onC
                          {/* Logo Upload */}
                          <div>
                             <label className="block text-sm font-medium text-stone-700 mb-1">Society Logo</label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => {
-                                    if (e.target.files && e.target.files[0]) {
-                                        const file = e.target.files[0];
-                                        setLogo(file);
-                                        setPreview(URL.createObjectURL(file));
-                                    }
-                                }}
-                                className="w-full bg-white border border-stone-200 rounded-lg px-4 py-3 text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-500"
-                            />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+                                            if (file.size > MAX_SIZE) {
+                                                toast.error("Image size large, image cannot be larger than this size: 5MB");
+                                                e.target.value = ""; // Clear input
+                                                return;
+                                            }
+                                            setLogo(file);
+                                            setPreview(URL.createObjectURL(file));
+                                        }
+                                    }}
+                                    className="w-full bg-white border border-stone-200 rounded-lg px-4 py-3 text-stone-900 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-600 file:text-white hover:file:bg-orange-500"
+                                />
                             {preview && (
                                 <div className="mt-4 relative w-32 h-32 rounded-lg overflow-hidden border border-stone-200">
                                     <img src={preview} alt="Society Logo Preview" className="w-full h-full object-cover" />
