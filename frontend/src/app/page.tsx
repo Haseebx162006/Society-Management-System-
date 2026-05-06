@@ -1,5 +1,6 @@
 'use client'
 import Hero from "@/components/marketing/Hero";
+import Collaboration from "@/components/marketing/Collaboration";
 import Features from "@/components/marketing/Features";
 import SocietyShowcase from "@/components/marketing/SocietyShowcase";
 import EventShowcase from "@/components/marketing/EventShowcase";
@@ -17,8 +18,8 @@ export default function Home() {
     <main className="min-h-screen bg-[#fffdfa] font-(--font-family-poppins) selection:bg-orange-600 selection:text-white">
       <Header />
       <Hero />
+      <Collaboration />
       <div className="relative">
-          {/* <Integrations /> */}
           <Features />
           <div className="py-5 relative overflow-hidden">
               <div className="max-w-7xl mx-auto px-6 text-center">
