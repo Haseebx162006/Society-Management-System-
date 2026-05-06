@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import Header from "@/components/Header";
 import Footer from "@/components/marketing/Footer";
 import Image from "next/image";
-import { Rocket, Target, Shield, Users, ArrowRight, Zap, Globe, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { Rocket, Target, Shield, Users, ArrowRight, Zap, Globe, Sparkles, Github, Linkedin } from "lucide-react";
 
 const stats = [
     { label: "Active Societies", value: "50+" },
@@ -17,14 +18,24 @@ const founders = [
     {
         name: "Hussain Jamal",
         role: "Lead Architect & Full-Stack Developer",
+        tag: "CTEC - Technical Lead",
         image: "/logos/my-1.jpeg",
-        bio: "Driving the technological evolution of campus communities through innovation and strategy."
+        bio: "Driving the technological evolution of campus communities through innovation and strategy.",
+        socials: {
+            github: "https://github.com/hussainjamal760",
+            linkedin: "https://www.linkedin.com/in/hussain-jamal-b5a76531a/"
+        }
     },
     {
         name: "Haseeb Ahmed",
         role: "Lead Architect & Backend Developer",
+        tag: "CTEC - Technical Co-Lead",
         image: "/logos/my-2.jpeg",
-        bio: "Crafting seamless operational workflows for modern society management."
+        bio: "Crafting seamless operational workflows for modern society management.",
+        socials: {
+            github: "https://github.com/Haseebx162006",
+            linkedin: "https://www.linkedin.com/in/haseeb-ahmad-6b506a355/"
+        }
     }
 ];
 
@@ -165,8 +176,13 @@ export default function AboutPage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: i * 0.2 }}
-                            className="bg-stone-50 rounded-3xl p-8 border border-stone-100 hover:border-orange-200 hover:shadow-2xl hover:shadow-orange-100/50 transition-all group"
+                            className="bg-stone-50 rounded-3xl p-8 border border-stone-100 hover:border-orange-200 hover:shadow-2xl hover:shadow-orange-100/50 transition-all group relative overflow-hidden"
                         >
+                            <div className="absolute top-0 left-0 z-20">
+                                <div className="bg-orange-600 text-white text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 rounded-br-2xl shadow-lg">
+                                    {founder.tag}
+                                </div>
+                            </div>
                             <div className="relative w-full aspect-square rounded-2xl overflow-hidden mb-8 scale-95 group-hover:scale-100 transition-transform duration-500">
                                 <Image 
                                     src={founder.image} 
@@ -180,7 +196,24 @@ export default function AboutPage() {
                             </div>
                             <h3 className="text-2xl font-black text-stone-900 mb-1">{founder.name}</h3>
                             <p className="text-orange-600 font-bold text-sm uppercase tracking-widest mb-4">{founder.role}</p>
-                            <p className="text-stone-500 leading-relaxed italic">&ldquo;{founder.bio}&rdquo;</p>
+                            <p className="text-stone-500 leading-relaxed italic mb-8">&ldquo;{founder.bio}&rdquo;</p>
+                            
+                            <div className="flex items-center gap-4 pt-4 border-t border-stone-200/60">
+                                <Link 
+                                    href={founder.socials.github} 
+                                    target="_blank" 
+                                    className="p-3 rounded-xl bg-white border border-stone-200 text-stone-600 hover:text-orange-600 hover:border-orange-200 hover:shadow-lg transition-all"
+                                >
+                                    <Github className="w-5 h-5" />
+                                </Link>
+                                <Link 
+                                    href={founder.socials.linkedin} 
+                                    target="_blank" 
+                                    className="p-3 rounded-xl bg-white border border-stone-200 text-stone-600 hover:text-orange-600 hover:border-orange-200 hover:shadow-lg transition-all"
+                                >
+                                    <Linkedin className="w-5 h-5" />
+                                </Link>
+                            </div>
                         </motion.div>
                     ))}
                 </div>
@@ -216,4 +249,3 @@ export default function AboutPage() {
     );
 }
 
-import Link from "next/link";
