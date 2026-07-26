@@ -69,7 +69,7 @@ export const confirmEntry = catchAsync(async (req: AuthRequest, res: Response, _
             entry_confirmed_by: req.user!._id,
             entry_confirmed_at: new Date(),
         },
-        { new: true }
+        { returnDocument: 'after' }
     );
 
     if (!result) {

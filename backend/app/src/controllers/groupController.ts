@@ -222,7 +222,7 @@ export const assignLeadership = async (req: AuthRequest, res: Response, next: Ne
                 assigned_by: req.user!._id,
                 updated_at: new Date()
             },
-            { upsert: true, new: true, session }
+            { upsert: true, returnDocument: 'after', session }
         );
 
         await session.commitTransaction();

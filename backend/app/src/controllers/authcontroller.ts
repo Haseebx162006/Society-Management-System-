@@ -60,7 +60,7 @@ export const signup = catchAsync(async (req: Request, res: Response, next: NextF
             },
             { 
                 upsert: true,  // Create if doesn't exist
-                new: true 
+                returnDocument: 'after' 
             }
         );
 
@@ -176,7 +176,7 @@ export const resendSignupOTP = catchAsync(async (req: Request, res: Response, ne
             },
             { 
                 upsert: true,
-                new: true 
+                returnDocument: 'after' 
             }
         );
 
@@ -217,7 +217,7 @@ export const forgotPassword = catchAsync(async (req: Request, res: Response, nex
             },
             { 
                 upsert: true,
-                new: true 
+                returnDocument: 'after' 
             }
         );
 
