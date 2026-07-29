@@ -312,7 +312,7 @@ export const resetPassword = catchAsync(async (req: Request, res: Response, next
 export const login = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { email, password } = req.body;
 
-        const finduser = await User.findOne({ email });
+        const finduser = await User.findOne({ email }).select('+password');
 
         if (!finduser) {
             return sendError(res, 401, "Invalid email or password");

@@ -77,7 +77,7 @@ export const getProfile = catchAsync(async (req: AuthRequest, res: Response, nex
 
 export const changePassword = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { currentPassword, newPassword } = req.body;
-    const user = await User.findById(req.user!._id);
+    const user = await User.findById(req.user!._id).select('+password');
 
     if (!user) {
         return sendError(res, 404, "User not found");

@@ -32,7 +32,8 @@ const userSchema: Schema<IUser> = new Schema({
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        select: false
     },
     phone: {
         type: String,
