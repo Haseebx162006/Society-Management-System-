@@ -408,13 +408,13 @@ export default function SocietyHeadSocietiesPage() {
                           </div>
                           <div className="max-h-60 overflow-y-auto space-y-2">
                               {(allUsers as any[]).filter(u => 
-                                  u.name.toLowerCase().includes(userSearchQuery.toLowerCase()) || 
-                                  u.email.toLowerCase().includes(userSearchQuery.toLowerCase())
+                                  (u.name || '').toLowerCase().includes((userSearchQuery || '').toLowerCase()) || 
+                                  (u.email || '').toLowerCase().includes((userSearchQuery || '').toLowerCase())
                               ).map(user => (
                                   <div key={user._id} className="flex items-center justify-between p-3 border rounded-xl hover:border-blue-300 hover:bg-blue-50/50 transition-colors">
                                       <div>
-                                          <p className="font-semibold text-sm text-stone-800">{user.name}</p>
-                                          <p className="text-xs text-stone-500">{user.email}</p>
+                                          <p className="font-semibold text-sm text-stone-800">{user.name || 'Unknown User'}</p>
+                                          <p className="text-xs text-stone-500">{user.email || 'No email'}</p>
                                       </div>
                                       <button 
                                           onClick={() => handleAdvisorChange(user._id)}
@@ -424,7 +424,10 @@ export default function SocietyHeadSocietiesPage() {
                                       </button>
                                   </div>
                               ))}
-                              {userSearchQuery && (allUsers as any[]).filter(u => u.name.toLowerCase().includes(userSearchQuery.toLowerCase()) || u.email.toLowerCase().includes(userSearchQuery.toLowerCase())).length === 0 && (
+                              {userSearchQuery && (allUsers as any[]).filter(u => 
+                                  (u.name || '').toLowerCase().includes((userSearchQuery || '').toLowerCase()) || 
+                                  (u.email || '').toLowerCase().includes((userSearchQuery || '').toLowerCase())
+                              ).length === 0 && (
                                   <p className="text-sm text-stone-500 text-center py-4">No users found.</p>
                               )}
                           </div>

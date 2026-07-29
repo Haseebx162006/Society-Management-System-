@@ -149,7 +149,7 @@ export const societyApiSlice = apiSlice.injectEndpoints({
     getAllUsers: builder.query({
       query: () => "/user/all",
       providesTags: ["User"],
-      transformResponse: (response: { data: unknown }) => response.data,
+      transformResponse: (response: { data: { users: any[] } }) => response.data.users,
     }),
     createPresident: builder.mutation({
       query: ({ societyId, ...body }: { societyId: string; name: string; email: string; phone: string; password: string }) => ({

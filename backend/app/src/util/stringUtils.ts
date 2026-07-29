@@ -114,7 +114,7 @@ export const maskUserData = (user: any): any => {
     const { password, locked_until, failed_login_attempts, ...safeUser } = user;
 
     return {
-        id: safeUser._id,
+        _id: safeUser._id,
         name: safeUser.name,
         email: safeUser.email,
         is_super_admin: safeUser.is_super_admin,
