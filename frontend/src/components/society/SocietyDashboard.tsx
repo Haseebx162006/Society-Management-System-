@@ -5,6 +5,7 @@ import { MdGroups, MdEvent } from 'react-icons/md';
 import { FaUsers, FaArrowRight, FaBars } from 'react-icons/fa';
 import { useGetEventsBySocietyQuery } from '@/lib/features/events/eventApiSlice';
 import { useGetSocietyRequestForSocietyQuery } from '@/lib/features/societies/societyApiSlice';
+import { useGetJoinRequestsForSocietyQuery } from '@/lib/features/join/joinApiSlice';
 import { Lock } from 'lucide-react';
 
 import DashboardSidebar from '@/components/society/DashboardSidebar';
@@ -65,6 +66,8 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
   const [activeTab, setActiveTab] = React.useState(isApproved ? 'overview' : 'renewal-form');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const { data: events } = useGetEventsBySocietyQuery(society._id);
+  const { data: joinRequests = [] } = useGetJoinRequestsForSocietyQuery({ societyId: society._id });
+  
   const { data: societyRequest, isLoading: isRequestLoading } = useGetSocietyRequestForSocietyQuery({ societyId: society._id, type: 'REGISTER' }, { 
     skip: activeTab !== 'review-form'
   });
@@ -83,6 +86,87 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
       });
       return member?.role || 'MEMBER';
   }, [user, society.members]);
+
+  // Compute dynamic stats
+  const pendingRequests = useMemo(() => joinRequests.filter((r: any) => r.status === 'PENDING'), [joinRequests]);
+  const approvedRequests = useMemo(() => joinRequests.filter((r: any) => r.status === 'APPROVED'), [joinRequests]);
+  const rejectedRequests = useMemo(() => joinRequests.filter((r: any) => r.status === 'REJECTED'), [joinRequests]);
+
+  const growthData = useMemo(() => {
+    if (!society.members || society.members.length === 0) return null;
+
+    const sortedMembers = [...society.members].sort((a, b) => 
+      new Date(a.assigned_at).getTime() - new Date(b.assigned_at).getTime()
+    );
+
+    const monthsMap: Record<string, number> = {};
+    let cumulativeCount = 0;
+
+    sortedMembers.forEach((m) => {
+        if (!m.assigned_at) return;
+        const date = new Date(m.assigned_at);
+        const key = date.toLocaleString('default', { month: 'short' }).toUpperCase();
+        cumulativeCount++;
+        monthsMap[key] = cumulativeCount;
+    });
+
+    return {
+      labels: Object.keys(monthsMap),
+      datasets: [
+        {
+          label: 'Growth',
+          data: Object.values(monthsMap),
+        },
+      ],
+    };
+  }, [society.members]);
+
+  const teamDistributionData = useMemo(() => {
+    if (!society.groups || !society.members) return null;
+
+    const groupCounts: Record<string, number> = {};
+    const groupNames: Record<string, string> = {};
+
+    society.groups.forEach((g) => {
+      const gId = g._id.toString();
+      groupCounts[gId] = 0;
+      groupNames[gId] = g.name;
+    });
+    
+    let unassignedCount = 0;
+
+    society.members.forEach((m) => {
+        let groupId = m.group_id;
+        let gIdString = '';
+        if (groupId) {
+          gIdString = typeof groupId === 'object' ? groupId._id.toString() : groupId.toString();
+        }
+
+        if (gIdString && groupCounts[gIdString] !== undefined) {
+            groupCounts[gIdString]++;
+        } else {
+            unassignedCount++;
+        }
+    });
+
+    return {
+      labels: [...Object.values(groupNames), 'General Members'],
+      data: [...Object.values(groupCounts), unassignedCount],
+    };
+  }, [society.groups, society.members]);
+
+  const recentActivities = useMemo(() => {
+    if (!society.members || society.members.length === 0) return [];
+    return [...society.members]
+      .sort((a, b) => new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime())
+      .slice(0, 5)
+      .map((m) => ({
+        id: m.user_id?._id || Math.random().toString(),
+        title: `${m.user_id?.name || 'New Member'} joined as ${m.role.replace('_', ' ')}`,
+        time: m.assigned_at ? new Date(m.assigned_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently',
+        type: 'join' as const
+      }));
+  }, [society.members]);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex font-sans">
@@ -111,7 +195,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
         <TopBar user={user} role={currentUserRole} onOpenSidebar={() => setIsSidebarOpen(true)} />
 
         {/* Main Content Area */}
-        <main className="flex-1 pt-20 p-6 md:p-8 overflow-y-auto">
+        <main className="flex-1 pt-28 p-6 md:p-8 overflow-y-auto">
           {(!isApproved && activeTab !== 'renewal-form' && activeTab !== 'review-form') ? (
             <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-2xl border border-slate-100 shadow-sm">
               <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center mb-6">
@@ -158,31 +242,40 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
 
                   {/* Row 1: KPI Stats Cards */}
                   <KPIStats 
-                    totalSocieties={48} 
-                    totalMembers={society.members?.length || 6842} 
-                    pendingReviews={12} 
-                    pendingRenewals={8} 
+                    totalMembers={society.members?.length || 0} 
+                    totalTeams={society.groups?.length || 0} 
+                    eventsCount={events?.length || 0} 
+                    pendingRequestsCount={pendingRequests.length} 
                   />
 
                   {/* Row 2: Analytics Charts */}
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2">
-                      <GrowthChart />
+                      <GrowthChart data={growthData} />
                     </div>
                     <div>
-                      <RequestOverview />
+                      <RequestOverview 
+                        pendingCount={pendingRequests.length} 
+                        approvedCount={approvedRequests.length} 
+                        rejectedCount={rejectedRequests.length} 
+                      />
                     </div>
                   </div>
 
                   {/* Row 3: Society Insights */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <CategoryChart />
-                    <HealthStatus />
+                    <CategoryChart teamsData={teamDistributionData} />
+                    <HealthStatus 
+                      activeMembers={society.members?.length || 0}
+                      reviewCount={pendingRequests.length}
+                      suspendedCount={rejectedRequests.length}
+                      renewalApproved={isApproved}
+                    />
                   </div>
 
                   {/* Row 4: Activity and Action List */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <ActivityFeed />
+                    <ActivityFeed activities={recentActivities} />
                     <AttentionNeeded onAction={(action) => {
                       if (action === 'registration') {
                         setActiveTab('join-requests');
@@ -197,6 +290,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
                   {/* Row 5: Bottom Platform Insights Banner */}
                   <PlatformInsights />
                 </div>
+
               ) : activeTab === 'join-form' ? (
                 <JoinFormManager societyId={society._id} />
               ) : activeTab === 'join-requests' ? (

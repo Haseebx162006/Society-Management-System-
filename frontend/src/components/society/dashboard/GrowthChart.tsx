@@ -11,7 +11,6 @@ import {
   Tooltip,
   Legend,
   Filler,
-  ScriptableContext,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import { LineChart as AddChartIcon } from 'lucide-react';
@@ -27,12 +26,26 @@ ChartJS.register(
   Filler
 );
 
-const GrowthChart: React.FC = () => {
+interface GrowthChartProps {
+  data?: {
+    labels: string[];
+    datasets: {
+      label: string;
+      data: number[];
+      [key: string]: any;
+    }[];
+  } | null;
+}
+
+const GrowthChart: React.FC<GrowthChartProps> = ({ data }) => {
   const chartRef = useRef<any>(null);
   const [chartData, setChartData] = useState<any>({
-    labels: ['JAN', 'MAR', 'MAY', 'JUL', 'SEP', 'NOV', 'DEC'],
+    labels: [],
     datasets: [],
   });
+
+  const defaultLabels = ['JAN', 'MAR', 'MAY', 'JUL', 'SEP', 'NOV', 'DEC'];
+  const defaultDataPoints = [5, 8, 12, 18, 22, 28, 35];
 
   useEffect(() => {
     const chart = chartRef.current;
@@ -43,12 +56,17 @@ const GrowthChart: React.FC = () => {
     gradient.addColorStop(0, 'rgba(163, 57, 0, 0.2)');
     gradient.addColorStop(1, 'rgba(163, 57, 0, 0)');
 
+    const finalLabels = data?.labels && data.labels.length > 0 ? data.labels : defaultLabels;
+    const finalDataPoints = data?.datasets?.[0]?.data && data.datasets[0].data.length > 0
+      ? data.datasets[0].data
+      : defaultDataPoints;
+
     setChartData({
-      labels: ['JAN', 'MAR', 'MAY', 'JUL', 'SEP', 'NOV', 'DEC'],
+      labels: finalLabels,
       datasets: [
         {
-          label: 'Society Growth',
-          data: [15, 20, 18, 25, 22, 38, 48],
+          label: 'Members Registered',
+          data: finalDataPoints,
           borderColor: '#a33900',
           borderWidth: 3,
           pointBackgroundColor: '#a33900',
@@ -62,7 +80,7 @@ const GrowthChart: React.FC = () => {
         },
       ],
     });
-  }, []);
+  }, [data]);
 
   const options = {
     responsive: true,
@@ -113,12 +131,12 @@ const GrowthChart: React.FC = () => {
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col h-full">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-bold text-slate-800">Society Growth</h3>
-          <p className="text-xs text-slate-400">Annual member and society registration trends</p>
+          <h3 className="text-lg font-bold text-slate-800">Member Growth</h3>
+          <p className="text-xs text-slate-400">Chronological registration and membership trends</p>
         </div>
         <div className="flex items-center gap-1.5 bg-orange-50 text-orange-600 px-3 py-1.5 rounded-xl font-bold text-xs">
           <AddChartIcon className="w-4 h-4" />
-          +24% Year over Year
+          Active Growth
         </div>
       </div>
       <div className="relative flex-1 min-h-[220px]">
