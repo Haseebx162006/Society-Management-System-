@@ -208,17 +208,20 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
         onClose={() => setIsSidebarOpen(false)}
         role={currentUserRole}
         renewal_approved={isApproved}
+        user={user}
       />
 
       {/* Backdrop */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+      <div 
+        className={`fixed inset-0 bg-black/20 backdrop-blur-[1px] z-40 transition-opacity duration-300 ${
+          isSidebarOpen 
+            ? 'opacity-100 pointer-events-auto' 
+            : 'opacity-0 pointer-events-none peer-hover:opacity-100 peer-hover:pointer-events-auto'
+        }`}
+        onClick={() => setIsSidebarOpen(false)}
+      />
 
-      <div className="flex-1 lg:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
+      <div className="flex-1 lg:ml-20 p-4 md:p-8 overflow-y-auto h-screen transition-all duration-300 ease-in-out">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-4">
             <button 

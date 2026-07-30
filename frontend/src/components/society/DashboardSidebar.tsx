@@ -13,9 +13,10 @@ interface DashboardSidebarProps {
   onClose: () => void;
   role?: string;
   renewal_approved?: boolean;
+  user?: any;
 }
 
-const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiveTab, isOpen, onClose, role = 'MEMBER', renewal_approved = true }) => {
+const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiveTab, isOpen, onClose, role = 'MEMBER', renewal_approved = true, user }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const refreshToken = useAppSelector(selectRefreshToken);
@@ -33,6 +34,10 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
       router.push("/");
     }
   };
+
+  const userInitials = user?.name
+    ? user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+    : 'U';
 
   const navigationGroups = [
     {
@@ -76,13 +81,13 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
   })).filter(group => group.items.length > 0);
 
   return (
-    <div className={`fixed inset-y-0 left-0 w-64 bg-white border-r border-slate-200 flex flex-col h-screen overflow-y-auto shadow-sm z-50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-      <div className="p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-10">
+    <div className={`fixed inset-y-0 left-0 w-64 lg:w-20 lg:hover:w-64 bg-white border-r border-slate-200 flex flex-col h-screen overflow-y-auto overflow-x-hidden shadow-sm z-50 transform transition-all duration-300 ease-in-out lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'} group peer`}>
+      <div className="p-6 lg:p-4 lg:group-hover:p-6 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-10 transition-all duration-300">
         <h2 className="text-xl font-extrabold text-orange-600 tracking-tight flex items-center gap-2">
-          <span className="bg-orange-600 text-white rounded-lg p-1.5 text-xs">
+          <span className="bg-orange-600 text-white rounded-lg p-1.5 text-xs flex-shrink-0">
              {role === 'PRESIDENT' ? 'SA' : role === 'FACULTY ADVISOR' ? 'FA' : role === 'FINANCE MANAGER' ? 'FM' : role === 'EVENT MANAGER' ? 'EM' : role === 'SPONSOR MANAGER' ? 'SM' : role === 'DOCUMENTATION MANAGER' ? 'DM' : 'MB'}
           </span>
-          <span className="text-sm font-bold truncate max-w-[140px]" title={role}>
+          <span className="text-sm font-bold truncate max-w-[140px] lg:opacity-0 lg:max-w-0 lg:group-hover:opacity-100 lg:group-hover:max-w-[140px] transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap" title={role}>
              {role === 'PRESIDENT' ? 'Society Admin' : role === 'FACULTY ADVISOR' ? 'Faculty Advisor' : role.replace('_', ' ')}
           </span>
         </h2>
@@ -97,7 +102,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
       <nav className="flex-1 p-4 space-y-6">
         {filteredGroups.map((group) => (
           <div key={group.title} className="space-y-1">
-            <h3 className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+            <h3 className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 lg:opacity-0 lg:max-w-0 lg:group-hover:opacity-100 lg:group-hover:max-w-full transition-all duration-300 whitespace-nowrap overflow-hidden">
               {group.title}
             </h3>
             <div className="space-y-1">
@@ -114,7 +119,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
                         onClose();
                       }
                     }}
-                    className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all font-medium text-sm group ${
+                    className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all font-medium text-sm group/btn ${
                       activeTab === item.id
                         ? 'bg-orange-600 text-white shadow-md shadow-orange-200'
                         : isLocked 
@@ -123,12 +128,16 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className={`text-lg ${activeTab === item.id ? 'text-white' : 'text-slate-400 group-hover:text-orange-600'}`}>
+                      <span className={`text-lg flex-shrink-0 ${activeTab === item.id ? 'text-white' : 'text-slate-400 group-hover/btn:text-orange-600'}`}>
                         {item.icon}
                       </span>
-                      <span>{item.label}</span>
+                      <span className="lg:opacity-0 lg:max-w-0 lg:group-hover:opacity-100 lg:group-hover:max-w-xs transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap">{item.label}</span>
                     </div>
-                    {isLocked && <Lock className="w-3.5 h-3.5 text-slate-300" />}
+                    {isLocked && (
+                      <div className="lg:opacity-0 lg:max-w-0 lg:group-hover:opacity-100 lg:group-hover:max-w-xs transition-all duration-300 overflow-hidden">
+                        <Lock className="w-3.5 h-3.5 text-slate-300" />
+                      </div>
+                    )}
                   </button>
                 );
               })}
@@ -140,17 +149,17 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ activeTab, setActiv
       <div className="p-4 border-t border-slate-100 space-y-1 bg-slate-50/50">
         <button 
           onClick={() => router.push('/')}
-          className="w-full flex items-center gap-3 text-slate-500 hover:text-orange-600 hover:bg-orange-50 p-2.5 rounded-xl transition-all font-medium text-sm group"
+          className="w-full flex items-center gap-3 text-slate-500 hover:text-orange-600 hover:bg-orange-50 p-2.5 rounded-xl transition-all font-medium text-sm group/btn"
         >
-          <span className="text-lg text-slate-400 group-hover:text-orange-600"><FaHome /></span>
-          <span>Return Home</span>
+          <span className="text-lg text-slate-400 group-hover/btn:text-orange-600 flex-shrink-0"><FaHome /></span>
+          <span className="lg:opacity-0 lg:max-w-0 lg:group-hover:opacity-100 lg:group-hover:max-w-xs transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap">Return Home</span>
         </button>
         <button 
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 text-slate-500 hover:text-red-600 hover:bg-red-50 p-2.5 rounded-xl transition-all font-medium text-sm group"
+          className="w-full flex items-center gap-3 text-slate-500 hover:text-red-600 hover:bg-red-50 p-2.5 rounded-xl transition-all font-medium text-sm group/btn"
         >
-          <span className="text-lg text-slate-400 group-hover:text-red-600"><FaSignOutAlt /></span>
-          <span>Log Out</span>
+          <span className="text-lg text-slate-400 group-hover/btn:text-red-600 flex-shrink-0"><FaSignOutAlt /></span>
+          <span className="lg:opacity-0 lg:max-w-0 lg:group-hover:opacity-100 lg:group-hover:max-w-xs transition-all duration-300 ease-in-out overflow-hidden whitespace-nowrap">Log Out</span>
         </button>
       </div>
     </div>
