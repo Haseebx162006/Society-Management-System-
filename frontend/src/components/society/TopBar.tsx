@@ -20,7 +20,7 @@ const TopBar: React.FC<TopBarProps> = ({ user, role = 'System Administrator', on
     : 'A';
 
   return (
-    <header className="fixed top-0 left-0 lg:left-20 right-0 h-20 bg-white/80 backdrop-blur-xl z-40 border-b border-slate-100 px-6 md:px-8 flex items-center justify-between transition-all duration-300">
+    <header className="sticky top-0 w-full h-20 bg-white/80 backdrop-blur-xl z-40 border-b border-slate-100 px-6 md:px-8 flex items-center justify-between transition-all duration-300">
       <div className="flex items-center gap-4 flex-1 max-w-md">
         {onOpenSidebar && (
           <button

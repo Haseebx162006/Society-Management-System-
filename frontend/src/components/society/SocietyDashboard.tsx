@@ -195,7 +195,7 @@ const SocietyDashboard: React.FC<SocietyDashboardProps> = ({ society }) => {
         <TopBar user={user} role={currentUserRole} onOpenSidebar={() => setIsSidebarOpen(true)} />
 
         {/* Main Content Area */}
-        <main className="flex-1 pt-28 p-6 md:p-8 overflow-y-auto">
+        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
           {(!isApproved && activeTab !== 'renewal-form' && activeTab !== 'review-form') ? (
             <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-2xl border border-slate-100 shadow-sm">
               <div className="w-20 h-20 rounded-full bg-amber-50 flex items-center justify-center mb-6">
