@@ -11,80 +11,87 @@ import fs from 'fs';
 // President uploads an .xlsx/.xls file. The first column should contain emails.
 
 export const uploadPreviousMembers = catchAsync(async (req: AuthRequest, res: Response, next: NextFunction) => {
-        const { id: society_id } = req.params;
-        const file = req.file;
+    const { id: society_id } = req.params;
+    const file = req.file;
 
-        if (!file) {
-            return sendError(res, 400, 'Please upload an Excel file');
+    if (!file) {
+        return sendError(res, 400, 'Please upload an Excel file');
+    }
+
+    try {
+        // 1. Read the Excel file
+        const workbook = XLSX.readFile(file.path);
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const rows: any[] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        // 2. Scan ALL rows and ALL columns for email addresses
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailSet = new Set<string>();
+
+        for (const row of rows) {
+            if (!Array.isArray(row)) continue;
+            for (const cell of row) {
+                if (cell && typeof cell === 'string' && emailRegex.test(cell.trim())) {
+                    emailSet.add(cell.trim().toLowerCase());
+                }
+            }
         }
 
-        try {
-            // 1. Read the Excel file
-            const workbook = XLSX.readFile(file.path);
-            const sheetName = workbook.SheetNames[0];
-            const sheet = workbook.Sheets[sheetName];
-            const rows: any[] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        const emails = Array.from(emailSet);
 
-            // 2. Scan ALL rows and ALL columns for email addresses
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const emailSet = new Set<string>();
+        if (emails.length === 0) {
+            return sendError(res, 400, 'No valid emails found in the Excel file.');
+        }
 
-            for (const row of rows) {
-                if (!Array.isArray(row)) continue;
-                for (const cell of row) {
-                    if (cell && typeof cell === 'string' && emailRegex.test(cell.trim())) {
-                        emailSet.add(cell.trim().toLowerCase());
-                    }
-                }
+        // 3. Check which emails have registered accounts
+        const existingUsers = await User.find(
+            { email: { $in: emails } },
+            { email: 1 }
+        );
+        const registeredEmails = new Set(existingUsers.map(u => u.email.toLowerCase()));
+
+        // 4. Build documents with has_account flag
+        const docs = emails.map(email => ({
+            society_id,
+            email,
+            has_account: registeredEmails.has(email),
+            uploaded_by: req.user!._id
+        }));
+
+        // insertMany with ordered:false continues past duplicates
+        const result = await PreviousMember.insertMany(docs, { ordered: false }).catch(err => {
+            if (err.code === 11000 && err.insertedDocs) {
+                return err.insertedDocs;
             }
-
-            const emails = Array.from(emailSet);
-
-            if (emails.length === 0) {
-                return sendError(res, 400, 'No valid emails found in the Excel file.');
+            if (err.code === 11000) {
+                return [];
             }
+            throw err;
+        });
 
-            // 3. Check which emails have registered accounts
-            const existingUsers = await User.find(
-                { email: { $in: emails } },
-                { email: 1 }
-            );
-            const registeredEmails = new Set(existingUsers.map(u => u.email.toLowerCase()));
+        const insertedCount = Array.isArray(result) ? result.length : 0;
+        const withAccount = emails.filter(e => registeredEmails.has(e));
+        const withoutAccount = emails.filter(e => !registeredEmails.has(e));
 
-            // 4. Build documents with has_account flag
-            const docs = emails.map(email => ({
-                society_id,
-                email,
-                has_account: registeredEmails.has(email),
-                uploaded_by: req.user!._id
-            }));
-
-            // insertMany with ordered:false continues past duplicates
-            const result = await PreviousMember.insertMany(docs, { ordered: false }).catch(err => {
-                if (err.code === 11000 && err.insertedDocs) {
-                    return err.insertedDocs;
-                }
-                if (err.code === 11000) {
-                    return [];
-                }
-                throw err;
-            });
-
-            const insertedCount = Array.isArray(result) ? result.length : 0;
-            const withAccount = emails.filter(e => registeredEmails.has(e));
-            const withoutAccount = emails.filter(e => !registeredEmails.has(e));
-
-            return sendResponse(res, 201, `${insertedCount} email(s) added. ${withAccount.length} have accounts, ${withoutAccount.length} do not.`, {
-                totalEmailsInFile: emails.length,
-                added: insertedCount,
-                hasAccount: withAccount.length,
-                unregistered: withoutAccount.length
-            });
-        } finally {
-            if (fs.existsSync(file.path)) {
+        return sendResponse(res, 201, `${insertedCount} email(s) added. ${withAccount.length} have accounts, ${withoutAccount.length} do not.`, {
+            newly_added: insertedCount,
+            with_account: withAccount.length,
+            without_account: withoutAccount.length,
+            unregistered_emails: withoutAccount
+        });
+    } catch (error: any) {
+        console.error("Error in uploadPreviousMembers:", error);
+        return sendError(res, 500, error.message || 'Internal Server Error during upload');
+    } finally {
+        if (file && fs.existsSync(file.path)) {
+            try {
                 fs.unlinkSync(file.path);
+            } catch (unlinkErr) {
+                console.error("Failed to delete temp file:", unlinkErr);
             }
         }
+    }
 });
 
 // ─── Get All Previous Member Emails for a Society ────────────────────────────

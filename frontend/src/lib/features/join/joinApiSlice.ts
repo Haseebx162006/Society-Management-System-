@@ -54,6 +54,7 @@ export interface Team {
 export interface PublicFormResponse {
     form: JoinForm;
     teams: Team[];
+    isPreviousMember?: boolean;
 }
 
 // -- API Slice --

@@ -5,6 +5,7 @@ import JoinForm from '../models/JoinForm';
 import Society from '../models/Society';
 import Group from '../models/Group';
 import { sendResponse, sendError } from '../util/response';
+import PreviousMember from '../models/PreviousMember';
 
 // ─── Create Form 
 
@@ -141,9 +142,23 @@ export const getJoinFormPublic = catchAsync(async (req: AuthRequest, res: Respon
             .select('name description')
             .sort({ name: 1 });
 
+        let isPreviousMember = false;
+        if (req.user) {
+            const normalizedEmail = req.user.email.trim().toLowerCase();
+            const societyId = typeof form.society_id === 'object' ? (form.society_id as any)._id : form.society_id;
+            const prevMem = await PreviousMember.findOne({
+                society_id: societyId,
+                email: normalizedEmail
+            });
+            if (prevMem) {
+                isPreviousMember = true;
+            }
+        }
+
         return sendResponse(res, 200, 'Form fetched successfully', {
             form,
-            teams
+            teams,
+            isPreviousMember
         });
 
 });

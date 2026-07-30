@@ -82,6 +82,7 @@ export default function JoinFormPage() {
   };
 
   const validate = (): boolean => {
+    if (formData?.isPreviousMember) return true;
     const errors: Record<string, string> = {};
     for (const field of sortedFields) {
       if (!field.is_required) continue;
@@ -100,20 +101,24 @@ export default function JoinFormPage() {
     e.preventDefault();
     if (!validate()) return;
 
-    const formattedResponses: FormResponse[] = sortedFields.map((field) => ({
-      field_label: field.label,
-      field_type: field.field_type,
-      value: field.field_type === "FILE" ? "__pending_upload__" : (responses[field.label] as string) ?? "",
-    }));
+    const formattedResponses: FormResponse[] = formData?.isPreviousMember
+      ? []
+      : sortedFields.map((field) => ({
+          field_label: field.label,
+          field_type: field.field_type,
+          value: field.field_type === "FILE" ? "__pending_upload__" : (responses[field.label] as string) ?? "",
+        }));
 
     const bodyData = new FormData();
     bodyData.append("responses", JSON.stringify(formattedResponses));
     if (selectedTeams.length > 0) bodyData.append("selected_teams", JSON.stringify(selectedTeams));
-    for (const key in fileInputs) bodyData.append(key, fileInputs[key]);
+    if (!formData?.isPreviousMember) {
+      for (const key in fileInputs) bodyData.append(key, fileInputs[key]);
+    }
 
     try {
       await submitRequest({ formId: formId as string, body: bodyData }).unwrap();
-      toast.success("Joined successfully!");
+      toast.success(formData?.isPreviousMember ? "Auto-approved as previous member!" : "Joined successfully!");
       router.push("/profile");
     } catch (err: any) {
       toast.error(err?.data?.message || "Submission failed.");
@@ -168,7 +173,17 @@ export default function JoinFormPage() {
             </p>
             {form.description && <p className="text-slate-500 leading-relaxed text-sm">{form.description}</p>}
             
-            {(form.society_id as any).registration_fee > 0 && (form.society_id as any).payment_info && (() => {
+            {formData?.isPreviousMember ? (
+              <div className="mt-8 p-6 bg-green-50 rounded-2xl border border-green-150 border-green-100 animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="flex items-center gap-2 mb-2 text-green-800 font-bold text-sm tracking-tight uppercase">
+                  <CheckCircle2 className="w-5 h-5 text-green-600" />
+                  <h4>Previous Member Detected</h4>
+                </div>
+                <p className="text-sm text-green-700 leading-relaxed font-semibold">
+                  You are already a previous member of this society, so no payment proof is required. Welcome!
+                </p>
+              </div>
+            ) : (form.society_id as any).registration_fee > 0 && (form.society_id as any).payment_info && (() => {
               const society = form.society_id as any;
               const fee = society.registration_fee;
               const discounts: Array<{ discount_percentage: number; start_date: string; end_date: string; label: string }> = society.discounts || [];
@@ -243,7 +258,7 @@ export default function JoinFormPage() {
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="bg-white rounded-3xl border border-slate-200/60 shadow-sm p-8 space-y-8">
-              {sortedFields.map((field) => (
+              {!formData?.isPreviousMember && sortedFields.map((field) => (
                 <div key={field.label} className="group">
                   <label className="block text-sm font-bold text-slate-700 mb-3 ml-1 transition-colors group-focus-within:text-orange-600">
                     {field.label} {field.is_required && <span className="text-orange-500">*</span>}
