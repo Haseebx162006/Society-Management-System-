@@ -13,7 +13,7 @@ import MemberBarChart from '@/components/charts/MemberBarChart';
 
 const AdminDashboard: React.FC = () => {
   const user = useAppSelector(selectCurrentUser);
-  const [activeTab, setActiveTab] = React.useState('overview');
+  const [activeTab, setActiveTab] = React.useState('members');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   
   const { data: societies, isLoading: isLoadingSocieties } = useGetAllSocietiesQuery(undefined);
@@ -150,51 +150,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        {activeTab === 'overview' ? (
-          <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-slate-500 text-sm font-medium mb-1">Total Societies</p>
-                    <h4 className="text-3xl font-bold text-slate-800">{isLoading ? '...' : totalSocieties}</h4>
-                  </div>
-                  <span className="text-2xl p-3 rounded-xl bg-orange-50 text-orange-600">
-                    <FaUniversity />
-                  </span>
-                </div>
-              </div>
-
-              <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-slate-500 text-sm font-medium mb-1">Total Platform Members</p>
-                    <h4 className="text-3xl font-bold text-slate-800">{isLoading ? '...' : totalMembers}</h4>
-                  </div>
-                  <span className="text-2xl p-3 rounded-xl bg-orange-50 text-orange-600">
-                    <FaUsers />
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-lg font-semibold text-slate-800 mb-6">Society Growth</h3>
-                <div className="h-64">
-                   {growthData && <GrowthLineChart data={growthData} />}
-                </div>
-              </div>
-              
-              <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-                <h3 className="text-lg font-semibold text-slate-800 mb-6">Members by Society</h3>
-                <div className="h-64 flex justify-center">
-                  {societyDistributionData && <MemberBarChart data={societyDistributionData} />}
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : activeTab === 'members' ? (
+        {activeTab === 'members' ? (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
             <AdminMembers />
           </div>
