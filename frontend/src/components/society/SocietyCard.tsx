@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Users, DoorOpen, DoorClosed } from "lucide-react";
+import { ArrowRight, DoorOpen, DoorClosed } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface SocietyCardProps {
@@ -79,13 +79,6 @@ export default function SocietyCard({
         <p className="text-stone-600 text-base mb-6 line-clamp-2 grow">
           {description}
         </p>
-
-        <div className="flex items-center gap-4 mb-6 text-sm text-stone-500 font-medium bg-stone-50 p-3 rounded-lg border border-stone-100">
-             <div className="flex items-center gap-1.5">
-                <Users className="w-4 h-4 text-orange-500" />
-                <span>{stats.members} Member{stats.members !== "1" ? "s" : ""}</span>
-             </div>
-        </div>
 
         <Link
           href={`/societies/${id}`}
