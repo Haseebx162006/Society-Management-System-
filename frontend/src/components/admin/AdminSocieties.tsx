@@ -4,7 +4,7 @@ import {
   useGetSocietyMembersQuery,
   useChangePresidentMutation 
 } from '@/lib/features/societies/societyApiSlice';
-import { FaUserTie, FaUsers, FaDownload, FaTimes, FaExchangeAlt, FaCheckCircle } from 'react-icons/fa';
+import { FaUserTie, FaDownload, FaTimes, FaExchangeAlt, FaCheckCircle } from 'react-icons/fa';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Image from 'next/image';
@@ -167,15 +167,6 @@ const AdminSocieties: React.FC = () => {
                             <span className="font-semibold text-slate-700">{society.president?.name || society.created_by?.name || "Unknown"}</span>
                           </span>
                         </div>
-                        
-                      </div>
-                      <div className="w-full h-px bg-slate-200"></div>
-                      <div className="flex items-center gap-2 w-full">
-                        <FaUsers className="text-slate-400" />
-                        <span>
-                          Members:<br/>
-                          <span className="font-semibold text-slate-700">{society.membersCount || 0}</span>
-                        </span>
                       </div>
                     </div>
                   </div>

@@ -23,8 +23,9 @@ const hashOTP = async (otp: string): Promise<string> => {
 
 export const signup = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { name, email, password } = req.body;
+        const normalizedEmail = email ? email.toLowerCase().trim() : '';
 
-        const userFind = await User.findOne({ email });
+        const userFind = await User.findOne({ email: normalizedEmail });
         if (userFind && userFind.email_verified) {
             return sendError(res, 400, "User already exists with this email");
         }
@@ -35,7 +36,7 @@ export const signup = catchAsync(async (req: Request, res: Response, next: NextF
 
         const user = await User.create({
             name,
-            email,
+            email: normalizedEmail,
             password,
             phone: req.body.phone || "",
             email_verified: false,
@@ -311,8 +312,9 @@ export const resetPassword = catchAsync(async (req: Request, res: Response, next
 
 export const login = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
         const { email, password } = req.body;
+        const normalizedEmail = email ? email.toLowerCase().trim() : '';
 
-        const finduser = await User.findOne({ email }).select('+password');
+        const finduser = await User.findOne({ email: normalizedEmail }).select('+password');
 
         if (!finduser) {
             return sendError(res, 401, "Invalid email or password");

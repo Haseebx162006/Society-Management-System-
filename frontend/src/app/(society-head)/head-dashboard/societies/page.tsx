@@ -293,11 +293,7 @@ export default function SocietyHeadSocietiesPage() {
                   </div>
                 </div>
                 
-                <div className="mt-6 pt-4 border-t border-stone-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-stone-500">
-                    <Users className="w-4 h-4 text-stone-400" />
-                    <span className="text-sm font-semibold">{society.membersCount || 0} Members</span>
-                  </div>
+                <div className="mt-6 pt-4 border-t border-stone-100 flex items-center justify-end">
                   
                   <div className="flex items-center gap-2">
                     {society.status === 'ACTIVE' ? (
