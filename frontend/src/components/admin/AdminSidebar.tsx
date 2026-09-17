@@ -1,5 +1,5 @@
 import { MdClose } from 'react-icons/md';
-import { FaSignOutAlt, FaHome, FaUniversity, FaUserTie, FaUsers, FaCalendarAlt } from 'react-icons/fa';
+import { FaSignOutAlt, FaHome, FaUniversity, FaUserTie, FaCalendarAlt } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { logOut, selectRefreshToken } from '@/lib/features/auth/authSlice';
@@ -32,7 +32,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, setActiveTab, is
   };
 
   const navItems = [
-    { id: 'members', label: 'Members', icon: <FaUsers /> },
     { id: 'presidents', label: 'Presidents', icon: <FaUserTie /> },
     { id: 'societies', label: 'Societies', icon: <FaUniversity /> },
     { id: 'events', label: 'Events', icon: <FaCalendarAlt /> },

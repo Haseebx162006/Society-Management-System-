@@ -6,14 +6,13 @@ import { FaUniversity, FaUsers, FaBars } from 'react-icons/fa';
 import AdminSidebar from './AdminSidebar';
 import AdminSocieties from './AdminSocieties';
 import AdminPresidents from './AdminPresidents';
-import AdminMembers from './AdminMembers';
 import AdminEvents from './AdminEvents';
 import GrowthLineChart from '@/components/charts/GrowthLineChart';
 import MemberBarChart from '@/components/charts/MemberBarChart';
 
 const AdminDashboard: React.FC = () => {
   const user = useAppSelector(selectCurrentUser);
-  const [activeTab, setActiveTab] = React.useState('members');
+  const [activeTab, setActiveTab] = React.useState('presidents');
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   
   const { data: societies, isLoading: isLoadingSocieties } = useGetAllSocietiesQuery(undefined);
@@ -150,11 +149,7 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
 
-        {activeTab === 'members' ? (
-          <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-            <AdminMembers />
-          </div>
-        ) : activeTab === 'presidents' ? (
+        {activeTab === 'presidents' ? (
           <div className="animate-in fade-in slide-in-from-right-8 duration-500">
             <AdminPresidents />
           </div>
