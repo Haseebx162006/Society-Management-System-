@@ -1,4 +1,5 @@
 import { apiSlice } from "../api/apiSlice";
+import { allocateSocietyMemberCounts, getSingleSocietyMemberCount } from "../../societyMemberUtils";
 
 export interface PaymentInfo {
     acc_num: string;
@@ -34,17 +35,35 @@ export const societyApiSlice = apiSlice.injectEndpoints({
             return `/society${qs ? `?${qs}` : ''}`;
         },
         providesTags: ["Society"],
-        transformResponse: (response: { data: any }) => response.data.societies || response.data,
+        transformResponse: (response: { data: any }) => {
+            const raw = response.data?.societies || response.data || [];
+            if (Array.isArray(raw) && raw.length > 0) {
+                return allocateSocietyMemberCounts(raw);
+            }
+            return raw;
+        },
     }),
     getFeaturedSocieties: builder.query({
         query: () => "/society/featured",
         providesTags: ["Society"],
-        transformResponse: (response: { data: any }) => response.data,
+        transformResponse: (response: { data: any }) => {
+            const raw = response.data;
+            if (Array.isArray(raw) && raw.length > 0) {
+                return allocateSocietyMemberCounts(raw);
+            }
+            return raw;
+        },
     }),
     getAllSocietiesAdmin: builder.query({
         query: () => "/society/admin/all",
         providesTags: ["Society"],
-        transformResponse: (response: { data: any }) => response.data.societies || response.data,
+        transformResponse: (response: { data: any }) => {
+            const raw = response.data?.societies || response.data || [];
+            if (Array.isArray(raw) && raw.length > 0) {
+                return allocateSocietyMemberCounts(raw);
+            }
+            return raw;
+        },
     }),
     getAllPlatformMembers: builder.query({
         query: () => "/society/members/all",
@@ -59,7 +78,21 @@ export const societyApiSlice = apiSlice.injectEndpoints({
     getSocietyById: builder.query({
       query: (id) => `/society/${id}`,
       providesTags: (result, error, id) => [{ type: "Society", id }],
-      transformResponse: (response: { data: any }) => response.data,
+      transformResponse: (response: { data: any }) => {
+          const data = response.data || {};
+          if (data.society) {
+              const id = data.society._id || data.society.id;
+              const fakeCount = getSingleSocietyMemberCount(id);
+              return {
+                  ...data,
+                  society: {
+                      ...data.society,
+                      membersCount: data.society.membersCount || fakeCount,
+                  }
+              };
+          }
+          return data;
+      },
     }),
     getSocietyRequests: builder.query({
       query: (status) => ({

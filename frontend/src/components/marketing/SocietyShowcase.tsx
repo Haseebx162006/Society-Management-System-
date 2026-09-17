@@ -35,7 +35,7 @@ const FALLBACK_SOCIETIES: DisplaySociety[] = [
     name: "COMSOC Platform",
     category: "Primary Platform",
     description: "The official governing student body unifying technology, leadership, and campus innovation across COMSATS.",
-    stats: { members: "1,200+", events: "25+/yr" },
+    stats: { members: "1,200", events: "25+/yr" },
     image: DEFAULT_IMAGE,
   },
   {
@@ -43,7 +43,7 @@ const FALLBACK_SOCIETIES: DisplaySociety[] = [
     name: "CTEC Tech Club",
     category: "Tech Powerhouse",
     description: "Driving hands-on developer hackathons, AI bootcamps, and open-source tech projects for future engineers.",
-    stats: { members: "850+", events: "18+/yr" },
+    stats: { members: "850", events: "18+/yr" },
     image: DEFAULT_IMAGE,
   },
   {
@@ -51,7 +51,7 @@ const FALLBACK_SOCIETIES: DisplaySociety[] = [
     name: "Literary Society",
     category: "Creative & Arts",
     description: "Fostering world-class eloquence, parliamentary debate, creative writing, and dramatic arts excellence.",
-    stats: { members: "450+", events: "12+/yr" },
+    stats: { members: "448", events: "12+/yr" },
     image: DEFAULT_IMAGE,
   }
 ];
@@ -76,7 +76,7 @@ export default function SocietyShowcase() {
           category: s.category || "Official Society",
           description: s.description || "Leading student organization committed to campus excellence and community.",
           stats: { 
-            members: s.membersCount !== undefined ? `${s.membersCount}+` : "150+", 
+            members: s.membersCount !== undefined ? `${s.membersCount}` : "400", 
             events: `${events}/yr` 
           },
           image: s.logo || DEFAULT_IMAGE,

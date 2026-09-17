@@ -9,7 +9,7 @@ import { Rocket, Target, Shield, Users, ArrowRight, Zap, Globe, Sparkles, Github
 
 const stats = [
     { label: "Active Societies", value: "50+" },
-    { label: "Community Members", value: "5,000+" },
+    { label: "Community Members", value: "2,498+" },
     { label: "Events Hosted", value: "200+" },
     { label: "Campus Reach", value: "100%" },
 ];

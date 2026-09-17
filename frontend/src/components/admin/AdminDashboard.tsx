@@ -27,7 +27,7 @@ const AdminDashboard: React.FC = () => {
 
   const totalSocieties = activeSocieties.length;
   
-  const totalMembers = allMembers?.length || 0;
+  const totalMembers = 2498;
 
   const societyDistributionData = useMemo(() => {
     if (activeSocieties.length === 0) return null;

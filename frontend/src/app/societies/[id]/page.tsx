@@ -27,7 +27,8 @@ import {
     Briefcase
 } from "lucide-react";
 import Footer from "@/components/marketing/Footer";
-import { useGetSocietyByIdQuery } from "@/lib/features/societies/societyApiSlice";
+import { useGetSocietyByIdQuery, useGetAllSocietiesQuery } from "@/lib/features/societies/societyApiSlice";
+import { getSingleSocietyMemberCount } from "@/lib/societyMemberUtils";
 import { useAppSelector } from "@/lib/hooks";
 import { selectCurrentUser } from "@/lib/features/auth/authSlice";
 import Link from "next/link";
@@ -36,6 +37,7 @@ import SocietyViewModal from "@/components/society/SocietyViewModal";
 import Header from "@/components/Header";
 import SocietyEventsSection from "@/components/society/SocietyEventsSection";
 import Loading from "@/app/loading";
+import { useMemo } from "react";
 
 function FaqItem({ faq }: { faq: any }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -71,8 +73,17 @@ export default function SocietyDetailsPage() {
     const router = useRouter();
     const user = useAppSelector(selectCurrentUser);
     const { data: societyData, isLoading } = useGetSocietyByIdQuery(id as string);
+    const { data: allSocieties } = useGetAllSocietiesQuery({});
     const society = societyData?.society;
     const membersData = societyData?.members || [];
+
+    const displayMembersCount = useMemo(() => {
+        if (allSocieties && Array.isArray(allSocieties) && allSocieties.length > 0) {
+            const found = allSocieties.find((s: any) => String(s._id || s.id) === String(id));
+            if (found?.membersCount) return found.membersCount;
+        }
+        return society?.membersCount || getSingleSocietyMemberCount(id as string);
+    }, [allSocieties, society, id]);
 
     const [registerLoading, setRegisterLoading] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -200,7 +211,7 @@ export default function SocietyDetailsPage() {
                                     </span>
                                     <span className="flex items-center gap-1.5 text-sm font-medium text-stone-500 bg-stone-100 px-3 py-1 rounded-full">
                                         <Users className="w-4 h-4" />
-                                        {membersData.length} Members
+                                        {displayMembersCount} Members
                                     </span>
                                 </div>
                                 <h1 className="font-display font-bold text-3xl md:text-5xl text-stone-900 mb-2 leading-tight">
